@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { LogoMark } from "@/components/LogoMark"
+import { BrandLogo } from "@/components/BrandLogo"
 import {
   Card,
   CardContent,
@@ -19,10 +19,7 @@ export function AuthCard({ title, description, children, footer }: Props) {
   return (
     <div className="flex min-h-svh items-center justify-center p-6">
       <div className="flex w-full max-w-sm flex-col gap-6">
-        <div className="flex items-center justify-center gap-2 font-medium">
-          <LogoMark className="size-12" />
-          Web Application
-        </div>
+        <BrandLogo />
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-xl">{title}</CardTitle>
