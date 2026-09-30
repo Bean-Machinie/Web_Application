@@ -12,7 +12,6 @@ export type Invitation = {
 
 export type Invitee = {
   id: string
-  displayName: string | null
   username: string | null
   avatarUrl: string | null
   isMember: boolean
@@ -22,7 +21,6 @@ export type Invitee = {
 // An invitation the GM has sent that has not been answered yet.
 export type SentInvitation = {
   id: string
-  inviteeName: string | null
   inviteeUsername: string | null
   createdAt: string
 }
@@ -62,7 +60,6 @@ export async function findInvitee(campaignId: string, search: string) {
   return (data as Record<string, unknown>[]).map(
     (row): Invitee => ({
       id: row.id as string,
-      displayName: row.display_name as string | null,
       username: row.username as string | null,
       avatarUrl: row.avatar_url as string | null,
       isMember: row.is_member as boolean,
@@ -88,7 +85,6 @@ export async function fetchSentInvitations(campaignId: string) {
   return (data as Record<string, string | null>[]).map(
     (row): SentInvitation => ({
       id: row.id!,
-      inviteeName: row.invitee_name,
       inviteeUsername: row.invitee_username,
       createdAt: row.created_at!,
     })

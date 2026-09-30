@@ -6,35 +6,39 @@ import {
 } from "@/lib/avatar"
 import type { AvatarChange } from "@/lib/avatar"
 import { supabase } from "@/lib/supabase"
-import { USERNAME_HINT, isValidUsername, setUsername } from "@/lib/username"
-
-type Details = { displayName: string; description: string }
+import {
+  USERNAME_HINT,
+  isValidUsername,
+  normalizeUsername,
+  setUsername,
+} from "@/lib/username"
 
 // Saves everything on the Profile tab. `username` is only passed when it
-// changed. The username goes first because it is the step most likely to be
-// refused (taken), and nothing has been uploaded by then.
+// changed. It goes first because it is the step most likely to be refused
+// (taken), and nothing has been uploaded by then. The database records it
+// (that is where uniqueness is checked); it is also written to the user's
+// metadata, which is where the app reads the person's own name from.
 export async function saveProfile(options: {
   user: User
-  details: Details
+  description: string
   username: string | null
   avatar: AvatarChange
-  // Called as soon as the username is saved, even if a later step fails.
-  onUsernameSaved: () => void
 }) {
-  const { user, details, username, avatar, onUsernameSaved } = options
+  const { user, description, username, avatar } = options
 
   if (username !== null) {
     if (!isValidUsername(username)) throw new Error(USERNAME_HINT)
     await setUsername(username)
-    onUsernameSaved()
   }
 
   const photo = await uploadPendingAvatar(user, avatar)
   const { error } = await supabase.auth.updateUser({
     data: {
-      display_name: details.displayName.trim(),
-      description: details.description.trim(),
-      // Clears any real name or job title saved by an earlier version.
+      ...(username !== null && { username: normalizeUsername(username) }),
+      description: description.trim(),
+      // Clears the old display name, and any real name or job title saved by
+      // earlier versions.
+      display_name: null,
       first_name: null,
       last_name: null,
       job_title: null,

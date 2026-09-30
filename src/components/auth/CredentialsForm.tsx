@@ -53,10 +53,9 @@ export function CredentialsForm({ submitLabel, withUsername, onSubmit }: Props) 
           <Input
             id="username"
             autoComplete="username"
-            autoCapitalize="none"
             spellCheck={false}
             required
-            maxLength={20}
+            maxLength={50}
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             disabled={busy}

@@ -74,8 +74,10 @@ trigger that inserts the profile automatically on signup.
 
 The second migration creates a public `avatars` storage bucket for profile
 photos (2 MB, PNG/JPEG/WebP/GIF) with policies that let each user write only
-inside their own `<user id>/` folder. Display name and description are kept in
-the Supabase auth user metadata, so they need no table.
+inside their own `<user id>/` folder. Your description is kept in
+the Supabase auth user metadata, so it needs no table. Your username is kept
+there too, and also on `profiles` so it can be checked for uniqueness and
+searched (see the fourth and sixth migrations).
 
 The third migration adds campaigns: `campaigns`, `campaign_members` (roles `gm`
 and `player`) and `campaign_invites`, plus the functions the app calls to
@@ -84,7 +86,7 @@ what is decided in one place, the `campaign_role_permissions` table, which the
 front end mirrors in `src/lib/campaign-permissions.ts`.
 
 The fourth migration adds a `campaign-images` storage bucket and a campaign
-image, usernames (with `display_name` and `avatar_url` copied onto `profiles`
+image, usernames (with `avatar_url` copied onto `profiles`
 so other people can be shown them), invitations to existing users
 (`campaign_invitations`, with exact-match search by email or username), and a
 public preview of an invite link. It adds a `manage` permission for the GM.
@@ -97,6 +99,12 @@ as "a campaign was deleted" or "a player left") and the `delete_campaign` and
 `leave_campaign` functions. Only the person who created a campaign can delete
 it, and must type its name to do so; everyone else can leave it. Deleting
 notifies every other member, leaving notifies the GMs.
+
+The sixth migration makes the username a person's only name. It replaces the
+display name and relaxes the old rules: 2 to 50 characters, spaces and capitals
+allowed and shown as typed, unique ignoring capitals, and no `@` (so a username
+can never look like an email in the invite search). Anyone who had a display
+name but no username keeps it as their username where it is valid and free.
 
 Row-level security is what actually protects your data. This app is a
 client-side SPA, so the route guard on `/app` only hides the UI — every table

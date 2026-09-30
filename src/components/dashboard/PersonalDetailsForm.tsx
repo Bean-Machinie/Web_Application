@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useAuth } from "@/auth/useAuth"
-import { useSavedUsername } from "@/hooks/use-saved-username"
 import { NO_AVATAR_CHANGE, hasAvatarChange } from "@/lib/avatar"
 import { errorMessage } from "@/lib/campaigns"
 import { getInitials, getProfile } from "@/lib/profile"
@@ -18,23 +17,26 @@ type Notice = { tone: "error" | "success"; text: string }
 
 export function PersonalDetailsForm() {
   const user = useAuth().session!.user
-  const { displayName, description, email, avatarUrl } = getProfile(user)
-  const saved = { displayName, description }
-  const [values, setValues] = useState(saved)
-  const [savedUsername, setSavedUsername] = useSavedUsername(user.id)
-  // null until the person edits it, so the loaded username shows meanwhile.
+  const { username, description, email, avatarUrl } = getProfile(user)
+  // null until the person edits a field, so it shows what is saved meanwhile
+  // (and again once a save has come back).
   const [usernameInput, setUsernameInput] = useState<string | null>(null)
+  const [descriptionInput, setDescriptionInput] = useState<string | null>(null)
   const [avatar, setAvatar] = useState(NO_AVATAR_CHANGE)
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState<Notice | null>(null)
 
   const usernameChanged =
-    usernameInput !== null &&
-    normalizeUsername(usernameInput) !== (savedUsername ?? "")
-  const dirty =
-    JSON.stringify(values) !== JSON.stringify(saved) ||
-    usernameChanged ||
-    hasAvatarChange(avatar)
+    usernameInput !== null && normalizeUsername(usernameInput) !== username
+  const descriptionChanged =
+    descriptionInput !== null && descriptionInput.trim() !== description
+  const dirty = usernameChanged || descriptionChanged || hasAvatarChange(avatar)
+
+  function reset() {
+    setUsernameInput(null)
+    setDescriptionInput(null)
+    setAvatar(NO_AVATAR_CHANGE)
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -44,13 +46,9 @@ export function PersonalDetailsForm() {
     try {
       await saveProfile({
         user,
-        details: values,
+        description: descriptionInput ?? description,
         username: usernameChanged ? usernameInput : null,
         avatar,
-        onUsernameSaved: () => {
-          setSavedUsername(normalizeUsername(usernameInput!))
-          setUsernameInput(null)
-        },
       })
     } catch (error) {
       setBusy(false)
@@ -58,7 +56,7 @@ export function PersonalDetailsForm() {
     }
 
     setBusy(false)
-    setAvatar(NO_AVATAR_CHANGE)
+    reset()
     setNotice({ tone: "success", text: "Your details have been saved." })
   }
 
@@ -77,26 +75,10 @@ export function PersonalDetailsForm() {
         />
       </SettingsSection>
 
-      <SettingsSection
-        title="Display name"
-        description="How your name appears to others."
-      >
-        <Input
-          aria-label="Display name"
-          autoComplete="nickname"
-          maxLength={50}
-          value={values.displayName}
-          onChange={(event) =>
-            setValues({ ...values, displayName: event.target.value })
-          }
-          disabled={busy}
-        />
-      </SettingsSection>
-
       <UsernameSection
-        value={usernameInput ?? savedUsername ?? ""}
+        value={usernameInput ?? username}
         onChange={setUsernameInput}
-        disabled={busy || savedUsername === null}
+        disabled={busy}
       />
 
       <SettingsSection
@@ -120,10 +102,8 @@ export function PersonalDetailsForm() {
           aria-label="Description"
           maxLength={300}
           rows={4}
-          value={values.description}
-          onChange={(event) =>
-            setValues({ ...values, description: event.target.value })
-          }
+          value={descriptionInput ?? description}
+          onChange={(event) => setDescriptionInput(event.target.value)}
           disabled={busy}
         />
       </SettingsSection>
@@ -139,9 +119,7 @@ export function PersonalDetailsForm() {
           busy={busy}
           canSubmit={dirty}
           onCancel={() => {
-            setValues(saved)
-            setUsernameInput(null)
-            setAvatar(NO_AVATAR_CHANGE)
+            reset()
             setNotice(null)
           }}
         />

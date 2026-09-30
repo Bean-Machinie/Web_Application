@@ -23,7 +23,7 @@ import lifeBuoy from "@/assets/icons/life-buoy.svg"
 import settings from "@/assets/icons/settings.svg"
 import { Icon } from "@/components/Icon"
 import { MenuChevron } from "./MenuChevron"
-import { getDisplayName, getInitials, getProfile } from "@/lib/profile"
+import { getInitials, getProfile, getUsername } from "@/lib/profile"
 import { supabase } from "@/lib/supabase"
 
 const menuItems = [
@@ -40,7 +40,7 @@ export function NavUser() {
   const email = session?.user.email ?? ""
   const initials = session ? getInitials(session.user) : "??"
   const avatarUrl = session ? getProfile(session.user).avatarUrl : ""
-  const name = (session && getDisplayName(session.user)) || "Account"
+  const name = (session && getUsername(session.user)) || "Account"
 
   async function handleSignOut() {
     await supabase.auth.signOut()

@@ -37,10 +37,9 @@ export function SentInvitations({ invitations, onCancelled }: Props) {
           <li key={invitation.id} className="flex items-center gap-3 px-3 py-3">
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">
-                {invitation.inviteeName || invitation.inviteeUsername || "Unnamed"}
+                {invitation.inviteeUsername || "Unnamed"}
               </p>
               <p className="text-muted-foreground truncate text-xs">
-                {invitation.inviteeUsername && `@${invitation.inviteeUsername} · `}
                 Invited {new Date(invitation.createdAt).toLocaleDateString()}
               </p>
             </div>

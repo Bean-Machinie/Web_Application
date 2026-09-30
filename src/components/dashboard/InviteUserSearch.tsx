@@ -101,7 +101,7 @@ export function InviteUserSearch({ campaignId, onInvited }: Props) {
       {results && results.length > 0 && (
         <ul className="divide-y rounded-lg border">
           {results.map((person) => {
-            const name = person.displayName || person.username || "Unnamed"
+            const name = person.username || "Unnamed"
             return (
               <li key={person.id} className="flex items-center gap-3 px-3 py-3">
                 <Avatar className="size-9">
@@ -114,11 +114,6 @@ export function InviteUserSearch({ campaignId, onInvited }: Props) {
                 </Avatar>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{name}</p>
-                  {person.username && (
-                    <p className="text-muted-foreground truncate text-xs">
-                      @{person.username}
-                    </p>
-                  )}
                 </div>
                 <ResultAction
                   person={person}
