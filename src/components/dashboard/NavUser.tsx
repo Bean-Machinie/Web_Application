@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { ChevronsUpDown, LogOut, Settings, User } from "lucide-react"
+import { LogOut, Settings, User } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -17,11 +17,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/auth/useAuth"
+import { MenuChevron } from "./MenuChevron"
 import { supabase } from "@/lib/supabase"
 
 export function NavUser() {
   const { session } = useAuth()
-  const { isMobile } = useSidebar()
+  const { state } = useSidebar()
   const navigate = useNavigate()
 
   const email = session?.user.email ?? ""
@@ -37,10 +38,10 @@ export function NavUser() {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="lg" className="cursor-pointer px-0 group-data-[collapsible=icon]:h-12!"
+            <SidebarMenuButton size="lg" className="cursor-pointer pr-3 pl-1.5 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:pl-1.5!"
             >
-              <Avatar className="size-8 rounded-lg">
-                <AvatarFallback className="rounded-lg text-xs">
+              <Avatar className="size-5 shrink-0 rounded-md">
+                <AvatarFallback className="rounded-md text-[9px]">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -50,13 +51,13 @@ export function NavUser() {
                   {email}
                 </span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <MenuChevron className="ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
+            side="top"
+            align={state === "collapsed" ? "start" : "end"}
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
