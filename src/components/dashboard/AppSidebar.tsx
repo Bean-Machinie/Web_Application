@@ -20,7 +20,9 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" className="px-0 group-data-[collapsible=icon]:h-12!"
+              asChild
+            >
               <NavLink to="/app">
                 <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Command className="size-4" />

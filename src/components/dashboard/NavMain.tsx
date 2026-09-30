@@ -21,7 +21,10 @@ export function NavMain({ group }: { group: NavGroup }) {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+      {/* Keep the label's height when collapsed so icons don't jump vertically. */}
+      <SidebarGroupLabel className="group-data-[collapsible=icon]:mt-0!">
+        {group.label}
+      </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {group.items.map((item) => (

@@ -37,7 +37,8 @@ export function NavUser() {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="lg" className="cursor-pointer">
+            <SidebarMenuButton size="lg" className="cursor-pointer px-0 group-data-[collapsible=icon]:h-12!"
+            >
               <Avatar className="size-8 rounded-lg">
                 <AvatarFallback className="rounded-lg text-xs">
                   {initials}
