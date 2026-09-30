@@ -1,10 +1,11 @@
-import { useEffect, useMemo } from "react"
+import { useState } from "react"
 import upload from "@/assets/icons/upload.svg"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Icon } from "@/components/Icon"
 import { useAuth } from "@/auth/useAuth"
+import { useFileDataUrl } from "@/hooks/use-file-data-url"
 import { formatBytes, useFileUpload } from "@/hooks/use-file-upload"
 import {
   AVATAR_MAX_BYTES,
@@ -14,6 +15,7 @@ import {
 import type { AvatarChange } from "@/lib/avatar"
 import { getInitials, getProfile } from "@/lib/profile"
 import { cn } from "@/lib/utils"
+import { AvatarCropDialog } from "./AvatarCropDialog"
 
 type Props = {
   change: AvatarChange
@@ -21,19 +23,10 @@ type Props = {
   disabled: boolean
 }
 
-function usePreviewUrl(file: File | null) {
-  const url = useMemo(() => (file ? URL.createObjectURL(file) : null), [file])
-
-  useEffect(() => () => {
-    if (url) URL.revokeObjectURL(url)
-  }, [url])
-
-  return url
-}
-
 export function AvatarUpload({ change, onChange, disabled }: Props) {
   const user = useAuth().session!.user
   const { avatarUrl } = getProfile(user)
+  const [cropSource, setCropSource] = useState<File | null>(null)
 
   const [
     { isDragging, errors },
@@ -50,13 +43,12 @@ export function AvatarUpload({ change, onChange, disabled }: Props) {
     accept: AVATAR_TYPES,
     maxSize: AVATAR_MAX_BYTES,
     onFilesAdded: ([added]) => {
-      onChange({ file: added.file as File, remove: false })
-      // The parent owns the picked file until the form is saved.
+      setCropSource(added.file as File)
       clearFiles()
     },
   })
 
-  const pendingUrl = usePreviewUrl(change.file)
+  const pendingUrl = useFileDataUrl(change.file)
   const shownUrl = pendingUrl ?? (change.remove ? "" : avatarUrl)
 
   return (
@@ -121,6 +113,14 @@ export function AvatarUpload({ change, onChange, disabled }: Props) {
         </div>
       </div>
       {errors[0] && <FormAlert tone="error">{errors[0]}</FormAlert>}
+      <AvatarCropDialog
+        file={cropSource}
+        onCancel={() => setCropSource(null)}
+        onApply={(file) => {
+          onChange({ file, remove: false })
+          setCropSource(null)
+        }}
+      />
     </div>
   )
 }
