@@ -9,6 +9,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { Icon } from "@/components/Icon"
 import type { NavGroup } from "./nav-items"
 import { useIsActiveRoute } from "./useIsActiveRoute"
 
@@ -20,9 +21,9 @@ export function NavMain({ group }: { group: NavGroup }) {
   const closeOnMobile = () => isMobile && setOpenMobile(false)
 
   return (
-    <SidebarGroup>
+    <SidebarGroup className="px-4">
       {/* Keep the label's height when collapsed so icons don't jump vertically. */}
-      <SidebarGroupLabel className="group-data-[collapsible=icon]:mt-0!">
+      <SidebarGroupLabel className="text-[12.5px] group-data-[collapsible=icon]:mt-0!">
         {group.label}
       </SidebarGroupLabel>
       <SidebarGroupContent>
@@ -31,11 +32,12 @@ export function NavMain({ group }: { group: NavGroup }) {
             <SidebarMenuItem key={item.to}>
               <SidebarMenuButton
                 asChild
+                className="text-[14.5px]"
                 tooltip={item.title}
                 isActive={isActive(item.to, item.to === "/app")}
               >
                 <NavLink to={item.to} onClick={closeOnMobile}>
-                  <item.icon />
+                  <Icon src={item.icon} className="-ml-px size-[18px]" />
                   <span>{item.title}</span>
                 </NavLink>
               </SidebarMenuButton>

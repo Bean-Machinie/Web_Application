@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom"
-import { LogOut, Settings, User } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -17,6 +16,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/auth/useAuth"
+import logout from "@/assets/icons/menu-logout.svg"
+import profile from "@/assets/icons/menu-profile.svg"
+import settings from "@/assets/icons/menu-settings.svg"
+import { Icon } from "@/components/Icon"
 import { MenuChevron } from "./MenuChevron"
 import { supabase } from "@/lib/supabase"
 
@@ -45,9 +48,9 @@ export function NavUser() {
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid flex-1 text-left text-[14.5px] leading-tight">
                 <span className="truncate font-medium">Account</span>
-                <span className="text-muted-foreground truncate text-xs">
+                <span className="text-muted-foreground truncate text-[12.5px]">
                   {email}
                 </span>
               </div>
@@ -78,17 +81,17 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => navigate("/app/settings")}>
-                <User />
+                <Icon src={profile} />
                 Profile
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/app/settings")}>
-                <Settings />
+                <Icon src={settings} />
                 Settings
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
-              <LogOut />
+              <Icon src={logout} />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

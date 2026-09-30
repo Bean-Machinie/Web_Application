@@ -6,7 +6,10 @@ import { DashboardHeader } from "./DashboardHeader"
 
 export function DashboardLayout() {
   return (
-    <SidebarProvider defaultOpen={readSidebarState()}>
+    <SidebarProvider
+      defaultOpen={readSidebarState()}
+      style={{ "--sidebar-width-icon": "4rem" } as React.CSSProperties}
+    >
       <AppSidebar />
       <SidebarInset>
         <DashboardHeader />

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
-import { ArrowRight } from "lucide-react"
+import arrow from "@/assets/icons/arrow.svg"
+import { Icon } from "@/components/Icon"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/auth/useAuth"
 
@@ -21,7 +22,7 @@ export function Home() {
           <Button asChild>
             <Link to="/app">
               Open dashboard
-              <ArrowRight className="size-4" />
+              <Icon src={arrow} />
             </Link>
           </Button>
         ) : (

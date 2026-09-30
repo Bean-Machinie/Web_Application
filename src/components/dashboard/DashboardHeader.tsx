@@ -23,7 +23,7 @@ export function DashboardHeader() {
           orientation="vertical"
           className="mr-2 data-[orientation=vertical]:h-4 md:hidden"
         />
-        <h1 className="text-base font-medium">{title}</h1>
+        <h1 className="text-[17px] font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />
         </div>

@@ -1,17 +1,14 @@
-import {
-  BarChart3,
-  FolderKanban,
-  LayoutDashboard,
-  LifeBuoy,
-  Settings,
-  Users,
-} from "lucide-react"
-import type { LucideIcon } from "lucide-react"
+import desktop from "@/assets/icons/desktop.svg"
+import lifeBuoy from "@/assets/icons/life-buoy.svg"
+import graph from "@/assets/icons/graph.svg"
+import box from "@/assets/icons/box.svg"
+import settings from "@/assets/icons/settings.svg"
+import userGroup from "@/assets/icons/user-group.svg"
 
 export type NavItem = {
   title: string
   to: string
-  icon: LucideIcon
+  icon: string
   badge?: string
 }
 
@@ -24,17 +21,17 @@ export const navGroups: NavGroup[] = [
   {
     label: "Workspace",
     items: [
-      { title: "Overview", to: "/app", icon: LayoutDashboard },
-      { title: "Analytics", to: "/app/analytics", icon: BarChart3 },
-      { title: "Projects", to: "/app/projects", icon: FolderKanban, badge: "4" },
-      { title: "Team", to: "/app/team", icon: Users },
+      { title: "Overview", to: "/app", icon: desktop },
+      { title: "Analytics", to: "/app/analytics", icon: graph },
+      { title: "Projects", to: "/app/projects", icon: box, badge: "4" },
+      { title: "Team", to: "/app/team", icon: userGroup },
     ],
   },
   {
     label: "Account",
     items: [
-      { title: "Settings", to: "/app/settings", icon: Settings },
-      { title: "Support", to: "/app/support", icon: LifeBuoy },
+      { title: "Settings", to: "/app/settings", icon: settings },
+      { title: "Support", to: "/app/support", icon: lifeBuoy },
     ],
   },
 ]

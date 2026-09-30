@@ -1,4 +1,6 @@
-import { AlertCircle, CheckCircle2 } from "lucide-react"
+import checkMark from "@/assets/icons/check-mark.svg"
+import warning from "@/assets/icons/warning.svg"
+import { Icon } from "@/components/Icon"
 
 type Props = {
   tone: "error" | "success"
@@ -6,7 +8,7 @@ type Props = {
 }
 
 export function FormAlert({ tone, children }: Props) {
-  const Icon = tone === "error" ? AlertCircle : CheckCircle2
+  const icon = tone === "error" ? warning : checkMark
 
   return (
     <p
@@ -17,7 +19,7 @@ export function FormAlert({ tone, children }: Props) {
           : "flex items-start gap-2 text-sm text-emerald-600 dark:text-emerald-500"
       }
     >
-      <Icon className="mt-0.5 size-4 shrink-0" />
+      <Icon src={icon} className="mt-0.5" />
       <span>{children}</span>
     </p>
   )
