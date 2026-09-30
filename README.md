@@ -5,6 +5,25 @@ shadcn/ui and Supabase (database + email auth).
 
 Styling is intentionally minimal — the design and UI components come later.
 
+## Starting a new project from this template
+
+1. On GitHub, click **Use this template → Create a new repository**, clone
+   it and run `npm install`.
+2. Create a new project at [supabase.com](https://supabase.com).
+3. Copy `.env.example` to `.env` and fill in the two keys from
+   Project Settings → API keys:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Run the migrations in `supabase/migrations/` in filename order, either by
+   pasting each file into the SQL Editor or with `supabase link` and
+   `supabase db push`. See [Database](#database) for what they create.
+5. Optional for development: turn off "Confirm email" (see [Auth](#auth)).
+6. `npm run dev`, then swap in your own name and logo: the title in
+   `index.html`, and the files in `src/assets/logo/`.
+
 ## Requirements
 
 - Node.js 20.19 or newer
@@ -18,11 +37,11 @@ Styling is intentionally minimal — the design and UI components come later.
    npm install
    ```
 
-2. Create `.env.local` from the template and fill in your Supabase credentials
+2. Create `.env` from the template and fill in your Supabase credentials
    (Project Settings → API keys in the Supabase dashboard):
 
    ```bash
-   cp .env.example .env.local
+   cp .env.example .env
    ```
 
    | Variable | Value |
@@ -53,6 +72,11 @@ The first migration creates a `profiles` table with one row per user, enables
 row-level security so a user can only see and edit their own row, and adds a
 trigger that inserts the profile automatically on signup.
 
+The second migration creates a public `avatars` storage bucket for profile
+photos (2 MB, PNG/JPEG/WebP/GIF) with policies that let each user write only
+inside their own `<user id>/` folder. Display name and description are kept in
+the Supabase auth user metadata, so they need no table.
+
 Row-level security is what actually protects your data. This app is a
 client-side SPA, so the route guard on `/app` only hides the UI — every table
 you add should have RLS enabled and policies written for it.
@@ -72,15 +96,13 @@ the Supabase dashboard.
 | `/login` | Email + password login |
 | `/signup` | Account creation |
 | `/app` | Dashboard — requires a signed-in user |
-| `/app/analytics`, `/app/projects`, `/app/team`, `/app/settings`, `/app/support` | Placeholder sections |
+| `/app/analytics`, `/app/projects`, `/app/team`, `/app/support` | Placeholder sections |
+| `/app/settings/*` | Profile (photo, display name), appearance and password; notifications and billing are placeholders |
 
 The sidebar collapses to an icon rail (toggle button or `Ctrl`/`Cmd` + `B`),
 becomes a drawer below 768px, and remembers its state in the `sidebar_state`
 cookie. The theme toggle in the header follows the system preference until you
 pick light or dark, which is stored in `localStorage`.
-
-Figures on the Overview page come from `src/pages/sample-data.ts` — delete that
-file when real data is wired up.
 
 ## Deploying
 
