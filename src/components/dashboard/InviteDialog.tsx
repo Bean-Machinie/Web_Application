@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { InviteLinkSection } from "./InviteLinkSection"
-import { InviteUserSearch } from "./InviteUserSearch"
+import { InvitePeople } from "./InvitePeople"
 
 type Props = {
   campaignId: string
@@ -18,28 +18,18 @@ type Props = {
 export function InviteDialog({ campaignId, open, onClose, onInvited }: Props) {
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Invite to campaign</DialogTitle>
+      {/* minmax(0, 1fr) keeps long content from stretching past the dialog. */}
+      <DialogContent className="grid-cols-[minmax(0,1fr)] gap-5 p-6 sm:max-w-md">
+        <DialogHeader className="gap-1">
+          <DialogTitle className="text-base">Invite people</DialogTitle>
           <DialogDescription>
-            Invite someone by email or username, or share the invite link.
+            Search by username or email to send an invitation.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-2">
-          <h4 className="text-sm font-medium">Invite a person</h4>
-          <p className="text-muted-foreground text-sm">
-            They get the invitation under Notifications.
-          </p>
-          <InviteUserSearch campaignId={campaignId} onInvited={onInvited} />
-        </div>
+        <InvitePeople campaignId={campaignId} onInvited={onInvited} />
 
-        <div className="grid gap-2">
-          <h4 className="text-sm font-medium">Invite link</h4>
-          <p className="text-muted-foreground text-sm">
-            Anyone with the link can join as a player. It does not expire, but
-            resetting it disables the old link.
-          </p>
+        <div className="border-t pt-4">
           <InviteLinkSection campaignId={campaignId} />
         </div>
       </DialogContent>

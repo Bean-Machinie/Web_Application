@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Check, Link2 } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   errorMessage,
   fetchInviteCode,
@@ -11,7 +11,8 @@ import {
 } from "@/lib/campaigns"
 import { ResetInviteDialog } from "./ResetInviteDialog"
 
-// Render with key={campaignId} so switching campaigns starts from scratch.
+// A compact copy row. The link is a read-only field, so a long link is simply
+// clipped at the edge but can still be selected and copied in full.
 export function InviteLinkSection({ campaignId }: { campaignId: string }) {
   const [code, setCode] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -35,47 +36,49 @@ export function InviteLinkSection({ campaignId }: { campaignId: string }) {
     setResetting(true)
     try {
       setCode(await resetInviteCode(campaignId))
-      setConfirming(false)
     } catch (failure) {
       setError(errorMessage(failure))
-      setConfirming(false)
     } finally {
       setResetting(false)
+      setConfirming(false)
     }
   }
 
-  if (error) return <FormAlert tone="error">{error}</FormAlert>
-  if (!code) {
-    return (
-      <div className="flex flex-col gap-3" aria-busy="true">
-        <div className="flex gap-2">
-          <Skeleton className="h-8 flex-1" />
-          <Skeleton className="h-8 w-[3.75rem]" />
-        </div>
-        <Skeleton className="h-7 w-24" />
-      </div>
-    )
-  }
-
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex gap-2">
-        <Input readOnly aria-label="Invite link" value={inviteUrl(code)} />
-        <Button type="button" variant="outline" onClick={copy}>
-          {copied ? "Copied" : "Copy"}
-        </Button>
-      </div>
-      <div>
+    <div className="flex flex-col gap-2">
+      <div className="flex h-7 items-center justify-between">
+        <h4 className="text-sm font-medium">Or share an invite link</h4>
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="text-muted-foreground -ml-2.5"
+          className="text-muted-foreground -mr-2"
+          disabled={!code}
           onClick={() => setConfirming(true)}
         >
           Reset link
         </Button>
       </div>
+      {error ? (
+        <FormAlert tone="error">{error}</FormAlert>
+      ) : !code ? (
+        <Skeleton className="h-10 w-full rounded-lg" />
+      ) : (
+        <div className="bg-muted/40 flex h-10 items-center gap-2 rounded-lg border pr-1 pl-3">
+          <Link2 className="text-muted-foreground size-4 shrink-0" />
+          <input
+            readOnly
+            aria-label="Invite link"
+            value={inviteUrl(code)}
+            onFocus={(event) => event.currentTarget.select()}
+            className="text-muted-foreground min-w-0 flex-1 bg-transparent text-sm outline-none"
+          />
+          <Button type="button" size="sm" variant="outline" onClick={copy}>
+            {copied && <Check className="size-3.5" />}
+            {copied ? "Copied" : "Copy link"}
+          </Button>
+        </div>
+      )}
       <ResetInviteDialog
         open={confirming}
         busy={resetting}

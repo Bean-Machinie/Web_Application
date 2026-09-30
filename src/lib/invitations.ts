@@ -18,6 +18,16 @@ export type Invitee = {
   hasPending: boolean
 }
 
+// Someone worth suggesting: they share another campaign with me, or I have
+// invited them before.
+export type InviteSuggestion = {
+  id: string
+  username: string | null
+  avatarUrl: string | null
+  reason: "shared_campaign" | "invited_before"
+  contextName: string | null
+}
+
 // An invitation the GM has sent that has not been answered yet.
 export type SentInvitation = {
   id: string
@@ -64,6 +74,23 @@ export async function findInvitee(campaignId: string, search: string) {
       avatarUrl: row.avatar_url as string | null,
       isMember: row.is_member as boolean,
       hasPending: row.has_pending as boolean,
+    })
+  )
+}
+
+export async function fetchInviteSuggestions(campaignId: string) {
+  const { data, error } = await supabase.rpc("invite_suggestions", {
+    target_campaign: campaignId,
+  })
+  if (error) throw error
+
+  return (data as Record<string, unknown>[]).map(
+    (row): InviteSuggestion => ({
+      id: row.id as string,
+      username: row.username as string | null,
+      avatarUrl: row.avatar_url as string | null,
+      reason: row.reason as InviteSuggestion["reason"],
+      contextName: row.context_name as string | null,
     })
   )
 }
