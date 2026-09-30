@@ -1,0 +1,140 @@
+import { useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { ChevronLeft, Pencil } from "lucide-react"
+import { FormAlert } from "@/components/auth/FormAlert"
+import { LoadingGate } from "@/components/LoadingGate"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useWorldEntry } from "@/hooks/use-world-entry"
+import { errorMessage } from "@/lib/campaigns"
+import { deleteWorldEntry, renameWorldEntry } from "@/lib/world-entries"
+import { WORLD_KINDS } from "@/lib/world-kinds"
+import { ConfirmDialog } from "./ConfirmDialog"
+import { EntryNameDialog } from "./EntryNameDialog"
+import { SettingsSection } from "./SettingsSection"
+import { useCampaign } from "./useCampaign"
+import { VisibilitySwitch } from "./VisibilitySwitch"
+
+// Render with key={entryId} so moving between entries starts from scratch.
+export function WorldEntryView({ entryId }: { entryId: string }) {
+  const navigate = useNavigate()
+  const { can } = useCampaign()
+  const canManage = can("manage_world")
+  const { entry, error, reload, setRevealed } = useWorldEntry(entryId)
+  const [renaming, setRenaming] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
+
+  async function handleDelete() {
+    setBusy(true)
+    try {
+      await deleteWorldEntry(entryId)
+      navigate("/app/world")
+    } catch (failure) {
+      setActionError(errorMessage(failure))
+      setDeleting(false)
+      setBusy(false)
+    }
+  }
+
+  const kind = entry ? WORLD_KINDS[entry.kind] : null
+
+  return (
+    <div className="mx-auto flex w-full max-w-5xl flex-col">
+      <Link
+        to="/app/world"
+        className="text-muted-foreground hover:text-foreground mb-4 flex w-fit items-center gap-1 text-sm transition-colors"
+      >
+        <ChevronLeft className="size-4" />
+        World
+      </Link>
+
+      {error && <FormAlert tone="error">{error}</FormAlert>}
+      <LoadingGate
+        loading={entry === undefined && !error}
+        skeleton={<Skeleton className="h-8 w-56" />}
+      >
+        {() =>
+          entry === null ? (
+            <p className="text-muted-foreground text-sm">
+              This entry does not exist, or has not been revealed to you.
+            </p>
+          ) : (
+            entry && kind && (
+              <>
+                <div className="flex items-center justify-between gap-3 pb-6">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <h2 className="truncate text-xl font-semibold tracking-tight">
+                      {entry.name}
+                    </h2>
+                    <Badge variant="outline">{kind.label}</Badge>
+                  </div>
+                  {canManage && (
+                    <Button variant="outline" onClick={() => setRenaming(true)}>
+                      <Pencil className="size-4" />
+                      Rename
+                    </Button>
+                  )}
+                </div>
+
+                {canManage && (
+                  <div className="divide-y border-t">
+                    <SettingsSection
+                      title="Visibility"
+                      description="Hidden entries are only visible to you. Revealed entries are visible to every player."
+                    >
+                      <VisibilitySwitch
+                        revealed={entry.revealed}
+                        name={entry.name}
+                        onChange={(value) => {
+                          setActionError(null)
+                          setRevealed(value).catch((failure) =>
+                            setActionError(errorMessage(failure))
+                          )
+                        }}
+                      />
+                    </SettingsSection>
+                    <SettingsSection
+                      title="Delete entry"
+                      description="Permanently remove this entry. This cannot be undone."
+                    >
+                      <Button variant="destructive" onClick={() => setDeleting(true)}>
+                        Delete entry
+                      </Button>
+                    </SettingsSection>
+                  </div>
+                )}
+                {actionError && <FormAlert tone="error">{actionError}</FormAlert>}
+
+                <EntryNameDialog
+                  open={renaming}
+                  title="Rename entry"
+                  description="Change the entry's name."
+                  submitLabel="Save"
+                  initialName={entry.name}
+                  onSubmit={async (name) => {
+                    await renameWorldEntry(entryId, name)
+                    await reload()
+                  }}
+                  onClose={() => setRenaming(false)}
+                />
+                <ConfirmDialog
+                  open={deleting}
+                  title={`Delete ${entry.name}?`}
+                  description="This permanently removes the entry. It cannot be undone."
+                  confirmLabel="Delete entry"
+                  busy={busy}
+                  error={null}
+                  onCancel={() => setDeleting(false)}
+                  onConfirm={handleDelete}
+                />
+              </>
+            )
+          )
+        }
+      </LoadingGate>
+    </div>
+  )
+}

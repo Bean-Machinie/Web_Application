@@ -26,6 +26,7 @@ import { SettingsProfile } from "@/pages/SettingsProfile"
 import { Signup } from "@/pages/Signup"
 import { Support } from "@/pages/Support"
 import { World } from "@/pages/World"
+import { WorldEntry } from "@/pages/WorldEntry"
 
 export default function App() {
   return (
@@ -39,6 +40,7 @@ export default function App() {
           <Route element={<RequireCampaign />}>
             <Route index element={<Overview />} />
             <Route path="world" element={<World />} />
+            <Route path="world/:entryId" element={<WorldEntry />} />
             <Route path="sessions" element={<Sessions />} />
             <Route path="characters" element={<Characters />} />
             <Route path="party" element={<Party />} />
