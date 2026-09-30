@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { useCampaign } from "./useCampaign"
+import { useNotificationFeed } from "./useNotificationFeed"
 
 const tabs = [
   { label: "Profile", to: "/app/settings/profile" },
@@ -12,7 +12,7 @@ const tabs = [
 ]
 
 export function SettingsTabs() {
-  const pending = useCampaign().invitations.length
+  const pending = useNotificationFeed().length
 
   return (
     <nav

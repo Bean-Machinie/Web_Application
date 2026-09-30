@@ -2,6 +2,7 @@ import { createContext } from "react"
 import type { CampaignPermission } from "@/lib/campaign-permissions"
 import type { Campaign } from "@/lib/campaigns"
 import type { Invitation } from "@/lib/invitations"
+import type { AppNotification } from "@/lib/notifications"
 
 export type CampaignState = {
   campaigns: Campaign[]
@@ -16,6 +17,9 @@ export type CampaignState = {
   invitations: Invitation[]
   // Accepting also adds the campaign to `campaigns`.
   respond: (invitationId: string, accept: boolean) => Promise<void>
+  // Things that happened, which only need reading and dismissing.
+  notifications: AppNotification[]
+  dismiss: (notificationId: string) => Promise<void>
 }
 
 export const CampaignContext = createContext<CampaignState>({
@@ -28,4 +32,6 @@ export const CampaignContext = createContext<CampaignState>({
   can: () => false,
   invitations: [],
   respond: async () => {},
+  notifications: [],
+  dismiss: async () => {},
 })

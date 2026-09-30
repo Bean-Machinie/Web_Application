@@ -1,4 +1,5 @@
 import { CampaignImageForm } from "@/components/dashboard/CampaignImageForm"
+import { DangerZone } from "@/components/dashboard/DangerZone"
 import { InviteByUser } from "@/components/dashboard/InviteByUser"
 import { InviteLinkSection } from "@/components/dashboard/InviteLinkSection"
 import { SettingsSection } from "@/components/dashboard/SettingsSection"
@@ -44,6 +45,7 @@ export function CampaignSettings() {
           </p>
         )}
       </div>
+      <DangerZone key={current.id} campaign={current} />
     </div>
   )
 }

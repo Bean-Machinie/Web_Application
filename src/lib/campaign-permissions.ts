@@ -1,3 +1,5 @@
+import type { Campaign } from "./campaigns"
+
 export type CampaignRole = "gm" | "player"
 // invite: invite people. manage: change the campaign itself, such as its image.
 export type CampaignPermission = "invite" | "manage"
@@ -14,3 +16,11 @@ const grants: Record<CampaignRole, CampaignPermission[]> = {
 export function can(role: CampaignRole, permission: CampaignPermission) {
   return grants[role].includes(permission)
 }
+
+// Deleting and leaving depend on who created the campaign, not on a role, so
+// they are not in the table above. The database enforces both as well.
+export const canDeleteCampaign = (campaign: Campaign, userId: string) =>
+  campaign.createdBy === userId
+
+export const canLeaveCampaign = (campaign: Campaign, userId: string) =>
+  campaign.createdBy !== userId

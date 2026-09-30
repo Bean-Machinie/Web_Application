@@ -1,3 +1,4 @@
+import { deleteImage } from "@/lib/avatar"
 import { supabase } from "@/lib/supabase"
 import type { CampaignRole } from "./campaign-permissions"
 
@@ -5,6 +6,8 @@ export type Campaign = {
   id: string
   name: string
   role: CampaignRole
+  // Who created it. That person alone can delete it, and cannot leave it.
+  createdBy: string
   imageUrl: string | null
   imagePath: string | null
 }
@@ -17,7 +20,9 @@ export function errorMessage(error: unknown) {
 export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
   const { data, error } = await supabase
     .from("campaign_members")
-    .select("role, campaign:campaigns(id, name, image_url, image_path)")
+    .select(
+      "role, campaign:campaigns(id, name, created_by, image_url, image_path)"
+    )
     .eq("user_id", userId)
     .order("joined_at")
   if (error) throw error
@@ -29,6 +34,7 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
     campaign: {
       id: string
       name: string
+      created_by: string
       image_url: string | null
       image_path: string | null
     }
@@ -38,6 +44,7 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
     id: row.campaign.id,
     name: row.campaign.name,
     role: row.role,
+    createdBy: row.campaign.created_by,
     imageUrl: row.campaign.image_url,
     imagePath: row.campaign.image_path,
   }))
@@ -53,6 +60,7 @@ export async function createCampaign(name: string): Promise<Campaign> {
     id: data.id,
     name: data.name,
     role: "gm",
+    createdBy: data.created_by,
     imageUrl: null,
     imagePath: null,
   }
@@ -65,6 +73,26 @@ export async function joinCampaign(code: string): Promise<string> {
   if (error) throw error
 
   return data
+}
+
+// The image goes first: once the campaign is deleted nobody has the
+// permission to remove it any more. The name is checked again by the
+// database, so the confirmation cannot be skipped.
+export async function deleteCampaign(campaign: Campaign, confirmName: string) {
+  await deleteImage("campaign-images", campaign.imagePath)
+
+  const { error } = await supabase.rpc("delete_campaign", {
+    target_campaign: campaign.id,
+    confirm_name: confirmName,
+  })
+  if (error) throw error
+}
+
+export async function leaveCampaign(campaignId: string) {
+  const { error } = await supabase.rpc("leave_campaign", {
+    target_campaign: campaignId,
+  })
+  if (error) throw error
 }
 
 export async function fetchInviteCode(campaignId: string): Promise<string> {

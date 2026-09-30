@@ -5,6 +5,7 @@ import bell from "@/assets/icons/bell.svg"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { CampaignAvatar } from "@/components/dashboard/CampaignAvatar"
 import { useCampaign } from "@/components/dashboard/useCampaign"
+import { useNotificationFeed } from "@/components/dashboard/useNotificationFeed"
 import { Icon } from "@/components/Icon"
 import { LogoMark } from "@/components/LogoMark"
 import { Badge } from "@/components/ui/badge"
@@ -23,7 +24,8 @@ import {
 // here only appear while that menu would be the only other place to look.
 export function Campaigns() {
   const navigate = useNavigate()
-  const { campaigns, invitations, loading, error, select } = useCampaign()
+  const { campaigns, loading, error, select } = useCampaign()
+  const waiting = useNotificationFeed().length
 
   if (loading) {
     return (
@@ -42,11 +44,11 @@ export function Campaigns() {
         </p>
       </div>
 
-      {invitations.length > 0 && (
+      {waiting > 0 && (
         <div className="bg-muted/40 flex items-center gap-3 rounded-lg border px-4 py-3">
           <Icon src={bell} className="text-muted-foreground size-5" />
           <p className="flex-1 text-sm">
-            You have {invitations.length === 1 ? "an invitation" : `${invitations.length} invitations`} waiting.
+            You have {waiting === 1 ? "a notification" : `${waiting} notifications`} waiting.
           </p>
           <Button asChild size="sm" variant="outline">
             <Link to="/app/settings/notifications">View</Link>

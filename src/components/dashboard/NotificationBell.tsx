@@ -9,17 +9,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { InvitationItem } from "./InvitationItem"
-import { useCampaign } from "./useCampaign"
+import { FeedItem } from "./FeedItem"
+import { useNotificationFeed } from "./useNotificationFeed"
 
 // How many notifications the menu previews before "View all".
 const PREVIEW_COUNT = 4
 
 export function NotificationBell() {
   const navigate = useNavigate()
-  const { invitations } = useCampaign()
+  const feed = useNotificationFeed()
   const [open, setOpen] = useState(false)
-  const count = invitations.length
+  const count = feed.length
 
   function viewAll() {
     setOpen(false)
@@ -32,14 +32,14 @@ export function NotificationBell() {
         <Button
           variant="ghost"
           size="icon"
-          className="relative"
+          className="relative size-11"
           aria-label={
             count > 0 ? `Notifications, ${count} waiting` : "Notifications"
           }
         >
-          <Icon src={bell} className="size-5" />
+          <Icon src={bell} className="size-6" />
           {count > 0 && (
-            <span className="bg-destructive ring-background absolute top-1.5 right-1.5 size-2 rounded-full ring-2" />
+            <span className="bg-destructive ring-background absolute top-2.5 right-2.5 size-2.5 rounded-full ring-2" />
           )}
         </Button>
       </PopoverTrigger>
@@ -60,13 +60,13 @@ export function NotificationBell() {
             </div>
             <p className="text-sm font-medium">You&apos;re all caught up</p>
             <p className="text-muted-foreground text-xs">
-              Invitations to join a campaign will show up here.
+              Invitations and campaign updates will show up here.
             </p>
           </div>
         ) : (
           <ul className="max-h-[26rem] divide-y overflow-y-auto">
-            {invitations.slice(0, PREVIEW_COUNT).map((invitation) => (
-              <InvitationItem key={invitation.id} invitation={invitation} compact />
+            {feed.slice(0, PREVIEW_COUNT).map((entry) => (
+              <FeedItem key={entry.id} entry={entry} compact />
             ))}
           </ul>
         )}

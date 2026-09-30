@@ -92,6 +92,12 @@ Sign-up asks for a username; in Supabase, add your site address under
 Authentication → URL Configuration → Redirect URLs so the confirmation email
 can send people back to an invite link.
 
+The fifth migration adds `notifications` (for things that need no answer, such
+as "a campaign was deleted" or "a player left") and the `delete_campaign` and
+`leave_campaign` functions. Only the person who created a campaign can delete
+it, and must type its name to do so; everyone else can leave it. Deleting
+notifies every other member, leaving notifies the GMs.
+
 Row-level security is what actually protects your data. This app is a
 client-side SPA, so the route guard on `/app` only hides the UI — every table
 you add should have RLS enabled and policies written for it.
