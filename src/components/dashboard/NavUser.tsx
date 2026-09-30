@@ -18,7 +18,7 @@ import {
 import { useAuth } from "@/auth/useAuth"
 import logout from "@/assets/icons/menu-logout.svg"
 import profile from "@/assets/icons/menu-profile.svg"
-import settings from "@/assets/icons/menu-settings.svg"
+import settings from "@/assets/icons/settings.svg"
 import { Icon } from "@/components/Icon"
 import { MenuChevron } from "./MenuChevron"
 import { supabase } from "@/lib/supabase"
@@ -90,7 +90,7 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut}>
+            <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
               <Icon src={logout} />
               Log out
             </DropdownMenuItem>
