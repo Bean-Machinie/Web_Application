@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useAuth } from "@/auth/useAuth"
 import { useCampaign } from "@/components/dashboard/useCampaign"
 import { errorMessage } from "@/lib/campaigns"
 import {
+  cacheNotifications,
+  cachedNotifications,
   dismissNotification,
   fetchNotificationPage,
   markNotificationsRead,
 } from "@/lib/notifications"
 import type { AppNotification } from "@/lib/notifications"
-
-type Loaded = { items: AppNotification[]; hasMore: boolean }
 
 function isOlder(a: AppNotification, b: AppNotification) {
   const byTime = Date.parse(a.createdAt) - Date.parse(b.createdAt)
@@ -21,8 +22,9 @@ function isOlder(a: AppNotification, b: AppNotification) {
 // just arrived. It reloads its first page whenever the app refreshes, and
 // keeps any extra pages already loaded.
 export function useNotificationList(pageSize: number) {
+  const userId = useAuth().session!.user.id
   const { refreshKey, refreshUnread } = useCampaign()
-  const [loaded, setLoaded] = useState<Loaded | null>(null)
+  const [loaded, setLoaded] = useState(() => cachedNotifications(userId, pageSize))
   const [fresh, setFresh] = useState<Set<string>>(new Set())
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -69,6 +71,19 @@ export function useNotificationList(pageSize: number) {
       .then(refreshUnread)
       .catch(() => ids.forEach((id) => marked.current.delete(id)))
   }, [loaded, refreshUnread])
+
+  // Remember what was shown, with the rows just marked as read recorded as
+  // read, so reopening does not show them as new again.
+  useEffect(() => {
+    if (!loaded) return
+    const readNow = new Date().toISOString()
+    cacheNotifications(userId, pageSize, {
+      ...loaded,
+      items: loaded.items.map((n) =>
+        !n.readAt && marked.current.has(n.id) ? { ...n, readAt: readNow } : n
+      ),
+    })
+  }, [loaded, userId, pageSize])
 
   const loadMore = useCallback(async () => {
     if (!loaded || loadingMore) return

@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
+import { LoadingGate } from "@/components/LoadingGate"
 import { Button } from "@/components/ui/button"
 import { useNotificationList } from "@/hooks/use-notification-list"
 import { NotificationRow } from "./NotificationRow"
@@ -20,48 +21,53 @@ export function NotificationList({ pageSize, empty, className }: Props) {
 
   if (error && !items) return <FormAlert tone="error">{error}</FormAlert>
 
-  if (!items) {
-    return (
-      <ul className="divide-y" aria-busy="true">
-        {Array.from({ length: Math.min(pageSize, 4) }, (_, i) => (
-          <NotificationSkeletonRow key={i} />
-        ))}
-      </ul>
-    )
-  }
-
-  if (items.length === 0) return <>{empty}</>
-
   return (
-    <div className={className}>
-      <ul className="divide-y">
-        {items.map((notification) => (
-          <NotificationRow
-            key={notification.id}
-            notification={notification}
-            isNew={isNew(notification)}
-            onDismiss={dismiss}
-          />
-        ))}
-      </ul>
-      {error && (
-        <div className="px-4 py-3">
-          <FormAlert tone="error">{error}</FormAlert>
-        </div>
-      )}
-      {hasMore && (
-        <div className="border-t p-2">
-          <Button
-            variant="ghost"
-            className="w-full"
-            disabled={loadingMore}
-            onClick={loadMore}
-          >
-            {loadingMore && <Loader2 className="size-4 animate-spin" />}
-            Load more
-          </Button>
-        </div>
-      )}
-    </div>
+    <LoadingGate
+      loading={!items}
+      skeleton={
+        <ul className="divide-y">
+          {Array.from({ length: Math.min(pageSize, 4) }, (_, i) => (
+            <NotificationSkeletonRow key={i} />
+          ))}
+        </ul>
+      }
+    >
+      {() =>
+        !items || items.length === 0 ? (
+          empty
+        ) : (
+          <div className={className}>
+            <ul className="divide-y">
+              {items.map((notification) => (
+                <NotificationRow
+                  key={notification.id}
+                  notification={notification}
+                  isNew={isNew(notification)}
+                  onDismiss={dismiss}
+                />
+              ))}
+            </ul>
+            {error && (
+              <div className="px-4 py-3">
+                <FormAlert tone="error">{error}</FormAlert>
+              </div>
+            )}
+            {hasMore && (
+              <div className="border-t p-2">
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  disabled={loadingMore}
+                  onClick={loadMore}
+                >
+                  {loadingMore && <Loader2 className="size-4 animate-spin" />}
+                  Load more
+                </Button>
+              </div>
+            )}
+          </div>
+        )
+      }
+    </LoadingGate>
   )
 }

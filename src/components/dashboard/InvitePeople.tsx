@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Search } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
+import { LoadingGate } from "@/components/LoadingGate"
 import { Input } from "@/components/ui/input"
 import { errorMessage } from "@/lib/campaigns"
 import {
@@ -137,37 +138,45 @@ export function InvitePeople({
 
       {error && <FormAlert tone="error">{error}</FormAlert>}
 
-      <div className="flex h-64 flex-col">
-        {text === "" && !loading && rows.length > 0 && (
-          <p className="text-muted-foreground shrink-0 px-1 pb-1.5 text-xs font-medium">
-            Suggested
-          </p>
-        )}
-        {loading ? (
-          <ul className="divide-y rounded-lg border" aria-busy="true">
+      <LoadingGate
+        loading={loading}
+        className="flex h-64 flex-col"
+        skeleton={
+          <ul className="divide-y rounded-lg border">
             <InvitePersonSkeletonRow />
             <InvitePersonSkeletonRow />
           </ul>
-        ) : rows.length > 0 ? (
-          <ul className="min-h-0 divide-y overflow-y-auto rounded-lg border">
-            {rows.map((person) => (
-              <InvitePersonRow
-                key={person.id}
-                person={{
-                  ...person,
-                  invited: person.invited || invitedIds.includes(person.id),
-                }}
-                busy={invitingId === person.id}
-                onInvite={() => invite(person)}
-              />
-            ))}
-          </ul>
-        ) : (
-          <p className="text-muted-foreground flex flex-1 items-center justify-center px-4 text-center text-sm">
-            {emptyMessage(text)}
-          </p>
+        }
+      >
+        {() => (
+          <>
+            {text === "" && rows.length > 0 && (
+              <p className="text-muted-foreground shrink-0 px-1 pb-1.5 text-xs font-medium">
+                Suggested
+              </p>
+            )}
+            {rows.length > 0 ? (
+              <ul className="min-h-0 divide-y overflow-y-auto rounded-lg border">
+                {rows.map((person) => (
+                  <InvitePersonRow
+                    key={person.id}
+                    person={{
+                      ...person,
+                      invited: person.invited || invitedIds.includes(person.id),
+                    }}
+                    busy={invitingId === person.id}
+                    onInvite={() => invite(person)}
+                  />
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground flex flex-1 items-center justify-center px-4 text-center text-sm">
+                {emptyMessage(text)}
+              </p>
+            )}
+          </>
         )}
-      </div>
+      </LoadingGate>
     </div>
   )
 }

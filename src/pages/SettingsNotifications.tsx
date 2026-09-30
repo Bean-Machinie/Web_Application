@@ -1,4 +1,5 @@
 import { NotificationList } from "@/components/dashboard/NotificationList"
+import { TAB_PAGE_SIZE } from "@/lib/notifications"
 import {
   Empty,
   EmptyDescription,
@@ -6,13 +7,11 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 
-const PAGE_SIZE = 20
-
 export function SettingsNotifications() {
   return (
     <div className="pt-6">
       <NotificationList
-        pageSize={PAGE_SIZE}
+        pageSize={TAB_PAGE_SIZE}
         className="overflow-hidden rounded-lg border"
         empty={
           <Empty className="border border-dashed">

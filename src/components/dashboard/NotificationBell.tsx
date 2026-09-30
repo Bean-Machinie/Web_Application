@@ -9,10 +9,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { BELL_PAGE_SIZE } from "@/lib/notifications"
 import { NotificationList } from "./NotificationList"
 import { useCampaign } from "./useCampaign"
-
-const PAGE_SIZE = 8
 
 function CaughtUp() {
   return (
@@ -68,7 +67,7 @@ export function NotificationBell() {
         </div>
 
         <div className="max-h-[26rem] overflow-y-auto">
-          <NotificationList pageSize={PAGE_SIZE} empty={<CaughtUp />} />
+          <NotificationList pageSize={BELL_PAGE_SIZE} empty={<CaughtUp />} />
         </div>
 
         <div className="border-t p-2">

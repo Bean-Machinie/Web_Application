@@ -74,3 +74,33 @@ export async function dismissNotification(id: string) {
   const { error } = await supabase.from("notifications").delete().eq("id", id)
   if (error) throw error
 }
+
+export const BELL_PAGE_SIZE = 8
+export const TAB_PAGE_SIZE = 20
+
+export type LoadedNotifications = { items: AppNotification[]; hasMore: boolean }
+
+// The last pages seen, so a list reopens with them at once and refreshes in
+// the background instead of starting from an empty skeleton each time.
+const pages = new Map<string, LoadedNotifications>()
+const pageKey = (userId: string, pageSize: number) => `${userId}:${pageSize}`
+
+export const cachedNotifications = (userId: string, pageSize: number) =>
+  pages.get(pageKey(userId, pageSize)) ?? null
+
+export function cacheNotifications(
+  userId: string,
+  pageSize: number,
+  loaded: LoadedNotifications
+) {
+  pages.set(pageKey(userId, pageSize), loaded)
+}
+
+// Fetched ahead of time, so the first time the bell opens has no wait either.
+export async function warmNotificationCache(userId: string, pageSize: number) {
+  const rows = await fetchNotificationPage(pageSize + 1)
+  cacheNotifications(userId, pageSize, {
+    items: rows.slice(0, pageSize),
+    hasMore: rows.length > pageSize,
+  })
+}

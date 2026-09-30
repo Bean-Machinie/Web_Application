@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Check, Link2 } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
+import { LoadingGate } from "@/components/LoadingGate"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -59,26 +60,31 @@ export function InviteLinkSection({ campaignId }: { campaignId: string }) {
           Reset link
         </Button>
       </div>
-      {error ? (
-        <FormAlert tone="error">{error}</FormAlert>
-      ) : !code ? (
-        <Skeleton className="h-10 w-full rounded-lg" />
-      ) : (
-        <div className="bg-muted/40 flex h-10 items-center gap-2 rounded-lg border pr-1 pl-3">
-          <Link2 className="text-muted-foreground size-4 shrink-0" />
-          <input
-            readOnly
-            aria-label="Invite link"
-            value={inviteUrl(code)}
-            onFocus={(event) => event.currentTarget.select()}
-            className="text-muted-foreground min-w-0 flex-1 bg-transparent text-sm outline-none"
-          />
-          <Button type="button" size="sm" variant="outline" onClick={copy}>
-            {copied && <Check className="size-3.5" />}
-            {copied ? "Copied" : "Copy link"}
-          </Button>
-        </div>
-      )}
+      <LoadingGate
+        loading={!code && !error}
+        skeleton={<Skeleton className="h-10 w-full rounded-lg" />}
+      >
+        {() =>
+          error ? (
+            <FormAlert tone="error">{error}</FormAlert>
+          ) : (
+            <div className="bg-muted/40 flex h-10 items-center gap-2 rounded-lg border pr-1 pl-3">
+              <Link2 className="text-muted-foreground size-4 shrink-0" />
+              <input
+                readOnly
+                aria-label="Invite link"
+                value={inviteUrl(code!)}
+                onFocus={(event) => event.currentTarget.select()}
+                className="text-muted-foreground min-w-0 flex-1 bg-transparent text-sm outline-none"
+              />
+              <Button type="button" size="sm" variant="outline" onClick={copy}>
+                {copied && <Check className="size-3.5" />}
+                {copied ? "Copied" : "Copy link"}
+              </Button>
+            </div>
+          )
+        }
+      </LoadingGate>
       <ResetInviteDialog
         open={confirming}
         busy={resetting}

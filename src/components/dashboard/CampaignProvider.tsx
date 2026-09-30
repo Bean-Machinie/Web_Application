@@ -10,7 +10,11 @@ import {
   saveCurrentCampaignId,
 } from "@/lib/current-campaign"
 import { respondToInvitation } from "@/lib/invitations"
-import { fetchUnreadCount } from "@/lib/notifications"
+import {
+  BELL_PAGE_SIZE,
+  fetchUnreadCount,
+  warmNotificationCache,
+} from "@/lib/notifications"
 import { CampaignContext } from "./CampaignContext"
 
 // How often to look for new campaigns and notifications.
@@ -29,6 +33,9 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     () =>
       Promise.all([fetchCampaigns(userId!), fetchUnreadCount()])
         .then(([list, unread]) => {
+          // Not awaited: the bell opening instantly is a bonus, not a reason
+          // to hold up the campaigns.
+          warmNotificationCache(userId!, BELL_PAGE_SIZE).catch(() => {})
           setCampaigns(list)
           setUnreadCount(unread)
           setRefreshKey((key) => key + 1)

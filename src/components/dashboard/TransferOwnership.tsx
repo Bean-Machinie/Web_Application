@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/auth/useAuth"
 import { FormAlert } from "@/components/auth/FormAlert"
+import { LoadingGate } from "@/components/LoadingGate"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -58,61 +59,67 @@ export function TransferOwnership({ campaign }: { campaign: Campaign }) {
     )
   }
 
-  if (others === null) {
-    if (error) return <FormAlert tone="error">{error}</FormAlert>
-    return (
-      <div className="flex flex-col gap-3" aria-busy="true">
-        <Skeleton className="h-8 w-full" />
-        <Skeleton className="h-8 w-[8.5rem]" />
-      </div>
-    )
-  }
-
-  if (others.length === 0) {
-    return (
-      <p className="text-muted-foreground text-sm">
-        There is nobody else in this campaign to hand it to yet.
-      </p>
-    )
-  }
-
   return (
-    <div className="flex flex-col gap-3">
-      <Select value={selected} onValueChange={setSelected}>
-        <SelectTrigger aria-label="New owner" className="w-full">
-          <SelectValue placeholder="Choose a member" />
-        </SelectTrigger>
-        <SelectContent>
-          {others.map((member) => (
-            <SelectItem key={member.userId} value={member.userId}>
-              {member.username || "Unnamed"}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <div>
-        <Button
-          variant="outline"
-          disabled={!selected}
-          onClick={() => setConfirming(true)}
-        >
-          Transfer ownership
-        </Button>
-      </div>
-      {error && !confirming && <FormAlert tone="error">{error}</FormAlert>}
-      <ConfirmDialog
-        open={confirming}
-        title={`Make ${targetName} the owner?`}
-        description="They become a GM and the only person who can transfer or delete this campaign. You stay a GM and can leave the campaign. Both of you are notified."
-        confirmLabel="Transfer ownership"
-        busy={busy}
-        error={error}
-        onCancel={() => {
-          setConfirming(false)
-          setError(null)
-        }}
-        onConfirm={handleTransfer}
-      />
-    </div>
+    <LoadingGate
+      loading={others === null && !error}
+      skeleton={
+        <div className="flex flex-col gap-3">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-[8.5rem]" />
+        </div>
+      }
+    >
+      {() => {
+        if (others === null) {
+          return error && <FormAlert tone="error">{error}</FormAlert>
+        }
+        if (others.length === 0) {
+          return (
+            <p className="text-muted-foreground text-sm">
+              There is nobody else in this campaign to hand it to yet.
+            </p>
+          )
+        }
+        return (
+          <div className="flex flex-col gap-3">
+            <Select value={selected} onValueChange={setSelected}>
+              <SelectTrigger aria-label="New owner" className="w-full">
+                <SelectValue placeholder="Choose a member" />
+              </SelectTrigger>
+              <SelectContent>
+                {others.map((member) => (
+                  <SelectItem key={member.userId} value={member.userId}>
+                    {member.username || "Unnamed"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div>
+              <Button
+                variant="outline"
+                disabled={!selected}
+                onClick={() => setConfirming(true)}
+              >
+                Transfer ownership
+              </Button>
+            </div>
+            {error && !confirming && <FormAlert tone="error">{error}</FormAlert>}
+            <ConfirmDialog
+              open={confirming}
+              title={`Make ${targetName} the owner?`}
+              description="They become a GM and the only person who can transfer or delete this campaign. You stay a GM and can leave the campaign. Both of you are notified."
+              confirmLabel="Transfer ownership"
+              busy={busy}
+              error={error}
+              onCancel={() => {
+                setConfirming(false)
+                setError(null)
+              }}
+              onConfirm={handleTransfer}
+            />
+          </div>
+        )
+      }}
+    </LoadingGate>
   )
 }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { Trash2, UserPlus } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useAuth } from "@/auth/useAuth"
+import { LoadingGate } from "@/components/LoadingGate"
 import { Button } from "@/components/ui/button"
 import { canDeleteCampaign } from "@/lib/campaign-permissions"
 import { fetchMembers, removeMember } from "@/lib/campaign-members"
@@ -18,11 +19,17 @@ import { MembersTableSkeleton } from "./MembersTableSkeleton"
 import { SentInvitations } from "./SentInvitations"
 import { useCampaign } from "./useCampaign"
 
+// The last list seen per campaign, so coming back shows it at once and
+// refreshes quietly instead of starting from a skeleton.
+const seenMembers = new Map<string, Member[]>()
+
 // Render with key={campaign.id} so switching campaigns starts from scratch.
 export function CampaignMembers({ campaign }: { campaign: Campaign }) {
   const userId = useAuth().session!.user.id
   const { can } = useCampaign()
-  const [members, setMembers] = useState<Member[] | null>(null)
+  const [members, setMembers] = useState<Member[] | null>(
+    () => seenMembers.get(campaign.id) ?? null
+  )
   const [sent, setSent] = useState<SentInvitation[] | null>(null)
   const [inviting, setInviting] = useState(false)
   const [removing, setRemoving] = useState<Member | null>(null)
@@ -35,7 +42,10 @@ export function CampaignMembers({ campaign }: { campaign: Campaign }) {
   const loadMembers = useCallback(
     () =>
       fetchMembers(campaign.id)
-        .then(setMembers)
+        .then((list) => {
+          seenMembers.set(campaign.id, list)
+          setMembers(list)
+        })
         .catch((failure) => setError(errorMessage(failure))),
     [campaign.id]
   )
@@ -111,14 +121,20 @@ export function CampaignMembers({ campaign }: { campaign: Campaign }) {
       </div>
 
       {error && !removing && <FormAlert tone="error">{error}</FormAlert>}
-      {!members && !error && <MembersTableSkeleton withActions={can("remove_members")} />}
-      {members && (
-        <MembersTable
-          members={members}
-          userId={userId}
-          actionsFor={can("remove_members") ? actionsFor : null}
-        />
-      )}
+      <LoadingGate
+        loading={!members && !error}
+        skeleton={<MembersTableSkeleton withActions={can("remove_members")} />}
+      >
+        {() =>
+          members && (
+            <MembersTable
+              members={members}
+              userId={userId}
+              actionsFor={can("remove_members") ? actionsFor : null}
+            />
+          )
+        }
+      </LoadingGate>
 
       {canInvite && <SentInvitations invitations={sent} onCancelled={loadSent} />}
 
