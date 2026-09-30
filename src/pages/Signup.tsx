@@ -1,7 +1,9 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { CredentialsForm } from '@/components/auth/CredentialsForm'
-import { supabase } from '@/lib/supabase'
+import { useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { AuthCard } from "@/components/auth/AuthCard"
+import { CredentialsForm } from "@/components/auth/CredentialsForm"
+import { FormAlert } from "@/components/auth/FormAlert"
+import { supabase } from "@/lib/supabase"
 
 export function Signup() {
   const [error, setError] = useState<string | null>(null)
@@ -19,7 +21,7 @@ export function Signup() {
 
     // No session means Supabase is waiting on email confirmation.
     if (data.session) {
-      navigate('/app', { replace: true })
+      navigate("/app", { replace: true })
       return
     }
 
@@ -27,14 +29,25 @@ export function Signup() {
   }
 
   return (
-    <main>
-      <h1>Sign up</h1>
-      {error && <p role="alert">{error}</p>}
-      {pending && <p>Check your inbox to confirm your email address.</p>}
+    <AuthCard
+      title="Create an account"
+      description="Sign up with your email and a password."
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link to="/login" className="underline underline-offset-4">
+            Log in
+          </Link>
+        </>
+      }
+    >
+      {error && <FormAlert tone="error">{error}</FormAlert>}
+      {pending && (
+        <FormAlert tone="success">
+          Check your inbox to confirm your email address.
+        </FormAlert>
+      )}
       <CredentialsForm submitLabel="Sign up" onSubmit={handleSubmit} />
-      <p>
-        <Link to="/login">Already have an account?</Link>
-      </p>
-    </main>
+    </AuthCard>
   )
 }

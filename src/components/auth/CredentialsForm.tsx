@@ -1,4 +1,8 @@
-import { useState } from 'react'
+import { useState } from "react"
+import { Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 type Props = {
   submitLabel: string
@@ -6,44 +10,51 @@ type Props = {
 }
 
 export function CredentialsForm({ submitLabel, onSubmit }: Props) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [busy, setBusy] = useState(false)
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     setBusy(true)
-    await onSubmit(email, password)
-    setBusy(false)
+    try {
+      await onSubmit(email, password)
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <p>
-        <label htmlFor="email">Email</label>
-        <br />
-        <input
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="grid gap-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
           id="email"
           type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
+          disabled={busy}
         />
-      </p>
-      <p>
-        <label htmlFor="password">Password</label>
-        <br />
-        <input
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="password">Password</Label>
+        <Input
           id="password"
           type="password"
+          autoComplete="current-password"
           required
           value={password}
           onChange={(event) => setPassword(event.target.value)}
+          disabled={busy}
         />
-      </p>
-      <button type="submit" disabled={busy}>
+      </div>
+      <Button type="submit" className="w-full" disabled={busy}>
+        {busy && <Loader2 className="size-4 animate-spin" />}
         {submitLabel}
-      </button>
+      </Button>
     </form>
   )
 }
