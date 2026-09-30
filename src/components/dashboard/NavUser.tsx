@@ -54,9 +54,9 @@ export function NavUser() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton size="lg" className="cursor-pointer h-[52px] pr-3 pl-2.5 group-data-[collapsible=icon]:size-[52px]! group-data-[collapsible=icon]:px-2.5!"
             >
-              <Avatar className="size-8 shrink-0 rounded-lg">
-                <AvatarImage src={avatarUrl} alt="" className="rounded-lg" />
-                <AvatarFallback className="rounded-lg text-xs">
+              <Avatar className="size-8 shrink-0">
+                <AvatarImage src={avatarUrl} alt="" />
+                <AvatarFallback className="text-xs">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -77,9 +77,9 @@ export function NavUser() {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="size-8 rounded-lg">
-                  <AvatarImage src={avatarUrl} alt="" className="rounded-lg" />
-                  <AvatarFallback className="rounded-lg text-xs">
+                <Avatar className="size-8">
+                  <AvatarImage src={avatarUrl} alt="" />
+                  <AvatarFallback className="text-xs">
                     {initials}
                   </AvatarFallback>
                 </Avatar>

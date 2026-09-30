@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useAuth } from "@/auth/useAuth"
 import {
@@ -19,8 +19,8 @@ type Notice = { tone: "error" | "success"; text: string }
 
 export function PersonalDetailsForm() {
   const user = useAuth().session!.user
-  const { firstName, lastName, jobTitle, email } = getProfile(user)
-  const saved = { firstName, lastName, jobTitle, email }
+  const { displayName, description, email } = getProfile(user)
+  const saved = { displayName, description }
   const [values, setValues] = useState(saved)
   const [avatar, setAvatar] = useState(NO_AVATAR_CHANGE)
   const [busy, setBusy] = useState(false)
@@ -28,24 +28,22 @@ export function PersonalDetailsForm() {
 
   const dirty =
     JSON.stringify(values) !== JSON.stringify(saved) || hasAvatarChange(avatar)
-  const set =
-    (key: keyof typeof values) => (event: React.ChangeEvent<HTMLInputElement>) =>
-      setValues({ ...values, [key]: event.target.value })
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     setBusy(true)
     setNotice(null)
 
-    const emailChanged = values.email !== saved.email
     try {
       const photo = await uploadPendingAvatar(user, avatar)
       const { error } = await supabase.auth.updateUser({
-        ...(emailChanged && { email: values.email }),
         data: {
-          first_name: values.firstName,
-          last_name: values.lastName,
-          job_title: values.jobTitle,
+          display_name: values.displayName.trim(),
+          description: values.description.trim(),
+          // Clears any real name or job title saved by an earlier version.
+          first_name: null,
+          last_name: null,
+          job_title: null,
           ...photo,
         },
       })
@@ -59,12 +57,7 @@ export function PersonalDetailsForm() {
 
     setBusy(false)
     setAvatar(NO_AVATAR_CHANGE)
-    setNotice({
-      tone: "success",
-      text: emailChanged
-        ? "Saved. Confirm the new email address from your inbox to finish changing it."
-        : "Your details have been saved.",
-    })
+    setNotice({ tone: "success", text: "Your details have been saved." })
   }
 
   return (
@@ -76,55 +69,47 @@ export function PersonalDetailsForm() {
         <AvatarUpload change={avatar} onChange={setAvatar} disabled={busy} />
       </SettingsSection>
 
-      <SettingsSection title="Name" description="Your first and last name.">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2">
-            <Label htmlFor="first-name">First name</Label>
-            <Input
-              id="first-name"
-              autoComplete="given-name"
-              value={values.firstName}
-              onChange={set("firstName")}
-              disabled={busy}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="last-name">Last name</Label>
-            <Input
-              id="last-name"
-              autoComplete="family-name"
-              value={values.lastName}
-              onChange={set("lastName")}
-              disabled={busy}
-            />
-          </div>
-        </div>
-      </SettingsSection>
-
       <SettingsSection
-        title="Email address"
-        description="Used to sign in and for account notifications."
+        title="Display name"
+        description="How your name appears to others."
       >
         <Input
-          type="email"
-          aria-label="Email address"
-          autoComplete="email"
-          required
-          value={values.email}
-          onChange={set("email")}
+          aria-label="Display name"
+          autoComplete="nickname"
+          maxLength={50}
+          value={values.displayName}
+          onChange={(event) =>
+            setValues({ ...values, displayName: event.target.value })
+          }
           disabled={busy}
         />
       </SettingsSection>
 
       <SettingsSection
-        title="Job title"
-        description="Helps teammates know what you do."
+        title="Email address"
+        description="The email you sign in with. It can't be changed."
       >
         <Input
-          aria-label="Job title"
-          autoComplete="organization-title"
-          value={values.jobTitle}
-          onChange={set("jobTitle")}
+          type="email"
+          aria-label="Email address"
+          value={email}
+          readOnly
+          disabled
+        />
+      </SettingsSection>
+
+      <SettingsSection
+        title="Description"
+        description="A short line about you."
+      >
+        <Textarea
+          aria-label="Description"
+          maxLength={300}
+          rows={4}
+          value={values.description}
+          onChange={(event) =>
+            setValues({ ...values, description: event.target.value })
+          }
           disabled={busy}
         />
       </SettingsSection>
