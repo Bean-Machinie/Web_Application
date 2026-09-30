@@ -1,12 +1,14 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { errorMessage } from "@/lib/campaigns"
 import { cancelInvitation } from "@/lib/invitations"
 import type { SentInvitation } from "@/lib/invitations"
 import { FormAlert } from "@/components/auth/FormAlert"
 
 type Props = {
-  invitations: SentInvitation[]
+  // Null while still loading.
+  invitations: SentInvitation[] | null
   onCancelled: () => void
 }
 
@@ -25,6 +27,23 @@ export function SentInvitations({ invitations, onCancelled }: Props) {
     } finally {
       setCancellingId(null)
     }
+  }
+
+  if (invitations === null) {
+    return (
+      <div className="flex flex-col gap-2" aria-busy="true">
+        <h4 className="text-sm font-medium">Pending invitations</h4>
+        <ul className="divide-y rounded-lg border">
+          <li className="flex items-center gap-3 px-3 py-3">
+            <div className="min-w-0 flex-1">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="mt-0 h-4 w-24" />
+            </div>
+            <Skeleton className="h-7 w-14" />
+          </li>
+        </ul>
+      </div>
+    )
   }
 
   if (invitations.length === 0) return null

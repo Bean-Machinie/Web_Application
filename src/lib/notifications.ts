@@ -1,6 +1,11 @@
 import { supabase } from "@/lib/supabase"
 
-export type NotificationType = "campaign_deleted" | "member_left"
+export type NotificationType =
+  | "campaign_deleted"
+  | "member_left"
+  | "removed_from_campaign"
+  | "ownership_received"
+  | "ownership_given"
 
 // Something that happened that needs no answer, only reading and dismissing.
 // Invitations are separate, because they do need an answer.

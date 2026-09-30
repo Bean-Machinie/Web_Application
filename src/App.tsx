@@ -3,6 +3,9 @@ import { CampaignShell } from "@/components/dashboard/CampaignShell"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { RequireCampaign } from "@/components/dashboard/RequireCampaign"
 import { CampaignSettings } from "@/pages/CampaignSettings"
+import { CampaignSettingsAdvanced } from "@/pages/CampaignSettingsAdvanced"
+import { CampaignSettingsGeneral } from "@/pages/CampaignSettingsGeneral"
+import { CampaignSettingsMembers } from "@/pages/CampaignSettingsMembers"
 import { Campaigns } from "@/pages/Campaigns"
 import { Characters } from "@/pages/Characters"
 import { Home } from "@/pages/Home"
@@ -39,7 +42,12 @@ export default function App() {
             <Route path="sessions" element={<Sessions />} />
             <Route path="characters" element={<Characters />} />
             <Route path="party" element={<Party />} />
-            <Route path="campaign-settings" element={<CampaignSettings />} />
+            <Route path="campaign-settings" element={<CampaignSettings />}>
+              <Route index element={<Navigate to="general" replace />} />
+              <Route path="general" element={<CampaignSettingsGeneral />} />
+              <Route path="members" element={<CampaignSettingsMembers />} />
+              <Route path="advanced" element={<CampaignSettingsAdvanced />} />
+            </Route>
           </Route>
           <Route path="campaigns" element={<Campaigns />} />
           <Route path="campaigns/new" element={<NewCampaign />} />

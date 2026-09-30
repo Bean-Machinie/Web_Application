@@ -13,15 +13,18 @@ function Message({ notification }: { notification: AppNotification }) {
   const actor = <span className="font-medium">{notification.actorName}</span>
   const campaign = <span className="font-medium">{notification.campaignName}</span>
 
-  return notification.type === "campaign_deleted" ? (
-    <>
-      {actor} deleted the campaign {campaign}.
-    </>
-  ) : (
-    <>
-      {actor} left {campaign}.
-    </>
-  )
+  switch (notification.type) {
+    case "campaign_deleted":
+      return <>{actor} deleted the campaign {campaign}.</>
+    case "removed_from_campaign":
+      return <>{actor} removed you from {campaign}.</>
+    case "ownership_received":
+      return <>{actor} made you the owner of {campaign}.</>
+    case "ownership_given":
+      return <>You made {actor} the owner of {campaign}.</>
+    default:
+      return <>{actor} left {campaign}.</>
+  }
 }
 
 // A notification that needs no answer, only reading and dismissing.

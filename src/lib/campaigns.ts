@@ -2,9 +2,19 @@ import { deleteImage } from "@/lib/avatar"
 import { supabase } from "@/lib/supabase"
 import type { CampaignRole } from "./campaign-permissions"
 
+export type CampaignStatus = "active" | "paused" | "finished"
+
+export const STATUS_LABELS: Record<CampaignStatus, string> = {
+  active: "Active",
+  paused: "Paused",
+  finished: "Finished",
+}
+
 export type Campaign = {
   id: string
   name: string
+  description: string
+  status: CampaignStatus
   role: CampaignRole
   // Who created it. That person alone can delete it, and cannot leave it.
   createdBy: string
@@ -17,11 +27,17 @@ export function errorMessage(error: unknown) {
   return (error as { message?: string })?.message ?? "Something went wrong."
 }
 
+const STATUS_ORDER: Record<CampaignStatus, number> = {
+  active: 0,
+  paused: 1,
+  finished: 2,
+}
+
 export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
   const { data, error } = await supabase
     .from("campaign_members")
     .select(
-      "role, campaign:campaigns(id, name, created_by, image_url, image_path)"
+      "role, campaign:campaigns(id, name, description, status, created_by, image_url, image_path)"
     )
     .eq("user_id", userId)
     .order("joined_at")
@@ -34,20 +50,28 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
     campaign: {
       id: string
       name: string
+      description: string
+      status: CampaignStatus
       created_by: string
       image_url: string | null
       image_path: string | null
     }
   }[]
 
-  return rows.map((row) => ({
+  const campaigns = rows.map((row) => ({
     id: row.campaign.id,
     name: row.campaign.name,
+    description: row.campaign.description,
+    status: row.campaign.status,
     role: row.role,
     createdBy: row.campaign.created_by,
     imageUrl: row.campaign.image_url,
     imagePath: row.campaign.image_path,
   }))
+
+  // Paused and finished campaigns drop to the bottom. The sort is stable, so
+  // each group keeps the order people joined in.
+  return campaigns.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status])
 }
 
 export async function createCampaign(name: string): Promise<Campaign> {
@@ -59,6 +83,8 @@ export async function createCampaign(name: string): Promise<Campaign> {
   return {
     id: data.id,
     name: data.name,
+    description: data.description,
+    status: data.status,
     role: "gm",
     createdBy: data.created_by,
     imageUrl: null,

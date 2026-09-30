@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
-import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import { FormAlert } from "@/components/auth/FormAlert"
 import {
   errorMessage,
@@ -45,7 +45,17 @@ export function InviteLinkSection({ campaignId }: { campaignId: string }) {
   }
 
   if (error) return <FormAlert tone="error">{error}</FormAlert>
-  if (!code) return <Loader2 className="text-muted-foreground size-4 animate-spin" />
+  if (!code) {
+    return (
+      <div className="flex flex-col gap-3" aria-busy="true">
+        <div className="flex gap-2">
+          <Skeleton className="h-8 flex-1" />
+          <Skeleton className="h-8 w-[3.75rem]" />
+        </div>
+        <Skeleton className="h-7 w-24" />
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-3">
