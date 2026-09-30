@@ -8,7 +8,12 @@ export function DashboardLayout() {
   return (
     <SidebarProvider
       defaultOpen={readSidebarState()}
-      style={{ "--sidebar-width-icon": "4rem" } as React.CSSProperties}
+      style={
+        {
+          "--sidebar-width": "18rem",
+          "--sidebar-width-icon": "4rem",
+        } as React.CSSProperties
+      }
     >
       <AppSidebar />
       <SidebarInset>

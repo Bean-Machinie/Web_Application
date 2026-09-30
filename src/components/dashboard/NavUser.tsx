@@ -41,10 +41,10 @@ export function NavUser() {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="lg" className="cursor-pointer pr-3 pl-1.5 group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:pl-1.5!"
+            <SidebarMenuButton size="lg" className="cursor-pointer h-[52px] pr-3 pl-2.5 group-data-[collapsible=icon]:size-[52px]! group-data-[collapsible=icon]:px-2.5!"
             >
-              <Avatar className="size-5 shrink-0 rounded-md">
-                <AvatarFallback className="rounded-md text-[9px]">
+              <Avatar className="size-8 shrink-0 rounded-lg">
+                <AvatarFallback className="rounded-lg text-xs">
                   {initials}
                 </AvatarFallback>
               </Avatar>

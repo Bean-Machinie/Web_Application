@@ -13,7 +13,7 @@ import { SidebarBrand } from "./SidebarBrand"
 export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="px-3 py-3">
+      <SidebarHeader className="px-1.5 py-2">
         <SidebarBrand />
       </SidebarHeader>
 
@@ -23,7 +23,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="px-4">
+      <SidebarFooter className="px-1.5">
         <NavUser />
       </SidebarFooter>
       <SidebarRail />
