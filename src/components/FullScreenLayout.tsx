@@ -22,7 +22,7 @@ export function FullScreenLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-svh flex-col">
       <header className="flex h-16 items-center justify-between px-4 sm:px-6">
         <Link
-          to={session ? "/campaigns" : "/"}
+          to={session ? "/app" : "/"}
           aria-label="Heliosyn home"
           className="flex items-center gap-1"
         >

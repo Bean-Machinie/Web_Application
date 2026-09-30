@@ -1,13 +1,16 @@
 import { useLocation } from "react-router-dom"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { ThemeToggle } from "@/theme/ThemeToggle"
 import { navItems } from "./nav-items"
+import { NotificationBell } from "./NotificationBell"
 
 // Pages reached from the account menu rather than the sidebar.
 const menuPages = [
   { title: "Settings", to: "/app/settings" },
   { title: "Support", to: "/app/support" },
+  { title: "New campaign", to: "/app/campaigns/new" },
+  { title: "Join with invite link", to: "/app/campaigns/join" },
+  { title: "Campaigns", to: "/app/campaigns" },
 ]
 
 function useCurrentTitle() {
@@ -33,7 +36,7 @@ export function DashboardHeader() {
         />
         <h1 className="text-[17px] font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
-          <ThemeToggle />
+          <NotificationBell />
         </div>
       </div>
     </header>

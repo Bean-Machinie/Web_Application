@@ -4,10 +4,18 @@ import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
 import { errorMessage } from "@/lib/campaigns"
 import type { Invitation } from "@/lib/invitations"
+import { timeAgo } from "@/lib/time"
+import { cn } from "@/lib/utils"
 import { CampaignAvatar } from "./CampaignAvatar"
 import { useCampaign } from "./useCampaign"
 
-export function InvitationItem({ invitation }: { invitation: Invitation }) {
+type Props = {
+  invitation: Invitation
+  // Puts the buttons under the text, for narrow spaces such as the bell menu.
+  compact?: boolean
+}
+
+export function InvitationItem({ invitation, compact }: Props) {
   const { respond } = useCampaign()
   const [busy, setBusy] = useState<"accept" | "decline" | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -23,9 +31,27 @@ export function InvitationItem({ invitation }: { invitation: Invitation }) {
     }
   }
 
+  const buttons = (
+    <div className="flex shrink-0 gap-2">
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={busy !== null}
+        onClick={() => answer(false)}
+      >
+        {busy === "decline" && <Loader2 className="size-4 animate-spin" />}
+        Decline
+      </Button>
+      <Button size="sm" disabled={busy !== null} onClick={() => answer(true)}>
+        {busy === "accept" && <Loader2 className="size-4 animate-spin" />}
+        Accept
+      </Button>
+    </div>
+  )
+
   return (
     <li className="flex flex-col gap-3 px-4 py-4">
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-3">
         <CampaignAvatar
           name={invitation.campaignName}
           imageUrl={invitation.campaignImageUrl}
@@ -38,24 +64,11 @@ export function InvitationItem({ invitation }: { invitation: Invitation }) {
             <span className="font-medium">{invitation.campaignName}</span>
           </p>
           <p className="text-muted-foreground text-xs">
-            {new Date(invitation.createdAt).toLocaleDateString()}
+            {timeAgo(invitation.createdAt)}
           </p>
+          {compact && <div className="mt-3">{buttons}</div>}
         </div>
-        <div className="flex shrink-0 gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={busy !== null}
-            onClick={() => answer(false)}
-          >
-            {busy === "decline" && <Loader2 className="size-4 animate-spin" />}
-            Decline
-          </Button>
-          <Button size="sm" disabled={busy !== null} onClick={() => answer(true)}>
-            {busy === "accept" && <Loader2 className="size-4 animate-spin" />}
-            Accept
-          </Button>
-        </div>
+        {!compact && <div className={cn("self-center")}>{buttons}</div>}
       </div>
       {error && <FormAlert tone="error">{error}</FormAlert>}
     </li>

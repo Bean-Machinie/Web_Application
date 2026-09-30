@@ -1,15 +1,19 @@
-import type { ReactNode } from "react"
-import { Navigate } from "react-router-dom"
-import { FullScreenSpinner } from "@/components/FullScreenSpinner"
+import { Navigate, Outlet } from "react-router-dom"
+import { Loader2 } from "lucide-react"
 import { useCampaign } from "./useCampaign"
 
-// The dashboard is only ever shown inside a campaign. Someone with none is
-// sent to the campaigns page instead.
-export function RequireCampaign({ children }: { children: ReactNode }) {
+// Wraps the pages that only make sense inside a campaign. Someone with none
+// is sent to the Campaigns page, which is still inside the app.
+export function RequireCampaign() {
   const { current, loading } = useCampaign()
 
-  if (loading) return <FullScreenSpinner />
-  if (!current) return <Navigate to="/campaigns" replace />
+  if (loading) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <Loader2 className="text-muted-foreground size-5 animate-spin" />
+      </div>
+    )
+  }
 
-  return children
+  return current ? <Outlet /> : <Navigate to="/app/campaigns" replace />
 }

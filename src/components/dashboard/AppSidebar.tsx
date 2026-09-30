@@ -10,8 +10,14 @@ import { campaignNav, campaignSettingsNav, libraryNav } from "./nav-items"
 import { NavMain } from "./NavMain"
 import { NavUser } from "./NavUser"
 import { SidebarBrand } from "./SidebarBrand"
+import { useCampaign } from "./useCampaign"
 
 export function AppSidebar() {
+  const { current, loading } = useCampaign()
+  // The campaign links only make sense inside a campaign. While loading they
+  // stay, so the sidebar does not flash for people who do have one.
+  const inCampaign = current !== null || loading
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="px-1.5 py-2">
@@ -20,10 +26,16 @@ export function AppSidebar() {
 
       <SidebarContent>
         <CampaignSwitcher />
-        <NavMain items={campaignNav} className="pt-0" />
-        <SidebarSeparator className="mx-4 w-auto" />
-        <NavMain items={libraryNav} />
-        <NavMain items={campaignSettingsNav} className="mt-auto" />
+        {inCampaign && (
+          <>
+            <NavMain items={campaignNav} className="pt-0" />
+            <SidebarSeparator className="mx-4 w-auto" />
+          </>
+        )}
+        <NavMain items={libraryNav} className={inCampaign ? "" : "pt-0"} />
+        {inCampaign && (
+          <NavMain items={campaignSettingsNav} className="mt-auto" />
+        )}
       </SidebarContent>
 
       <SidebarFooter className="px-1.5">

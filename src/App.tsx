@@ -32,24 +32,19 @@ export default function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/invite" element={<Invite />} />
       <Route element={<CampaignShell />}>
-        <Route path="/campaigns" element={<Campaigns />} />
-        <Route path="/campaigns/new" element={<NewCampaign />} />
-        <Route path="/campaigns/join" element={<JoinCampaign />} />
-        <Route
-          path="/app"
-          element={
-            <RequireCampaign>
-              <DashboardLayout />
-            </RequireCampaign>
-          }
-        >
-          <Route index element={<Overview />} />
-          <Route path="world" element={<World />} />
-          <Route path="sessions" element={<Sessions />} />
-          <Route path="characters" element={<Characters />} />
-          <Route path="party" element={<Party />} />
+        <Route path="/app" element={<DashboardLayout />}>
+          <Route element={<RequireCampaign />}>
+            <Route index element={<Overview />} />
+            <Route path="world" element={<World />} />
+            <Route path="sessions" element={<Sessions />} />
+            <Route path="characters" element={<Characters />} />
+            <Route path="party" element={<Party />} />
+            <Route path="campaign-settings" element={<CampaignSettings />} />
+          </Route>
+          <Route path="campaigns" element={<Campaigns />} />
+          <Route path="campaigns/new" element={<NewCampaign />} />
+          <Route path="campaigns/join" element={<JoinCampaign />} />
           <Route path="library" element={<Library />} />
-          <Route path="campaign-settings" element={<CampaignSettings />} />
           <Route path="settings" element={<Settings />}>
             <Route index element={<Navigate to="profile" replace />} />
             <Route path="profile" element={<SettingsProfile />} />

@@ -89,7 +89,7 @@ export function Invite() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => navigate("/campaigns")}
+                onClick={() => navigate("/app/campaigns")}
                 disabled={busy}
               >
                 Decline
@@ -114,7 +114,7 @@ export function Invite() {
             </>
           )}
           {!preview && session && (
-            <Button variant="outline" onClick={() => navigate("/campaigns")}>
+            <Button variant="outline" onClick={() => navigate("/app/campaigns")}>
               Back
             </Button>
           )}

@@ -39,7 +39,7 @@ export function CampaignSwitcher() {
                 className="h-12 cursor-pointer pr-3 pl-2 group-data-[collapsible=icon]:size-12! group-data-[collapsible=icon]:px-2!"
               >
                 <CampaignAvatar
-                  name={name}
+                  name={current?.name ?? ""}
                   imageUrl={current?.imageUrl}
                   className="size-8 shrink-0"
                 />
@@ -85,14 +85,14 @@ export function CampaignSwitcher() {
               {campaigns.length > 0 && <DropdownMenuSeparator />}
               <DropdownMenuItem
                 className="gap-2 p-2"
-                onClick={() => navigate("/campaigns/new")}
+                onClick={() => navigate("/app/campaigns/new")}
               >
                 <Icon src={add} />
                 New campaign
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="gap-2 p-2"
-                onClick={() => navigate("/campaigns/join")}
+                onClick={() => navigate("/app/campaigns/join")}
               >
                 <Link2 />
                 Join with invite link
@@ -100,7 +100,7 @@ export function CampaignSwitcher() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="gap-2 p-2"
-                onClick={() => navigate("/campaigns")}
+                onClick={() => navigate("/app/campaigns")}
               >
                 <Icon src={globe} />
                 All campaigns
