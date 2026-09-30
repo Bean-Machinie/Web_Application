@@ -9,40 +9,39 @@ import {
   readCurrentCampaignId,
   saveCurrentCampaignId,
 } from "@/lib/current-campaign"
-import { fetchMyInvitations, respondToInvitation } from "@/lib/invitations"
-import type { Invitation } from "@/lib/invitations"
-import { dismissNotification, fetchNotifications } from "@/lib/notifications"
-import type { AppNotification } from "@/lib/notifications"
+import { respondToInvitation } from "@/lib/invitations"
+import { fetchUnreadCount } from "@/lib/notifications"
 import { CampaignContext } from "./CampaignContext"
 
-// How often to look for new invitations and notifications.
+// How often to look for new campaigns and notifications.
 const REFRESH_EVERY_MS = 60_000
 
 export function CampaignProvider({ children }: { children: ReactNode }) {
   const userId = useAuth().session?.user.id
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
-  const [invitations, setInvitations] = useState<Invitation[]>([])
-  const [notifications, setNotifications] = useState<AppNotification[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0)
   const [currentId, setCurrentId] = useState(readCurrentCampaignId)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const refresh = useCallback(
     () =>
-      Promise.all([
-        fetchCampaigns(userId!),
-        fetchMyInvitations(),
-        fetchNotifications(),
-      ])
-        .then(([list, pending, notes]) => {
+      Promise.all([fetchCampaigns(userId!), fetchUnreadCount()])
+        .then(([list, unread]) => {
           setCampaigns(list)
-          setInvitations(pending)
-          setNotifications(notes)
+          setUnreadCount(unread)
+          setRefreshKey((key) => key + 1)
           setError(null)
         })
         .catch((failure) => setError(errorMessage(failure)))
         .finally(() => setLoading(false)),
     [userId]
+  )
+
+  const refreshUnread = useCallback(
+    () => fetchUnreadCount().then(setUnreadCount, () => {}),
+    []
   )
 
   useEffect(() => {
@@ -71,11 +70,6 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     await refresh()
   }
 
-  async function dismiss(notificationId: string) {
-    await dismissNotification(notificationId)
-    setNotifications((list) => list.filter((n) => n.id !== notificationId))
-  }
-
   const current = campaigns.find((c) => c.id === currentId) ?? campaigns[0] ?? null
   const can = (permission: CampaignPermission) =>
     current !== null && roleCan(current.role, permission)
@@ -90,10 +84,10 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
         select,
         refresh,
         can,
-        invitations,
+        unreadCount,
+        refreshUnread,
+        refreshKey,
         respond,
-        notifications,
-        dismiss,
       }}
     >
       {children}

@@ -1,5 +1,4 @@
-import { FeedItem } from "@/components/dashboard/FeedItem"
-import { useNotificationFeed } from "@/components/dashboard/useNotificationFeed"
+import { NotificationList } from "@/components/dashboard/NotificationList"
 import {
   Empty,
   EmptyDescription,
@@ -7,27 +6,25 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 
-export function SettingsNotifications() {
-  const feed = useNotificationFeed()
+const PAGE_SIZE = 20
 
+export function SettingsNotifications() {
   return (
     <div className="pt-6">
-      {feed.length === 0 ? (
-        <Empty className="border border-dashed">
-          <EmptyHeader>
-            <EmptyTitle>No notifications</EmptyTitle>
-            <EmptyDescription>
-              Invitations and campaign updates will show up here.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      ) : (
-        <ul className="divide-y rounded-lg border">
-          {feed.map((entry) => (
-            <FeedItem key={entry.id} entry={entry} />
-          ))}
-        </ul>
-      )}
+      <NotificationList
+        pageSize={PAGE_SIZE}
+        className="overflow-hidden rounded-lg border"
+        empty={
+          <Empty className="border border-dashed">
+            <EmptyHeader>
+              <EmptyTitle>No notifications</EmptyTitle>
+              <EmptyDescription>
+                Invitations and campaign updates will show up here.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        }
+      />
     </div>
   )
 }

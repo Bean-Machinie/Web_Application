@@ -1,15 +1,5 @@
 import { supabase } from "@/lib/supabase"
 
-// An invitation sent to me, shown in Notifications.
-export type Invitation = {
-  id: string
-  campaignId: string
-  campaignName: string
-  campaignImageUrl: string | null
-  invitedByName: string
-  createdAt: string
-}
-
 export type Invitee = {
   id: string
   username: string | null
@@ -33,20 +23,6 @@ export type SentInvitation = {
   id: string
   inviteeUsername: string | null
   createdAt: string
-}
-
-export async function fetchMyInvitations(): Promise<Invitation[]> {
-  const { data, error } = await supabase.rpc("my_pending_invitations")
-  if (error) throw error
-
-  return (data as Record<string, string | null>[]).map((row) => ({
-    id: row.id!,
-    campaignId: row.campaign_id!,
-    campaignName: row.campaign_name!,
-    campaignImageUrl: row.campaign_image_url,
-    invitedByName: row.invited_by_name ?? "Someone",
-    createdAt: row.created_at!,
-  }))
 }
 
 // Returns the campaign id, which matters when accepting.

@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge"
 import { TabNav } from "./TabNav"
-import { useNotificationFeed } from "./useNotificationFeed"
+import { useCampaign } from "./useCampaign"
 
 export function SettingsTabs() {
-  const pending = useNotificationFeed().length
+  const pending = useCampaign().unreadCount
 
   const tabs = [
     { label: "Profile", to: "/app/settings/profile" },

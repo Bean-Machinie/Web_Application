@@ -1,8 +1,6 @@
 import { createContext } from "react"
 import type { CampaignPermission } from "@/lib/campaign-permissions"
 import type { Campaign } from "@/lib/campaigns"
-import type { Invitation } from "@/lib/invitations"
-import type { AppNotification } from "@/lib/notifications"
 
 export type CampaignState = {
   campaigns: Campaign[]
@@ -13,13 +11,13 @@ export type CampaignState = {
   refresh: () => Promise<void>
   // Whether the current user may do this in the current campaign.
   can: (permission: CampaignPermission) => boolean
-  // Invitations waiting for the current user to accept or decline.
-  invitations: Invitation[]
+  // How many notifications have not been read yet. Drives every badge.
+  unreadCount: number
+  refreshUnread: () => Promise<void>
+  // Goes up on every refresh, so open notification lists know to reload.
+  refreshKey: number
   // Accepting also adds the campaign to `campaigns`.
   respond: (invitationId: string, accept: boolean) => Promise<void>
-  // Things that happened, which only need reading and dismissing.
-  notifications: AppNotification[]
-  dismiss: (notificationId: string) => Promise<void>
 }
 
 export const CampaignContext = createContext<CampaignState>({
@@ -30,8 +28,8 @@ export const CampaignContext = createContext<CampaignState>({
   select: () => {},
   refresh: async () => {},
   can: () => false,
-  invitations: [],
+  unreadCount: 0,
+  refreshUnread: async () => {},
+  refreshKey: 0,
   respond: async () => {},
-  notifications: [],
-  dismiss: async () => {},
 })
