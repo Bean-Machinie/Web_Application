@@ -21,19 +21,25 @@ export function FullScreenLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-svh flex-col">
       <header className="flex h-16 items-center justify-between px-4 sm:px-6">
-        <Link to="/campaigns" aria-label="Heliosyn home" className="flex items-center gap-1">
+        <Link
+          to={session ? "/campaigns" : "/"}
+          aria-label="Heliosyn home"
+          className="flex items-center gap-1"
+        >
           <LogoMark className="size-9" />
           <img draggable={false} src={blackName} alt="" className="h-8 dark:hidden" />
           <img draggable={false} src={whiteName} alt="" className="hidden h-8 dark:block" />
         </Link>
-        <div className="flex items-center gap-3">
-          <span className="text-muted-foreground hidden text-sm sm:inline">
-            {session?.user.email}
-          </span>
-          <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            Log out
-          </Button>
-        </div>
+        {session && (
+          <div className="flex items-center gap-3">
+            <span className="text-muted-foreground hidden text-sm sm:inline">
+              {session.user.email}
+            </span>
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              Log out
+            </Button>
+          </div>
+        )}
       </header>
       <main className="flex flex-1 items-center justify-center p-6 pb-24">
         {children}

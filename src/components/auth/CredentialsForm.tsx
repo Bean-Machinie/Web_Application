@@ -3,14 +3,22 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { USERNAME_HINT } from "@/lib/username"
 
 type Props = {
   submitLabel: string
-  onSubmit: (email: string, password: string) => Promise<void>
+  // Asks for a username too, for sign-up.
+  withUsername?: boolean
+  onSubmit: (
+    email: string,
+    password: string,
+    username: string
+  ) => Promise<void>
 }
 
-export function CredentialsForm({ submitLabel, onSubmit }: Props) {
+export function CredentialsForm({ submitLabel, withUsername, onSubmit }: Props) {
   const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [busy, setBusy] = useState(false)
 
@@ -18,7 +26,7 @@ export function CredentialsForm({ submitLabel, onSubmit }: Props) {
     event.preventDefault()
     setBusy(true)
     try {
-      await onSubmit(email, password)
+      await onSubmit(email, password, username)
     } finally {
       setBusy(false)
     }
@@ -39,12 +47,29 @@ export function CredentialsForm({ submitLabel, onSubmit }: Props) {
           disabled={busy}
         />
       </div>
+      {withUsername && (
+        <div className="grid gap-2">
+          <Label htmlFor="username">Username</Label>
+          <Input
+            id="username"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+            required
+            maxLength={20}
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+            disabled={busy}
+          />
+          <p className="text-muted-foreground text-xs">{USERNAME_HINT}</p>
+        </div>
+      )}
       <div className="grid gap-2">
         <Label htmlFor="password">Password</Label>
         <Input
           id="password"
           type="password"
-          autoComplete="current-password"
+          autoComplete={withUsername ? "new-password" : "current-password"}
           required
           value={password}
           onChange={(event) => setPassword(event.target.value)}

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import arrow from "@/assets/icons/arrow.svg"
 import { FormAlert } from "@/components/auth/FormAlert"
+import { CampaignAvatar } from "@/components/dashboard/CampaignAvatar"
 import { useCampaign } from "@/components/dashboard/useCampaign"
 import { FullScreenLayout } from "@/components/FullScreenLayout"
 import { FullScreenSpinner } from "@/components/FullScreenSpinner"
@@ -57,9 +58,11 @@ export function Campaigns() {
                       navigate("/app")
                     }}
                   >
-                    <span className="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-lg text-sm font-medium">
-                      {campaign.name[0]}
-                    </span>
+                    <CampaignAvatar
+                      name={campaign.name}
+                      imageUrl={campaign.imageUrl}
+                      className="size-8 shrink-0"
+                    />
                     <span className="flex-1 truncate text-sm font-medium">
                       {campaign.name}
                     </span>

@@ -83,6 +83,15 @@ create a campaign, join with an invite link, and reset that link. Who may do
 what is decided in one place, the `campaign_role_permissions` table, which the
 front end mirrors in `src/lib/campaign-permissions.ts`.
 
+The fourth migration adds a `campaign-images` storage bucket and a campaign
+image, usernames (with `display_name` and `avatar_url` copied onto `profiles`
+so other people can be shown them), invitations to existing users
+(`campaign_invitations`, with exact-match search by email or username), and a
+public preview of an invite link. It adds a `manage` permission for the GM.
+Sign-up asks for a username; in Supabase, add your site address under
+Authentication → URL Configuration → Redirect URLs so the confirmation email
+can send people back to an invite link.
+
 Row-level security is what actually protects your data. This app is a
 client-side SPA, so the route guard on `/app` only hides the UI — every table
 you add should have RLS enabled and policies written for it.
@@ -103,6 +112,7 @@ the Supabase dashboard.
 | `/signup` | Account creation |
 | `/app` | Dashboard — requires a signed-in user with a campaign; anyone without one is sent to `/onboarding` |
 | `/onboarding` | Full-screen start page for someone with no campaign |
+| `/invite?code=…` | Public Accept or Decline screen for an invite link; asks new people to sign up first |
 | `/campaigns/new`, `/campaigns/join` | Full-screen forms to create a campaign or join one with an invite link |
 | `/app/world`, `/app/sessions`, `/app/characters`, `/app/party`, `/app/library`, `/app/support` | Placeholder sections |
 | `/app/campaign-settings` | Manage the current campaign's invite link |

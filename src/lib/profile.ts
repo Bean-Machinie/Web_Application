@@ -17,10 +17,19 @@ export function getDisplayName(user: User) {
   return getProfile(user).displayName.trim()
 }
 
+// Up to two capitals from the first two words, or "" for an empty name.
+export function initialsOf(name: string) {
+  // The first letter or number of each word, so "Salt & Iron" gives "SI".
+  const letters = name
+    .split(/\s+/)
+    .map((word) => word.match(/[\p{L}\p{N}]/u)?.[0])
+    .filter(Boolean)
+
+  return letters.slice(0, 2).join("").toUpperCase()
+}
+
 export function getInitials(user: User) {
   const { displayName, email } = getProfile(user)
-  const words = displayName.trim().split(/\s+/).filter(Boolean)
-  const fromName = words.slice(0, 2).map((word) => word[0]).join("")
 
-  return (fromName || email.slice(0, 2)).toUpperCase() || "??"
+  return initialsOf(displayName) || email.slice(0, 2).toUpperCase() || "??"
 }

@@ -1,7 +1,13 @@
 import { supabase } from "@/lib/supabase"
 import type { CampaignRole } from "./campaign-permissions"
 
-export type Campaign = { id: string; name: string; role: CampaignRole }
+export type Campaign = {
+  id: string
+  name: string
+  role: CampaignRole
+  imageUrl: string | null
+  imagePath: string | null
+}
 
 // Supabase errors are not always Error instances, so read the message directly.
 export function errorMessage(error: unknown) {
@@ -11,7 +17,7 @@ export function errorMessage(error: unknown) {
 export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
   const { data, error } = await supabase
     .from("campaign_members")
-    .select("role, campaign:campaigns(id, name)")
+    .select("role, campaign:campaigns(id, name, image_url, image_path)")
     .eq("user_id", userId)
     .order("joined_at")
   if (error) throw error
@@ -20,13 +26,20 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
   // campaign_id is a to-one relation, so it is a single object at runtime.
   const rows = data as unknown as {
     role: CampaignRole
-    campaign: { id: string; name: string }
+    campaign: {
+      id: string
+      name: string
+      image_url: string | null
+      image_path: string | null
+    }
   }[]
 
   return rows.map((row) => ({
     id: row.campaign.id,
     name: row.campaign.name,
     role: row.role,
+    imageUrl: row.campaign.image_url,
+    imagePath: row.campaign.image_path,
   }))
 }
 
@@ -36,7 +49,13 @@ export async function createCampaign(name: string): Promise<Campaign> {
   })
   if (error) throw error
 
-  return { id: data.id, name: data.name, role: "gm" }
+  return {
+    id: data.id,
+    name: data.name,
+    role: "gm",
+    imageUrl: null,
+    imagePath: null,
+  }
 }
 
 export async function joinCampaign(code: string): Promise<string> {
@@ -68,8 +87,9 @@ export async function resetInviteCode(campaignId: string): Promise<string> {
   return data
 }
 
+// The public page people land on when they open an invite link.
 export function inviteUrl(code: string) {
-  return `${window.location.origin}/campaigns/join?code=${code}`
+  return `${window.location.origin}/invite?code=${code}`
 }
 
 // Accepts a full invite link or just the code.

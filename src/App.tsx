@@ -6,6 +6,7 @@ import { CampaignSettings } from "@/pages/CampaignSettings"
 import { Campaigns } from "@/pages/Campaigns"
 import { Characters } from "@/pages/Characters"
 import { Home } from "@/pages/Home"
+import { Invite } from "@/pages/Invite"
 import { JoinCampaign } from "@/pages/JoinCampaign"
 import { Library } from "@/pages/Library"
 import { Login } from "@/pages/Login"
@@ -29,6 +30,7 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/invite" element={<Invite />} />
       <Route element={<CampaignShell />}>
         <Route path="/campaigns" element={<Campaigns />} />
         <Route path="/campaigns/new" element={<NewCampaign />} />

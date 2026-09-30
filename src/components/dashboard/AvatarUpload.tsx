@@ -4,7 +4,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Icon } from "@/components/Icon"
-import { useAuth } from "@/auth/useAuth"
 import { useFileDataUrl } from "@/hooks/use-file-data-url"
 import { formatBytes, useFileUpload } from "@/hooks/use-file-upload"
 import {
@@ -13,7 +12,6 @@ import {
   NO_AVATAR_CHANGE,
 } from "@/lib/avatar"
 import type { AvatarChange } from "@/lib/avatar"
-import { getInitials, getProfile } from "@/lib/profile"
 import { cn } from "@/lib/utils"
 import { AvatarCropDialog } from "./AvatarCropDialog"
 
@@ -21,11 +19,26 @@ type Props = {
   change: AvatarChange
   onChange: (change: AvatarChange) => void
   disabled: boolean
+  // The saved image and what to show when there is none.
+  currentUrl: string
+  initials: string
+  // "photo" for a profile, "image" for a campaign.
+  noun?: string
+  // Size (and text size for the initials) of the circle.
+  className?: string
+  fallbackClassName?: string
 }
 
-export function AvatarUpload({ change, onChange, disabled }: Props) {
-  const user = useAuth().session!.user
-  const { avatarUrl } = getProfile(user)
+export function AvatarUpload({
+  change,
+  onChange,
+  disabled,
+  currentUrl,
+  initials,
+  noun = "photo",
+  className = "size-20 text-xl",
+  fallbackClassName,
+}: Props) {
   const [cropSource, setCropSource] = useState<File | null>(null)
 
   const [
@@ -49,14 +62,14 @@ export function AvatarUpload({ change, onChange, disabled }: Props) {
   })
 
   const pendingUrl = useFileDataUrl(change.file)
-  const shownUrl = pendingUrl ?? (change.remove ? "" : avatarUrl)
+  const shownUrl = pendingUrl ?? (change.remove ? "" : currentUrl)
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-5">
         <button
           type="button"
-          aria-label={shownUrl ? "Change profile photo" : "Upload profile photo"}
+          aria-label={shownUrl ? `Change ${noun}` : `Upload ${noun}`}
           disabled={disabled}
           onClick={openFileDialog}
           onDragEnter={handleDragEnter}
@@ -64,14 +77,15 @@ export function AvatarUpload({ change, onChange, disabled }: Props) {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
           className={cn(
-            "group/upload ring-offset-background focus-visible:ring-ring relative size-20 shrink-0 cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-default",
+            "group/upload ring-offset-background focus-visible:ring-ring relative shrink-0 cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-default",
+            className,
             isDragging && "ring-primary ring-2 ring-offset-2"
           )}
         >
           <Avatar className="size-full">
             {shownUrl && <AvatarImage src={shownUrl} alt="" />}
-            <AvatarFallback className="text-xl">
-              {getInitials(user)}
+            <AvatarFallback className={fallbackClassName}>
+              {initials}
             </AvatarFallback>
           </Avatar>
           <span
@@ -103,11 +117,11 @@ export function AvatarUpload({ change, onChange, disabled }: Props) {
               disabled={disabled}
               onClick={() =>
                 onChange(
-                  avatarUrl ? { file: null, remove: true } : NO_AVATAR_CHANGE
+                  currentUrl ? { file: null, remove: true } : NO_AVATAR_CHANGE
                 )
               }
             >
-              Remove photo
+              Remove {noun}
             </Button>
           )}
         </div>

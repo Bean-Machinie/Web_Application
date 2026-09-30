@@ -17,26 +17,34 @@ function storedPath(user: User) {
   return (user.user_metadata as { avatar_path?: string }).avatar_path
 }
 
+// Uploads into "<folder>/<timestamp>.<ext>" and returns where it went.
+export async function uploadImage(bucket: string, folder: string, file: File) {
+  const extension = file.type.split("/")[1] ?? "png"
+  // A fresh name per upload avoids the CDN serving the previous image.
+  const path = `${folder}/${Date.now()}.${extension}`
+
+  const { error } = await supabase.storage
+    .from(bucket)
+    .upload(path, file, { contentType: file.type })
+  if (error) throw error
+
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path)
+  return { url: data.publicUrl, path }
+}
+
+export async function deleteImage(bucket: string, path?: string | null) {
+  if (path) await supabase.storage.from(bucket).remove([path])
+}
+
 // Uploads the new file (if any) and returns the metadata to save with the
 // rest of the profile. Nothing is deleted until the metadata is saved.
 export async function uploadPendingAvatar(user: User, change: AvatarChange) {
   if (change.remove) return { avatar_url: null, avatar_path: null }
   if (!change.file) return {}
 
-  const extension = change.file.type.split("/")[1] ?? "png"
-  // A fresh name per upload avoids the CDN serving the previous image.
-  const path = `${user.id}/${Date.now()}.${extension}`
-
-  const { error } = await supabase.storage
-    .from(BUCKET)
-    .upload(path, change.file, { contentType: change.file.type })
-  if (error) throw error
-
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path)
-  return { avatar_url: data.publicUrl, avatar_path: path }
+  const { url, path } = await uploadImage(BUCKET, user.id, change.file)
+  return { avatar_url: url, avatar_path: path }
 }
 
-export async function deletePreviousAvatar(user: User) {
-  const path = storedPath(user)
-  if (path) await supabase.storage.from(BUCKET).remove([path])
-}
+export const deletePreviousAvatar = (user: User) =>
+  deleteImage(BUCKET, storedPath(user))

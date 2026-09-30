@@ -37,7 +37,11 @@ export function Login() {
       footer={
         <>
           Don&apos;t have an account?{" "}
-          <Link to="/signup" className="underline underline-offset-4">
+          <Link
+            to="/signup"
+            state={{ from }}
+            className="underline underline-offset-4"
+          >
             Sign up
           </Link>
         </>

@@ -19,22 +19,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { CampaignAvatar } from "./CampaignAvatar"
 import { MenuChevron } from "./MenuChevron"
 import { useCampaign } from "./useCampaign"
-
-function CampaignTile({ name, size }: { name: string; size: "sm" | "md" }) {
-  return (
-    <div
-      className={
-        size === "md"
-          ? "bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-lg text-sm font-medium"
-          : "flex size-6 shrink-0 items-center justify-center rounded-md border text-xs font-medium"
-      }
-    >
-      {name[0] ?? "?"}
-    </div>
-  )
-}
 
 export function CampaignSwitcher() {
   const navigate = useNavigate()
@@ -51,7 +38,11 @@ export function CampaignSwitcher() {
                 size="lg"
                 className="h-12 cursor-pointer pr-3 pl-2 group-data-[collapsible=icon]:size-12! group-data-[collapsible=icon]:px-2!"
               >
-                <CampaignTile name={name} size="md" />
+                <CampaignAvatar
+                  name={name}
+                  imageUrl={current?.imageUrl}
+                  className="size-8 shrink-0"
+                />
                 <div className="grid flex-1 text-left text-[14.5px] leading-tight">
                   <span className="truncate font-medium">{name}</span>
                   <span className="text-muted-foreground truncate text-[12.5px]">
@@ -79,7 +70,11 @@ export function CampaignSwitcher() {
                     className="gap-2 p-2"
                     onClick={() => select(campaign.id)}
                   >
-                    <CampaignTile name={campaign.name} size="sm" />
+                    <CampaignAvatar
+                      name={campaign.name}
+                      imageUrl={campaign.imageUrl}
+                      className="size-6 shrink-0"
+                    />
                     <span className="flex-1 truncate">{campaign.name}</span>
                     {campaign.id === current?.id && (
                       <Icon src={checkMark} className="size-4" />

@@ -3,31 +3,38 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useAuth } from "@/auth/useAuth"
-import {
-  NO_AVATAR_CHANGE,
-  deletePreviousAvatar,
-  hasAvatarChange,
-  uploadPendingAvatar,
-} from "@/lib/avatar"
-import { getProfile } from "@/lib/profile"
-import { supabase } from "@/lib/supabase"
+import { useSavedUsername } from "@/hooks/use-saved-username"
+import { NO_AVATAR_CHANGE, hasAvatarChange } from "@/lib/avatar"
+import { errorMessage } from "@/lib/campaigns"
+import { getInitials, getProfile } from "@/lib/profile"
+import { saveProfile } from "@/lib/save-profile"
+import { normalizeUsername } from "@/lib/username"
 import { AvatarUpload } from "./AvatarUpload"
 import { FormFooter } from "./FormFooter"
 import { SettingsSection } from "./SettingsSection"
+import { UsernameSection } from "./UsernameSection"
 
 type Notice = { tone: "error" | "success"; text: string }
 
 export function PersonalDetailsForm() {
   const user = useAuth().session!.user
-  const { displayName, description, email } = getProfile(user)
+  const { displayName, description, email, avatarUrl } = getProfile(user)
   const saved = { displayName, description }
   const [values, setValues] = useState(saved)
+  const [savedUsername, setSavedUsername] = useSavedUsername(user.id)
+  // null until the person edits it, so the loaded username shows meanwhile.
+  const [usernameInput, setUsernameInput] = useState<string | null>(null)
   const [avatar, setAvatar] = useState(NO_AVATAR_CHANGE)
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState<Notice | null>(null)
 
+  const usernameChanged =
+    usernameInput !== null &&
+    normalizeUsername(usernameInput) !== (savedUsername ?? "")
   const dirty =
-    JSON.stringify(values) !== JSON.stringify(saved) || hasAvatarChange(avatar)
+    JSON.stringify(values) !== JSON.stringify(saved) ||
+    usernameChanged ||
+    hasAvatarChange(avatar)
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -35,24 +42,19 @@ export function PersonalDetailsForm() {
     setNotice(null)
 
     try {
-      const photo = await uploadPendingAvatar(user, avatar)
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          display_name: values.displayName.trim(),
-          description: values.description.trim(),
-          // Clears any real name or job title saved by an earlier version.
-          first_name: null,
-          last_name: null,
-          job_title: null,
-          ...photo,
+      await saveProfile({
+        user,
+        details: values,
+        username: usernameChanged ? usernameInput : null,
+        avatar,
+        onUsernameSaved: () => {
+          setSavedUsername(normalizeUsername(usernameInput!))
+          setUsernameInput(null)
         },
       })
-      if (error) throw error
-      if (hasAvatarChange(avatar)) await deletePreviousAvatar(user)
     } catch (error) {
       setBusy(false)
-      const text = error instanceof Error ? error.message : "Could not save."
-      return setNotice({ tone: "error", text })
+      return setNotice({ tone: "error", text: errorMessage(error) })
     }
 
     setBusy(false)
@@ -66,7 +68,13 @@ export function PersonalDetailsForm() {
         title="Your photo"
         description="This is shown across the workspace."
       >
-        <AvatarUpload change={avatar} onChange={setAvatar} disabled={busy} />
+        <AvatarUpload
+          change={avatar}
+          onChange={setAvatar}
+          disabled={busy}
+          currentUrl={avatarUrl}
+          initials={getInitials(user)}
+        />
       </SettingsSection>
 
       <SettingsSection
@@ -84,6 +92,12 @@ export function PersonalDetailsForm() {
           disabled={busy}
         />
       </SettingsSection>
+
+      <UsernameSection
+        value={usernameInput ?? savedUsername ?? ""}
+        onChange={setUsernameInput}
+        disabled={busy || savedUsername === null}
+      />
 
       <SettingsSection
         title="Email address"
@@ -126,6 +140,7 @@ export function PersonalDetailsForm() {
           canSubmit={dirty}
           onCancel={() => {
             setValues(saved)
+            setUsernameInput(null)
             setAvatar(NO_AVATAR_CHANGE)
             setNotice(null)
           }}

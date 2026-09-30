@@ -4,31 +4,29 @@ import { useAuth } from "@/auth/useAuth"
 import { can as roleCan } from "@/lib/campaign-permissions"
 import type { CampaignPermission } from "@/lib/campaign-permissions"
 import { errorMessage, fetchCampaigns } from "@/lib/campaigns"
+import {
+  readCurrentCampaignId,
+  saveCurrentCampaignId,
+} from "@/lib/current-campaign"
 import type { Campaign } from "@/lib/campaigns"
+import { fetchMyInvitations, respondToInvitation } from "@/lib/invitations"
+import type { Invitation } from "@/lib/invitations"
 import { CampaignContext } from "./CampaignContext"
-
-const STORAGE_KEY = "current_campaign"
-
-function readSavedId() {
-  try {
-    return localStorage.getItem(STORAGE_KEY)
-  } catch {
-    return null
-  }
-}
 
 export function CampaignProvider({ children }: { children: ReactNode }) {
   const userId = useAuth().session?.user.id
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
-  const [currentId, setCurrentId] = useState(readSavedId)
+  const [invitations, setInvitations] = useState<Invitation[]>([])
+  const [currentId, setCurrentId] = useState(readCurrentCampaignId)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const refresh = useCallback(
     () =>
-      fetchCampaigns(userId!)
-        .then((list) => {
+      Promise.all([fetchCampaigns(userId!), fetchMyInvitations()])
+        .then(([list, pending]) => {
           setCampaigns(list)
+          setInvitations(pending)
           setError(null)
         })
         .catch((failure) => setError(errorMessage(failure)))
@@ -42,11 +40,12 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
 
   function select(id: string) {
     setCurrentId(id)
-    try {
-      localStorage.setItem(STORAGE_KEY, id)
-    } catch {
-      // Remembering the choice is a convenience only.
-    }
+    saveCurrentCampaignId(id)
+  }
+
+  async function respond(invitationId: string, accept: boolean) {
+    await respondToInvitation(invitationId, accept)
+    await refresh()
   }
 
   const current = campaigns.find((c) => c.id === currentId) ?? campaigns[0] ?? null
@@ -55,7 +54,17 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
 
   return (
     <CampaignContext.Provider
-      value={{ campaigns, current, loading, error, select, refresh, can }}
+      value={{
+        campaigns,
+        current,
+        loading,
+        error,
+        select,
+        refresh,
+        can,
+        invitations,
+        respond,
+      }}
     >
       {children}
     </CampaignContext.Provider>

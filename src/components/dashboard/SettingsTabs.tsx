@@ -1,5 +1,7 @@
 import { NavLink } from "react-router-dom"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { useCampaign } from "./useCampaign"
 
 const tabs = [
   { label: "Profile", to: "/app/settings/profile" },
@@ -10,6 +12,8 @@ const tabs = [
 ]
 
 export function SettingsTabs() {
+  const pending = useCampaign().invitations.length
+
   return (
     <nav
       aria-label="Settings"
@@ -21,7 +25,7 @@ export function SettingsTabs() {
           to={tab.to}
           className={({ isActive }) =>
             cn(
-              "focus-visible:ring-ring -mb-px shrink-0 rounded-t-md border-b-2 px-3 pt-1 pb-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2",
+              "focus-visible:ring-ring -mb-px flex shrink-0 items-center gap-2 rounded-t-md border-b-2 px-3 pt-1 pb-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2",
               isActive
                 ? "border-primary text-foreground"
                 : "text-muted-foreground hover:text-foreground border-transparent"
@@ -29,6 +33,9 @@ export function SettingsTabs() {
           }
         >
           {tab.label}
+          {tab.label === "Notifications" && pending > 0 && (
+            <Badge className="h-5 min-w-5 rounded-full px-1.5">{pending}</Badge>
+          )}
         </NavLink>
       ))}
     </nav>
