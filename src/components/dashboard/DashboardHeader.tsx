@@ -6,7 +6,9 @@ import { navItems } from "./nav-items"
 
 function useCurrentTitle() {
   const { pathname } = useLocation()
-  const match = navItems.find((item) => item.to === pathname)
+  const match = navItems.find(
+    (item) => item.to !== "/app" && pathname.startsWith(item.to)
+  )
 
   return match?.title ?? "Overview"
 }

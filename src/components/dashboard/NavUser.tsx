@@ -21,6 +21,7 @@ import profile from "@/assets/icons/menu-profile.svg"
 import settings from "@/assets/icons/settings.svg"
 import { Icon } from "@/components/Icon"
 import { MenuChevron } from "./MenuChevron"
+import { getDisplayName, getInitials } from "@/lib/profile"
 import { supabase } from "@/lib/supabase"
 
 export function NavUser() {
@@ -29,7 +30,8 @@ export function NavUser() {
   const navigate = useNavigate()
 
   const email = session?.user.email ?? ""
-  const initials = email.slice(0, 2).toUpperCase() || "??"
+  const initials = session ? getInitials(session.user) : "??"
+  const name = (session && getDisplayName(session.user)) || "Account"
 
   async function handleSignOut() {
     await supabase.auth.signOut()
@@ -49,7 +51,7 @@ export function NavUser() {
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-[14.5px] leading-tight">
-                <span className="truncate font-medium">Account</span>
+                <span className="truncate font-medium">{name}</span>
                 <span className="text-muted-foreground truncate text-[12.5px]">
                   {email}
                 </span>
@@ -71,7 +73,7 @@ export function NavUser() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Account</span>
+                  <span className="truncate font-medium">{name}</span>
                   <span className="text-muted-foreground truncate text-xs">
                     {email}
                   </span>
@@ -80,7 +82,7 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => navigate("/app/settings")}>
+              <DropdownMenuItem onClick={() => navigate("/app/settings/profile")}>
                 <Icon src={profile} />
                 Profile
               </DropdownMenuItem>
