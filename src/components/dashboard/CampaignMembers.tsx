@@ -11,7 +11,7 @@ import { errorMessage } from "@/lib/campaigns"
 import type { Campaign } from "@/lib/campaigns"
 import { fetchSentInvitations } from "@/lib/invitations"
 import type { SentInvitation } from "@/lib/invitations"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Badge } from "@/components/ui/badge"
 import { ConfirmDialog } from "./ConfirmDialog"
 import { InviteDialog } from "./InviteDialog"
 import { MembersTable } from "./MembersTable"
@@ -101,40 +101,46 @@ export function CampaignMembers({ campaign }: { campaign: Campaign }) {
 
   return (
     <div className="flex flex-col gap-6 py-6">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-medium">Members</h3>
-          <div className="text-muted-foreground mt-0.5 text-sm">
-            {members ? (
-              `${members.length} in this campaign.`
-            ) : (
-              <Skeleton className="h-5 w-32" />
-            )}
+      <div className="bg-card overflow-hidden rounded-xl border shadow-xs">
+        <div className="flex items-center justify-between gap-3 px-6 py-5">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold">Members</h3>
+              {members && <Badge variant="secondary">{members.length}</Badge>}
+            </div>
+            <p className="text-muted-foreground mt-0.5 text-sm">
+              Everyone with access to this campaign.
+            </p>
           </div>
+          {canInvite && (
+            <Button onClick={() => setInviting(true)}>
+              <UserPlus className="size-4" />
+              Invite
+            </Button>
+          )}
         </div>
-        {canInvite && (
-          <Button onClick={() => setInviting(true)}>
-            <UserPlus className="size-4" />
-            Invite
-          </Button>
-        )}
-      </div>
 
-      {error && !removing && <FormAlert tone="error">{error}</FormAlert>}
-      <LoadingGate
-        loading={!members && !error}
-        skeleton={<MembersTableSkeleton withActions={can("remove_members")} />}
-      >
-        {() =>
-          members && (
-            <MembersTable
-              members={members}
-              userId={userId}
-              actionsFor={can("remove_members") ? actionsFor : null}
-            />
-          )
-        }
-      </LoadingGate>
+        {error && !removing && (
+          <div className="border-t px-6 py-4">
+            <FormAlert tone="error">{error}</FormAlert>
+          </div>
+        )}
+        <LoadingGate
+          loading={!members && !error}
+          className="border-t"
+          skeleton={<MembersTableSkeleton withActions={can("remove_members")} />}
+        >
+          {() =>
+            members && (
+              <MembersTable
+                members={members}
+                userId={userId}
+                actionsFor={can("remove_members") ? actionsFor : null}
+              />
+            )
+          }
+        </LoadingGate>
+      </div>
 
       {canInvite && <SentInvitations invitations={sent} onCancelled={loadSent} />}
 

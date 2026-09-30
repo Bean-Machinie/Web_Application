@@ -20,3 +20,8 @@ export function timeAgo(iso: string) {
   }
   return "just now"
 }
+
+const dateFormatter = new Intl.DateTimeFormat(undefined, { dateStyle: "medium" })
+
+// "Sep 30, 2026".
+export const formatDate = (iso: string) => dateFormatter.format(new Date(iso))
