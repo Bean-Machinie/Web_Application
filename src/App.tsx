@@ -1,8 +1,9 @@
 import { Navigate, Route, Routes } from "react-router-dom"
-import { RequireAuth } from "@/auth/RequireAuth"
+import { CampaignShell } from "@/components/dashboard/CampaignShell"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { RequireCampaign } from "@/components/dashboard/RequireCampaign"
 import { CampaignSettings } from "@/pages/CampaignSettings"
+import { Campaigns } from "@/pages/Campaigns"
 import { Characters } from "@/pages/Characters"
 import { Home } from "@/pages/Home"
 import { JoinCampaign } from "@/pages/JoinCampaign"
@@ -28,34 +29,35 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route
-        path="/app"
-        element={
-          <RequireAuth>
-            <DashboardLayout />
-          </RequireAuth>
-        }
-      >
-        <Route element={<RequireCampaign />}>
+      <Route element={<CampaignShell />}>
+        <Route path="/campaigns" element={<Campaigns />} />
+        <Route path="/campaigns/new" element={<NewCampaign />} />
+        <Route path="/campaigns/join" element={<JoinCampaign />} />
+        <Route
+          path="/app"
+          element={
+            <RequireCampaign>
+              <DashboardLayout />
+            </RequireCampaign>
+          }
+        >
           <Route index element={<Overview />} />
           <Route path="world" element={<World />} />
           <Route path="sessions" element={<Sessions />} />
           <Route path="characters" element={<Characters />} />
           <Route path="party" element={<Party />} />
+          <Route path="library" element={<Library />} />
           <Route path="campaign-settings" element={<CampaignSettings />} />
+          <Route path="settings" element={<Settings />}>
+            <Route index element={<Navigate to="profile" replace />} />
+            <Route path="profile" element={<SettingsProfile />} />
+            <Route path="appearance" element={<SettingsAppearance />} />
+            <Route path="password" element={<SettingsPassword />} />
+            <Route path="notifications" element={<SettingsNotifications />} />
+            <Route path="billing" element={<SettingsBilling />} />
+          </Route>
+          <Route path="support" element={<Support />} />
         </Route>
-        <Route path="library" element={<Library />} />
-        <Route path="campaigns/new" element={<NewCampaign />} />
-        <Route path="campaigns/join" element={<JoinCampaign />} />
-        <Route path="settings" element={<Settings />}>
-          <Route index element={<Navigate to="profile" replace />} />
-          <Route path="profile" element={<SettingsProfile />} />
-          <Route path="password" element={<SettingsPassword />} />
-          <Route path="appearance" element={<SettingsAppearance />} />
-          <Route path="notifications" element={<SettingsNotifications />} />
-          <Route path="billing" element={<SettingsBilling />} />
-        </Route>
-        <Route path="support" element={<Support />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

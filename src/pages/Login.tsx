@@ -12,7 +12,8 @@ export function Login() {
   // RequireAuth sends people here from the page they were trying to reach,
   // which is how an invite link survives the login.
   const from = (location.state as { from?: string } | null)?.from
-  const destination = from?.startsWith("/app") ? from : "/app"
+  const destination =
+    from?.startsWith("/") && !from.startsWith("//") ? from : "/app"
 
   async function handleSubmit(email: string, password: string) {
     setError(null)

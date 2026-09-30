@@ -127,4 +127,10 @@
   html {
     @apply font-sans;
     }
+  /* Logos and icons are artwork, not content: no highlighting or dragging. */
+  img,
+  svg {
+    -webkit-user-drag: none;
+    user-select: none;
+    }
 }

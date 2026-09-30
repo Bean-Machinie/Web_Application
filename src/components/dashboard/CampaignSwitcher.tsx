@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom"
 import { Link2 } from "lucide-react"
 import add from "@/assets/icons/add.svg"
 import checkMark from "@/assets/icons/check-mark.svg"
+import globe from "@/assets/icons/globe.svg"
 import { Icon } from "@/components/Icon"
 import {
   DropdownMenu,
@@ -89,17 +90,25 @@ export function CampaignSwitcher() {
               {campaigns.length > 0 && <DropdownMenuSeparator />}
               <DropdownMenuItem
                 className="gap-2 p-2"
-                onClick={() => navigate("/app/campaigns/new")}
+                onClick={() => navigate("/campaigns/new")}
               >
                 <Icon src={add} />
                 New campaign
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="gap-2 p-2"
-                onClick={() => navigate("/app/campaigns/join")}
+                onClick={() => navigate("/campaigns/join")}
               >
                 <Link2 />
                 Join with invite link
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="gap-2 p-2"
+                onClick={() => navigate("/campaigns")}
+              >
+                <Icon src={globe} />
+                All campaigns
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

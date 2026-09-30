@@ -69,7 +69,7 @@ export async function resetInviteCode(campaignId: string): Promise<string> {
 }
 
 export function inviteUrl(code: string) {
-  return `${window.location.origin}/app/campaigns/join?code=${code}`
+  return `${window.location.origin}/campaigns/join?code=${code}`
 }
 
 // Accepts a full invite link or just the code.

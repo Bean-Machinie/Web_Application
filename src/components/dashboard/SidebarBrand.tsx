@@ -50,12 +50,12 @@ export function SidebarBrand() {
           </div>
           {/* Fades rather than resizing, so it never looks stretched mid-animation. */}
           <div className="-ml-3.5 flex flex-1 items-center transition-opacity duration-200 ease-linear group-data-[collapsible=icon]:opacity-0">
-            <img
+            <img draggable={false}
               src={blackName}
               alt="Heliosyn"
               className="h-[37px] max-w-none shrink-0 dark:hidden"
             />
-            <img
+            <img draggable={false}
               src={whiteName}
               alt="Heliosyn"
               className="hidden h-[37px] max-w-none shrink-0 dark:block"

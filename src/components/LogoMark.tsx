@@ -5,12 +5,12 @@ import { cn } from "@/lib/utils"
 export function LogoMark({ className }: { className?: string }) {
   return (
     <>
-      <img
+      <img draggable={false}
         src={blackIcon}
         alt=""
         className={cn("object-contain dark:hidden", className)}
       />
-      <img
+      <img draggable={false}
         src={whiteIcon}
         alt=""
         className={cn("hidden object-contain dark:block", className)}

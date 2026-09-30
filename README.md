@@ -101,9 +101,11 @@ the Supabase dashboard.
 | `/` | Landing page |
 | `/login` | Email + password login |
 | `/signup` | Account creation |
-| `/app` | Dashboard — requires a signed-in user |
+| `/app` | Dashboard — requires a signed-in user with a campaign; anyone without one is sent to `/onboarding` |
+| `/onboarding` | Full-screen start page for someone with no campaign |
+| `/campaigns/new`, `/campaigns/join` | Full-screen forms to create a campaign or join one with an invite link |
 | `/app/world`, `/app/sessions`, `/app/characters`, `/app/party`, `/app/library`, `/app/support` | Placeholder sections |
-| `/app/campaigns/new`, `/app/campaigns/join`, `/app/campaign-settings` | Create or join a campaign, and manage its invite link |
+| `/app/campaign-settings` | Manage the current campaign's invite link |
 | `/app/settings/*` | Profile (photo, display name), appearance and password; notifications and billing are placeholders |
 
 The sidebar collapses to an icon rail (toggle button or `Ctrl`/`Cmd` + `B`),
