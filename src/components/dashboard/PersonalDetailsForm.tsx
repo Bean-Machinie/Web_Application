@@ -1,11 +1,17 @@
 import { useState } from "react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useAuth } from "@/auth/useAuth"
-import { getInitials, getProfile } from "@/lib/profile"
+import {
+  NO_AVATAR_CHANGE,
+  deletePreviousAvatar,
+  hasAvatarChange,
+  uploadPendingAvatar,
+} from "@/lib/avatar"
+import { getProfile } from "@/lib/profile"
 import { supabase } from "@/lib/supabase"
+import { AvatarUpload } from "./AvatarUpload"
 import { FormFooter } from "./FormFooter"
 import { SettingsSection } from "./SettingsSection"
 
@@ -13,12 +19,15 @@ type Notice = { tone: "error" | "success"; text: string }
 
 export function PersonalDetailsForm() {
   const user = useAuth().session!.user
-  const saved = getProfile(user)
+  const { firstName, lastName, jobTitle, email } = getProfile(user)
+  const saved = { firstName, lastName, jobTitle, email }
   const [values, setValues] = useState(saved)
+  const [avatar, setAvatar] = useState(NO_AVATAR_CHANGE)
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState<Notice | null>(null)
 
-  const dirty = JSON.stringify(values) !== JSON.stringify(saved)
+  const dirty =
+    JSON.stringify(values) !== JSON.stringify(saved) || hasAvatarChange(avatar)
   const set =
     (key: keyof typeof values) => (event: React.ChangeEvent<HTMLInputElement>) =>
       setValues({ ...values, [key]: event.target.value })
@@ -29,17 +38,27 @@ export function PersonalDetailsForm() {
     setNotice(null)
 
     const emailChanged = values.email !== saved.email
-    const { error } = await supabase.auth.updateUser({
-      ...(emailChanged && { email: values.email }),
-      data: {
-        first_name: values.firstName,
-        last_name: values.lastName,
-        job_title: values.jobTitle,
-      },
-    })
+    try {
+      const photo = await uploadPendingAvatar(user, avatar)
+      const { error } = await supabase.auth.updateUser({
+        ...(emailChanged && { email: values.email }),
+        data: {
+          first_name: values.firstName,
+          last_name: values.lastName,
+          job_title: values.jobTitle,
+          ...photo,
+        },
+      })
+      if (error) throw error
+      if (hasAvatarChange(avatar)) await deletePreviousAvatar(user)
+    } catch (error) {
+      setBusy(false)
+      const text = error instanceof Error ? error.message : "Could not save."
+      return setNotice({ tone: "error", text })
+    }
 
     setBusy(false)
-    if (error) return setNotice({ tone: "error", text: error.message })
+    setAvatar(NO_AVATAR_CHANGE)
     setNotice({
       tone: "success",
       text: emailChanged
@@ -54,16 +73,7 @@ export function PersonalDetailsForm() {
         title="Your photo"
         description="This is shown across the workspace."
       >
-        <div className="flex items-center gap-4">
-          <Avatar className="size-16">
-            <AvatarFallback className="text-lg">
-              {getInitials(user)}
-            </AvatarFallback>
-          </Avatar>
-          <p className="text-muted-foreground text-sm">
-            Generated from your name until photo uploads are available.
-          </p>
-        </div>
+        <AvatarUpload change={avatar} onChange={setAvatar} disabled={busy} />
       </SettingsSection>
 
       <SettingsSection title="Name" description="Your first and last name.">
@@ -131,6 +141,7 @@ export function PersonalDetailsForm() {
           canSubmit={dirty}
           onCancel={() => {
             setValues(saved)
+            setAvatar(NO_AVATAR_CHANGE)
             setNotice(null)
           }}
         />

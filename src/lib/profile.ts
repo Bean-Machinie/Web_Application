@@ -9,6 +9,7 @@ export function getProfile(user: User) {
     lastName: meta.last_name ?? "",
     jobTitle: meta.job_title ?? "",
     email: user.email ?? "",
+    avatarUrl: meta.avatar_url ?? "",
   }
 }
 

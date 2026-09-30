@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +23,7 @@ import lifeBuoy from "@/assets/icons/life-buoy.svg"
 import settings from "@/assets/icons/settings.svg"
 import { Icon } from "@/components/Icon"
 import { MenuChevron } from "./MenuChevron"
-import { getDisplayName, getInitials } from "@/lib/profile"
+import { getDisplayName, getInitials, getProfile } from "@/lib/profile"
 import { supabase } from "@/lib/supabase"
 
 const menuItems = [
@@ -39,6 +39,7 @@ export function NavUser() {
 
   const email = session?.user.email ?? ""
   const initials = session ? getInitials(session.user) : "??"
+  const avatarUrl = session ? getProfile(session.user).avatarUrl : ""
   const name = (session && getDisplayName(session.user)) || "Account"
 
   async function handleSignOut() {
@@ -54,6 +55,7 @@ export function NavUser() {
             <SidebarMenuButton size="lg" className="cursor-pointer h-[52px] pr-3 pl-2.5 group-data-[collapsible=icon]:size-[52px]! group-data-[collapsible=icon]:px-2.5!"
             >
               <Avatar className="size-8 shrink-0 rounded-lg">
+                <AvatarImage src={avatarUrl} alt="" className="rounded-lg" />
                 <AvatarFallback className="rounded-lg text-xs">
                   {initials}
                 </AvatarFallback>
@@ -76,6 +78,7 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="size-8 rounded-lg">
+                  <AvatarImage src={avatarUrl} alt="" className="rounded-lg" />
                   <AvatarFallback className="rounded-lg text-xs">
                     {initials}
                   </AvatarFallback>
