@@ -8,6 +8,8 @@ import { navItems } from "./nav-items"
 const menuPages = [
   { title: "Settings", to: "/app/settings" },
   { title: "Support", to: "/app/support" },
+  { title: "New campaign", to: "/app/campaigns/new" },
+  { title: "Join with invite link", to: "/app/campaigns/join" },
 ]
 
 function useCurrentTitle() {

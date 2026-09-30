@@ -77,6 +77,12 @@ photos (2 MB, PNG/JPEG/WebP/GIF) with policies that let each user write only
 inside their own `<user id>/` folder. Display name and description are kept in
 the Supabase auth user metadata, so they need no table.
 
+The third migration adds campaigns: `campaigns`, `campaign_members` (roles `gm`
+and `player`) and `campaign_invites`, plus the functions the app calls to
+create a campaign, join with an invite link, and reset that link. Who may do
+what is decided in one place, the `campaign_role_permissions` table, which the
+front end mirrors in `src/lib/campaign-permissions.ts`.
+
 Row-level security is what actually protects your data. This app is a
 client-side SPA, so the route guard on `/app` only hides the UI — every table
 you add should have RLS enabled and policies written for it.
@@ -96,7 +102,8 @@ the Supabase dashboard.
 | `/login` | Email + password login |
 | `/signup` | Account creation |
 | `/app` | Dashboard — requires a signed-in user |
-| `/app/analytics`, `/app/projects`, `/app/team`, `/app/support` | Placeholder sections |
+| `/app/world`, `/app/sessions`, `/app/characters`, `/app/party`, `/app/library`, `/app/support` | Placeholder sections |
+| `/app/campaigns/new`, `/app/campaigns/join`, `/app/campaign-settings` | Create or join a campaign, and manage its invite link |
 | `/app/settings/*` | Profile (photo, display name), appearance and password; notifications and billing are placeholders |
 
 The sidebar collapses to an icon rail (toggle button or `Ctrl`/`Cmd` + `B`),

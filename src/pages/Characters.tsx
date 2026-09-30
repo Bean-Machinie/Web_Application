@@ -1,10 +1,10 @@
 import { PlaceholderSection } from "@/components/dashboard/PlaceholderSection"
 
-export function Overview() {
+export function Characters() {
   return (
     <PlaceholderSection
-      title="Overview"
-      description="A summary of your campaign will live here."
+      title="Characters"
+      description="Player characters and NPCs."
     />
   )
 }

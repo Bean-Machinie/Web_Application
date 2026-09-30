@@ -1,6 +1,9 @@
-import desktop from "@/assets/icons/desktop.svg"
-import graph from "@/assets/icons/graph.svg"
 import box from "@/assets/icons/box.svg"
+import characters from "@/assets/icons/menu-profile.svg"
+import desktop from "@/assets/icons/desktop.svg"
+import file from "@/assets/icons/file.svg"
+import globe from "@/assets/icons/globe.svg"
+import settings from "@/assets/icons/settings.svg"
 import userGroup from "@/assets/icons/user-group.svg"
 
 export type NavItem = {
@@ -10,21 +13,20 @@ export type NavItem = {
   badge?: string
 }
 
-export type NavGroup = {
-  label: string
-  items: NavItem[]
-}
-
-export const navGroups: NavGroup[] = [
-  {
-    label: "Workspace",
-    items: [
-      { title: "Overview", to: "/app", icon: desktop },
-      { title: "Analytics", to: "/app/analytics", icon: graph },
-      { title: "Projects", to: "/app/projects", icon: box, badge: "4" },
-      { title: "Team", to: "/app/team", icon: userGroup },
-    ],
-  },
+export const campaignNav: NavItem[] = [
+  { title: "Overview", to: "/app", icon: desktop },
+  { title: "World", to: "/app/world", icon: globe },
+  { title: "Sessions", to: "/app/sessions", icon: file },
+  { title: "Characters", to: "/app/characters", icon: characters },
+  { title: "Party", to: "/app/party", icon: userGroup },
 ]
 
-export const navItems = navGroups.flatMap((group) => group.items)
+export const libraryNav: NavItem[] = [
+  { title: "Your library", to: "/app/library", icon: box },
+]
+
+export const campaignSettingsNav: NavItem[] = [
+  { title: "Campaign settings", to: "/app/campaign-settings", icon: settings },
+]
+
+export const navItems = [...campaignNav, ...libraryNav, ...campaignSettingsNav]

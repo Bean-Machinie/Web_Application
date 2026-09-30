@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { AuthCard } from "@/components/auth/AuthCard"
 import { CredentialsForm } from "@/components/auth/CredentialsForm"
 import { FormAlert } from "@/components/auth/FormAlert"
@@ -8,6 +8,11 @@ import { supabase } from "@/lib/supabase"
 export function Login() {
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
+  const location = useLocation()
+  // RequireAuth sends people here from the page they were trying to reach,
+  // which is how an invite link survives the login.
+  const from = (location.state as { from?: string } | null)?.from
+  const destination = from?.startsWith("/app") ? from : "/app"
 
   async function handleSubmit(email: string, password: string) {
     setError(null)
@@ -21,7 +26,7 @@ export function Login() {
       return
     }
 
-    navigate("/app", { replace: true })
+    navigate(destination, { replace: true })
   }
 
   return (

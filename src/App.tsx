@@ -1,11 +1,17 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import { RequireAuth } from "@/auth/RequireAuth"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
-import { Analytics } from "@/pages/Analytics"
+import { RequireCampaign } from "@/components/dashboard/RequireCampaign"
+import { CampaignSettings } from "@/pages/CampaignSettings"
+import { Characters } from "@/pages/Characters"
 import { Home } from "@/pages/Home"
+import { JoinCampaign } from "@/pages/JoinCampaign"
+import { Library } from "@/pages/Library"
 import { Login } from "@/pages/Login"
+import { NewCampaign } from "@/pages/NewCampaign"
 import { Overview } from "@/pages/Overview"
-import { Projects } from "@/pages/Projects"
+import { Party } from "@/pages/Party"
+import { Sessions } from "@/pages/Sessions"
 import { Settings } from "@/pages/Settings"
 import { SettingsAppearance } from "@/pages/SettingsAppearance"
 import { SettingsBilling } from "@/pages/SettingsBilling"
@@ -14,7 +20,7 @@ import { SettingsPassword } from "@/pages/SettingsPassword"
 import { SettingsProfile } from "@/pages/SettingsProfile"
 import { Signup } from "@/pages/Signup"
 import { Support } from "@/pages/Support"
-import { Team } from "@/pages/Team"
+import { World } from "@/pages/World"
 
 export default function App() {
   return (
@@ -30,10 +36,17 @@ export default function App() {
           </RequireAuth>
         }
       >
-        <Route index element={<Overview />} />
-        <Route path="analytics" element={<Analytics />} />
-        <Route path="projects" element={<Projects />} />
-        <Route path="team" element={<Team />} />
+        <Route element={<RequireCampaign />}>
+          <Route index element={<Overview />} />
+          <Route path="world" element={<World />} />
+          <Route path="sessions" element={<Sessions />} />
+          <Route path="characters" element={<Characters />} />
+          <Route path="party" element={<Party />} />
+          <Route path="campaign-settings" element={<CampaignSettings />} />
+        </Route>
+        <Route path="library" element={<Library />} />
+        <Route path="campaigns/new" element={<NewCampaign />} />
+        <Route path="campaigns/join" element={<JoinCampaign />} />
         <Route path="settings" element={<Settings />}>
           <Route index element={<Navigate to="profile" replace />} />
           <Route path="profile" element={<SettingsProfile />} />

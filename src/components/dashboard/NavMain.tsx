@@ -2,7 +2,6 @@ import { NavLink } from "react-router-dom"
 import {
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuBadge,
   SidebarMenuButton,
@@ -10,10 +9,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Icon } from "@/components/Icon"
-import type { NavGroup } from "./nav-items"
+import { cn } from "@/lib/utils"
+import type { NavItem } from "./nav-items"
 import { useIsActiveRoute } from "./useIsActiveRoute"
 
-export function NavMain({ group }: { group: NavGroup }) {
+type Props = {
+  items: NavItem[]
+  className?: string
+}
+
+export function NavMain({ items, className }: Props) {
   const { isMobile, setOpenMobile } = useSidebar()
   const isActive = useIsActiveRoute()
 
@@ -21,14 +26,10 @@ export function NavMain({ group }: { group: NavGroup }) {
   const closeOnMobile = () => isMobile && setOpenMobile(false)
 
   return (
-    <SidebarGroup className="px-2">
-      {/* Keep the label's height when collapsed so icons don't jump vertically. */}
-      <SidebarGroupLabel className="text-[12.5px] group-data-[collapsible=icon]:mt-0!">
-        {group.label}
-      </SidebarGroupLabel>
+    <SidebarGroup className={cn("px-2", className)}>
       <SidebarGroupContent>
         <SidebarMenu>
-          {group.items.map((item) => (
+          {items.map((item) => (
             <SidebarMenuItem key={item.to}>
               <SidebarMenuButton
                 asChild
@@ -41,7 +42,11 @@ export function NavMain({ group }: { group: NavGroup }) {
                   <span>{item.title}</span>
                 </NavLink>
               </SidebarMenuButton>
-              {item.badge && <SidebarMenuBadge className="top-1/2! right-3 -translate-y-1/2">{item.badge}</SidebarMenuBadge>}
+              {item.badge && (
+                <SidebarMenuBadge className="top-1/2! right-3 -translate-y-1/2">
+                  {item.badge}
+                </SidebarMenuBadge>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
