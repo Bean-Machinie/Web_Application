@@ -4,9 +4,15 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/theme/ThemeToggle"
 import { navItems } from "./nav-items"
 
+// Pages reached from the account menu rather than the sidebar.
+const menuPages = [
+  { title: "Settings", to: "/app/settings" },
+  { title: "Support", to: "/app/support" },
+]
+
 function useCurrentTitle() {
   const { pathname } = useLocation()
-  const match = navItems.find(
+  const match = [...navItems, ...menuPages].find(
     (item) => item.to !== "/app" && pathname.startsWith(item.to)
   )
 

@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils"
 
 const tabs = [
   { label: "Profile", to: "/app/settings/profile" },
-  { label: "Password", to: "/app/settings/password" },
   { label: "Appearance", to: "/app/settings/appearance" },
+  { label: "Password", to: "/app/settings/password" },
   { label: "Notifications", to: "/app/settings/notifications" },
   { label: "Billing", to: "/app/settings/billing" },
 ]

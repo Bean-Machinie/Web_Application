@@ -1,8 +1,6 @@
 import desktop from "@/assets/icons/desktop.svg"
-import lifeBuoy from "@/assets/icons/life-buoy.svg"
 import graph from "@/assets/icons/graph.svg"
 import box from "@/assets/icons/box.svg"
-import settings from "@/assets/icons/settings.svg"
 import userGroup from "@/assets/icons/user-group.svg"
 
 export type NavItem = {
@@ -25,13 +23,6 @@ export const navGroups: NavGroup[] = [
       { title: "Analytics", to: "/app/analytics", icon: graph },
       { title: "Projects", to: "/app/projects", icon: box, badge: "4" },
       { title: "Team", to: "/app/team", icon: userGroup },
-    ],
-  },
-  {
-    label: "Account",
-    items: [
-      { title: "Settings", to: "/app/settings", icon: settings },
-      { title: "Support", to: "/app/support", icon: lifeBuoy },
     ],
   },
 ]

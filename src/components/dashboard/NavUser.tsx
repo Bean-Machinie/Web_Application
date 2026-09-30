@@ -17,12 +17,20 @@ import {
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/auth/useAuth"
 import logout from "@/assets/icons/menu-logout.svg"
-import profile from "@/assets/icons/menu-profile.svg"
+import desktop from "@/assets/icons/desktop.svg"
+import file from "@/assets/icons/file.svg"
+import lifeBuoy from "@/assets/icons/life-buoy.svg"
 import settings from "@/assets/icons/settings.svg"
 import { Icon } from "@/components/Icon"
 import { MenuChevron } from "./MenuChevron"
 import { getDisplayName, getInitials } from "@/lib/profile"
 import { supabase } from "@/lib/supabase"
+
+const menuItems = [
+  { label: "Settings", to: "/app/settings", icon: settings },
+  { label: "Appearance", to: "/app/settings/appearance", icon: desktop },
+  { label: "Billing", to: "/app/settings/billing", icon: file },
+]
 
 export function NavUser() {
   const { session } = useAuth()
@@ -82,15 +90,21 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => navigate("/app/settings/profile")}>
-                <Icon src={profile} />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/app/settings")}>
-                <Icon src={settings} />
-                Settings
-              </DropdownMenuItem>
+              {menuItems.map((item) => (
+                <DropdownMenuItem
+                  key={item.label}
+                  onClick={() => navigate(item.to)}
+                >
+                  <Icon src={item.icon} />
+                  {item.label}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate("/app/support")}>
+              <Icon src={lifeBuoy} />
+              Support
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
               <Icon src={logout} />
