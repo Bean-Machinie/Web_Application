@@ -3,7 +3,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail,
 } from "@/components/ui/sidebar"
 import { navGroups } from "./nav-items"
 import { NavMain } from "./NavMain"
@@ -26,7 +25,6 @@ export function AppSidebar() {
       <SidebarFooter className="px-1.5">
         <NavUser />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   )
 }
