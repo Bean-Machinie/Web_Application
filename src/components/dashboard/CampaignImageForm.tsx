@@ -4,8 +4,8 @@ import { NO_AVATAR_CHANGE, hasAvatarChange } from "@/lib/avatar"
 import { saveCampaignImage } from "@/lib/campaign-image"
 import { errorMessage } from "@/lib/campaigns"
 import type { Campaign } from "@/lib/campaigns"
-import { initialsOf } from "@/lib/profile"
 import { AvatarUpload } from "./AvatarUpload"
+import { CampaignEmblem } from "./CampaignEmblem"
 import { FormFooter } from "./FormFooter"
 import { SettingsSection } from "./SettingsSection"
 import { useCampaign } from "./useCampaign"
@@ -46,10 +46,10 @@ export function CampaignImageForm({ campaign }: { campaign: Campaign }) {
           onChange={setChange}
           disabled={busy}
           currentUrl={campaign.imageUrl ?? ""}
-          initials={initialsOf(campaign.name) || "?"}
+          fallback={<CampaignEmblem name={campaign.name} />}
           noun="image"
-          className="size-32 text-4xl"
-          fallbackClassName="bg-primary text-primary-foreground"
+          className="size-32"
+          fallbackClassName="bg-transparent"
         />
       </SettingsSection>
       {notice && <FormAlert tone={notice.tone}>{notice.text}</FormAlert>}

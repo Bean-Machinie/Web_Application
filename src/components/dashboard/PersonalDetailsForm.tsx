@@ -73,7 +73,7 @@ export function PersonalDetailsForm() {
           onChange={setAvatar}
           disabled={busy}
           currentUrl={avatarUrl}
-          initials={getInitials(user)}
+          fallback={getInitials(user)}
         />
       </SettingsSection>
 

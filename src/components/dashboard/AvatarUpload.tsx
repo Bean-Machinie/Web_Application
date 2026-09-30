@@ -1,4 +1,5 @@
 import { useState } from "react"
+import type { ReactNode } from "react"
 import upload from "@/assets/icons/upload.svg"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -19,9 +20,9 @@ type Props = {
   change: AvatarChange
   onChange: (change: AvatarChange) => void
   disabled: boolean
-  // The saved image and what to show when there is none.
+  // The saved image, and what to show in the circle when there is none.
   currentUrl: string
-  initials: string
+  fallback: ReactNode
   // "photo" for a profile, "image" for a campaign.
   noun?: string
   // Size (and text size for the initials) of the circle.
@@ -34,7 +35,7 @@ export function AvatarUpload({
   onChange,
   disabled,
   currentUrl,
-  initials,
+  fallback,
   noun = "photo",
   className = "size-20 text-xl",
   fallbackClassName,
@@ -85,7 +86,7 @@ export function AvatarUpload({
           <Avatar className="size-full">
             {shownUrl && <AvatarImage src={shownUrl} alt="" />}
             <AvatarFallback className={fallbackClassName}>
-              {initials}
+              {fallback}
             </AvatarFallback>
           </Avatar>
           <span

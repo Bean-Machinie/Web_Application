@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { initialsOf } from "@/lib/profile"
 import { cn } from "@/lib/utils"
+import { CampaignEmblem } from "./CampaignEmblem"
 
 type Props = {
   name: string
@@ -8,14 +8,14 @@ type Props = {
   className?: string
 }
 
-// A campaign's image in a circle, or its initials in the same circle. Set the
+// A campaign's image in a circle, or its emblem in the same circle. Set the
 // size with className, for example "size-8".
 export function CampaignAvatar({ name, imageUrl, className }: Props) {
   return (
     <Avatar className={cn("size-8", className)}>
       {imageUrl && <AvatarImage src={imageUrl} alt="" />}
-      <AvatarFallback className="bg-primary text-primary-foreground text-[0.8em] font-medium">
-        {initialsOf(name) || "?"}
+      <AvatarFallback className="bg-transparent">
+        <CampaignEmblem name={name} />
       </AvatarFallback>
     </Avatar>
   )

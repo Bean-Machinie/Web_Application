@@ -68,7 +68,10 @@ export function CampaignSwitcher() {
                   <DropdownMenuItem
                     key={campaign.id}
                     className="gap-2 p-2"
-                    onClick={() => select(campaign.id)}
+                    onClick={() => {
+                      select(campaign.id)
+                      navigate("/app")
+                    }}
                   >
                     <CampaignAvatar
                       name={campaign.name}
