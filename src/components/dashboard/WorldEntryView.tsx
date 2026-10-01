@@ -15,6 +15,7 @@ import { EntryNameDialog } from "./EntryNameDialog"
 import { SettingsSection } from "./SettingsSection"
 import { useCampaign } from "./useCampaign"
 import { VisibilitySwitch } from "./VisibilitySwitch"
+import { WorldFields } from "./WorldFields"
 
 // Render with key={entryId} so moving between entries starts from scratch.
 export function WorldEntryView({ entryId }: { entryId: string }) {
@@ -78,6 +79,8 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                     </Button>
                   )}
                 </div>
+
+                <WorldFields entryId={entryId} kind={entry.kind} canManage={canManage} />
 
                 {canManage && (
                   <div className="divide-y border-t">
