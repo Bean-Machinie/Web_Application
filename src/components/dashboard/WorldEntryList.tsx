@@ -1,36 +1,42 @@
 import { useState } from "react"
-import { Globe2, Pencil, Trash2 } from "lucide-react"
+import { useSearchParams } from "react-router-dom"
+import { Pencil, Trash2 } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
-import { Badge } from "@/components/ui/badge"
 import { useWorldEntries } from "@/hooks/use-world-entries"
 import { errorMessage } from "@/lib/campaigns"
 import type { Campaign } from "@/lib/campaigns"
-import {
-  createWorldEntry,
-  deleteWorldEntry,
-  renameWorldEntry,
-} from "@/lib/world-entries"
+import { deleteWorldEntry } from "@/lib/world-entries"
 import type { WorldEntry } from "@/lib/world-entries"
-import { WORLD_KINDS } from "@/lib/world-kinds"
+import { worldKinds } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
-import { ConfirmDialog } from "./ConfirmDialog"
-import { EntryNameDialog } from "./EntryNameDialog"
-import { NewEntryButton } from "./NewEntryButton"
+import { viewEntries } from "@/lib/world-list"
+import type { VisibilityFilter } from "@/lib/world-list"
 import { useCampaign } from "./useCampaign"
+import { WorldEmptyState } from "./WorldEmptyState"
+import { WorldEntryDialogs } from "./WorldEntryDialogs"
 import { WorldEntryTable } from "./WorldEntryTable"
 import { WorldListSkeleton } from "./WorldListSkeleton"
+import { WorldTabs } from "./WorldTabs"
+import { WorldToolbar } from "./WorldToolbar"
 
 // Render with key={campaign.id} so switching campaigns starts from scratch.
 export function WorldEntryList({ campaign }: { campaign: Campaign }) {
   const { can } = useCampaign()
   const canManage = can("manage_world")
   const { entries, error, reload, setRevealed } = useWorldEntries(campaign.id)
+  const [params] = useSearchParams()
+  const [query, setQuery] = useState("")
+  const [visibility, setVisibility] = useState<VisibilityFilter>("all")
   const [creating, setCreating] = useState<WorldEntryKind | null>(null)
   const [renaming, setRenaming] = useState<WorldEntry | null>(null)
   const [deleting, setDeleting] = useState<WorldEntry | null>(null)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
+
+  // An unknown ?kind= falls back to All.
+  const kind = worldKinds.find((option) => option === params.get("kind")) ?? null
+  const shown = entries && viewEntries(entries, { kind, query, visibility })
 
   async function handleDelete() {
     setBusy(true)
@@ -67,86 +73,58 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
     : null
 
   return (
-    <div className="bg-card overflow-hidden rounded-xl border shadow-xs">
-      <div className="flex items-center justify-between gap-3 px-6 py-5">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold">Entries</h3>
-            {entries && <Badge variant="secondary">{entries.length}</Badge>}
+    <div className="flex flex-col gap-4">
+      <WorldTabs entries={entries} active={kind} />
+      <div className="bg-card overflow-hidden rounded-xl border shadow-xs">
+        <WorldToolbar
+          kind={kind}
+          query={query}
+          onQuery={setQuery}
+          visibility={canManage ? visibility : null}
+          onVisibility={setVisibility}
+          onCreate={canManage ? setCreating : null}
+        />
+
+        {(error || actionError) && (
+          <div className="border-t px-6 py-4">
+            <FormAlert tone="error">{(error || actionError)!}</FormAlert>
           </div>
-          <p className="text-muted-foreground mt-0.5 text-sm">
-            {canManage
-              ? "Hidden entries are only visible to you."
-              : "What your GM has revealed so far."}
-          </p>
-        </div>
-        {canManage && <NewEntryButton onPick={setCreating} />}
+        )}
+        <LoadingGate
+          loading={!entries && !error}
+          className="border-t"
+          skeleton={<WorldListSkeleton canManage={canManage} />}
+        >
+          {() =>
+            shown &&
+            (shown.length > 0 ? (
+              <div className="border-t">
+                <WorldEntryTable entries={shown} manage={manage} />
+              </div>
+            ) : (
+              <div className="border-t">
+                <WorldEmptyState
+                  kind={kind}
+                  filtered={query.trim() !== "" || visibility !== "all"}
+                  canManage={canManage}
+                />
+              </div>
+            ))
+          }
+        </LoadingGate>
       </div>
 
-      {(error || actionError) && (
-        <div className="border-t px-6 py-4">
-          <FormAlert tone="error">{(error || actionError)!}</FormAlert>
-        </div>
-      )}
-      <LoadingGate
-        loading={!entries && !error}
-        className="border-t"
-        skeleton={<WorldListSkeleton canManage={canManage} />}
-      >
-        {() =>
-          entries &&
-          (entries.length > 0 ? (
-            <WorldEntryTable entries={entries} manage={manage} />
-          ) : (
-            <div className="flex flex-col items-center gap-2 px-6 py-14 text-center">
-              <span className="bg-muted text-muted-foreground flex size-10 items-center justify-center rounded-full">
-                <Globe2 className="size-5" />
-              </span>
-              <p className="text-sm font-medium">
-                {canManage ? "No entries yet" : "Nothing revealed yet"}
-              </p>
-              <p className="text-muted-foreground max-w-xs text-sm">
-                {canManage
-                  ? "Create your first NPC to start building the world."
-                  : "Entries your GM reveals will show up here."}
-              </p>
-            </div>
-          ))
-        }
-      </LoadingGate>
-
-      <EntryNameDialog
-        open={creating !== null}
-        title={`New ${creating ? WORLD_KINDS[creating].label : ""}`}
-        description="Give the entry a name."
-        submitLabel="Create"
-        onSubmit={async (name) => {
-          await createWorldEntry(campaign.id, creating!, name)
-          await reload()
-        }}
-        onClose={() => setCreating(null)}
-      />
-      <EntryNameDialog
-        open={renaming !== null}
-        title="Rename entry"
-        description="Change the entry's name."
-        submitLabel="Save"
-        initialName={renaming?.name}
-        onSubmit={async (name) => {
-          await renameWorldEntry(renaming!.id, name)
-          await reload()
-        }}
-        onClose={() => setRenaming(null)}
-      />
-      <ConfirmDialog
-        open={deleting !== null}
-        title={`Delete ${deleting?.name ?? "this entry"}?`}
-        description="This permanently removes the entry. It cannot be undone."
-        confirmLabel="Delete entry"
+      <WorldEntryDialogs
+        campaignId={campaign.id}
+        creating={creating}
+        renaming={renaming}
+        deleting={deleting}
         busy={busy}
-        error={null}
-        onCancel={() => setDeleting(null)}
-        onConfirm={handleDelete}
+        reload={reload}
+        onDelete={handleDelete}
+        onCloseCreate={() => setCreating(null)}
+        onCloseRename={() => setRenaming(null)}
+        onCloseDelete={() => setDeleting(null)}
       />
     </div>
   )

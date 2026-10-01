@@ -10,9 +10,10 @@ export type WorldEntry = {
   // revealed entries.
   revealed: boolean
   createdAt: string
+  updatedAt: string
 }
 
-const COLUMNS = "id, kind, name, revealed, created_at"
+const COLUMNS = "id, kind, name, revealed, created_at, updated_at"
 
 function toEntry(row: Record<string, unknown>): WorldEntry {
   return {
@@ -21,6 +22,7 @@ function toEntry(row: Record<string, unknown>): WorldEntry {
     name: row.name as string,
     revealed: row.revealed as boolean,
     createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
   }
 }
 
@@ -29,7 +31,7 @@ export async function fetchWorldEntries(campaignId: string) {
     .from("world_entries")
     .select(COLUMNS)
     .eq("campaign_id", campaignId)
-    .order("created_at", { ascending: false })
+    .order("updated_at", { ascending: false })
   if (error) throw error
 
   return (data as Record<string, unknown>[]).map(toEntry)
