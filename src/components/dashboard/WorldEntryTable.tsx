@@ -36,15 +36,26 @@ export function WorldEntryTable({ entries, manage }: Props) {
         {entries.map((entry) => {
           const { label, icon: KindIcon } = WORLD_KINDS[entry.kind]
           return (
-            <TableRow key={entry.id}>
+            <TableRow key={entry.id} className="relative">
               <TableCell className={cellClass}>
                 <div className="flex items-center gap-3">
-                  <span className="bg-muted text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
-                    <KindIcon className="size-5" />
+                  <span className="bg-muted text-muted-foreground flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
+                    {entry.imageUrl ? (
+                      <img
+                        src={entry.imageUrl}
+                        alt=""
+                        loading="lazy"
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <KindIcon className="size-5" />
+                    )}
                   </span>
                   <Link
                     to={`/app/world/${entry.id}`}
-                    className="truncate font-medium hover:underline"
+                    // The stretched link makes the whole row clickable; the
+                    // controls below sit above it.
+                    className="truncate font-medium outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-ring focus-visible:after:ring-2 focus-visible:after:ring-inset"
                   >
                     {entry.name}
                   </Link>
@@ -55,16 +66,20 @@ export function WorldEntryTable({ entries, manage }: Props) {
               </TableCell>
               {manage && (
                 <TableCell className={cellClass}>
-                  <VisibilitySwitch
-                    revealed={entry.revealed}
-                    name={entry.name}
-                    onChange={(revealed) => manage.onReveal(entry, revealed)}
-                  />
+                  <div className="relative z-10 w-fit">
+                    <VisibilitySwitch
+                      revealed={entry.revealed}
+                      name={entry.name}
+                      onChange={(revealed) => manage.onReveal(entry, revealed)}
+                    />
+                  </div>
                 </TableCell>
               )}
               {manage && (
                 <TableCell className={`${cellClass} text-right`}>
-                  <MemberMenu name={entry.name} actions={manage.actionsFor(entry)} />
+                  <div className="relative z-10 inline-block">
+                    <MemberMenu name={entry.name} actions={manage.actionsFor(entry)} />
+                  </div>
                 </TableCell>
               )}
             </TableRow>
