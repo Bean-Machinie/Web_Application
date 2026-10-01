@@ -11,6 +11,8 @@ export type WorldEntry = {
   // The database decides who gets which rows, so a player only ever receives
   // revealed entries.
   revealed: boolean
+  // Position in the GM's chosen order, lowest first.
+  sortOrder: number
   createdAt: string
   updatedAt: string
   // The cover image; null when there is none or the list did not ask for it.
@@ -18,7 +20,7 @@ export type WorldEntry = {
   imagePath: string | null
 }
 
-const COLUMNS = "id, kind, name, revealed, created_at, updated_at"
+const COLUMNS = "id, kind, name, revealed, sort_order, created_at, updated_at"
 
 function toEntry(row: Record<string, unknown>): WorldEntry {
   const cover = toWorldImage(
@@ -29,6 +31,7 @@ function toEntry(row: Record<string, unknown>): WorldEntry {
     kind: row.kind as WorldEntryKind,
     name: row.name as string,
     revealed: row.revealed as boolean,
+    sortOrder: row.sort_order as number,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
     imageUrl: cover?.url ?? null,
@@ -44,7 +47,7 @@ export async function fetchWorldEntries(campaignId: string) {
     // Filters the embedded rows, not the entries; row level security still
     // decides which fields each person gets.
     .eq("world_entry_fields.key", COVER_FIELD)
-    .order("updated_at", { ascending: false })
+    .order("sort_order", { ascending: true })
   if (error) throw error
 
   return (data as Record<string, unknown>[]).map(toEntry)
@@ -96,6 +99,15 @@ export async function setWorldEntryRevealed(id: string, revealed: boolean) {
 export async function deleteWorldEntry(id: string) {
   const { error } = await supabase.rpc("delete_world_entry", {
     target_entry: id,
+  })
+  if (error) throw error
+}
+
+// Every entry of the campaign, in their new order.
+export async function reorderWorldEntries(campaignId: string, orderedIds: string[]) {
+  const { error } = await supabase.rpc("reorder_world_entries", {
+    target_campaign: campaignId,
+    ordered_ids: orderedIds,
   })
   if (error) throw error
 }

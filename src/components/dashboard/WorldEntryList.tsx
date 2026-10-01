@@ -27,7 +27,7 @@ import type { WorldManage } from "./world-manage"
 export function WorldEntryList({ campaign }: { campaign: Campaign }) {
   const { can } = useCampaign()
   const canManage = can("manage_world")
-  const { entries, error, reload, setRevealed } = useWorldEntries(campaign.id)
+  const { entries, error, reload, setRevealed, reorder } = useWorldEntries(campaign.id)
   const [params] = useSearchParams()
   const [mode, setMode] = useWorldViewMode()
   const [query, setQuery] = useState("")
@@ -65,6 +65,10 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
           setRevealed(entry.id, revealed).catch((failure) =>
             setActionError(errorMessage(failure))
           )
+        },
+        onReorder: (ids) => {
+          setActionError(null)
+          reorder(ids).catch((failure) => setActionError(errorMessage(failure)))
         },
         onRename: setRenaming,
         onDelete: setDeleting,

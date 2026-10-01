@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { MemberMenu } from "./MemberMenu"
@@ -22,6 +23,11 @@ type Props = {
 }
 
 export function WorldEntryTable({ entries, manage }: Props) {
+  const { rowProps } = useRowReorder({
+    ids: entries.map((entry) => entry.id),
+    onReorder: manage?.onReorder,
+  })
+
   return (
     <Table>
       <TableHeader>
@@ -33,10 +39,14 @@ export function WorldEntryTable({ entries, manage }: Props) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {entries.map((entry) => {
+        {entries.map((entry, index) => {
           const { label, icon: KindIcon } = WORLD_KINDS[entry.kind]
           return (
-            <TableRow key={entry.id} className="relative">
+            <TableRow
+              key={entry.id}
+              className={manage ? "relative select-none [-webkit-touch-callout:none] data-lifted:after:pointer-events-none data-lifted:after:absolute data-lifted:after:inset-0 data-lifted:after:border data-lifted:after:border-ring data-lifted:after:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)] data-lifted:after:content-['']" : "relative"}
+              {...rowProps(entry.id, index)}
+            >
               <TableCell className={cellClass}>
                 <div className="flex items-center gap-3">
                   <span className="bg-muted text-muted-foreground flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border">

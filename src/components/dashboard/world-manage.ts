@@ -8,5 +8,7 @@ export type WorldManage = {
   onReveal: (entry: WorldEntry, revealed: boolean) => void
   onRename: (entry: WorldEntry) => void
   onDelete: (entry: WorldEntry) => void
+  // The shown entries' ids in their new order.
+  onReorder: (ids: string[]) => void
   actionsFor: (entry: WorldEntry) => MemberAction[]
 }
