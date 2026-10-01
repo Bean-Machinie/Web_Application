@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/select"
 import type { VisibilityFilter } from "@/lib/world-list"
 import type { WorldEntryKind } from "@/lib/world-kinds"
+import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import { NewEntryButton } from "./NewEntryButton"
+import { WorldViewToggle } from "./WorldViewToggle"
 
 type Props = {
   kind: WorldEntryKind | null
@@ -19,10 +21,12 @@ type Props = {
   visibility: VisibilityFilter | null
   onVisibility: (visibility: VisibilityFilter) => void
   onCreate: ((kind: WorldEntryKind) => void) | null
+  mode: WorldViewMode
+  onMode: (mode: WorldViewMode) => void
 }
 
 export function WorldToolbar(props: Props) {
-  const { kind, query, onQuery, visibility, onVisibility, onCreate } = props
+  const { kind, query, onQuery, visibility, onVisibility, onCreate, mode, onMode } = props
 
   return (
     <div className="flex flex-wrap items-center gap-2 px-6 py-4">
@@ -51,11 +55,11 @@ export function WorldToolbar(props: Props) {
           </SelectContent>
         </Select>
       )}
-      {onCreate && (
-        <div className="ml-auto">
-          <NewEntryButton kind={kind} onPick={onCreate} />
-        </div>
-      )}
+      <div className="ml-auto flex items-center gap-2">
+        <WorldViewToggle mode={mode} onChange={onMode} />
+        {onCreate && <NewEntryButton kind={kind} onPick={onCreate} />}
+      </div>
+
     </div>
   )
 }

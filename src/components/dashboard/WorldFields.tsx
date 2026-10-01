@@ -1,19 +1,28 @@
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useWorldFields } from "@/hooks/use-world-fields"
-import { WORLD_KINDS } from "@/lib/world-kinds"
+import type { useWorldFields } from "@/hooks/use-world-fields"
+import { COVER_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { FIELD_TYPES } from "./field-types"
 import { SaveIndicator } from "./SaveIndicator"
 import { WorldFieldRow } from "./WorldFieldRow"
 
-type Props = { entryId: string; kind: WorldEntryKind; canManage: boolean }
+export type WorldFieldsState = ReturnType<typeof useWorldFields>
+
+type Props = {
+  entryId: string
+  campaignId: string
+  kind: WorldEntryKind
+  canManage: boolean
+  state: WorldFieldsState
+}
 
 // Render with key={entryId}. Players only ever receive the fields they may
-// see, so there is nothing to hide here; empty ones are just not shown.
-export function WorldFields({ entryId, kind, canManage }: Props) {
-  const { fields, error, saveState, setValue, setPrivate } = useWorldFields(entryId)
-  const defs = WORLD_KINDS[kind].fields
+// see, so there is nothing to hide here; empty ones are just not shown. The
+// cover image is shown by the page header, not here.
+export function WorldFields({ entryId, campaignId, kind, canManage, state }: Props) {
+  const { fields, error, saveState, setValue, saveNow, setPrivate } = state
+  const defs = WORLD_KINDS[kind].fields.filter((def) => def.key !== COVER_FIELD)
 
   if (!fields && !error) return <Skeleton className="my-5 h-44 w-full max-w-3xl" />
 
@@ -38,11 +47,15 @@ export function WorldFields({ entryId, kind, canManage }: Props) {
           <WorldFieldRow
             key={def.key}
             def={def}
+            context={{ campaignId, entryId }}
             stored={fields[def.key]}
             manage={
               canManage
                 ? {
-                    onChange: (value) => setValue(def.key, def.type, value),
+                    onChange: (value) =>
+                      FIELD_TYPES[def.type].saveAtOnce
+                        ? saveNow(def.key, def.type, value)
+                        : setValue(def.key, def.type, value),
                     onPrivate: (isPrivate) => setPrivate(def.key, def.type, isPrivate),
                   }
                 : null

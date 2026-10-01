@@ -79,6 +79,24 @@ export function useWorldFields(entryId: string) {
     setSaveState("saving")
   }
 
+  // For changes that must land now, like an image, rather than after typing
+  // stops. Resolves to whether the database accepted it.
+  async function saveNow(key: string, type: WorldFieldType, value: unknown) {
+    window.clearTimeout(pending.current.get(key)?.timer)
+    pending.current.delete(key)
+    const previous = fields?.[key]?.value ?? null
+    const apply = (next: unknown) =>
+      setFields(
+        (old) =>
+          old && { ...old, [key]: { ...old[key], private: old[key]?.private ?? false, value: next } }
+      )
+    apply(value)
+    setError(null)
+    const saved = await track(setWorldFieldValue(entryId, key, type, value))
+    if (!saved) apply(previous)
+    return saved
+  }
+
   async function setPrivate(key: string, type: WorldFieldType, isPrivate: boolean) {
     const apply = (value: boolean) =>
       setFields(
@@ -91,5 +109,5 @@ export function useWorldFields(entryId: string) {
     if (!saved) apply(!isPrivate)
   }
 
-  return { fields, error, saveState, setValue, setPrivate }
+  return { fields, error, saveState, setValue, saveNow, setPrivate }
 }

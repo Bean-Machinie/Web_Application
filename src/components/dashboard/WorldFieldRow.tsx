@@ -6,15 +6,16 @@ import { FIELD_TYPES } from "./field-types"
 
 type Props = {
   def: FieldDef
+  context: { campaignId: string; entryId: string }
   stored: StoredField | undefined
   // Null for players: read-only, no private toggle.
   manage: {
-    onChange: (value: unknown) => void
+    onChange: (value: unknown) => void | Promise<boolean>
     onPrivate: (isPrivate: boolean) => void
   } | null
 }
 
-export function WorldFieldRow({ def, stored, manage }: Props) {
+export function WorldFieldRow({ def, context, stored, manage }: Props) {
   const { Editor, View } = FIELD_TYPES[def.type]
   const isPrivate = stored?.private ?? false
 
@@ -40,6 +41,7 @@ export function WorldFieldRow({ def, stored, manage }: Props) {
           value={stored?.value ?? null}
           label={def.label}
           placeholder={def.placeholder}
+          context={context}
           onChange={manage.onChange}
         />
       ) : (

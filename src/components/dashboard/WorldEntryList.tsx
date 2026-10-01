@@ -4,21 +4,24 @@ import { Pencil, Trash2 } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
 import { useWorldEntries } from "@/hooks/use-world-entries"
+import { useWorldViewMode } from "@/hooks/use-world-view-mode"
 import { errorMessage } from "@/lib/campaigns"
 import type { Campaign } from "@/lib/campaigns"
 import { deleteWorldEntry } from "@/lib/world-entries"
 import type { WorldEntry } from "@/lib/world-entries"
+import { deleteWorldImage } from "@/lib/world-images"
 import { worldKinds } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
 import type { VisibilityFilter } from "@/lib/world-list"
 import { useCampaign } from "./useCampaign"
-import { WorldEmptyState } from "./WorldEmptyState"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
-import { WorldEntryTable } from "./WorldEntryTable"
+import { WorldEntryResults } from "./WorldEntryResults"
+import { WorldGridSkeleton } from "./WorldGridSkeleton"
 import { WorldListSkeleton } from "./WorldListSkeleton"
 import { WorldTabs } from "./WorldTabs"
 import { WorldToolbar } from "./WorldToolbar"
+import type { WorldManage } from "./world-manage"
 
 // Render with key={campaign.id} so switching campaigns starts from scratch.
 export function WorldEntryList({ campaign }: { campaign: Campaign }) {
@@ -26,6 +29,7 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
   const canManage = can("manage_world")
   const { entries, error, reload, setRevealed } = useWorldEntries(campaign.id)
   const [params] = useSearchParams()
+  const [mode, setMode] = useWorldViewMode()
   const [query, setQuery] = useState("")
   const [visibility, setVisibility] = useState<VisibilityFilter>("all")
   const [creating, setCreating] = useState<WorldEntryKind | null>(null)
@@ -42,6 +46,8 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
     setBusy(true)
     try {
       await deleteWorldEntry(deleting!.id)
+      // The file is no longer referenced; failing to remove it is harmless.
+      await deleteWorldImage(deleting!.imagePath).catch(() => {})
       setDeleting(null)
       await reload()
     } catch (failure) {
@@ -52,15 +58,17 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
     }
   }
 
-  const manage = canManage
+  const manage: WorldManage | null = canManage
     ? {
-        onReveal: (entry: WorldEntry, revealed: boolean) => {
+        onReveal: (entry, revealed) => {
           setActionError(null)
           setRevealed(entry.id, revealed).catch((failure) =>
             setActionError(errorMessage(failure))
           )
         },
-        actionsFor: (entry: WorldEntry) => [
+        onRename: setRenaming,
+        onDelete: setDeleting,
+        actionsFor: (entry) => [
           { label: "Rename", icon: Pencil, onSelect: () => setRenaming(entry) },
           {
             label: "Delete",
@@ -83,6 +91,8 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
           visibility={canManage ? visibility : null}
           onVisibility={setVisibility}
           onCreate={canManage ? setCreating : null}
+          mode={mode}
+          onMode={setMode}
         />
 
         {(error || actionError) && (
@@ -93,23 +103,25 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
         <LoadingGate
           loading={!entries && !error}
           className="border-t"
-          skeleton={<WorldListSkeleton canManage={canManage} />}
+          skeleton={
+            mode === "grid" ? (
+              <WorldGridSkeleton />
+            ) : (
+              <WorldListSkeleton canManage={canManage} />
+            )
+          }
         >
           {() =>
-            shown &&
-            (shown.length > 0 ? (
-              <div className="border-t">
-                <WorldEntryTable entries={shown} manage={manage} />
-              </div>
-            ) : (
-              <div className="border-t">
-                <WorldEmptyState
-                  kind={kind}
-                  filtered={query.trim() !== "" || visibility !== "all"}
-                  canManage={canManage}
-                />
-              </div>
-            ))
+            shown && (
+              <WorldEntryResults
+                entries={shown}
+                mode={mode}
+                kind={kind}
+                filtered={query.trim() !== "" || visibility !== "all"}
+                canManage={canManage}
+                manage={manage}
+              />
+            )
           }
         </LoadingGate>
       </div>

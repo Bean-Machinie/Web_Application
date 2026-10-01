@@ -13,9 +13,10 @@ type Props = {
   file: File
   onCancel: () => void
   onApply: (file: File) => void
+  cropShape?: "round" | "rect"
 }
 
-export function AvatarCropEditor({ file, onCancel, onApply }: Props) {
+export function AvatarCropEditor({ file, onCancel, onApply, cropShape = "round" }: Props) {
   const src = useFileDataUrl(file)
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
@@ -51,7 +52,7 @@ export function AvatarCropEditor({ file, onCancel, onApply }: Props) {
           zoom={zoom}
           rotation={rotation}
           aspect={1}
-          cropShape="round"
+          cropShape={cropShape}
           showGrid={false}
           onCropChange={setCrop}
           onZoomChange={setZoom}

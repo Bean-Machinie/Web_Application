@@ -11,9 +11,10 @@ type Props = {
   file: File | null
   onCancel: () => void
   onApply: (file: File) => void
+  cropShape?: "round" | "rect"
 }
 
-export function AvatarCropDialog({ file, onCancel, onApply }: Props) {
+export function AvatarCropDialog({ file, onCancel, onApply, cropShape }: Props) {
   return (
     <Dialog open={file !== null} onOpenChange={(open) => !open && onCancel()}>
       <DialogContent className="sm:max-w-md">
@@ -24,7 +25,12 @@ export function AvatarCropDialog({ file, onCancel, onApply }: Props) {
           </DialogDescription>
         </DialogHeader>
         {file && (
-          <AvatarCropEditor file={file} onCancel={onCancel} onApply={onApply} />
+          <AvatarCropEditor
+            file={file}
+            onCancel={onCancel}
+            onApply={onApply}
+            cropShape={cropShape}
+          />
         )}
       </DialogContent>
     </Dialog>

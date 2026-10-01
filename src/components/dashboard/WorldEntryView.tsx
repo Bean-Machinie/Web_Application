@@ -7,22 +7,27 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useWorldEntry } from "@/hooks/use-world-entry"
+import { useWorldFields } from "@/hooks/use-world-fields"
 import { errorMessage } from "@/lib/campaigns"
 import { deleteWorldEntry, renameWorldEntry } from "@/lib/world-entries"
-import { WORLD_KINDS } from "@/lib/world-kinds"
+import { deleteWorldImage, toWorldImage } from "@/lib/world-images"
+import { COVER_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
 import { ConfirmDialog } from "./ConfirmDialog"
 import { EntryNameDialog } from "./EntryNameDialog"
 import { SettingsSection } from "./SettingsSection"
 import { useCampaign } from "./useCampaign"
 import { VisibilitySwitch } from "./VisibilitySwitch"
+import { WorldEntryImage } from "./WorldEntryImage"
 import { WorldFields } from "./WorldFields"
 
 // Render with key={entryId} so moving between entries starts from scratch.
 export function WorldEntryView({ entryId }: { entryId: string }) {
   const navigate = useNavigate()
-  const { can } = useCampaign()
+  const { can, current } = useCampaign()
+  const campaignId = current!.id
   const canManage = can("manage_world")
   const { entry, error, reload, setRevealed } = useWorldEntry(entryId)
+  const fieldsState = useWorldFields(entryId)
   const [renaming, setRenaming] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -32,6 +37,10 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
     setBusy(true)
     try {
       await deleteWorldEntry(entryId)
+      // The file is no longer referenced; failing to remove it is harmless.
+      await deleteWorldImage(
+        toWorldImage(fieldsState.fields?.[COVER_FIELD]?.value)?.path
+      ).catch(() => {})
       navigate("/app/world")
     } catch (failure) {
       setActionError(errorMessage(failure))
@@ -66,11 +75,20 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
             entry && kind && (
               <>
                 <div className="flex items-center justify-between gap-3 pb-6">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <h2 className="truncate text-xl font-semibold tracking-tight">
-                      {entry.name}
-                    </h2>
-                    <Badge variant="outline">{kind.label}</Badge>
+                  <div className="flex min-w-0 items-center gap-5">
+                    <WorldEntryImage
+                      entryId={entryId}
+                      campaignId={campaignId}
+                      kind={entry.kind}
+                      canManage={canManage}
+                      state={fieldsState}
+                    />
+                    <div className="flex min-w-0 items-center gap-3">
+                      <h2 className="truncate text-xl font-semibold tracking-tight">
+                        {entry.name}
+                      </h2>
+                      <Badge variant="outline">{kind.label}</Badge>
+                    </div>
                   </div>
                   {canManage && (
                     <Button variant="outline" onClick={() => setRenaming(true)}>
@@ -80,7 +98,13 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                   )}
                 </div>
 
-                <WorldFields entryId={entryId} kind={entry.kind} canManage={canManage} />
+                <WorldFields
+                  entryId={entryId}
+                  campaignId={campaignId}
+                  kind={entry.kind}
+                  canManage={canManage}
+                  state={fieldsState}
+                />
 
                 {canManage && (
                   <div className="divide-y border-t">

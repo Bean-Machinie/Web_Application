@@ -11,17 +11,14 @@ import {
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { MemberMenu } from "./MemberMenu"
-import type { MemberAction } from "./MemberMenu"
 import { cellClass, headClass, headRowClass } from "./members-table-styles"
 import { VisibilitySwitch } from "./VisibilitySwitch"
+import type { WorldManage } from "./world-manage"
 
 type Props = {
   entries: WorldEntry[]
   // Null for players: no visibility column, no menu.
-  manage: {
-    onReveal: (entry: WorldEntry, revealed: boolean) => void
-    actionsFor: (entry: WorldEntry) => MemberAction[]
-  } | null
+  manage: WorldManage | null
 }
 
 export function WorldEntryTable({ entries, manage }: Props) {
