@@ -17,6 +17,7 @@ import { EntryNameDialog } from "./EntryNameDialog"
 import { SettingsSection } from "./SettingsSection"
 import { useCampaign } from "./useCampaign"
 import { VisibilitySwitch } from "./VisibilitySwitch"
+import { WorldEntryFacts } from "./WorldEntryFacts"
 import { WorldEntryImage } from "./WorldEntryImage"
 import { WorldFields } from "./WorldFields"
 
@@ -27,7 +28,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
   const campaignId = current!.id
   const canManage = can("manage_world")
   const { entry, error, reload, setRevealed } = useWorldEntry(entryId)
-  const fieldsState = useWorldFields(entryId)
+  const fieldsState = useWorldFields(entryId, entry?.kind)
   const [renaming, setRenaming] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -74,8 +75,8 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
           ) : (
             entry && kind && (
               <>
-                <div className="flex items-center justify-between gap-3 pb-6">
-                  <div className="flex min-w-0 items-center gap-5">
+                <div className="flex items-start justify-between gap-3 pb-6">
+                  <div className="flex min-w-0 flex-1 items-start gap-5">
                     <WorldEntryImage
                       entryId={entryId}
                       campaignId={campaignId}
@@ -83,11 +84,20 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                       canManage={canManage}
                       state={fieldsState}
                     />
-                    <div className="flex min-w-0 items-center gap-3">
-                      <h2 className="truncate text-xl font-semibold tracking-tight">
-                        {entry.name}
-                      </h2>
-                      <Badge variant="outline">{kind.label}</Badge>
+                    <div className="flex min-w-0 flex-1 flex-col gap-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <h2 className="truncate text-xl font-semibold tracking-tight">
+                          {entry.name}
+                        </h2>
+                        <Badge variant="outline">{kind.label}</Badge>
+                      </div>
+                      <WorldEntryFacts
+                        entryId={entryId}
+                        campaignId={campaignId}
+                        kind={entry.kind}
+                        canManage={canManage}
+                        state={fieldsState}
+                      />
                     </div>
                   </div>
                   {canManage && (

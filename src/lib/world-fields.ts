@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase"
 
 // A new field type is one more value here and in the world_field_type enum,
 // plus an entry in components/dashboard/field-types.tsx.
-export type WorldFieldType = "rich_text" | "image"
+export type WorldFieldType = "rich_text" | "image" | "short_text" | "select"
 
 // What the database holds for one field. A field with no row is empty.
 export type StoredField = {
@@ -11,10 +11,11 @@ export type StoredField = {
 }
 
 export async function fetchWorldFields(entryId: string) {
-  const { data, error } = await supabase
-    .from("world_entry_fields")
-    .select("key, value, private")
-    .eq("entry_id", entryId)
+  // A function, not the table: it nulls the value of private fields for
+  // players while still saying that they exist.
+  const { data, error } = await supabase.rpc("get_world_entry_fields", {
+    target_entry: entryId,
+  })
   if (error) throw error
 
   const fields: Record<string, StoredField> = {}
@@ -28,13 +29,15 @@ export async function setWorldFieldValue(
   entryId: string,
   key: string,
   type: WorldFieldType,
-  value: unknown
+  value: unknown,
+  defaultPrivate: boolean
 ) {
   const { error } = await supabase.rpc("set_world_entry_field_value", {
     target_entry: entryId,
     field_key: key,
     field_type: type,
     field_value: value,
+    default_private: defaultPrivate,
   })
   if (error) throw error
 }

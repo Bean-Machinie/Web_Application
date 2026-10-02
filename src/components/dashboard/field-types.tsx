@@ -4,11 +4,17 @@ import { ImageFieldEditor } from "./ImageFieldEditor"
 import { ImageFieldView } from "./ImageFieldView"
 import { RichTextEditor } from "./RichTextEditor"
 import { RichTextView } from "./RichTextView"
+import { SelectFieldEditor } from "./SelectFieldEditor"
+import { SelectFieldView } from "./SelectFieldView"
+import { ShortTextFieldEditor } from "./ShortTextFieldEditor"
+import { ShortTextFieldView } from "./ShortTextFieldView"
 
 export type FieldEditorProps = {
   value: unknown
   label: string
   placeholder?: string
+  // The choices of a select field.
+  options?: { value: string; label: string }[]
   // What to show in an empty image tile.
   fallback?: ReactNode
   // Where an upload belongs.
@@ -17,7 +23,11 @@ export type FieldEditorProps = {
   onChange: (value: unknown) => void | Promise<boolean>
 }
 
-export type FieldViewProps = { value: unknown; fallback?: ReactNode }
+export type FieldViewProps = {
+  value: unknown
+  fallback?: ReactNode
+  options?: { value: string; label: string }[]
+}
 
 // One entry per field type: how a GM edits it, how a player reads it, when it
 // counts as empty, and whether a change saves at once or after a pause in
@@ -36,6 +46,18 @@ export const FIELD_TYPES: Record<
     View: RichTextView,
     isEmpty: (value) => value == null,
     saveAtOnce: false,
+  },
+  short_text: {
+    Editor: ShortTextFieldEditor,
+    View: ShortTextFieldView,
+    isEmpty: (value) => value == null || value === "",
+    saveAtOnce: false,
+  },
+  select: {
+    Editor: SelectFieldEditor,
+    View: SelectFieldView,
+    isEmpty: (value) => value == null,
+    saveAtOnce: true,
   },
   image: {
     Editor: ImageFieldEditor,

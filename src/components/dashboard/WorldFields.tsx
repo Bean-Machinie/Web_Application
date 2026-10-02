@@ -17,19 +17,23 @@ type Props = {
   state: WorldFieldsState
 }
 
-// Render with key={entryId}. Players only ever receive the fields they may
-// see, so there is nothing to hide here; empty ones are just not shown. The
-// cover image is shown by the page header, not here.
+// Render with key={entryId}. Players receive private fields without their
+// value, which show as "Undisclosed"; empty ones are just not shown.
 export function WorldFields({ entryId, campaignId, kind, canManage, state }: Props) {
   const { fields, error, saveState, setValue, saveNow, setPrivate } = state
-  const defs = WORLD_KINDS[kind].fields.filter((def) => def.key !== COVER_FIELD)
+  // The cover and the summary facts are shown by the page header.
+  const defs = WORLD_KINDS[kind].fields.filter(
+    (def) => def.key !== COVER_FIELD && !def.summary
+  )
 
   if (!fields && !error) return <Skeleton className="my-5 h-44 w-full max-w-3xl" />
 
   const shown = canManage
     ? defs
     : defs.filter(
-        (def) => fields && !FIELD_TYPES[def.type].isEmpty(fields[def.key]?.value)
+        (def) =>
+          fields &&
+          (fields[def.key]?.private || !FIELD_TYPES[def.type].isEmpty(fields[def.key]?.value))
       )
   if (!canManage && shown.length === 0) return null
 

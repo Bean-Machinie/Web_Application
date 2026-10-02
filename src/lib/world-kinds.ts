@@ -19,12 +19,20 @@ export type FieldDef = {
   // Only the registry decides this; the database stores the flag for any field.
   canBePrivate: boolean
   placeholder?: string
+  // For select fields: the choices, in order. The key is what gets stored.
+  options?: { value: string; label: string }[]
+  // A private field starts out private, even before anything is saved.
+  privateByDefault?: boolean
+  // Shown as a compact fact beside the name instead of as a section below.
+  summary?: boolean
 }
 
 type KindDef = {
   label: string
   plural: string
   icon: LucideIcon
+  // Example in the name box of the create dialog.
+  namePlaceholder: string
   fields: FieldDef[]
 }
 
@@ -51,35 +59,76 @@ function description(placeholder: string): FieldDef {
   }
 }
 
+function select(
+  key: string,
+  label: string,
+  options: string[]
+): FieldDef {
+  return {
+    key,
+    label,
+    type: "select",
+    canBePrivate: true,
+    summary: true,
+    options: options.map((option) => ({ value: option.toLowerCase(), label: option })),
+  }
+}
+
 export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
   character: {
     label: "Character",
     plural: "Characters",
     icon: User,
-    fields: [image(), description("Who are they, what do they want, what do they hide?")],
+    namePlaceholder: "e.g. Bram the innkeeper",
+    fields: [
+      image(),
+      {
+        key: "role",
+        label: "Role",
+        type: "short_text",
+        canBePrivate: false,
+        summary: true,
+        placeholder: "e.g. Innkeeper",
+      },
+      select("status", "Status", ["Alive", "Dead", "Missing"]),
+      select("attitude", "Attitude", ["Friendly", "Neutral", "Hostile"]),
+      description("Who are they, what do they want, what do they hide?"),
+      {
+        key: "secrets",
+        label: "Secrets",
+        type: "rich_text",
+        canBePrivate: true,
+        privateByDefault: true,
+        placeholder: "What are they hiding? Only you see this until you reveal it.",
+      },
+    ],
   },
   creature: {
     label: "Creature",
     plural: "Creatures",
     icon: PawPrint,
+    namePlaceholder: "e.g. Mossback troll",
     fields: [image(), description("What is it, where does it live, how does it behave?")],
   },
   location: {
     label: "Location",
     plural: "Locations",
     icon: MapPin,
+    namePlaceholder: "e.g. The Gilded Stag",
     fields: [image(), description("What does it look like, and what happens here?")],
   },
   item: {
     label: "Item",
     plural: "Items",
     icon: Package,
+    namePlaceholder: "e.g. Sword of Dawn",
     fields: [image(), description("What is it, what does it do, who has it?")],
   },
   lore: {
     label: "Lore",
     plural: "Lore",
     icon: BookOpen,
+    namePlaceholder: "e.g. The Sundering",
     fields: [image(), description("The history, legend or rule worth remembering.")],
   },
 }

@@ -3,6 +3,7 @@ import { Switch } from "@/components/ui/switch"
 import type { FieldDef } from "@/lib/world-kinds"
 import type { StoredField } from "@/lib/world-fields"
 import { FIELD_TYPES } from "./field-types"
+import { Undisclosed } from "./Undisclosed"
 
 type Props = {
   def: FieldDef
@@ -17,7 +18,7 @@ type Props = {
 
 export function WorldFieldRow({ def, context, stored, manage }: Props) {
   const { Editor, View } = FIELD_TYPES[def.type]
-  const isPrivate = stored?.private ?? false
+  const isPrivate = stored?.private ?? def.privateByDefault ?? false
 
   return (
     <section className="flex flex-col gap-2 py-5">
@@ -41,11 +42,17 @@ export function WorldFieldRow({ def, context, stored, manage }: Props) {
           value={stored?.value ?? null}
           label={def.label}
           placeholder={def.placeholder}
+          options={def.options}
           context={context}
           onChange={manage.onChange}
         />
       ) : (
-        <View value={stored?.value ?? null} />
+        // The server sends no value for a private field, only that it exists.
+        stored?.private ? (
+          <Undisclosed />
+        ) : (
+          <View value={stored?.value ?? null} options={def.options} />
+        )
       )}
     </section>
   )

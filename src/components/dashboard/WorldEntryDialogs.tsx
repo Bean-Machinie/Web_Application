@@ -1,9 +1,9 @@
-import { createWorldEntry, renameWorldEntry } from "@/lib/world-entries"
+import { renameWorldEntry } from "@/lib/world-entries"
 import type { WorldEntry } from "@/lib/world-entries"
-import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { ConfirmDialog } from "./ConfirmDialog"
 import { EntryNameDialog } from "./EntryNameDialog"
+import { NewEntryDialog } from "./NewEntryDialog"
 
 type Props = {
   campaignId: string
@@ -23,15 +23,10 @@ export function WorldEntryDialogs(props: Props) {
 
   return (
     <>
-      <EntryNameDialog
-        open={creating !== null}
-        title={`New ${creating ? WORLD_KINDS[creating].label.toLowerCase() : ""}`}
-        description="Give the entry a name."
-        submitLabel="Create"
-        onSubmit={async (name) => {
-          await createWorldEntry(campaignId, creating!, name)
-          await reload()
-        }}
+      <NewEntryDialog
+        campaignId={campaignId}
+        kind={creating}
+        reload={reload}
         onClose={props.onCloseCreate}
       />
       <EntryNameDialog

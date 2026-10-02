@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { errorMessage } from "@/lib/campaigns"
+import { WORLD_KINDS } from "@/lib/world-kinds"
+import type { WorldEntryKind } from "@/lib/world-kinds"
 import {
   fetchWorldFields,
   setWorldFieldPrivate,
@@ -14,7 +16,14 @@ const DEBOUNCE_MS = 800
 type Pending = { type: WorldFieldType; value: unknown; timer: number }
 
 // `fields` is null while loading. Use with key={entryId}.
-export function useWorldFields(entryId: string) {
+export function useWorldFields(entryId: string, kind: WorldEntryKind | undefined) {
+  // What a field is before its first save, so a secret is never saved public.
+  const startsPrivate = useCallback(
+    (key: string) =>
+      kind ? WORLD_KINDS[kind].fields.find((def) => def.key === key)?.privateByDefault ?? false : false,
+    [kind]
+  )
+
   const [fields, setFields] = useState<Record<string, StoredField> | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saveState, setSaveState] = useState<SaveState>("idle")
@@ -53,9 +62,9 @@ export function useWorldFields(entryId: string) {
       const next = pending.current.get(key)
       if (!next) return
       pending.current.delete(key)
-      track(setWorldFieldValue(entryId, key, next.type, next.value))
+      track(setWorldFieldValue(entryId, key, next.type, next.value, startsPrivate(key)))
     },
-    [entryId, track]
+    [entryId, track, startsPrivate]
   )
 
   // Leaving the page must not drop an edit that is still waiting to be sent.
@@ -64,14 +73,14 @@ export function useWorldFields(entryId: string) {
     return () => {
       for (const [key, next] of waiting) {
         window.clearTimeout(next.timer)
-        setWorldFieldValue(entryId, key, next.type, next.value).catch(() => {})
+        setWorldFieldValue(entryId, key, next.type, next.value, startsPrivate(key)).catch(() => {})
       }
       waiting.clear()
     }
-  }, [entryId])
+  }, [entryId, startsPrivate])
 
   function setValue(key: string, type: WorldFieldType, value: unknown) {
-    setFields((old) => old && { ...old, [key]: { ...old[key], private: old[key]?.private ?? false, value } })
+    setFields((old) => old && { ...old, [key]: { ...old[key], private: old[key]?.private ?? startsPrivate(key), value } })
     window.clearTimeout(pending.current.get(key)?.timer)
     const timer = window.setTimeout(() => flush(key), DEBOUNCE_MS)
     pending.current.set(key, { type, value, timer })
@@ -88,11 +97,11 @@ export function useWorldFields(entryId: string) {
     const apply = (next: unknown) =>
       setFields(
         (old) =>
-          old && { ...old, [key]: { ...old[key], private: old[key]?.private ?? false, value: next } }
+          old && { ...old, [key]: { ...old[key], private: old[key]?.private ?? startsPrivate(key), value: next } }
       )
     apply(value)
     setError(null)
-    const saved = await track(setWorldFieldValue(entryId, key, type, value))
+    const saved = await track(setWorldFieldValue(entryId, key, type, value, startsPrivate(key)))
     if (!saved) apply(previous)
     return saved
   }
