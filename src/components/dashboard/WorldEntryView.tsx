@@ -50,7 +50,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
   const kind = entry ? WORLD_KINDS[entry.kind] : null
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col">
+    <div className="mx-auto flex w-full max-w-5xl flex-col">
       <Link
         to={worldListPath()}
         className="text-muted-foreground hover:text-foreground mb-4 flex w-fit items-center gap-1 text-sm transition-colors"

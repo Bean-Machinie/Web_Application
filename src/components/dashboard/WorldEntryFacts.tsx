@@ -16,7 +16,7 @@ type Props = {
 
 function Row({ def, children }: { def: FieldDef; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-9 items-center gap-2 px-3 sm:min-h-12 sm:gap-4 sm:px-5 sm:py-2">
+    <div className="flex min-h-9 items-center gap-2 px-3 sm:min-h-12 sm:flex-1 sm:gap-4 sm:px-5 sm:py-2">
       <dt className="text-muted-foreground w-14 shrink-0 text-xs sm:w-32 sm:text-sm">{def.label}</dt>
       <dd className="flex min-w-0 flex-1 items-center justify-between gap-2">{children}</dd>
     </div>
@@ -63,7 +63,7 @@ export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state }:
   if (rows.length === 0) return null
 
   return (
-    <dl className="bg-card min-w-0 flex-1 divide-y rounded-lg border shadow-xs">
+    <dl className="bg-card flex min-w-0 flex-1 flex-col divide-y rounded-lg border shadow-xs">
       {rows.map((def) => {
         const { Editor, View, saveAtOnce } = FIELD_TYPES[def.type]
         const stored = fields[def.key]
