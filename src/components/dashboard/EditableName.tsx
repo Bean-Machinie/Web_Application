@@ -7,6 +7,8 @@ type Props = {
 }
 
 const HEADING = "text-2xl font-semibold tracking-tight break-words"
+// Shared by the title and its edit box, so swapping them moves nothing.
+const BOX = `${HEADING} -mx-2 block w-[calc(100%+1rem)] rounded-md border px-2 py-0.5 leading-8 outline-none`
 
 // The page title. For a GM it is click-to-rename in place, like renaming a
 // file: Enter or leaving the box saves, Escape cancels.
@@ -23,20 +25,22 @@ export function EditableName({ name, onSave }: Props) {
 
   if (draft !== null) {
     return (
-      <input
-        aria-label="Name"
-        autoFocus
-        maxLength={80}
-        value={draft}
-        onFocus={(event) => event.currentTarget.select()}
-        onChange={(event) => setDraft(event.target.value)}
-        onBlur={() => finish(true)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") finish(true)
-          if (event.key === "Escape") finish(false)
-        }}
-        className={`${HEADING} border-ring ring-ring/30 bg-background -mx-2 min-w-0 flex-1 rounded-md border px-2 py-0.5 ring-3 outline-none`}
-      />
+      <h2 className="min-w-0 flex-1">
+        <input
+          aria-label="Name"
+          autoFocus
+          maxLength={80}
+          value={draft}
+          onFocus={(event) => event.currentTarget.select()}
+          onChange={(event) => setDraft(event.target.value)}
+          onBlur={() => finish(true)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") finish(true)
+            if (event.key === "Escape") finish(false)
+          }}
+          className={`${BOX} border-foreground/40 bg-background ring-foreground/10 ring-2`}
+        />
+      </h2>
     )
   }
 
@@ -46,7 +50,7 @@ export function EditableName({ name, onSave }: Props) {
         type="button"
         title="Click to rename"
         onClick={() => setDraft(name)}
-        className={`${HEADING} hover:bg-muted focus-visible:ring-ring -mx-2 block w-[calc(100%+1rem)] cursor-text rounded-md px-2 py-0.5 text-left outline-none focus-visible:ring-2`}
+        className={`${BOX} hover:bg-muted focus-visible:border-foreground/40 focus-visible:ring-foreground/10 cursor-text border-transparent text-left focus-visible:ring-2`}
       >
         {name}
       </button>

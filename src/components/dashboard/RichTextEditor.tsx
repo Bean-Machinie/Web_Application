@@ -27,7 +27,7 @@ export function RichTextEditor({ value, label, placeholder, onChange }: FieldEdi
   if (!editor) return null
 
   return (
-    <div className="focus-within:border-ring focus-within:ring-ring/50 rounded-md border focus-within:ring-3">
+    <div className="focus-within:border-foreground/40 focus-within:ring-foreground/10 rounded-md border focus-within:ring-2">
       <RichTextToolbar editor={editor} />
       <EditorContent editor={editor} />
     </div>

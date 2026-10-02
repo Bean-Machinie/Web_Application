@@ -67,7 +67,7 @@ export function WorldEntryTable({ entries, manage }: Props) {
                   key={entry.id}
                   className={
                     manage
-                      ? "relative select-none [-webkit-touch-callout:none] data-lifted:after:pointer-events-none data-lifted:after:absolute data-lifted:after:inset-0 data-lifted:after:border data-lifted:after:border-ring data-lifted:after:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)] data-lifted:after:content-['']"
+                      ? "relative select-none [-webkit-touch-callout:none] data-lifted:outline data-lifted:-outline-offset-2 data-lifted:outline-ring data-lifted:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)]"
                       : "relative"
                   }
                   {...rowProps(entry.id, index)}

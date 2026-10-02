@@ -3,7 +3,7 @@ import type { PointerEvent } from "react"
 import { locate, measure, rowStyle, scrollParent, SETTLE_MS, viewport } from "@/lib/row-reorder"
 import type { Drag, Point } from "@/lib/row-reorder"
 
-const HOLD_MS = 90
+const HOLD_MS = 250
 // Moving this far before the hold completes means a click or a scroll.
 const SLOP_PX = 5
 const EDGE_PX = 72
