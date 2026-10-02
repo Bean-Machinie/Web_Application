@@ -13,7 +13,7 @@ import { deleteWorldImage } from "@/lib/world-images"
 import { worldKinds } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
-import type { VisibilityFilter } from "@/lib/world-list"
+import type { Sort, VisibilityFilter } from "@/lib/world-list"
 import { useCampaign } from "./useCampaign"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
 import { WorldEntryResults } from "./WorldEntryResults"
@@ -32,6 +32,7 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
   const [mode, setMode] = useWorldViewMode()
   const [query, setQuery] = useState("")
   const [visibility, setVisibility] = useState<VisibilityFilter>("all")
+  const [sort, setSort] = useState<Sort>(null)
   const [creating, setCreating] = useState<WorldEntryKind | null>(null)
   const [renaming, setRenaming] = useState<WorldEntry | null>(null)
   const [deleting, setDeleting] = useState<WorldEntry | null>(null)
@@ -40,7 +41,13 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
 
   // An unknown ?kind= falls back to All.
   const kind = worldKinds.find((option) => option === params.get("kind")) ?? null
-  const shown = entries && viewEntries(entries, { kind, query, visibility })
+  const shown = entries && viewEntries(entries, {
+      kind,
+      query,
+      visibility,
+      // Only the list has column headers to sort by.
+      sort: mode === "list" ? sort : null,
+    })
 
   async function handleDelete() {
     setBusy(true)
@@ -124,6 +131,8 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
                 filtered={query.trim() !== "" || visibility !== "all"}
                 canManage={canManage}
                 manage={manage}
+                sort={sort}
+                onSort={setSort}
               />
             )
           }

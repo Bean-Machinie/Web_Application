@@ -4,29 +4,32 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "@/components/ui/table"
 import { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
+import type { Sort } from "@/lib/world-list"
 import { MemberMenu } from "./MemberMenu"
-import { cellClass, headClass } from "./members-table-styles"
+import { cellClass } from "./members-table-styles"
 import { scrollClass } from "./WorldEntryGrid"
 import { VisibilitySwitch } from "./VisibilitySwitch"
+import { WorldTableHeader } from "./WorldTableHeader"
 import type { WorldManage } from "./world-manage"
 
 type Props = {
   entries: WorldEntry[]
   // Null for players: no visibility column, no menu.
   manage: WorldManage | null
+  sort: Sort
+  onSort: (sort: Sort) => void
 }
 
-export function WorldEntryTable({ entries, manage }: Props) {
+export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
   const { rowProps } = useRowReorder({
     ids: entries.map((entry) => entry.id),
-    onReorder: manage?.onReorder,
+    // A column sort replaces the manual order, so rows cannot be moved then.
+    onReorder: sort ? undefined : manage?.onReorder,
   })
 
   // The header is its own table above the scrolling body, so the scroll bar
@@ -45,15 +48,7 @@ export function WorldEntryTable({ entries, manage }: Props) {
       <div className="bg-muted/40 shrink-0 overflow-y-hidden border-b [scrollbar-gutter:stable] [scrollbar-width:thin]">
         <Table className="table-fixed">
           {columns}
-          {/* The line lives on the wrapper so it also spans the scroll gutter. */}
-          <TableHeader className="[&_tr]:border-b-0">
-            <TableRow className="border-b-0 hover:bg-transparent">
-              <TableHead className={headClass}>Name</TableHead>
-              <TableHead className={headClass}>Type</TableHead>
-              {manage && <TableHead className={headClass}>Visibility</TableHead>}
-              {manage && <TableHead className={headClass} />}
-            </TableRow>
-          </TableHeader>
+          <WorldTableHeader withVisibility={manage !== null} sort={sort} onSort={onSort} />
         </Table>
       </div>
       <div className={`${scrollClass} [scrollbar-gutter:stable]`}>
