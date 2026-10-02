@@ -12,6 +12,9 @@ export type WorldEntryKind =
   | "item"
   | "lore"
 
+// The colour of the dot beside a select option.
+export type Tone = "positive" | "neutral" | "negative" | "warning"
+
 export type FieldDef = {
   key: string
   label: string
@@ -20,7 +23,7 @@ export type FieldDef = {
   canBePrivate: boolean
   placeholder?: string
   // For select fields: the choices, in order. The key is what gets stored.
-  options?: { value: string; label: string }[]
+  options?: { value: string; label: string; tone?: Tone }[]
   // A private field starts out private, even before anything is saved.
   privateByDefault?: boolean
   // Shown as a compact fact beside the name instead of as a section below.
@@ -62,7 +65,7 @@ function description(placeholder: string): FieldDef {
 function select(
   key: string,
   label: string,
-  options: string[]
+  options: [label: string, tone: Tone][]
 ): FieldDef {
   return {
     key,
@@ -70,7 +73,7 @@ function select(
     type: "select",
     canBePrivate: true,
     summary: true,
-    options: options.map((option) => ({ value: option.toLowerCase(), label: option })),
+    options: options.map(([name, tone]) => ({ value: name.toLowerCase(), label: name, tone })),
   }
 }
 
@@ -90,8 +93,16 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
         summary: true,
         placeholder: "e.g. Innkeeper",
       },
-      select("status", "Status", ["Alive", "Dead", "Missing"]),
-      select("attitude", "Attitude", ["Friendly", "Neutral", "Hostile"]),
+      select("status", "Status", [
+        ["Alive", "positive"],
+        ["Dead", "negative"],
+        ["Missing", "warning"],
+      ]),
+      select("attitude", "Attitude", [
+        ["Friendly", "positive"],
+        ["Neutral", "neutral"],
+        ["Hostile", "negative"],
+      ]),
       description("Who are they, what do they want, what do they hide?"),
       {
         key: "secrets",

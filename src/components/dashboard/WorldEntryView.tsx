@@ -75,8 +75,8 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
           ) : (
             entry && kind && (
               <>
-                <div className="flex items-start justify-between gap-3 pb-6">
-                  <div className="flex min-w-0 flex-1 items-start gap-5">
+                <div className="flex items-center justify-between gap-3 pb-6">
+                  <div className="flex min-w-0 flex-1 items-center gap-5">
                     <WorldEntryImage
                       entryId={entryId}
                       campaignId={campaignId}
@@ -84,20 +84,11 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                       canManage={canManage}
                       state={fieldsState}
                     />
-                    <div className="flex min-w-0 flex-1 flex-col gap-4">
-                      <div className="flex min-w-0 items-center gap-3">
-                        <h2 className="truncate text-xl font-semibold tracking-tight">
-                          {entry.name}
-                        </h2>
-                        <Badge variant="outline">{kind.label}</Badge>
-                      </div>
-                      <WorldEntryFacts
-                        entryId={entryId}
-                        campaignId={campaignId}
-                        kind={entry.kind}
-                        canManage={canManage}
-                        state={fieldsState}
-                      />
+                    <div className="flex min-w-0 flex-col items-start gap-2">
+                      <h2 className="max-w-full truncate text-2xl font-semibold tracking-tight">
+                        {entry.name}
+                      </h2>
+                      <Badge variant="outline">{kind.label}</Badge>
                     </div>
                   </div>
                   {canManage && (
@@ -107,6 +98,14 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                     </Button>
                   )}
                 </div>
+
+                <WorldEntryFacts
+                  entryId={entryId}
+                  campaignId={campaignId}
+                  kind={entry.kind}
+                  canManage={canManage}
+                  state={fieldsState}
+                />
 
                 <WorldFields
                   entryId={entryId}

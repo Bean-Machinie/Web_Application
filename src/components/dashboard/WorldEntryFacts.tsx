@@ -2,7 +2,6 @@ import { Lock, LockOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { FieldDef, WorldEntryKind } from "@/lib/world-kinds"
-import type { StoredField } from "@/lib/world-fields"
 import { FIELD_TYPES } from "./field-types"
 import { Undisclosed } from "./Undisclosed"
 import type { WorldFieldsState } from "./WorldFields"
@@ -15,21 +14,21 @@ type Props = {
   state: WorldFieldsState
 }
 
-function Fact({ def, children }: { def: FieldDef; children: React.ReactNode }) {
+function Row({ def, children }: { def: FieldDef; children: React.ReactNode }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1.5">
-      <dt className="text-muted-foreground text-xs font-medium">{def.label}</dt>
-      <dd className="flex min-h-8 items-center gap-1">{children}</dd>
+    <div className="flex min-h-12 items-center gap-4 px-4 py-2 sm:px-5">
+      <dt className="text-muted-foreground w-24 shrink-0 text-sm sm:w-32">{def.label}</dt>
+      <dd className="flex min-w-0 flex-1 items-center justify-between gap-2">{children}</dd>
     </div>
   )
 }
 
 function PrivateToggle({
-  def,
+  label,
   isPrivate,
   onChange,
 }: {
-  def: FieldDef
+  label: string
   isPrivate: boolean
   onChange: (isPrivate: boolean) => void
 }) {
@@ -40,7 +39,7 @@ function PrivateToggle({
       size="icon-sm"
       className={isPrivate ? "text-foreground" : "text-muted-foreground"}
       aria-pressed={isPrivate}
-      aria-label={`${def.label} is ${isPrivate ? "private" : "visible to players"}`}
+      aria-label={`${label} is ${isPrivate ? "private" : "visible to players"}`}
       title={isPrivate ? "Private: players see “Undisclosed”" : "Visible to players"}
       onClick={() => onChange(!isPrivate)}
     >
@@ -49,38 +48,37 @@ function PrivateToggle({
   )
 }
 
-// The short facts beside the name, as a property list. A GM edits them in
-// place; a player reads them, with private ones shown as "Undisclosed".
+// The short facts of an entry as a property list. A GM edits each value in
+// place; a player reads them, private ones as "Undisclosed".
 export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state }: Props) {
   const { fields, setValue, saveNow, setPrivate } = state
   const defs = WORLD_KINDS[kind].fields.filter((def) => def.summary)
-  if (!fields || defs.length === 0) return null
+  if (!fields) return null
 
-  const visible = canManage
+  const rows = canManage
     ? defs
-    : defs.filter((def) => {
-        const stored: StoredField | undefined = fields[def.key]
-        return stored?.private || !FIELD_TYPES[def.type].isEmpty(stored?.value)
-      })
-  if (visible.length === 0) return null
+    : defs.filter(
+        (def) => fields[def.key]?.private || !FIELD_TYPES[def.type].isEmpty(fields[def.key]?.value)
+      )
+  if (rows.length === 0) return null
 
   return (
-    <dl className="grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-x-5 gap-y-3">
-      {visible.map((def) => {
+    <dl className="bg-card mb-6 max-w-3xl divide-y rounded-xl border shadow-xs">
+      {rows.map((def) => {
         const { Editor, View, saveAtOnce } = FIELD_TYPES[def.type]
         const stored = fields[def.key]
         const isPrivate = stored?.private ?? def.privateByDefault ?? false
 
         if (!canManage) {
           return (
-            <Fact key={def.key} def={def}>
+            <Row key={def.key} def={def}>
               {isPrivate ? <Undisclosed /> : <View value={stored?.value ?? null} options={def.options} />}
-            </Fact>
+            </Row>
           )
         }
 
         return (
-          <Fact key={def.key} def={def}>
+          <Row key={def.key} def={def}>
             <div className="min-w-0 flex-1">
               <Editor
                 value={stored?.value ?? null}
@@ -95,12 +93,12 @@ export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state }:
             </div>
             {def.canBePrivate && (
               <PrivateToggle
-                def={def}
+                label={def.label}
                 isPrivate={isPrivate}
                 onChange={(next) => setPrivate(def.key, def.type, next)}
               />
             )}
-          </Fact>
+          </Row>
         )
       })}
     </dl>

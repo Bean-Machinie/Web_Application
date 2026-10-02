@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from "react"
 import type { WorldFieldType } from "@/lib/world-fields"
+import type { FieldDef } from "@/lib/world-kinds"
 import { ImageFieldEditor } from "./ImageFieldEditor"
 import { ImageFieldView } from "./ImageFieldView"
 import { RichTextEditor } from "./RichTextEditor"
@@ -14,7 +15,7 @@ export type FieldEditorProps = {
   label: string
   placeholder?: string
   // The choices of a select field.
-  options?: { value: string; label: string }[]
+  options?: FieldDef["options"]
   // What to show in an empty image tile.
   fallback?: ReactNode
   // Where an upload belongs.
@@ -26,7 +27,7 @@ export type FieldEditorProps = {
 export type FieldViewProps = {
   value: unknown
   fallback?: ReactNode
-  options?: { value: string; label: string }[]
+  options?: FieldDef["options"]
 }
 
 // One entry per field type: how a GM edits it, how a player reads it, when it
