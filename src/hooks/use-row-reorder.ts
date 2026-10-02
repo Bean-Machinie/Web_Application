@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import type { PointerEvent } from "react"
-import { rowStyle, scrollParent, SETTLE_MS, viewport } from "@/lib/row-reorder"
-import type { Drag } from "@/lib/row-reorder"
+import { locate, measure, rowStyle, scrollParent, SETTLE_MS, viewport } from "@/lib/row-reorder"
+import type { Drag, Point } from "@/lib/row-reorder"
 
 const HOLD_MS = 90
 // Moving this far before the hold completes means a click or a scroll.
@@ -17,8 +17,9 @@ type Gesture = {
   startX: number
   startY: number
   startScroll: number
+  clientX: number
   clientY: number
-  height: number
+  slots: Point[]
   over: number
   scroller: HTMLElement
   active: boolean
@@ -32,11 +33,13 @@ type Options = {
   ids: string[]
   // Rows can be reordered only when this is given.
   onReorder?: (ids: string[]) => void
+  // Items may move sideways too, as in a grid.
+  grid?: boolean
 }
 
-// Press and hold a row, then drag it; the others slide out of the way.
+// Press and hold a row or card, then drag it; the others slide out of the way.
 // Spread rowProps(id, index) onto each row.
-export function useRowReorder({ ids, onReorder }: Options) {
+export function useRowReorder({ ids, onReorder, grid = false }: Options) {
   const [drag, setDrag] = useState<Drag | null>(null)
   const rows = useRef(new Map<string, HTMLElement>())
   const gesture = useRef<Gesture | null>(null)
@@ -46,11 +49,11 @@ export function useRowReorder({ ids, onReorder }: Options) {
   })
 
   function track(g: Gesture) {
-    const last = latest.current.ids.length - 1
-    const moved = g.clientY - g.startY + g.scroller.scrollTop - g.startScroll
-    const dy = Math.min(Math.max(moved, -g.from * g.height), (last - g.from) * g.height)
-    g.over = g.from + Math.round(dy / g.height)
-    setDrag({ id: g.id, from: g.from, over: g.over, dy, height: g.height, settling: false })
+    const moveX = grid ? g.clientX - g.startX : 0
+    const moveY = g.clientY - g.startY + g.scroller.scrollTop - g.startScroll
+    const { over, dx, dy } = locate(g.slots, g.from, moveX, moveY)
+    g.over = over
+    setDrag({ id: g.id, from: g.from, over, dx, dy, slots: g.slots, settling: false })
   }
 
   function autoScroll(g: Gesture) {
@@ -82,7 +85,9 @@ export function useRowReorder({ ids, onReorder }: Options) {
     window.setTimeout(() => window.removeEventListener("click", swallow, true), 50)
 
     const over = commit ? g.over : g.from
-    setDrag({ id: g.id, from: g.from, over, dy: (over - g.from) * g.height, height: g.height, settling: true })
+    const dx = g.slots[over].x - g.slots[g.from].x
+    const dy = g.slots[over].y - g.slots[g.from].y
+    setDrag({ id: g.id, from: g.from, over, dx, dy, slots: g.slots, settling: true })
     window.setTimeout(() => {
       const { ids: current, onReorder: save } = latest.current
       if (over !== g.from && save) {
@@ -98,6 +103,8 @@ export function useRowReorder({ ids, onReorder }: Options) {
     const row = rows.current.get(id)
     if (!row) return
     const scroller = scrollParent(row)
+    const slots = measure(latest.current.ids, rows.current, scroller)
+    if (!slots) return
     const g: Gesture = {
       id,
       from: index,
@@ -105,8 +112,9 @@ export function useRowReorder({ ids, onReorder }: Options) {
       startX: event.clientX,
       startY: event.clientY,
       startScroll: scroller.scrollTop,
+      clientX: event.clientX,
       clientY: event.clientY,
-      height: row.getBoundingClientRect().height,
+      slots,
       over: index,
       scroller,
       active: false,
@@ -122,6 +130,7 @@ export function useRowReorder({ ids, onReorder }: Options) {
     }
     on<globalThis.PointerEvent>("pointermove", (e) => {
       if (e.pointerId !== g.pointerId) return
+      g.clientX = e.clientX
       g.clientY = e.clientY
       if (g.active) return track(g)
       if (Math.hypot(e.clientX - g.startX, e.clientY - g.startY) > SLOP_PX) end(g, false)
