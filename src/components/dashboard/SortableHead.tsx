@@ -8,14 +8,15 @@ type Props = {
   // Null when the list is not sorted by this column.
   direction: "asc" | "desc" | null
   onSort: () => void
+  className?: string
 }
 
 // A column header you can click to sort by, with the arrow only where it
 // says something: always on the sorted column, on hover for the others.
-export function SortableHead({ label, direction, onSort }: Props) {
+export function SortableHead({ label, direction, onSort, className }: Props) {
   return (
     <TableHead
-      className={headClass}
+      className={cn(headClass, "max-md:px-3", className)}
       aria-sort={direction === "asc" ? "ascending" : direction === "desc" ? "descending" : "none"}
     >
       <button

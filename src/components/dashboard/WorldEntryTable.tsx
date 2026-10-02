@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -25,7 +25,11 @@ type Props = {
   onSort: (sort: Sort) => void
 }
 
+// Tighter on phones, where the type moves under the name.
+const cell = `${cellClass} max-md:px-3 max-md:py-3`
+
 export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
+  const navigate = useNavigate()
   const { rowProps } = useRowReorder({
     ids: entries.map((entry) => entry.id),
     // A column sort replaces the manual order, so rows cannot be moved then.
@@ -36,10 +40,10 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
   // starts below it. Both reserve the same gutter and share column widths.
   const columns = (
     <colgroup>
-      <col className="w-[50%]" />
-      <col />
-      {manage && <col />}
-      {manage && <col className="w-16" />}
+      <col className="md:w-[50%]" />
+      <col className="hidden md:table-column" />
+      {manage && <col className="w-16 md:w-auto" />}
+      {manage && <col className="w-12 md:w-16" />}
     </colgroup>
   )
 
@@ -60,16 +64,25 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
               return (
                 <TableRow
                   key={entry.id}
+                  // The whole row opens the entry. A click handler, not a link
+                  // stretched over the row: phone browsers do not treat a
+                  // table row as the box such a link stretches to.
+                  onClick={(event) => {
+                    const target = event.target as Element
+                    if (!event.currentTarget.contains(target)) return
+                    if (target.closest("a, button, [role=switch]")) return
+                    navigate(`/app/world/${entry.id}`)
+                  }}
                   className={
                     manage
-                      ? "relative select-none [-webkit-touch-callout:none] data-lifted:outline data-lifted:-outline-offset-2 data-lifted:outline-ring data-lifted:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)]"
-                      : "relative"
+                      ? "relative cursor-pointer select-none [-webkit-touch-callout:none] data-lifted:outline data-lifted:-outline-offset-2 data-lifted:outline-ring data-lifted:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)]"
+                      : "relative cursor-pointer"
                   }
                   {...rowProps(entry.id, index)}
                 >
-                  <TableCell className={cellClass}>
+                  <TableCell className={cell}>
                     <div className="flex items-center gap-3">
-                      <span className="bg-muted text-muted-foreground flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
+                      <span className="bg-muted text-muted-foreground flex size-12 shrink-0 items-center justify-center md:size-14 overflow-hidden rounded-lg border">
                         {entry.imageUrl ? (
                           <img
                             src={entry.imageUrl}
@@ -81,23 +94,27 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
                           <KindIcon className="size-5" />
                         )}
                       </span>
-                      <Link
-                        to={`/app/world/${entry.id}`}
-                        // The stretched link makes the whole row clickable; the
-                        // controls below sit above it.
-                        className="truncate font-medium outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-ring focus-visible:after:ring-2 focus-visible:after:ring-inset"
-                      >
-                        {entry.name}
-                      </Link>
+                      <div className="flex min-w-0 flex-col items-start gap-1">
+                        <Link
+                          to={`/app/world/${entry.id}`}
+                          className="focus-visible:ring-ring max-w-full truncate rounded-sm font-medium outline-none focus-visible:ring-2"
+                        >
+                          {entry.name}
+                        </Link>
+                        <Badge variant="outline" className="md:hidden">
+                          {label}
+                        </Badge>
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell className={cellClass}>
+                  <TableCell className={`${cell} hidden md:table-cell`}>
                     <Badge variant="outline">{label}</Badge>
                   </TableCell>
                   {manage && (
-                    <TableCell className={cellClass}>
+                    <TableCell className={cell}>
                       <div className="relative z-10 w-fit">
                         <VisibilitySwitch
+                          compact
                           revealed={entry.revealed}
                           name={entry.name}
                           onChange={(revealed) => manage.onReveal(entry, revealed)}
@@ -106,7 +123,7 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
                     </TableCell>
                   )}
                   {manage && (
-                    <TableCell className={`${cellClass} text-right`}>
+                    <TableCell className={`${cell} text-right`}>
                       <div className="relative z-10 inline-block">
                         <MemberMenu name={entry.name} actions={manage.actionsFor(entry)} />
                       </div>

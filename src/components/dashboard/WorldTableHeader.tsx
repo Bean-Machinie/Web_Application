@@ -14,11 +14,12 @@ type Props = {
 }
 
 export function WorldTableHeader({ withVisibility, sort, onSort }: Props) {
-  const column = (label: string, by: SortKey) => (
+  const column = (label: string, by: SortKey, className?: string) => (
     <SortableHead
       label={label}
       direction={sort?.by === by ? sort.dir : null}
       onSort={() => onSort(nextSort(sort, by))}
+      className={className}
     />
   )
 
@@ -27,10 +28,10 @@ export function WorldTableHeader({ withVisibility, sort, onSort }: Props) {
     <TableHeader className="[&_tr]:border-b-0">
       <TableRow className="border-b-0 hover:bg-transparent">
         {column("Name", "name")}
-        {column("Type", "type")}
+        {column("Type", "type", "hidden md:table-cell")}
         {withVisibility && column("Visibility", "visibility")}
         {withVisibility && (
-          <TableHead className={`${headClass} text-right`}>
+          <TableHead className={`${headClass} text-right max-md:px-2`}>
             {sort && (
               <Button
                 variant="ghost"
