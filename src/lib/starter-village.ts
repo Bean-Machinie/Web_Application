@@ -10,33 +10,53 @@ export const STARTER_VILLAGE: CampaignTemplate = {
   entries: [
     character(
       "Bram Hollis",
-      { role: "Innkeeper", status: "alive", attitude: "friendly" },
-      "Warm, talkative owner of the village inn. Knows everyone's business.",
-      "Owes a dangerous debt to someone in the next town."
+      { role: "Innkeeper", species: "Human", age: "67", status: "alive", attitude: "friendly" },
+      {
+        description: "Warm, talkative owner of the village inn. Knows everyone's business.",
+        motivation: "Keep the inn full and his debt quietly paid.",
+        voice: "Booming laugh, wipes the bar while he talks",
+        secret: "Owes a dangerous debt to someone in the next town.",
+      }
     ),
     character(
       "Tessa Vale",
-      { role: "Traveling merchant", status: "alive", attitude: "neutral" },
-      "Sells odd goods from a wagon and always has a rumor to trade.",
-      "Some of her stock was stolen."
+      { role: "Traveling merchant", species: "Witch", age: "152", status: "alive", attitude: "neutral" },
+      {
+        description: "Sells odd goods from a wagon and always has a rumor to trade.",
+        motivation: "Sell her stock quickly and move on before questions start.",
+        voice: "Fast patter, names a price before you ask",
+        secret: "Some of her stock was stolen.",
+      }
     ),
     character(
       "Captain Mara Dorn",
-      { role: "Guard captain", status: "alive", attitude: "neutral" },
-      "Stern but fair. Keeps the village gate and the peace.",
-      "Quietly looks away from the smugglers on the Forest Road."
+      { role: "Guard captain", species: "Human", age: "41", status: "alive", attitude: "neutral" },
+      {
+        description: "Stern but fair. Keeps the village gate and the peace.",
+        motivation: "Keep the village safe, whatever it costs her conscience.",
+        voice: "Clipped sentences, never raises her voice",
+        secret: "Quietly looks away from the smugglers on the Forest Road.",
+      }
     ),
     character(
       "Elder Osric",
-      { role: "Village elder", status: "alive", attitude: "friendly" },
-      "Keeper of the village's stories, and slow to trust outsiders.",
-      "Knows the truth behind the Lantern of Willowbrook."
+      { role: "Village elder", species: "Human", age: "82", status: "alive", attitude: "friendly" },
+      {
+        description: "Keeper of the village's stories, and slow to trust outsiders.",
+        motivation: "Pass the old stories to someone worthy before his time runs out.",
+        voice: "Slow and deliberate, speaks in proverbs",
+        secret: "Knows the truth behind the Lantern of Willowbrook.",
+      }
     ),
     character(
       "Kestrel",
-      { role: "Mysterious stranger", status: "alive", attitude: "neutral" },
-      "A hooded traveler who arrived last week and asks careful questions.",
-      "Is searching for the Old Map."
+      { role: "Mysterious stranger", species: "Human", age: "40", status: "alive", attitude: "neutral" },
+      {
+        description: "A hooded traveler who arrived last week and asks careful questions.",
+        motivation: "Find the Old Map and what it leads to.",
+        voice: "Quiet and careful, answers questions with questions",
+        secret: "Is searching for the Old Map.",
+      }
     ),
     entry("creature", "Wolf", "A lean grey wolf, bold when hungry. Stalks the Forest Road at dusk."),
     entry("creature", "Goblin", "A sly scavenger that raids camps and trades in trinkets."),
