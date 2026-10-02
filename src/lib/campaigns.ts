@@ -1,3 +1,4 @@
+import type { TemplateEntry } from "./campaign-template-types"
 import { deleteImage } from "@/lib/avatar"
 import { supabase } from "@/lib/supabase"
 import type { CampaignRole } from "./campaign-permissions"
@@ -74,9 +75,14 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
   return campaigns.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status])
 }
 
-export async function createCampaign(name: string): Promise<Campaign> {
+// Starter entries are created with the campaign, in the same transaction.
+export async function createCampaign(
+  name: string,
+  starterEntries: TemplateEntry[] = []
+): Promise<Campaign> {
   const { data, error } = await supabase.rpc("create_campaign", {
     campaign_name: name,
+    starter_entries: starterEntries,
   })
   if (error) throw error
 
