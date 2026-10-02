@@ -42,11 +42,12 @@ export function WorldEntryTable({ entries, manage }: Props) {
 
   return (
     <>
-      <div className="bg-muted/40 shrink-0 overflow-y-hidden [scrollbar-gutter:stable] [scrollbar-width:thin]">
+      <div className="bg-muted/40 shrink-0 overflow-y-hidden border-b [scrollbar-gutter:stable] [scrollbar-width:thin]">
         <Table className="table-fixed">
           {columns}
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
+          {/* The line lives on the wrapper so it also spans the scroll gutter. */}
+          <TableHeader className="[&_tr]:border-b-0">
+            <TableRow className="border-b-0 hover:bg-transparent">
               <TableHead className={headClass}>Name</TableHead>
               <TableHead className={headClass}>Type</TableHead>
               {manage && <TableHead className={headClass}>Visibility</TableHead>}
