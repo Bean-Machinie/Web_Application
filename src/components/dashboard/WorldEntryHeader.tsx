@@ -21,12 +21,12 @@ type Props = {
 export function WorldEntryHeader({ name, kind, canManage, onRename, ...rest }: Props) {
   return (
     <div className="flex flex-col gap-5 pb-6">
-      <div className="flex min-w-0 items-center gap-2 [&>[role=status]]:ml-auto">
+      <div className="flex min-w-0 items-start gap-3">
         <EditableName name={name} onSave={canManage ? onRename : null} />
-        <Badge variant="outline" className="shrink-0">
-          {WORLD_KINDS[kind].label}
-        </Badge>
-        {canManage && <SaveIndicator state={rest.state.saveState} />}
+        <div className="flex shrink-0 items-center gap-3 pt-1.5">
+          {canManage && <SaveIndicator state={rest.state.saveState} />}
+          <Badge variant="outline">{WORLD_KINDS[kind].label}</Badge>
+        </div>
       </div>
       {/* 9.25rem is the height of three fact rows, so the image matches them. */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start [--image-size:7rem] sm:[--image-size:9.25rem]">
