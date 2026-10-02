@@ -22,7 +22,7 @@ export function TabNav({ label, tabs }: Props) {
   return (
     <nav
       aria-label={label}
-      className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto border-b px-4 md:mx-0 md:px-0"
+      className="no-scrollbar -mx-4 flex touch-pan-x gap-1 overflow-x-auto border-b px-4 md:mx-0 md:px-0"
     >
       {tabs.map((tab) => {
         const content = (

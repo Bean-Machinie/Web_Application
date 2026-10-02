@@ -34,8 +34,14 @@ const menuItems = [
 
 export function NavUser() {
   const { session } = useAuth()
-  const { state } = useSidebar()
+  const { state, isMobile, setOpenMobile } = useSidebar()
   const navigate = useNavigate()
+
+  // Same as the nav links: a tap on mobile closes the drawer.
+  function go(to: string) {
+    if (isMobile) setOpenMobile(false)
+    navigate(to)
+  }
 
   const email = session?.user.email ?? ""
   const initials = session ? getInitials(session.user) : "??"
@@ -96,7 +102,7 @@ export function NavUser() {
               {menuItems.map((item) => (
                 <DropdownMenuItem
                   key={item.label}
-                  onClick={() => navigate(item.to)}
+                  onClick={() => go(item.to)}
                 >
                   <Icon src={item.icon} />
                   {item.label}
@@ -104,7 +110,7 @@ export function NavUser() {
               ))}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate("/app/support")}>
+            <DropdownMenuItem onClick={() => go("/app/support")}>
               <Icon src={lifeBuoy} />
               Support
             </DropdownMenuItem>
