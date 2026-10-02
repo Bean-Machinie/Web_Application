@@ -59,7 +59,7 @@ export function DeleteCampaignDialog({ campaign, open, onClose }: Props) {
           <DialogDescription>This action cannot be undone.</DialogDescription>
         </DialogHeader>
 
-        <div className="bg-destructive/10 text-destructive rounded-lg px-3 py-2.5 text-sm">
+        <div className="bg-destructive/10 text-destructive rounded-md px-3 py-2.5 text-sm">
           This permanently deletes <strong>{campaign.name}</strong>, its
           members, its invite link and any pending invitations. Everyone in it
           will be notified.

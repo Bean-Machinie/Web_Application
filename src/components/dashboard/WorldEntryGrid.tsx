@@ -25,7 +25,7 @@ export function WorldEntryGrid({ entries, manage }: Props) {
         <div
           key={entry.id}
           // The wrapper moves; the card inside takes the lifted look.
-          className="rounded-xl select-none [-webkit-touch-callout:none] data-lifted:*:border-ring data-lifted:*:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)]"
+          className="rounded-lg select-none [-webkit-touch-callout:none] data-lifted:*:border-ring data-lifted:*:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)]"
           {...rowProps(entry.id, index)}
         >
           <WorldEntryCard entry={entry} manage={manage} />

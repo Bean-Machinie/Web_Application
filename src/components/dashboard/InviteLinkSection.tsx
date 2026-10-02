@@ -62,13 +62,13 @@ export function InviteLinkSection({ campaignId }: { campaignId: string }) {
       </div>
       <LoadingGate
         loading={!code && !error}
-        skeleton={<Skeleton className="h-10 w-full rounded-lg" />}
+        skeleton={<Skeleton className="h-10 w-full rounded-md" />}
       >
         {() =>
           error ? (
             <FormAlert tone="error">{error}</FormAlert>
           ) : (
-            <div className="bg-muted/40 flex h-10 items-center gap-2 rounded-lg border pr-1 pl-3">
+            <div className="bg-muted/40 flex h-10 items-center gap-2 rounded-md border pr-1 pl-3">
               <Link2 className="text-muted-foreground size-4 shrink-0" />
               <input
                 readOnly
@@ -77,7 +77,7 @@ export function InviteLinkSection({ campaignId }: { campaignId: string }) {
                 onFocus={(event) => event.currentTarget.select()}
                 className="text-muted-foreground min-w-0 flex-1 bg-transparent text-sm outline-none"
               />
-              <Button type="button" size="sm" variant="outline" onClick={copy}>
+              <Button type="button" size="sm" variant="outline" className="rounded-xs" onClick={copy}>
                 {copied && <Check className="size-3.5" />}
                 {copied ? "Copied" : "Copy link"}
               </Button>

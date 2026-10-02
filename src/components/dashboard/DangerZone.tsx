@@ -25,7 +25,7 @@ export function DangerZone({ campaign }: { campaign: Campaign }) {
         open={open}
         onOpenChange={setOpen}
         className={cn(
-          "bg-card overflow-hidden rounded-xl border transition-colors",
+          "bg-card overflow-hidden rounded-lg border transition-colors",
           open && "border-destructive/30"
         )}
       >

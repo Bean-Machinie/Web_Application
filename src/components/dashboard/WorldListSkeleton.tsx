@@ -32,7 +32,7 @@ export function WorldListSkeleton({ canManage }: { canManage: boolean }) {
               </div>
             </TableCell>
             <TableCell className={cellClass}>
-              <Skeleton className="h-5 w-12 rounded-4xl" />
+              <Skeleton className="h-5 w-12 rounded-full" />
             </TableCell>
             {canManage && (
               <TableCell className={cellClass}>

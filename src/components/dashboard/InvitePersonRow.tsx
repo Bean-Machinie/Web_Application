@@ -73,7 +73,7 @@ export function InvitePersonSkeletonRow() {
         <div className="bg-muted h-4 w-28 animate-pulse rounded-md" />
         <div className="bg-muted h-3 w-36 animate-pulse rounded-md" />
       </div>
-      <div className="bg-muted h-7 w-16 animate-pulse rounded-lg" />
+      <div className="bg-muted h-7 w-16 animate-pulse rounded-sm" />
     </li>
   )
 }

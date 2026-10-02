@@ -17,7 +17,7 @@ type Props = {
 export function WorldEntryImage({ entryId, campaignId, kind, canManage, state }: Props) {
   const def = WORLD_KINDS[kind].fields.find((field) => field.key === COVER_FIELD)
   if (!def) return null
-  if (!state.fields) return <Skeleton className="size-28 rounded-xl" />
+  if (!state.fields) return <Skeleton className="size-28 rounded-lg" />
 
   const { Editor, View, saveAtOnce } = FIELD_TYPES[def.type]
   const KindIcon = WORLD_KINDS[kind].icon

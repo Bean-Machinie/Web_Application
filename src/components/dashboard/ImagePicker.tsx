@@ -54,7 +54,7 @@ export function ImagePicker({ url, fallback, disabled, onPick, onRemove }: Props
           onDragOver={handleDragOver}
           onDrop={handleDrop}
           className={cn(
-            "bg-muted text-muted-foreground focus-visible:ring-ring relative flex size-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border outline-none focus-visible:ring-2 disabled:cursor-default",
+            "bg-muted text-muted-foreground focus-visible:ring-ring relative flex size-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border outline-none focus-visible:ring-2 disabled:cursor-default",
             isDragging && "ring-primary ring-2"
           )}
         >

@@ -26,7 +26,7 @@ export function WorldEntryCard({ entry, manage }: Props) {
   ]
 
   return (
-    <div className="group bg-card hover:border-foreground/25 relative overflow-hidden rounded-xl border transition-all duration-200 hover:shadow-md">
+    <div className="group bg-card hover:border-foreground/25 relative overflow-hidden rounded-lg border transition-all duration-200 hover:shadow-md">
       <div className="bg-muted text-muted-foreground flex aspect-[4/3] items-center justify-center overflow-hidden">
         {entry.imageUrl ? (
           <img
@@ -43,7 +43,7 @@ export function WorldEntryCard({ entry, manage }: Props) {
         {/* The stretched link makes the whole card clickable. */}
         <Link
           to={`/app/world/${entry.id}`}
-          className="truncate font-medium outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-ring focus-visible:after:rounded-xl focus-visible:after:ring-2"
+          className="truncate font-medium outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-ring focus-visible:after:rounded-lg focus-visible:after:ring-2"
         >
           {entry.name}
         </Link>

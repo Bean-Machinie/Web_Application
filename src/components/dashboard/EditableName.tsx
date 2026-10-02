@@ -35,7 +35,7 @@ export function EditableName({ name, onSave }: Props) {
           if (event.key === "Enter") finish(true)
           if (event.key === "Escape") finish(false)
         }}
-        className={`${HEADING} border-ring ring-ring/30 bg-background -mx-2 min-w-0 flex-1 rounded-lg border px-2 py-0.5 ring-3 outline-none`}
+        className={`${HEADING} border-ring ring-ring/30 bg-background -mx-2 min-w-0 flex-1 rounded-md border px-2 py-0.5 ring-3 outline-none`}
       />
     )
   }
@@ -46,7 +46,7 @@ export function EditableName({ name, onSave }: Props) {
         type="button"
         title="Click to rename"
         onClick={() => setDraft(name)}
-        className={`${HEADING} hover:bg-muted focus-visible:ring-ring -mx-2 block w-[calc(100%+1rem)] cursor-text rounded-lg px-2 py-0.5 text-left outline-none focus-visible:ring-2`}
+        className={`${HEADING} hover:bg-muted focus-visible:ring-ring -mx-2 block w-[calc(100%+1rem)] cursor-text rounded-md px-2 py-0.5 text-left outline-none focus-visible:ring-2`}
       >
         {name}
       </button>

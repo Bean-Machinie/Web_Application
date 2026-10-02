@@ -79,12 +79,12 @@ export function Campaigns() {
           </EmptyContent>
         </Empty>
       ) : (
-        <ul className="divide-y rounded-lg border">
+        <ul className="divide-y overflow-hidden rounded-lg border">
           {campaigns.map((campaign) => (
             <li key={campaign.id}>
               <button
                 type="button"
-                className="hover:bg-muted/50 flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors first:rounded-t-lg last:rounded-b-lg"
+                className="hover:bg-muted/50 flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors"
                 onClick={() => {
                   select(campaign.id)
                   navigate("/app")

@@ -12,7 +12,7 @@ type Props = { mode: WorldViewMode; onChange: (mode: WorldViewMode) => void }
 // A small segmented control: one button per view, the active one raised.
 export function WorldViewToggle({ mode, onChange }: Props) {
   return (
-    <div role="group" aria-label="View" className="bg-muted inline-flex rounded-lg p-0.5">
+    <div role="group" aria-label="View" className="bg-muted inline-flex rounded-md p-0.5">
       {OPTIONS.map(({ mode: option, label, icon: OptionIcon }) => (
         <button
           key={option}
@@ -21,7 +21,7 @@ export function WorldViewToggle({ mode, onChange }: Props) {
           aria-pressed={mode === option}
           onClick={() => onChange(option)}
           className={cn(
-            "focus-visible:ring-ring flex size-7 items-center justify-center rounded-md transition-colors outline-none focus-visible:ring-2",
+            "focus-visible:ring-ring flex size-7 items-center justify-center rounded-sm transition-colors outline-none focus-visible:ring-2",
             mode === option
               ? "bg-background text-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground"

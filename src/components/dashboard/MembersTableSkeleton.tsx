@@ -33,7 +33,7 @@ export function MembersTableSkeleton({ withActions }: { withActions: boolean }) 
               </div>
             </TableCell>
             <TableCell className={cellClass}>
-              <Skeleton className="h-5 w-14 rounded-4xl" />
+              <Skeleton className="h-5 w-14 rounded-full" />
             </TableCell>
             <TableCell className={cellClass}>
               <Skeleton className="h-4 w-20" />

@@ -101,7 +101,7 @@ export function CampaignMembers({ campaign }: { campaign: Campaign }) {
 
   return (
     <div className="flex flex-col gap-6 py-6">
-      <div className="bg-card overflow-hidden rounded-xl border shadow-xs">
+      <div className="bg-card overflow-hidden rounded-lg border shadow-xs">
         <div className="flex items-center justify-between gap-3 px-6 py-5">
           <div>
             <div className="flex items-center gap-2">
