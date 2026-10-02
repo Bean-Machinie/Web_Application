@@ -12,6 +12,8 @@ type Props = {
   kind: WorldEntryKind
   canManage: boolean
   state: WorldFieldsState
+  // Hidden from players: drawn with a dashed border like the list cards.
+  hidden?: boolean
 }
 
 function Row({ def, children }: { def: FieldDef; children: React.ReactNode }) {
@@ -50,7 +52,7 @@ function PrivateToggle({
 
 // The short facts of an entry as a property list. A GM edits each value in
 // place; a player reads them, private ones as "Undisclosed".
-export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state }: Props) {
+export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state, hidden }: Props) {
   const { fields, setValue, saveNow, setPrivate } = state
   const defs = WORLD_KINDS[kind].fields.filter((def) => def.summary)
   if (!fields) return null
@@ -64,6 +66,8 @@ export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state }:
 
   return (
     <dl className={`bg-card flex min-w-0 flex-col divide-y rounded-lg border shadow-xs ${
+        hidden ? "border-dashed " : ""
+      }${
         canManage ? "flex-1" : "max-sm:w-[58%] max-sm:flex-none sm:flex-1"
       }`}>
       {rows.map((def) => {
@@ -87,6 +91,7 @@ export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state }:
                 label={def.label}
                 placeholder={def.placeholder}
                 options={def.options}
+                quiet
                 context={{ campaignId, entryId }}
                 onChange={(value) =>
                   saveAtOnce ? saveNow(def.key, def.type, value) : setValue(def.key, def.type, value)

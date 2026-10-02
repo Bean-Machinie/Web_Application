@@ -18,14 +18,25 @@ export type WorldEntry = {
   // The cover image; null when there is none or the list did not ask for it.
   imageUrl: string | null
   imagePath: string | null
+  // Shown in the list and grid; null for kinds without them, or when the
+  // person may not see them.
+  role: string | null
+  status: string | null
 }
+
+// The fields the list needs besides the entry itself.
+const LIST_FIELDS = [COVER_FIELD, "role", "status"]
 
 const COLUMNS = "id, kind, name, revealed, sort_order, created_at, updated_at"
 
 function toEntry(row: Record<string, unknown>): WorldEntry {
-  const cover = toWorldImage(
-    (row.world_entry_fields as { value: unknown }[] | undefined)?.[0]?.value
-  )
+  const fields = (row.world_entry_fields as { key: string; value: unknown }[] | undefined) ?? []
+  const valueOf = (key: string) => fields.find((field) => field.key === key)?.value
+  const text = (key: string) => {
+    const value = valueOf(key)
+    return typeof value === "string" && value !== "" ? value : null
+  }
+  const cover = toWorldImage(valueOf(COVER_FIELD))
   return {
     id: row.id as string,
     kind: row.kind as WorldEntryKind,
@@ -36,17 +47,19 @@ function toEntry(row: Record<string, unknown>): WorldEntry {
     updatedAt: row.updated_at as string,
     imageUrl: cover?.url ?? null,
     imagePath: cover?.path ?? null,
+    role: text("role"),
+    status: text("status"),
   }
 }
 
 export async function fetchWorldEntries(campaignId: string) {
   const { data, error } = await supabase
     .from("world_entries")
-    .select(`${COLUMNS}, world_entry_fields(value)`)
+    .select(`${COLUMNS}, world_entry_fields(key, value)`)
     .eq("campaign_id", campaignId)
     // Filters the embedded rows, not the entries; row level security still
     // decides which fields each person gets.
-    .eq("world_entry_fields.key", COVER_FIELD)
+    .in("world_entry_fields.key", LIST_FIELDS)
     .order("sort_order", { ascending: true })
   if (error) throw error
 

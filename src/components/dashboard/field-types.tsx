@@ -14,6 +14,8 @@ export type FieldEditorProps = {
   value: unknown
   label: string
   placeholder?: string
+  // Plain-looking until hovered, for the facts card.
+  quiet?: boolean
   // The choices of a select field.
   options?: FieldDef["options"]
   // What to show in an empty image tile.

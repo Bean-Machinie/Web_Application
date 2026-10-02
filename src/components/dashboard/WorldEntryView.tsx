@@ -77,6 +77,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                   campaignId={campaignId}
                   kind={entry.kind}
                   name={entry.name}
+                  revealed={entry.revealed}
                   canManage={canManage}
                   state={fieldsState}
                   onRename={async (name) => {

@@ -10,6 +10,7 @@ import { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { Sort } from "@/lib/world-list"
+import { HiddenBadge } from "./HiddenBadge"
 import { MemberMenu } from "./MemberMenu"
 import { cellClass } from "./members-table-styles"
 import { scrollClass } from "./WorldEntryGrid"
@@ -73,16 +74,20 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
                     if (target.closest("a, button, [role=switch]")) return
                     navigate(`/app/world/${entry.id}`)
                   }}
-                  className={
+                  className={`${entry.revealed ? "" : "bg-muted/50 "}${
                     manage
                       ? "relative cursor-pointer select-none [-webkit-touch-callout:none] data-lifted:outline data-lifted:-outline-offset-2 data-lifted:outline-ring data-lifted:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)]"
                       : "relative cursor-pointer"
-                  }
+                  }`}
                   {...rowProps(entry.id, index)}
                 >
                   <TableCell className={cell}>
                     <div className="flex items-center gap-3">
-                      <span className="bg-muted text-muted-foreground flex size-16 shrink-0 items-center justify-center md:size-20 overflow-hidden rounded-lg border">
+                      <span
+                        className={`bg-muted text-muted-foreground flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border md:size-20 ${
+                          entry.revealed ? "" : "opacity-60 grayscale"
+                        }`}
+                      >
                         {entry.imageUrl ? (
                           <img
                             src={entry.imageUrl}
@@ -95,12 +100,20 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
                         )}
                       </span>
                       <div className="flex min-w-0 flex-col items-start gap-1">
-                        <Link
-                          to={`/app/world/${entry.id}`}
-                          className="focus-visible:ring-ring max-w-full truncate rounded-sm font-medium outline-none focus-visible:ring-2"
-                        >
-                          {entry.name}
-                        </Link>
+                        <div className="flex max-w-full min-w-0 items-center gap-2">
+                          <Link
+                            to={`/app/world/${entry.id}`}
+                            className="focus-visible:ring-ring truncate rounded-sm font-medium outline-none focus-visible:ring-2"
+                          >
+                            {entry.name}
+                          </Link>
+                          {!entry.revealed && <HiddenBadge className="shrink-0" />}
+                        </div>
+                        {entry.role && (
+                          <span className="text-muted-foreground max-w-full truncate text-xs">
+                            {entry.role}
+                          </span>
+                        )}
                         <Badge variant="outline" className="md:hidden">
                           {label}
                         </Badge>

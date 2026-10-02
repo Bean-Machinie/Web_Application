@@ -4,6 +4,8 @@ import { Pencil, Trash2 } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
 import { useWorldEntries } from "@/hooks/use-world-entries"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { useWorldSearchText } from "@/hooks/use-world-search-text"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
 import { errorMessage } from "@/lib/campaigns"
 import type { Campaign } from "@/lib/campaigns"
@@ -30,7 +32,9 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
   const canManage = can("manage_world")
   const { entries, error, reload, setRevealed, reorder } = useWorldEntries(campaign.id)
   const [params] = useSearchParams()
-  const [mode, setMode] = useWorldViewMode()
+  const [chosenMode, setMode] = useWorldViewMode()
+  // Phones only get the grid; the saved choice is kept for larger screens.
+  const mode = useIsMobile() ? "grid" : chosenMode
   const [query, setQuery] = useState("")
   const [visibility, setVisibility] = useState<VisibilityFilter>("all")
   const [sort, setSort] = useState<Sort>(null)
@@ -44,12 +48,14 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
   const kind = worldKinds.find((option) => option === params.get("kind")) ?? null
   useEffect(() => rememberWorldKind(kind), [kind])
 
+  const searchText = useWorldSearchText(campaign.id, query.trim() !== "")
   const shown = entries && viewEntries(entries, {
       kind,
       query,
       visibility,
       // Only the list has column headers to sort by.
       sort: mode === "list" ? sort : null,
+      searchText,
     })
 
   async function handleDelete() {

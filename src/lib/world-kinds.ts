@@ -62,6 +62,19 @@ function description(placeholder: string): FieldDef {
   }
 }
 
+function shortText(
+  key: string,
+  label: string,
+  placeholder: string,
+  extra: Partial<FieldDef> = {}
+): FieldDef {
+  return { key, label, type: "short_text", canBePrivate: false, placeholder, ...extra }
+}
+
+function richText(key: string, label: string, placeholder: string, extra: Partial<FieldDef> = {}): FieldDef {
+  return { key, label, type: "rich_text", canBePrivate: true, placeholder, ...extra }
+}
+
 function select(
   key: string,
   label: string,
@@ -85,14 +98,9 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
     namePlaceholder: "e.g. Bram the innkeeper",
     fields: [
       image(),
-      {
-        key: "role",
-        label: "Role",
-        type: "short_text",
-        canBePrivate: false,
-        summary: true,
-        placeholder: "e.g. Innkeeper",
-      },
+      shortText("role", "Role", "e.g. Innkeeper", { summary: true }),
+      shortText("species", "Species", "e.g. Half-elf", { summary: true }),
+      shortText("age", "Age", "e.g. Middle-aged", { summary: true }),
       select("status", "Status", [
         ["Alive", "positive"],
         ["Dead", "negative"],
@@ -104,14 +112,14 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
         ["Hostile", "negative"],
       ]),
       description("Who are they, what do they want, what do they hide?"),
-      {
-        key: "secrets",
-        label: "Secrets",
-        type: "rich_text",
+      richText("motivation", "Motivation", "What do they want, and what will they do to get it?"),
+      shortText("voice", "Voice & mannerisms", "e.g. Gruff, taps the bar when lying", {
         canBePrivate: true,
         privateByDefault: true,
-        placeholder: "What are they hiding? Only you see this until you reveal it.",
-      },
+      }),
+      richText("secrets", "Secrets", "What are they hiding? Only you see this until you reveal it.", {
+        privateByDefault: true,
+      }),
     ],
   },
   creature: {

@@ -46,8 +46,8 @@ export function WorldToolbar(props: Props) {
         <Input
           value={query}
           onChange={(event) => onQuery(event.target.value)}
-          placeholder="Search by name"
-          aria-label="Search entries by name"
+          placeholder="Search"
+          aria-label="Search entries"
           className="pl-8"
         />
       </div>
@@ -68,7 +68,9 @@ export function WorldToolbar(props: Props) {
           </Select>
         )}
         <div className="ml-auto flex items-center gap-2">
+          <div className="max-md:hidden">
           <WorldViewToggle mode={mode} onChange={onMode} />
+        </div>
           {onCreate && <NewEntryButton onPick={onCreate} />}
         </div>
       </div>

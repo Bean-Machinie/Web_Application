@@ -3,7 +3,9 @@ import { Eye, EyeOff } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
+import { HiddenBadge } from "./HiddenBadge"
 import { MemberMenu } from "./MemberMenu"
+import { StatusMarker } from "./StatusMarker"
 import type { WorldManage } from "./world-manage"
 
 type Props = { entry: WorldEntry; manage: WorldManage | null }
@@ -28,18 +30,22 @@ export function WorldEntryCard({ entry, manage }: Props) {
   // On hover the whole card lifts and tilts a touch, with a small overshoot.
   return (
     <div
-      className="group bg-card hover:border-foreground/25 relative overflow-hidden rounded-lg border transition-[translate,rotate,scale,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:z-10 hover:shadow-lg [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:-rotate-1 [@media(hover:hover)]:hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:rotate-0 motion-reduce:hover:scale-100">
-      <div className="bg-muted text-muted-foreground flex aspect-square items-center justify-center overflow-hidden">
+      className={`group bg-card hover:border-foreground/25 relative overflow-hidden rounded-lg border transition-[translate,rotate,scale,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:z-10 hover:shadow-lg [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:-rotate-1 [@media(hover:hover)]:hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:rotate-0 motion-reduce:hover:scale-100 ${
+        entry.revealed ? "" : "border-dashed"
+      }`}>
+      <div className="bg-muted text-muted-foreground relative flex aspect-square items-center justify-center overflow-hidden">
         {entry.imageUrl ? (
           <img
             src={entry.imageUrl}
             alt=""
             loading="lazy"
-            className="size-full object-cover"
+            className={`size-full object-cover ${entry.revealed ? "" : "opacity-60 grayscale"}`}
           />
         ) : (
           <KindIcon className="size-10" />
         )}
+        {!entry.revealed && <HiddenBadge className="absolute top-2 left-2" />}
+        <StatusMarker entry={entry} />
       </div>
       <div className="flex flex-col gap-2 p-3.5">
         {/* The stretched link makes the whole card clickable. */}
@@ -51,12 +57,6 @@ export function WorldEntryCard({ entry, manage }: Props) {
         </Link>
         <div className="flex items-center gap-2">
           <Badge variant="outline">{label}</Badge>
-          {!entry.revealed && (
-            <EyeOff
-              className="text-muted-foreground size-3.5"
-              aria-label="Hidden from players"
-            />
-          )}
         </div>
       </div>
       {actions && (

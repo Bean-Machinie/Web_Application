@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { EditableName } from "./EditableName"
+import { HiddenBadge } from "./HiddenBadge"
 import { SaveIndicator } from "./SaveIndicator"
 import { WorldEntryFacts } from "./WorldEntryFacts"
 import { WorldEntryImage } from "./WorldEntryImage"
@@ -15,10 +16,11 @@ type Props = {
   canManage: boolean
   state: WorldFieldsState
   onRename: (name: string) => Promise<void>
+  revealed: boolean
 }
 
 // The name and kind on top; below, the image beside the entry's short facts.
-export function WorldEntryHeader({ name, kind, canManage, onRename, ...rest }: Props) {
+export function WorldEntryHeader({ name, kind, canManage, onRename, revealed, ...rest }: Props) {
   return (
     <div className="flex flex-col gap-5 pb-6">
       <div className="flex min-w-0 items-start gap-3">
@@ -37,15 +39,16 @@ export function WorldEntryHeader({ name, kind, canManage, onRename, ...rest }: P
         }`}
       >
         <div
-          className={
+          className={`relative ${
             canManage
               ? ""
-              : "max-sm:aspect-square max-sm:min-w-0 max-sm:flex-1 max-sm:self-start max-sm:[--image-size:100%]"
-          }
+              : "max-sm:aspect-square max-sm:min-w-0 max-sm:flex-1 max-sm:self-start max-sm:[--image-size:100%] "
+          }${revealed ? "" : "[&_img]:opacity-60 [&_img]:grayscale"}`}
         >
           <WorldEntryImage kind={kind} canManage={canManage} {...rest} />
+          {!revealed && <HiddenBadge className="pointer-events-none absolute top-2 left-2" />}
         </div>
-        <WorldEntryFacts kind={kind} canManage={canManage} {...rest} />
+        <WorldEntryFacts kind={kind} canManage={canManage} hidden={!revealed} {...rest} />
       </div>
     </div>
   )

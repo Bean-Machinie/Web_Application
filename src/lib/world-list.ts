@@ -1,6 +1,8 @@
 import type { WorldEntry } from "./world-entries"
 import { WORLD_KINDS } from "./world-kinds"
 import type { WorldEntryKind } from "./world-kinds"
+import { matchesQuery } from "./world-search"
+import type { SearchText } from "./world-search"
 
 export type VisibilityFilter = "all" | "hidden" | "revealed"
 
@@ -13,6 +15,8 @@ type View = {
   query: string
   visibility: VisibilityFilter
   sort: Sort
+  // Every entry's text, once loaded; the search then looks past the name.
+  searchText: SearchText | null
 }
 
 // Clicking a column: ascending, then descending, then back to manual order.
@@ -31,15 +35,13 @@ const COMPARE: Record<SortKey, (a: WorldEntry, b: WorldEntry) => number> = {
 // In the order the GM arranged them, unless a column sort is on. Entries that
 // tie keep their manual order.
 export function viewEntries(entries: WorldEntry[], view: View) {
-  const query = view.query.trim().toLowerCase()
-
   const shown = entries
     .filter(
       (entry) =>
         (!view.kind || entry.kind === view.kind) &&
         (view.visibility === "all" ||
           entry.revealed === (view.visibility === "revealed")) &&
-        entry.name.toLowerCase().includes(query)
+        matchesQuery(entry, view.query, view.searchText)
     )
     .sort((a, b) => a.sortOrder - b.sortOrder)
 
