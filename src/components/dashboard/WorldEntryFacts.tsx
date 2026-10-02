@@ -63,7 +63,7 @@ export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state }:
   if (rows.length === 0) return null
 
   return (
-    <dl className="bg-card mb-6 max-w-3xl divide-y rounded-xl border shadow-xs">
+    <dl className="bg-card min-w-0 flex-1 divide-y rounded-xl border shadow-xs">
       {rows.map((def) => {
         const { Editor, View, saveAtOnce } = FIELD_TYPES[def.type]
         const stored = fields[def.key]

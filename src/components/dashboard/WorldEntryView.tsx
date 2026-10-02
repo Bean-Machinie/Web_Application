@@ -1,9 +1,8 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { ChevronLeft, Pencil } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useWorldEntry } from "@/hooks/use-world-entry"
@@ -13,12 +12,10 @@ import { deleteWorldEntry, renameWorldEntry } from "@/lib/world-entries"
 import { deleteWorldImage, toWorldImage } from "@/lib/world-images"
 import { COVER_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
 import { ConfirmDialog } from "./ConfirmDialog"
-import { EntryNameDialog } from "./EntryNameDialog"
 import { SettingsSection } from "./SettingsSection"
 import { useCampaign } from "./useCampaign"
 import { VisibilitySwitch } from "./VisibilitySwitch"
-import { WorldEntryFacts } from "./WorldEntryFacts"
-import { WorldEntryImage } from "./WorldEntryImage"
+import { WorldEntryHeader } from "./WorldEntryHeader"
 import { WorldFields } from "./WorldFields"
 
 // Render with key={entryId} so moving between entries starts from scratch.
@@ -29,7 +26,6 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
   const canManage = can("manage_world")
   const { entry, error, reload, setRevealed } = useWorldEntry(entryId)
   const fieldsState = useWorldFields(entryId, entry?.kind)
-  const [renaming, setRenaming] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -53,7 +49,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
   const kind = entry ? WORLD_KINDS[entry.kind] : null
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col">
+    <div className="mx-auto flex w-full max-w-3xl flex-col">
       <Link
         to="/app/world"
         className="text-muted-foreground hover:text-foreground mb-4 flex w-fit items-center gap-1 text-sm transition-colors"
@@ -75,36 +71,22 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
           ) : (
             entry && kind && (
               <>
-                <div className="flex items-center justify-between gap-3 pb-6">
-                  <div className="flex min-w-0 flex-1 items-center gap-5">
-                    <WorldEntryImage
-                      entryId={entryId}
-                      campaignId={campaignId}
-                      kind={entry.kind}
-                      canManage={canManage}
-                      state={fieldsState}
-                    />
-                    <div className="flex min-w-0 flex-col items-start gap-2">
-                      <h2 className="max-w-full truncate text-2xl font-semibold tracking-tight">
-                        {entry.name}
-                      </h2>
-                      <Badge variant="outline">{kind.label}</Badge>
-                    </div>
-                  </div>
-                  {canManage && (
-                    <Button variant="outline" onClick={() => setRenaming(true)}>
-                      <Pencil className="size-4" />
-                      Rename
-                    </Button>
-                  )}
-                </div>
-
-                <WorldEntryFacts
+                <WorldEntryHeader
                   entryId={entryId}
                   campaignId={campaignId}
                   kind={entry.kind}
+                  name={entry.name}
                   canManage={canManage}
                   state={fieldsState}
+                  onRename={async (name) => {
+                    try {
+                      setActionError(null)
+                      await renameWorldEntry(entryId, name)
+                      await reload()
+                    } catch (failure) {
+                      setActionError(errorMessage(failure))
+                    }
+                  }}
                 />
 
                 <WorldFields
@@ -144,18 +126,6 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                 )}
                 {actionError && <FormAlert tone="error">{actionError}</FormAlert>}
 
-                <EntryNameDialog
-                  open={renaming}
-                  title="Rename entry"
-                  description="Change the entry's name."
-                  submitLabel="Save"
-                  initialName={entry.name}
-                  onSubmit={async (name) => {
-                    await renameWorldEntry(entryId, name)
-                    await reload()
-                  }}
-                  onClose={() => setRenaming(false)}
-                />
                 <ConfirmDialog
                   open={deleting}
                   title={`Delete ${entry.name}?`}

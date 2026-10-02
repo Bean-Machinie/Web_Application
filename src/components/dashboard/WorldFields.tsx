@@ -4,7 +4,6 @@ import type { useWorldFields } from "@/hooks/use-world-fields"
 import { COVER_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { FIELD_TYPES } from "./field-types"
-import { SaveIndicator } from "./SaveIndicator"
 import { WorldFieldRow } from "./WorldFieldRow"
 
 export type WorldFieldsState = ReturnType<typeof useWorldFields>
@@ -20,13 +19,13 @@ type Props = {
 // Render with key={entryId}. Players receive private fields without their
 // value, which show as "Undisclosed"; empty ones are just not shown.
 export function WorldFields({ entryId, campaignId, kind, canManage, state }: Props) {
-  const { fields, error, saveState, setValue, saveNow, setPrivate } = state
+  const { fields, error, setValue, saveNow, setPrivate } = state
   // The cover and the summary facts are shown by the page header.
   const defs = WORLD_KINDS[kind].fields.filter(
     (def) => def.key !== COVER_FIELD && !def.summary
   )
 
-  if (!fields && !error) return <Skeleton className="my-5 h-44 w-full max-w-3xl" />
+  if (!fields && !error) return <Skeleton className="my-5 h-44 w-full" />
 
   const shown = canManage
     ? defs
@@ -38,13 +37,7 @@ export function WorldFields({ entryId, campaignId, kind, canManage, state }: Pro
   if (!canManage && shown.length === 0) return null
 
   return (
-    <div className="max-w-3xl divide-y border-t">
-      {canManage && (
-        <div className="flex items-center justify-between pt-4">
-          <p className="text-muted-foreground text-xs">Changes save automatically.</p>
-          <SaveIndicator state={saveState} />
-        </div>
-      )}
+    <div className="divide-y border-t">
       {error && <FormAlert tone="error">{error}</FormAlert>}
       {fields &&
         shown.map((def) => (
