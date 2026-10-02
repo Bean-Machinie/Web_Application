@@ -16,8 +16,8 @@ type Props = {
 
 function Row({ def, children }: { def: FieldDef; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-12 items-center gap-4 px-4 py-2 sm:px-5">
-      <dt className="text-muted-foreground w-24 shrink-0 text-sm sm:w-32">{def.label}</dt>
+    <div className="flex min-h-9 items-center gap-2 px-3 sm:min-h-12 sm:gap-4 sm:px-5 sm:py-2">
+      <dt className="text-muted-foreground w-14 shrink-0 text-xs sm:w-32 sm:text-sm">{def.label}</dt>
       <dd className="flex min-w-0 flex-1 items-center justify-between gap-2">{children}</dd>
     </div>
   )

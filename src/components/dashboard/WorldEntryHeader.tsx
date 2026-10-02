@@ -28,8 +28,8 @@ export function WorldEntryHeader({ name, kind, canManage, onRename, ...rest }: P
           <Badge variant="outline">{WORLD_KINDS[kind].label}</Badge>
         </div>
       </div>
-      {/* 9.25rem is the height of three fact rows, so the image matches them. */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start [--image-size:7rem] sm:[--image-size:9.25rem]">
+      {/* The image is as tall as three fact rows (36px each on mobile, 48px above). */}
+      <div className="flex items-start gap-3 sm:gap-4 [--image-size:7rem] sm:[--image-size:9.25rem]">
         <WorldEntryImage kind={kind} canManage={canManage} {...rest} />
         <WorldEntryFacts kind={kind} canManage={canManage} {...rest} />
       </div>
