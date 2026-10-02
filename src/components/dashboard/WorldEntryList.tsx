@@ -85,9 +85,9 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
     : null
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       <WorldTabs entries={entries} active={kind} />
-      <div className="bg-card overflow-hidden rounded-xl border shadow-xs">
+      <div className="bg-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-xl border border-b-0 shadow-xs">
         <WorldToolbar
           kind={kind}
           query={query}
@@ -106,7 +106,7 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
         )}
         <LoadingGate
           loading={!entries && !error}
-          className="border-t"
+          className="flex min-h-0 flex-1 flex-col border-t"
           skeleton={
             mode === "grid" ? (
               <WorldGridSkeleton />

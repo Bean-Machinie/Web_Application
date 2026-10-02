@@ -26,7 +26,7 @@ export function DashboardHeader() {
   const title = useCurrentTitle()
 
   return (
-    <header className="bg-background/80 sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b backdrop-blur-sm transition-[width,height] ease-linear">
+    <header className="bg-background/80 sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b backdrop-blur-sm transition-[width,height] ease-linear">
       <div className="flex w-full items-center gap-2 px-4">
         {/* On desktop the sidebar's brand button toggles it; this is for the mobile drawer. */}
         <SidebarTrigger className="-ml-1 md:hidden" />

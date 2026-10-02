@@ -6,6 +6,10 @@ import type { WorldManage } from "./world-manage"
 export const gridClass =
   "grid grid-cols-2 gap-4 p-4 sm:p-6 md:grid-cols-3 xl:grid-cols-4"
 
+// Only the entries scroll; everything above stays put.
+export const scrollClass =
+  "min-h-0 flex-1 overflow-y-auto [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]"
+
 type Props = { entries: WorldEntry[]; manage: WorldManage | null }
 
 export function WorldEntryGrid({ entries, manage }: Props) {
@@ -16,7 +20,7 @@ export function WorldEntryGrid({ entries, manage }: Props) {
   })
 
   return (
-    <div className={gridClass}>
+    <div className={`${scrollClass} ${gridClass} content-start`}>
       {entries.map((entry, index) => (
         <div
           key={entry.id}

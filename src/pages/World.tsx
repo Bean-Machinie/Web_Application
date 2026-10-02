@@ -8,13 +8,7 @@ export function World() {
   if (!current) return null
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col">
-      <div className="pb-6">
-        <h2 className="text-xl font-semibold tracking-tight">World</h2>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Characters, places and lore for {current.name}.
-        </p>
-      </div>
+    <div className="mx-auto flex -mb-4 h-[calc(100svh-4rem)] w-full max-w-5xl flex-col md:-mb-6 md:h-[calc(100svh-4.5rem)]">
       <WorldEntryList key={current.id} campaign={current} />
     </div>
   )

@@ -29,7 +29,7 @@ export function WorldToolbar(props: Props) {
   const { kind, query, onQuery, visibility, onVisibility, onCreate, mode, onMode } = props
 
   return (
-    <div className="flex flex-wrap items-center gap-2 px-6 py-4">
+    <div className="flex shrink-0 flex-wrap items-center gap-2 px-6 py-4">
       <div className="relative min-w-40 flex-1 sm:max-w-xs">
         <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
         <Input

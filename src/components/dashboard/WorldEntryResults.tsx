@@ -18,7 +18,7 @@ type Props = {
 
 export function WorldEntryResults({ entries, mode, kind, filtered, canManage, manage }: Props) {
   return (
-    <div className="border-t">
+    <div className="flex min-h-0 flex-1 flex-col border-t">
       {entries.length === 0 ? (
         <WorldEmptyState kind={kind} filtered={filtered} canManage={canManage} />
       ) : mode === "grid" ? (
