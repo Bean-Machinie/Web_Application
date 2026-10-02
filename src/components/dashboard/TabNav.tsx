@@ -11,7 +11,7 @@ type Props = {
 
 function tabClass(active: boolean) {
   return cn(
-    "focus-visible:ring-ring -mb-px flex shrink-0 items-center gap-2 rounded-t-md border-b-2 px-3 pt-1 pb-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2",
+    "focus-visible:ring-ring flex shrink-0 items-center gap-2 rounded-t-md border-b-2 px-3 pt-1 pb-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2",
     active
       ? "border-primary text-foreground"
       : "text-muted-foreground hover:text-foreground border-transparent"
@@ -22,7 +22,9 @@ export function TabNav({ label, tabs }: Props) {
   return (
     <nav
       aria-label={label}
-      className="no-scrollbar -mx-4 flex touch-pan-x gap-1 overflow-x-auto border-b px-4 md:mx-0 md:px-0"
+      // The baseline is an inset shadow, not a border the tabs overlap with a
+    // negative margin: that overlap made the row 1px scrollable vertically.
+    className="no-scrollbar -mx-4 flex touch-pan-x gap-1 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4 shadow-[inset_0_-1px_0_var(--border)] md:mx-0 md:px-0"
     >
       {tabs.map((tab) => {
         const content = (
