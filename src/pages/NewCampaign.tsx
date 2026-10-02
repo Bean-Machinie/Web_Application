@@ -5,6 +5,7 @@ import { TemplateGallery } from "@/components/dashboard/TemplateGallery"
 import { useCampaign } from "@/components/dashboard/useCampaign"
 import type { CampaignTemplate } from "@/lib/campaign-template-types"
 import { createCampaign } from "@/lib/campaigns"
+import { entriesWithPortraits } from "@/lib/template-portraits"
 
 export function NewCampaign() {
   const navigate = useNavigate()
@@ -13,7 +14,8 @@ export function NewCampaign() {
   const [template, setTemplate] = useState<CampaignTemplate | null | undefined>(undefined)
 
   async function handleCreate(name: string) {
-    const campaign = await createCampaign(name, template?.entries)
+    const entries = template ? await entriesWithPortraits(template) : []
+    const campaign = await createCampaign(name, entries)
     await refresh()
     select(campaign.id)
     navigate("/app/world")

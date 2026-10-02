@@ -20,6 +20,9 @@ export type CampaignTemplate = {
   id: string
   name: string
   description: string
+  // Where the template's portraits live, one WebP per entry named after it
+  // ("Bram Hollis" is bram-hollis.webp). Entries without a file get none.
+  portraits?: string
   entries: TemplateEntry[]
 }
 

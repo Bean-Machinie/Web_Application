@@ -6,6 +6,7 @@ export const STARTER_VILLAGE: CampaignTemplate = {
   id: "starter-village",
   name: "Starter village",
   description: "A small village with a handful of people, places and a local legend.",
+  portraits: "/templates/starter-village",
   entries: [
     character(
       "Bram Hollis",
