@@ -35,7 +35,7 @@ export function WorldToolbar(props: Props) {
     // On phones: search on its own row, then the filter, view switch and New
     // together. From sm up the inner row dissolves into one line.
     <div
-      className={`flex shrink-0 gap-2 px-4 py-3 sm:flex-row sm:items-center sm:px-6 sm:py-4 ${
+      className={`flex shrink-0 gap-2 px-4 py-2.5 sm:flex-row sm:items-center sm:px-6 sm:py-4 ${
         searchOnly ? "items-center" : "flex-col"
       }`}
     >

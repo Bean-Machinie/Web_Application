@@ -16,7 +16,7 @@ type Props = {
 export function SortableHead({ label, direction, onSort, className }: Props) {
   return (
     <TableHead
-      className={cn(headClass, "max-md:px-3", className)}
+      className={cn(headClass, "max-md:h-9 max-md:px-3", className)}
       aria-sort={direction === "asc" ? "ascending" : direction === "desc" ? "descending" : "none"}
     >
       <button

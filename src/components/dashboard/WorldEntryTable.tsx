@@ -26,7 +26,7 @@ type Props = {
 }
 
 // Tighter on phones, where the type moves under the name.
-const cell = `${cellClass} max-md:px-3 max-md:py-3`
+const cell = `${cellClass} max-md:px-3 max-md:py-2`
 
 export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
   const navigate = useNavigate()
@@ -49,7 +49,7 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
 
   return (
     <>
-      <div className="bg-muted/40 shrink-0 overflow-y-hidden border-b [scrollbar-gutter:stable] [scrollbar-width:thin]">
+      <div className={`bg-muted/40 shrink-0 overflow-y-hidden border-b ${manage ? "" : "max-md:hidden"} [scrollbar-gutter:stable] [scrollbar-width:thin]`}>
         <Table className="table-fixed">
           {columns}
           <WorldTableHeader withVisibility={manage !== null} sort={sort} onSort={onSort} />
