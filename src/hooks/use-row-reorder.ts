@@ -178,6 +178,9 @@ export function useRowReorder({ ids, onReorder, grid = false }: Options) {
       onPointerDown: (event: PointerEvent<HTMLElement>) => {
         if (!onReorder || gesture.current || latest.current.drag) return
         if (event.button !== 0 || (event.target as Element).closest(CONTROLS)) return
+        // React bubbles events from portalled menus up to the row; a press on a
+        // menu item would otherwise start a drag and swallow its click.
+        if (!event.currentTarget.contains(event.target as Node)) return
         begin(event, id, index)
       },
     }
