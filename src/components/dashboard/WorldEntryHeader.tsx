@@ -30,21 +30,11 @@ export function WorldEntryHeader({ name, kind, canManage, onRename, revealed, ..
           <Badge variant="outline">{WORLD_KINDS[kind].label}</Badge>
         </div>
       </div>
-      {/* The facts card stretches to the image's height. On a phone a GM's card
-          takes the room its controls need beside a fixed image; for a player the
-          card shrinks to its text and the image takes all the rest. */}
-      <div
-        className={`flex gap-3 sm:items-stretch sm:gap-4 [--image-size:7rem] sm:[--image-size:16rem] lg:[--image-size:20rem] ${
-          canManage ? "items-start" : "items-stretch"
-        }`}
-      >
-        <div
-          className={`relative ${
-            canManage
-              ? ""
-              : "max-sm:aspect-square max-sm:min-w-0 max-sm:flex-1 max-sm:self-start max-sm:[--image-size:100%] "
-          }${revealed ? "" : "[&_img]:opacity-60 [&_img]:grayscale"}`}
-        >
+      {/* On a phone the picture runs the full width with the facts below it. From
+          sm up they sit side by side and the card stretches to the image's
+          height. The page has 1rem of padding each side. */}
+      <div className="flex flex-col gap-4 [--image-size:calc(100vw-2rem)] sm:flex-row sm:items-stretch sm:[--image-size:16rem] lg:[--image-size:20rem]">
+        <div className={`relative ${revealed ? "" : "[&_img]:opacity-60 [&_img]:grayscale"}`}>
           <WorldEntryImage kind={kind} canManage={canManage} {...rest} />
           {!revealed && <HiddenBadge className="pointer-events-none absolute top-2 left-2" />}
         </div>
