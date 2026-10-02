@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 import { Pencil, Trash2 } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
@@ -13,6 +13,7 @@ import { deleteWorldImage } from "@/lib/world-images"
 import { worldKinds } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
+import { rememberWorldKind } from "@/lib/world-tab"
 import type { Sort, VisibilityFilter } from "@/lib/world-list"
 import { useCampaign } from "./useCampaign"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
@@ -41,6 +42,8 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
 
   // An unknown ?kind= falls back to All.
   const kind = worldKinds.find((option) => option === params.get("kind")) ?? null
+  useEffect(() => rememberWorldKind(kind), [kind])
+
   const shown = entries && viewEntries(entries, {
       kind,
       query,

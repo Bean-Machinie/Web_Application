@@ -11,6 +11,7 @@ import { errorMessage } from "@/lib/campaigns"
 import { deleteWorldEntry, renameWorldEntry } from "@/lib/world-entries"
 import { deleteWorldImage, toWorldImage } from "@/lib/world-images"
 import { COVER_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
+import { worldListPath } from "@/lib/world-tab"
 import { ConfirmDialog } from "./ConfirmDialog"
 import { SettingsSection } from "./SettingsSection"
 import { useCampaign } from "./useCampaign"
@@ -38,7 +39,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
       await deleteWorldImage(
         toWorldImage(fieldsState.fields?.[COVER_FIELD]?.value)?.path
       ).catch(() => {})
-      navigate("/app/world")
+      navigate(worldListPath())
     } catch (failure) {
       setActionError(errorMessage(failure))
       setDeleting(false)
@@ -51,7 +52,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col">
       <Link
-        to="/app/world"
+        to={worldListPath()}
         className="text-muted-foreground hover:text-foreground mb-4 flex w-fit items-center gap-1 text-sm transition-colors"
       >
         <ChevronLeft className="size-4" />
