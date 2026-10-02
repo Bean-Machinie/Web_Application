@@ -27,11 +27,21 @@ type Props = {
 export function WorldToolbar(props: Props) {
   const { query, onQuery, visibility, onVisibility, onCreate, mode, onMode } = props
 
+  // Players have only the view switch besides the search, so on a phone they
+  // share one row and the list gets the room.
+  const searchOnly = !visibility && !onCreate
+
   return (
     // On phones: search on its own row, then the filter, view switch and New
     // together. From sm up the inner row dissolves into one line.
-    <div className="flex shrink-0 flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:px-6 sm:py-4">
-      <div className="relative w-full sm:max-w-xs sm:flex-1">
+    <div
+      className={`flex shrink-0 gap-2 px-4 py-3 sm:flex-row sm:items-center sm:px-6 sm:py-4 ${
+        searchOnly ? "items-center" : "flex-col"
+      }`}
+    >
+      <div
+        className={`relative sm:max-w-xs sm:flex-1 ${searchOnly ? "min-w-0 flex-1" : "w-full"}`}
+      >
         <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
         <Input
           value={query}
