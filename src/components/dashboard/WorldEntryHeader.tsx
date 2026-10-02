@@ -28,10 +28,23 @@ export function WorldEntryHeader({ name, kind, canManage, onRename, ...rest }: P
           <Badge variant="outline">{WORLD_KINDS[kind].label}</Badge>
         </div>
       </div>
-      {/* On phones the image is as tall as the three fact rows. From sm up it is
-          larger and the facts card stretches to its height. */}
-      <div className="flex items-start gap-3 sm:items-stretch sm:gap-4 [--image-size:7rem] sm:[--image-size:16rem] lg:[--image-size:20rem]">
-        <WorldEntryImage kind={kind} canManage={canManage} {...rest} />
+      {/* The facts card stretches to the image's height. On a phone a GM's card
+          takes the room its controls need beside a fixed image; for a player the
+          card shrinks to its text and the image takes all the rest. */}
+      <div
+        className={`flex gap-3 sm:items-stretch sm:gap-4 [--image-size:7rem] sm:[--image-size:16rem] lg:[--image-size:20rem] ${
+          canManage ? "items-start" : "items-stretch"
+        }`}
+      >
+        <div
+          className={
+            canManage
+              ? ""
+              : "max-sm:aspect-square max-sm:min-w-0 max-sm:flex-1 max-sm:self-start max-sm:[--image-size:100%]"
+          }
+        >
+          <WorldEntryImage kind={kind} canManage={canManage} {...rest} />
+        </div>
         <WorldEntryFacts kind={kind} canManage={canManage} {...rest} />
       </div>
     </div>
