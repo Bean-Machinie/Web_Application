@@ -9,22 +9,9 @@ import {
 import { WORLD_KINDS, worldKinds } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 
-type Props = {
-  // The active tab. Null on All, where the person picks the kind.
-  kind: WorldEntryKind | null
-  onPick: (kind: WorldEntryKind) => void
-}
-
-export function NewEntryButton({ kind, onPick }: Props) {
-  if (kind) {
-    return (
-      <Button onClick={() => onPick(kind)}>
-        <Plus className="size-4" />
-        New {WORLD_KINDS[kind].label.toLowerCase()}
-      </Button>
-    )
-  }
-
+// Always asks for the kind, whichever tab is open: the new entry lands in its
+// own tab, not the one you are looking at.
+export function NewEntryButton({ onPick }: { onPick: (kind: WorldEntryKind) => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
