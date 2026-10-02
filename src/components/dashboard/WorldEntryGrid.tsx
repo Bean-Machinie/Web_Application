@@ -20,7 +20,7 @@ export function WorldEntryGrid({ entries, manage }: Props) {
   })
 
   return (
-    <div className={`${scrollClass} ${gridClass} content-start`}>
+    <div className={`${scrollClass} ${gridClass} content-start [scrollbar-gutter:stable]`}>
       {entries.map((entry, index) => (
         <div
           key={entry.id}
