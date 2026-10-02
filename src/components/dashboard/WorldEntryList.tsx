@@ -87,7 +87,7 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <WorldTabs entries={entries} active={kind} />
-      <div className="bg-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-xl border border-b-0 shadow-xs">
+      <div className="bg-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-lg border border-b-0 shadow-xs">
         <WorldToolbar
           kind={kind}
           query={query}
