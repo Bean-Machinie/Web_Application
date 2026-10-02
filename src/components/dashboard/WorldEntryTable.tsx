@@ -82,7 +82,7 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
                 >
                   <TableCell className={cell}>
                     <div className="flex items-center gap-3">
-                      <span className="bg-muted text-muted-foreground flex size-12 shrink-0 items-center justify-center md:size-14 overflow-hidden rounded-lg border">
+                      <span className="bg-muted text-muted-foreground flex size-16 shrink-0 items-center justify-center md:size-20 overflow-hidden rounded-lg border">
                         {entry.imageUrl ? (
                           <img
                             src={entry.imageUrl}
@@ -91,7 +91,7 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
                             className="size-full object-cover"
                           />
                         ) : (
-                          <KindIcon className="size-5" />
+                          <KindIcon className="size-6" />
                         )}
                       </span>
                       <div className="flex min-w-0 flex-col items-start gap-1">

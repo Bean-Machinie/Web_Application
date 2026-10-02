@@ -25,15 +25,17 @@ export function WorldEntryCard({ entry, manage }: Props) {
     },
   ]
 
+  // On hover the whole card lifts and tilts a touch, with a small overshoot.
   return (
-    <div className="group bg-card hover:border-foreground/25 relative overflow-hidden rounded-lg border transition-all duration-200 hover:shadow-md">
-      <div className="bg-muted text-muted-foreground flex aspect-[4/3] items-center justify-center overflow-hidden">
+    <div
+      className="group bg-card hover:border-foreground/25 relative overflow-hidden rounded-lg border transition-[translate,rotate,scale,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:z-10 hover:shadow-lg [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:-rotate-1 [@media(hover:hover)]:hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:rotate-0 motion-reduce:hover:scale-100">
+      <div className="bg-muted text-muted-foreground flex aspect-square items-center justify-center overflow-hidden">
         {entry.imageUrl ? (
           <img
             src={entry.imageUrl}
             alt=""
             loading="lazy"
-            className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="size-full object-cover"
           />
         ) : (
           <KindIcon className="size-10" />
