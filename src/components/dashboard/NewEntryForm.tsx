@@ -9,9 +9,12 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useCreateMore } from "@/hooks/use-create-more"
 import { errorMessage } from "@/lib/campaigns"
+import { createScene } from "@/lib/map-scene"
 import { createWorldEntry } from "@/lib/world-entries"
+import { saveMapScene } from "@/lib/world-map-scenes"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
+import { DEFAULT_MAP_CHOICE, NewMapOptions } from "./NewMapOptions"
 
 type Props = {
   campaignId: string
@@ -25,6 +28,7 @@ export function NewEntryForm({ campaignId, kind, reload, onClose }: Props) {
   const navigate = useNavigate()
   const input = useRef<HTMLInputElement>(null)
   const [name, setName] = useState("")
+  const [map, setMap] = useState(DEFAULT_MAP_CHOICE)
   const [more, setMore] = useCreateMore()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -35,6 +39,12 @@ export function NewEntryForm({ campaignId, kind, reload, onClose }: Props) {
     setError(null)
     try {
       const entry = await createWorldEntry(campaignId, kind, name.trim())
+      if (kind === "map" && map.source === "build") {
+        await saveMapScene(entry.id, createScene(map), null)
+        onClose()
+        navigate(`/app/world/${entry.id}/build`)
+        return
+      }
       if (more) {
         await reload()
         setName("")
@@ -70,6 +80,7 @@ export function NewEntryForm({ campaignId, kind, reload, onClose }: Props) {
           New entries start hidden. Reveal them to your players when you are ready.
         </p>
       </div>
+      {kind === "map" && <NewMapOptions value={map} onChange={setMap} />}
       {error && <FormAlert tone="error">{error}</FormAlert>}
       <DialogFooter className="sm:items-center sm:justify-between">
         <Label className="text-muted-foreground cursor-pointer text-sm font-normal">

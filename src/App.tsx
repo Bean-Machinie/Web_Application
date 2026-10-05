@@ -13,6 +13,7 @@ import { Invite } from "@/pages/Invite"
 import { JoinCampaign } from "@/pages/JoinCampaign"
 import { Library } from "@/pages/Library"
 import { Login } from "@/pages/Login"
+import { MapBuild } from "@/pages/MapBuild"
 import { NewCampaign } from "@/pages/NewCampaign"
 import { Overview } from "@/pages/Overview"
 import { Party } from "@/pages/Party"
@@ -41,6 +42,7 @@ export default function App() {
             <Route index element={<Overview />} />
             <Route path="world" element={<World />} />
             <Route path="world/:entryId" element={<WorldEntry />} />
+            <Route path="world/:entryId/build" element={<MapBuild />} />
             <Route path="sessions" element={<Sessions />} />
             <Route path="characters" element={<Characters />} />
             <Route path="party" element={<Party />} />

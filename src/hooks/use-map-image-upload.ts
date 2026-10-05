@@ -14,7 +14,8 @@ type Options = {
 
 // Shrinks and converts the picked map, uploads it with its size, and saves it
 // on the entry. The old file goes only once the entry points at the new one,
-// and a file the database refused is deleted again.
+// and a file the database refused is deleted again. Resolves to whether the
+// map now has the new image.
 export function useMapImageUpload({ campaignId, entryId, current, onSave }: Options) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,8 +32,10 @@ export function useMapImageUpload({ campaignId, entryId, current, onSave }: Opti
         height: prepared.height,
       })
       await deleteWorldImage(saved ? current?.path : uploaded.path, "map").catch(() => {})
+      return saved
     } catch (failure) {
       setError(errorMessage(failure))
+      return false
     } finally {
       setBusy(false)
     }

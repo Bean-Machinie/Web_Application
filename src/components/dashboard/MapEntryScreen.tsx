@@ -4,9 +4,12 @@ import { FormAlert } from "@/components/auth/FormAlert"
 import { buttonVariants } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useMapImageUpload } from "@/hooks/use-map-image-upload"
+import { useMapUploadGuard } from "@/hooks/use-map-upload-guard"
 import { cn } from "@/lib/utils"
 import { toWorldImage } from "@/lib/world-images"
 import { COVER_FIELD } from "@/lib/world-kinds"
+import { ConfirmDialog } from "./ConfirmDialog"
+import { MapBuilderLink } from "./MapBuilderLink"
 import { MapImageInput } from "./MapImageInput"
 import { MapDetailsButton } from "./MapDetailsButton"
 import { MapTitlePill } from "./MapTitlePill"
@@ -28,12 +31,13 @@ const MapViewer = lazy(() => import("./MapViewer").then((module) => ({ default: 
 export function MapEntryScreen(props: EntryProps) {
   const { entryId, campaignId, kind, name, revealed, canManage, state } = props
   const image = toWorldImage(state.fields?.[COVER_FIELD]?.value)
-  const upload = useMapImageUpload({
+  const picker = useMapImageUpload({
     campaignId,
     entryId,
     current: image,
     onSave: (value) => state.saveNow(COVER_FIELD, "image", value),
   })
+  const { built, upload, confirm } = useMapUploadGuard(entryId, canManage, picker)
 
   return (
     <div className="bg-muted relative isolate -m-4 min-h-96 flex-1 overflow-hidden md:-m-6">
@@ -55,6 +59,7 @@ export function MapEntryScreen(props: EntryProps) {
         <div className="absolute inset-0 flex items-center justify-center p-6">
           <div className="w-full max-w-xl">
             <MapUploadPrompt canManage={canManage} upload={upload} />
+            {built && <div className="mt-3 flex justify-center"><MapBuilderLink mapId={entryId} /></div>}
           </div>
         </div>
       )}
@@ -86,6 +91,18 @@ export function MapEntryScreen(props: EntryProps) {
             state={state}
           />
         </div>
+        {canManage && built && (
+          <section className="flex flex-col gap-3 border-b px-5 py-4">
+            <div>
+              <h3 className="text-sm font-medium">Map builder</h3>
+              <p className="text-muted-foreground mt-0.5 text-[13px] leading-snug">
+                This map was built here. Editing it reopens the canvas; publishing renders a new
+                image.
+              </p>
+            </div>
+            <MapBuilderLink mapId={entryId} />
+          </section>
+        )}
         {canManage && image && (
           <section className="flex flex-col gap-3 border-b px-5 py-4">
             <div>
@@ -106,6 +123,12 @@ export function MapEntryScreen(props: EntryProps) {
           </section>
         )}
       </WorldEntryDetails>
+      <ConfirmDialog
+        {...confirm}
+        title="Replace the built map?"
+        description="Uploading an image replaces this map's image and discards its builder scene, so it can no longer be edited in the builder. Markers stay where they are, as a share of the image."
+        confirmLabel="Upload and discard the scene"
+      />
     </div>
   )
 }
