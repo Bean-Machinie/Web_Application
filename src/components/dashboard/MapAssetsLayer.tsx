@@ -1,6 +1,7 @@
 import type Konva from "konva"
 import { Image as KonvaImage, Layer, Rect } from "react-konva"
 import { useAssetImages } from "@/hooks/use-asset-images"
+import { bottomEdge } from "@/lib/map-asset-edit"
 import type { AssetPatch } from "@/lib/map-asset-edit"
 import type { PlacedAsset } from "@/lib/map-scene"
 
@@ -12,6 +13,11 @@ type Props = {
   // Plain click replaces the selection; Shift-click adds or removes one.
   onSelect: (id: string, additive: boolean) => void
   onChange: (patches: AssetPatch[]) => void
+}
+
+const bottom = (asset: PlacedAsset, imageOf: (id: string) => HTMLImageElement | undefined) => {
+  const image = imageOf(asset.asset)
+  return bottomEdge(asset, image?.naturalWidth ?? 100, image?.naturalHeight ?? 100)
 }
 
 const patchOf = (node: Konva.Node): AssetPatch => ({
@@ -39,9 +45,13 @@ export function MapAssetsLayer({ assets, selected, editable, onSelect, onChange 
     onChange(nodes.map(patchOf))
   }
 
+  // Drawn by the lowest point of each, so what is lower on the map is in front.
+  // The sort is stable, so equal ones keep the order they were placed in.
+  const sorted = [...assets].sort((a, b) => bottom(a, imageOf) - bottom(b, imageOf))
+
   return (
     <Layer listening={editable}>
-      {assets.map((asset) => {
+      {sorted.map((asset) => {
         const image = imageOf(asset.asset)
         const common = {
           id: asset.id,

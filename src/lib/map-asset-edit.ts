@@ -48,18 +48,27 @@ export function duplicateAssets(assets: PlacedAsset[], ids: string[], offset: nu
   return { assets: [...assets, ...copies], ids: copies.map((copy) => copy.id) }
 }
 
-// One step up or down among the others, the chosen ones keeping their order.
-export function reorderAssets(assets: PlacedAsset[], ids: string[], direction: "forward" | "back") {
-  const next = [...assets]
-  const picked = (index: number) => ids.includes(next[index].id)
-  if (direction === "forward") {
-    for (let i = next.length - 2; i >= 0; i--) {
-      if (picked(i) && !picked(i + 1)) [next[i], next[i + 1]] = [next[i + 1], next[i]]
-    }
-  } else {
-    for (let i = 1; i < next.length; i++) {
-      if (picked(i) && !picked(i - 1)) [next[i], next[i - 1]] = [next[i - 1], next[i]]
-    }
-  }
-  return next
+// Where the lowest point of an asset is, as it stands: the asset is "width" by
+// "height" before scaling, turned about its middle. Art is drawn in order of
+// this, so what is lower on the map is in front, as it would be on the ground.
+export function bottomEdge(asset: PlacedAsset, width: number, height: number) {
+  const turn = (asset.rotation * Math.PI) / 180
+  const w = Math.abs(asset.scaleX) * width
+  const h = Math.abs(asset.scaleY) * height
+  return asset.y + (Math.abs(Math.sin(turn)) * w + Math.abs(Math.cos(turn)) * h) / 2
+}
+
+// Copies of art, with its middle moved to a point, each with a new id.
+export function pasteAssets(copied: PlacedAsset[], at: { x: number; y: number }) {
+  if (copied.length === 0) return []
+  const xs = copied.map((asset) => asset.x)
+  const ys = copied.map((asset) => asset.y)
+  const dx = at.x - (Math.min(...xs) + Math.max(...xs)) / 2
+  const dy = at.y - (Math.min(...ys) + Math.max(...ys)) / 2
+  return copied.map((asset) => ({
+    ...asset,
+    id: crypto.randomUUID(),
+    x: asset.x + dx,
+    y: asset.y + dy,
+  }))
 }

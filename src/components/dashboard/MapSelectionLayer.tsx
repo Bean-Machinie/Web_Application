@@ -4,6 +4,8 @@ import { Layer, Rect, Transformer } from "react-konva"
 import type { AssetPatch } from "@/lib/map-asset-edit"
 import type { PlacedAsset } from "@/lib/map-scene"
 
+const CORNERS = ["top-left", "top-right", "bottom-left", "bottom-right"]
+const ALL_ANCHORS = [...CORNERS, "top-center", "middle-left", "middle-right", "bottom-center"]
 const SNAPS = Array.from({ length: 24 }, (_, index) => index * 15)
 // A press on the empty canvas that moves less than this (screen pixels) is a
 // click, which clears the selection; more is a drag box.
@@ -15,7 +17,7 @@ type Props = {
   selected: string[]
   // The placed assets, so the handles follow when they are redrawn or changed.
   assets: PlacedAsset[]
-  // Shift is held: rotating snaps to 15 degrees.
+  // Shift is held: scaling is free, and rotating snaps to 15 degrees.
   snapRotation: boolean
   onSelect: (ids: string[], additive: boolean) => void
   onChange: (patches: AssetPatch[]) => void
@@ -128,10 +130,11 @@ export function MapSelectionLayer(props: Props) {
     <Layer ref={layer} name="chrome" listening={enabled}>
       <Transformer
         ref={transformer}
-        // Free scaling; Shift keeps the proportions. Rotation snaps to 15
-        // degrees only with Shift held.
-        keepRatio={false}
-        shiftBehavior="default"
+        // Scaling keeps the proportions; Shift frees them, and brings out the
+        // handles on the sides. Rotation snaps to 15 degrees with Shift held.
+        keepRatio
+        shiftBehavior="inverted"
+        enabledAnchors={snapRotation ? ALL_ANCHORS : CORNERS}
         rotationSnaps={snapRotation ? SNAPS : []}
         rotationSnapTolerance={7.5}
         flipEnabled

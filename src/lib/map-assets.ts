@@ -5,7 +5,7 @@
 // it.
 export type MapAsset = { id: string; category: string; name: string; url: string }
 
-const FILES = import.meta.glob<string>("/src/assets/map-assets/*/*.{svg,png,webp,jpg}", {
+const FILES = import.meta.glob<string>("/src/assets/map-assets/*/*.{svg,png,webp,jpg,jpeg}", {
   eager: true,
   query: "?url",
   import: "default",

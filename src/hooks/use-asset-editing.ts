@@ -3,9 +3,9 @@ import {
   duplicateAssets,
   flipAssets,
   nudgeAssets,
+  pasteAssets,
   patchAssets,
   removeAssets,
-  reorderAssets,
 } from "@/lib/map-asset-edit"
 import type { AssetPatch } from "@/lib/map-asset-edit"
 import { assetById, defaultWidth, loadAssetImage } from "@/lib/map-assets"
@@ -14,18 +14,27 @@ import type { MapScene, PlacedAsset } from "@/lib/map-scene"
 // How far a duplicate lands from the original, in canvas pixels.
 const DUPLICATE_OFFSET = 36
 
+type Point = { x: number; y: number }
+
+// What was last copied or cut. It outlives the builder, so art can be carried
+// from one map to another.
+let clipboard: PlacedAsset[] = []
+
 type Options = {
   assets: PlacedAsset[]
   change: (update: (scene: MapScene) => MapScene) => void
   // Where the middle of the view is on the canvas, for art placed by a click.
-  centre: () => { x: number; y: number }
+  centre: () => Point
+  // Where the pointer is on the canvas, or null when it is elsewhere.
+  pointer: () => Point | null
   onPlaced: () => void
 }
 
-// What can be done with the art on a map: placing it, choosing it, and changing
-// the choice. Every change is one step of undo, and so of autosave.
-export function useAssetEditing({ assets, change, centre, onPlaced }: Options) {
+// What can be done with the art on a map: placing it, choosing it, copying it,
+// and changing the choice. Every change is one step of undo, and so of autosave.
+export function useAssetEditing({ assets, change, centre, pointer, onPlaced }: Options) {
   const [picked, setPicked] = useState<string[]>([])
+  const [canPaste, setCanPaste] = useState(clipboard.length > 0)
   // Undo can take a selected piece away, so only what still exists counts.
   const selected = useMemo(
     () => picked.filter((id) => assets.some((asset) => asset.id === id)),
@@ -40,7 +49,13 @@ export function useAssetEditing({ assets, change, centre, onPlaced }: Options) {
 
   const select = useCallback((id: string, additive: boolean) => {
     setPicked((old) =>
-      additive ? (old.includes(id) ? old.filter((o) => o !== id) : [...old, id]) : old.includes(id) ? old : [id]
+      additive
+        ? old.includes(id)
+          ? old.filter((other) => other !== id)
+          : [...old, id]
+        : old.includes(id)
+          ? old
+          : [id]
     )
   }, [])
 
@@ -51,7 +66,7 @@ export function useAssetEditing({ assets, change, centre, onPlaced }: Options) {
   // Placed at a point, or at the middle of the view, at the category's usual
   // size, and chosen at once so it can be adjusted.
   const place = useCallback(
-    async (assetId: string, at?: { x: number; y: number }) => {
+    async (assetId: string, at?: Point) => {
       const asset = assetById(assetId)
       const image = asset && (await loadAssetImage(assetId))
       if (!asset || !image) return
@@ -73,25 +88,47 @@ export function useAssetEditing({ assets, change, centre, onPlaced }: Options) {
     [centre, edit, onPlaced]
   )
 
+  const copy = () => {
+    clipboard = assets.filter((asset) => selected.includes(asset.id))
+    setCanPaste(clipboard.length > 0)
+  }
+
+  const remove = () => {
+    edit((list) => removeAssets(list, selected))
+    setPicked([])
+  }
+
+  // Where the copies' middle goes: the point given, else the pointer, else the
+  // middle of the view.
+  const paste = (at?: Point) => {
+    const copies = pasteAssets(clipboard, at ?? pointer() ?? centre())
+    if (copies.length === 0) return
+    edit((list) => [...list, ...copies])
+    setPicked(copies.map((copy) => copy.id))
+    onPlaced()
+  }
+
   return {
     selected,
+    canPaste,
     select,
     selectMany,
     place,
+    copy,
+    paste,
+    remove,
+    cut: () => {
+      copy()
+      remove()
+    },
     clear: useCallback(() => setPicked([]), []),
     commit: (patches: AssetPatch[]) => edit((list) => patchAssets(list, patches)),
     flip: (axis: "x" | "y") => edit((list) => flipAssets(list, selected, axis)),
-    reorder: (direction: "forward" | "back") =>
-      edit((list) => reorderAssets(list, selected, direction)),
     nudge: (dx: number, dy: number) => edit((list) => nudgeAssets(list, selected, dx, dy)),
-    remove: () => {
-      edit((list) => removeAssets(list, selected))
-      setPicked([])
-    },
     duplicate: () => {
-      const copy = duplicateAssets(assets, selected, DUPLICATE_OFFSET)
-      edit(() => copy.assets)
-      setPicked(copy.ids)
+      const copies = duplicateAssets(assets, selected, DUPLICATE_OFFSET)
+      edit(() => copies.assets)
+      setPicked(copies.ids)
     },
   }
 }

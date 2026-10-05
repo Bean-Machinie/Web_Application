@@ -7,11 +7,15 @@ import { MapAssetTile } from "./MapAssetTile"
 
 const ALL = "all"
 
-type Props = { onPlace: (id: string) => void; disabled: boolean }
+type Props = {
+  onPlace: (id: string) => void
+  viewScale: number
+  disabled: boolean
+}
 
 // The library, beside the canvas: a search, a tab for each category, and the
 // art as tiles. The tabs are the folders of src/assets/map-assets.
-export function MapAssetPanel({ onPlace, disabled }: Props) {
+export function MapAssetPanel({ onPlace, viewScale, disabled }: Props) {
   const [category, setCategory] = useState(ALL)
   const [query, setQuery] = useState("")
 
@@ -25,14 +29,14 @@ export function MapAssetPanel({ onPlace, disabled }: Props) {
   }, [category, query])
 
   return (
-    <aside
-      className={cn(
-        "flex w-64 shrink-0 flex-col border-l",
-        disabled && "pointer-events-none opacity-60"
-      )}
+    <section
+      aria-label="Assets"
+      className={cn("flex min-h-0 flex-1 flex-col", disabled && "pointer-events-none opacity-60")}
     >
       <div className="flex flex-col gap-3 p-4 pb-3">
-        <h2 className="text-sm font-medium">Assets</h2>
+        <h2 className="text-sm font-medium" title="Click to place, or drag onto the map">
+          Assets
+        </h2>
         <div className="relative">
           <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
           <Input
@@ -43,7 +47,16 @@ export function MapAssetPanel({ onPlace, disabled }: Props) {
             className="pl-8"
           />
         </div>
-        <div role="tablist" aria-label="Asset categories" className="flex flex-wrap gap-1">
+        <div
+          role="tablist"
+          aria-label="Asset categories"
+          // One row that scrolls sideways, the wheel included, so any number of
+          // categories fits.
+          onWheel={(event) => {
+            event.currentTarget.scrollLeft += event.deltaY
+          }}
+          className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           {[ALL, ...ASSET_CATEGORIES].map((tab) => (
             <button
               key={tab}
@@ -52,7 +65,7 @@ export function MapAssetPanel({ onPlace, disabled }: Props) {
               aria-selected={category === tab}
               onClick={() => setCategory(tab)}
               className={cn(
-                "focus-visible:ring-ring rounded-md px-2.5 py-1 text-xs font-medium outline-none transition-colors focus-visible:ring-2",
+                "focus-visible:ring-ring shrink-0 rounded-md px-2.5 py-1 text-xs font-medium outline-none transition-colors focus-visible:ring-2",
                 category === tab
                   ? "bg-secondary text-secondary-foreground"
                   : "text-muted-foreground hover:bg-muted"
@@ -73,12 +86,11 @@ export function MapAssetPanel({ onPlace, disabled }: Props) {
         ) : (
           <div className="grid grid-cols-2 gap-2">
             {shown.map((asset) => (
-              <MapAssetTile key={asset.id} asset={asset} onPlace={onPlace} />
+              <MapAssetTile key={asset.id} asset={asset} viewScale={viewScale} onPlace={onPlace} />
             ))}
           </div>
         )}
-        <p className="text-muted-foreground mt-3 text-xs">Click to place, or drag onto the map.</p>
       </div>
-    </aside>
+    </section>
   )
 }

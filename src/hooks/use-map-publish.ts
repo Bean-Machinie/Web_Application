@@ -28,14 +28,15 @@ export function useMapPublish(
   const [publishing, setPublishing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Resolves to whether the map was published.
   async function publish() {
-    if (!stage.current) return
+    if (!stage.current) return false
     setPublishing(true)
     setError(null)
     try {
       if (!(await autosave.flush())) {
         setError("The draft could not be saved, so nothing was published.")
-        return
+        return false
       }
       // Art still loading would be missing from the picture.
       await Promise.all(scene.assets.map((asset) => loadAssetImage(asset.asset)))
@@ -43,9 +44,10 @@ export function useMapPublish(
       await nextFrame()
       const picture = await exportCanvas(stage.current, scene.canvas)
       // A failure is shown by the upload's own error, or by the draft's state.
-      if (await upload.publish(picture)) await autosave.publish(scene)
+      return (await upload.publish(picture)) && (await autosave.publish(scene))
     } catch (failure) {
       setError(errorMessage(failure))
+      return false
     } finally {
       setPublishing(false)
     }

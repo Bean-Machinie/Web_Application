@@ -12,10 +12,9 @@ const ARROWS: Record<string, [number, number]> = {
   ArrowDown: [0, 1],
 }
 
-// The shortcuts for the art that is chosen: Delete, Ctrl+D to duplicate, ] and
-// [ for forward and back, Shift+H and Shift+V to flip, the arrows to nudge and
-// Escape to let go. They only act while the select tool is in use and a field
-// is not being typed in.
+// The shortcuts for art: Delete, Ctrl+C, Ctrl+X, Ctrl+V and Ctrl+D, Shift+H and
+// Shift+V to flip, the arrows to nudge and Escape to let go. They are off while
+// a field is being typed in.
 export function useAssetKeys(editing: AssetEditing, enabled: boolean) {
   const latest = useRef(editing)
   useEffect(() => {
@@ -30,16 +29,19 @@ export function useAssetKeys(editing: AssetEditing, enabled: boolean) {
         return
       }
       const now = latest.current
-      if (now.selected.length === 0) return
       const key = event.key
+      const letter = key.toLowerCase()
       const command = event.ctrlKey || event.metaKey
+      const has = now.selected.length > 0
 
-      if (key === "Delete" || key === "Backspace") now.remove()
-      else if (command && key.toLowerCase() === "d") now.duplicate()
-      else if (!command && key === "]") now.reorder("forward")
-      else if (!command && key === "[") now.reorder("back")
-      else if (event.shiftKey && key.toLowerCase() === "h") now.flip("x")
-      else if (event.shiftKey && key.toLowerCase() === "v") now.flip("y")
+      if (command && letter === "v") now.paste()
+      else if (!has) return
+      else if (key === "Delete" || key === "Backspace") now.remove()
+      else if (command && letter === "c") now.copy()
+      else if (command && letter === "x") now.cut()
+      else if (command && letter === "d") now.duplicate()
+      else if (event.shiftKey && !command && letter === "h") now.flip("x")
+      else if (event.shiftKey && !command && letter === "v") now.flip("y")
       else if (key === "Escape") now.clear()
       else if (key in ARROWS && !command) {
         const [dx, dy] = ARROWS[key]

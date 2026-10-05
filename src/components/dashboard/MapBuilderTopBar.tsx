@@ -14,6 +14,8 @@ type Props = {
   onRedo: () => void
   onBack: () => void
   onPublish: () => void
+  // Beside the name: the map settings.
+  children?: React.ReactNode
 }
 
 function status(state: SceneSaveState, unpublished: boolean) {
@@ -39,6 +41,7 @@ export function MapBuilderTopBar(props: Props) {
         <ArrowLeft />
       </Button>
       <h1 className="min-w-0 truncate font-medium">{props.name}</h1>
+      {props.children}
       <div className="flex items-center">
         <Button
           variant="ghost"
@@ -68,11 +71,12 @@ export function MapBuilderTopBar(props: Props) {
           <TooltipTrigger asChild>
             <Button onClick={props.onPublish} disabled={props.publishing}>
               {props.publishing ? <Loader2 className="animate-spin" /> : <Upload />}
-              Publish to players
+              Publish map
             </Button>
           </TooltipTrigger>
           <TooltipContent align="end">
-            Renders the map and replaces the image players see. Drafts save on their own.
+            Renders the map and publishes it to players, replacing the image they see. Drafts
+            save on their own.
           </TooltipContent>
         </Tooltip>
       </div>
