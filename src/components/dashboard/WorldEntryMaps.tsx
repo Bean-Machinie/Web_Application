@@ -1,43 +1,46 @@
-import { useLocation } from "react-router-dom"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useEntryPlacements } from "@/hooks/use-entry-placements"
-import { readBackTo } from "@/lib/back-link"
-import { entryTrail } from "@/lib/breadcrumbs"
+import { useMemo, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { groupByMap } from "@/lib/world-map-markers"
+import type { Placement } from "@/lib/world-map-markers"
 import { MapPlacementCard } from "./MapPlacementCard"
 import type { PlacedEntry } from "./MapPlacementPreview"
 
-type Props = { entryId: string; entry: PlacedEntry }
+// More maps than this fold behind "Show all", so an entry that stands in many
+// places does not take over the page.
+const SHOWN = 3
 
-// Where the entry stands on maps, if anywhere. Render with key={entryId}.
+type Props = { entry: PlacedEntry; placements: Placement[] }
+
+// The maps the entry stands on, one card per map, for the side of the page.
 // Only the maps and markers the viewer may see are sent at all.
-export function WorldEntryMaps({ entryId, entry }: Props) {
-  const placements = useEntryPlacements(entryId)
-  const from = readBackTo(useLocation().state)
-
-  if (placements?.length === 0) return null
-  if (!placements) return (
-      <div className="grid grid-cols-2 gap-4 border-t py-5 md:grid-cols-3 xl:grid-cols-4">
-        <Skeleton className="aspect-[3/4] w-full" />
-      </div>
-    )
-
-  // A map opened from here leads back through however this page was reached.
-  const backTo = {
-    path: `/app/world/${entryId}`,
-    label: entry.name,
-    before: entryTrail(entry, from).slice(0, -1),
-  }
+export function WorldEntryMaps({ entry, placements }: Props) {
+  const [all, setAll] = useState(false)
+  const groups = useMemo(() => groupByMap(placements), [placements])
+  const shown = all ? groups : groups.slice(0, SHOWN)
 
   return (
-    <section className="grid grid-cols-2 gap-4 border-t py-5 md:grid-cols-3 xl:grid-cols-4">
-      {placements.map((placement) => (
-        <MapPlacementCard
-          key={placement.id}
-          placement={placement}
-          entry={entry}
-          backTo={backTo}
-        />
-      ))}
-    </section>
+    <aside
+      aria-label="Maps"
+      className="flex flex-col gap-3 border-t py-5 motion-safe:animate-in motion-safe:fade-in lg:w-56 lg:shrink-0 lg:border-l lg:pl-6"
+    >
+      <h3 className="text-sm font-medium">
+        On {groups.length === 1 ? "a map" : `${groups.length} maps`}
+      </h3>
+      <div className="grid gap-3">
+        {shown.map((group) => (
+          <MapPlacementCard key={group.first.mapId} group={group} entry={entry} />
+        ))}
+      </div>
+      {groups.length > SHOWN && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground self-start"
+          onClick={() => setAll((open) => !open)}
+        >
+          {all ? "Show fewer" : `Show all ${groups.length} maps`}
+        </Button>
+      )}
+    </aside>
   )
 }

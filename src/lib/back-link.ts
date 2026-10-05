@@ -1,9 +1,9 @@
 import type { Crumb } from "./breadcrumbs"
 
-// Passed in router state by a link that wants the page it opens to lead back
-// to it, instead of to the World list. "before" is the trail that led to that
-// page, so a chain of maps keeps every step.
-export type BackTo = { path: string; label: string; before?: Crumb[] }
+// Passed in router state by a map's marker, so the page it opens shows that map
+// as where it was found. "maps" are the maps above that one, when it was itself
+// reached through a map. Only maps are ever carried along.
+export type BackTo = { path: string; label: string; maps?: Crumb[] }
 
 export function readBackTo(state: unknown): BackTo | null {
   const candidate = (state as { backTo?: Partial<BackTo> } | null)?.backTo
@@ -11,7 +11,7 @@ export function readBackTo(state: unknown): BackTo | null {
     ? {
         path: candidate.path,
         label: candidate.label,
-        before: Array.isArray(candidate.before) ? candidate.before : undefined,
+        maps: Array.isArray(candidate.maps) ? candidate.maps : undefined,
       }
     : null
 }

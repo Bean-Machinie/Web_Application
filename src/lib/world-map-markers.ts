@@ -123,3 +123,17 @@ export async function fetchPlacements(entryId: string) {
     })
   )
 }
+
+// An entry can stand in many places, even on one map. They are shown once per
+// map: the first spot, and how many there are.
+export type PlacementGroup = { first: Placement; count: number }
+
+export function groupByMap(placements: Placement[]) {
+  const groups = new Map<string, PlacementGroup>()
+  for (const placement of placements) {
+    const group = groups.get(placement.mapId)
+    if (group) group.count += 1
+    else groups.set(placement.mapId, { first: placement, count: 1 })
+  }
+  return [...groups.values()]
+}

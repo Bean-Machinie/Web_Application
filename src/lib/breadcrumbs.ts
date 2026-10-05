@@ -4,39 +4,36 @@ import type { WorldEntryKind } from "./world-kinds"
 import { worldListPath } from "./world-tab"
 
 // One step of the trail in the app header. The last one has no link.
-// "state" is passed along when the step is followed, so the page it opens still
-// knows the steps before it.
-export type Crumb = { label: string; to?: string; state?: unknown }
+export type Crumb = { label: string; to?: string }
 
 // The World step leads to the tab the list was last on.
 const world = (): Crumb => ({ label: "World", to: worldListPath() })
 
-// What a step should pass on: the step before it, with the ones before that.
-// Directly under World there is nothing to pass.
-function stateFor(before: Crumb[]) {
-  const last = before[before.length - 1]
-  if (before.length < 2 || !last.to) return undefined
-  return { backTo: { path: last.to, label: last.label, before: before.slice(0, -1) } }
+const tab = (kind: WorldEntryKind): Crumb => ({
+  label: WORLD_KINDS[kind].plural,
+  to: `/app/world?kind=${kind}`,
+})
+
+// The maps above a page, outermost first: the map its marker was on, and the
+// ones that map was reached through. Reaching a map that is already in the chain goes back to it
+// instead of adding to it, so a map that links back to its parent cannot grow
+// the trail.
+export function mapsAbove(pageId: string, from: BackTo | null): Crumb[] {
+  if (!from) return []
+  const chain = [...(from.maps ?? []), { label: from.label, to: from.path }]
+  const own = chain.findIndex((crumb) => crumb.to === `/app/world/${pageId}`)
+  return own >= 0 ? chain.slice(0, own) : chain
 }
 
-// The steps leading to the page that someone came from, ending with that page.
-export function trailThrough(from: BackTo | null): Crumb[] {
-  if (!from) return [world()]
-  const before = from.before ?? [world()]
-  return [...before, { label: from.label, to: from.path, state: stateFor(before) }]
-}
-
-// How someone got to an entry. From a map's marker it leads back to that map;
-// a map sits directly under World; anything else sits under its kind's tab.
+// The trail says where a page lives, not how someone got there: World, its
+// kind's tab, then the entry. Arriving from a map's marker puts the maps on the
+// way, all of them, between Maps and the entry; nothing else is carried along,
+// so the trail only grows with how deeply maps are nested. Going back is the
+// browser's job.
 export function entryTrail(
-  entry: { kind: WorldEntryKind; name: string },
+  entry: { id: string; kind: WorldEntryKind; name: string },
   from: BackTo | null
 ): Crumb[] {
-  if (from) return [...trailThrough(from), { label: entry.name }]
-  if (entry.kind === "map") return [world(), { label: entry.name }]
-  return [
-    world(),
-    { label: WORLD_KINDS[entry.kind].plural, to: `/app/world?kind=${entry.kind}` },
-    { label: entry.name },
-  ]
+  if (!from) return [world(), tab(entry.kind), { label: entry.name }]
+  return [world(), tab("map"), ...mapsAbove(entry.id, from), { label: entry.name }]
 }

@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useWorldEntry } from "@/hooks/use-world-entry"
 import { useWorldFields } from "@/hooks/use-world-fields"
 import { readBackTo } from "@/lib/back-link"
-import { entryTrail, trailThrough } from "@/lib/breadcrumbs"
+import { entryTrail } from "@/lib/breadcrumbs"
 import { errorMessage } from "@/lib/campaigns"
 import { deleteWorldEntry, renameWorldEntry } from "@/lib/world-entries"
 import { deleteWorldImage, toWorldImage } from "@/lib/world-images"
@@ -32,7 +32,10 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
   const fieldsState = useWorldFields(entryId, entry?.kind)
   // While the entry loads, the steps already known stay put and only the name
   // is filled in after, so the trail does not blink away and back.
-  usePageTrail(entry ? entryTrail(entry, from) : [...trailThrough(from), { label: "…" }])
+  const loading = from
+    ? entryTrail({ id: entryId, kind: "map", name: "…" }, from)
+    : [{ label: "World", to: worldListPath() }, { label: "…" }]
+  usePageTrail(entry ? entryTrail(entry, from) : loading)
   // The World list then opens as it was left.
   useEffect(() => markWorldListReturn(), [])
   const [detailsOpen, setDetailsOpen] = useState(false)
