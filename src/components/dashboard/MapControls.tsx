@@ -1,7 +1,8 @@
 import type * as L from "leaflet"
 import { Maximize, Minus, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { mapBounds } from "@/lib/map-geometry"
+import { glideToBounds, glideZoomBy } from "@/lib/map-glide"
+import { fitBounds } from "@/lib/map-geometry"
 import type { MapSize } from "@/lib/map-geometry"
 import { MAP_FLOAT, MAP_FLOAT_BUTTON } from "./map-float"
 
@@ -17,7 +18,7 @@ export function MapControls({ map, size }: Props) {
         variant="ghost"
         aria-label="Zoom in"
         className={MAP_FLOAT_BUTTON}
-        onClick={() => map?.zoomIn()}
+        onClick={() => map && glideZoomBy(map, 1)}
       >
         <Plus />
       </Button>
@@ -25,7 +26,7 @@ export function MapControls({ map, size }: Props) {
         variant="ghost"
         aria-label="Zoom out"
         className={MAP_FLOAT_BUTTON}
-        onClick={() => map?.zoomOut()}
+        onClick={() => map && glideZoomBy(map, -1)}
       >
         <Minus />
       </Button>
@@ -33,7 +34,7 @@ export function MapControls({ map, size }: Props) {
         variant="ghost"
         aria-label="Fit map to view"
         className={MAP_FLOAT_BUTTON}
-        onClick={() => map?.fitBounds(mapBounds(size))}
+        onClick={() => map && glideToBounds(map, fitBounds(size))}
       >
         <Maximize />
       </Button>

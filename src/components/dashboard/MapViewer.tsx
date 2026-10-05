@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom"
 import "leaflet/dist/leaflet.css"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useLeafletMap } from "@/hooks/use-leaflet-map"
+import { useMapGrid } from "@/hooks/use-map-grid"
 import { useMapMarkerLayer } from "@/hooks/use-map-marker-layer"
 import { useMapPlacing } from "@/hooks/use-map-placing"
 import { useMapMarkerSelection } from "@/hooks/use-map-marker-selection"
@@ -41,6 +42,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Prop
   )
   const { container, map } = useLeafletMap(image.url, size)
   const { markers, error, add, move, relink, remove } = useMapMarkers(mapId)
+  useMapGrid(map)
   useMapView(map, size, mapId)
   const pulseId = useReturnPulse(mapId)
   const selection = useMapMarkerSelection(map)
@@ -89,7 +91,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Prop
       )}
     >
       {/* Leaflet adds its own classes here, so this className must never change. */}
-      <div ref={container} className="bg-muted! size-full" />
+      <div ref={container} className="map-canvas size-full" />
       <MapControls map={map} size={size} />
       {canManage && (
         <MapEditBar

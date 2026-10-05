@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import * as L from "leaflet"
-import { mapBounds } from "@/lib/map-geometry"
+import { attachGlide } from "@/lib/map-glide"
+import { fitBounds, mapBounds } from "@/lib/map-geometry"
 import type { MapSize } from "@/lib/map-geometry"
 
 // A flat, non-geographic Leaflet map showing one image. The image fits the
@@ -21,34 +22,41 @@ export function useLeafletMap(url: string, size: MapSize) {
       crs: L.CRS.Simple,
       zoomControl: false,
       attributionControl: false,
-      // Fractional zoom makes wheel and pinch zoom feel smooth.
+      // Fractional zoom makes wheel and pinch zoom feel smooth. Wheel and
+      // double click zoom are driven by attachGlide instead, which eases on
+      // every frame; Leaflet's own animation would fight it.
       zoomSnap: 0,
-      zoomDelta: 0.5,
-      wheelPxPerZoomLevel: 100,
+      zoomAnimation: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
       // Leaflet clamps "fit the image" to this, so it must be low enough for
       // any map; the real limit is set below once the image is measured.
       minZoom: -20,
       maxZoom: 2,
       maxBoundsViscosity: 0.9,
     })
-    L.imageOverlay(url, bounds).addTo(instance)
-    instance.setMaxBounds(bounds.pad(0.15))
+    L.imageOverlay(url, bounds, { className: "map-sheet" }).addTo(instance)
+    // A generous margin: the map can be pushed aside, but never out of sight.
+    instance.setMaxBounds(bounds.pad(0.5))
 
-    const fitZoom = () => instance.getBoundsZoom(bounds, false)
+    const fitted = fitBounds(size)
+    const fitZoom = () => instance.getBoundsZoom(fitted, false)
     instance.setMinZoom(fitZoom())
-    instance.fitBounds(bounds, { animate: false })
+    instance.fitBounds(fitted, { animate: false })
 
     // When the container changes size, stay fitted if that is where we were.
     const observer = new ResizeObserver(() => {
       const wasFitted = instance.getZoom() <= instance.getMinZoom() + 0.01
       instance.invalidateSize()
       instance.setMinZoom(fitZoom())
-      if (wasFitted) instance.fitBounds(bounds, { animate: false })
+      if (wasFitted) instance.fitBounds(fitted, { animate: false })
     })
     observer.observe(element)
 
+    const detach = attachGlide(instance)
     setMap(instance)
     return () => {
+      detach()
       observer.disconnect()
       instance.remove()
       setMap(null)

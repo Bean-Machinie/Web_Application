@@ -256,6 +256,43 @@
 .map-zoom-near .leaflet-tooltip.map-label {
   opacity: 0 !important;
 }
+/* The canvas behind a map: a quiet surface just off the page colour, with the
+   dots drawn by use-map-grid. Plain CSS because Leaflet's own stylesheet is
+   not in a layer and would beat a utility. */
+.leaflet-container.map-canvas {
+  --map-dot: color-mix(in oklab, var(--foreground) 22%, transparent);
+  background: color-mix(in oklab, var(--muted) 55%, var(--background));
+}
+/* The map image as a sheet lying on the canvas. */
+.leaflet-image-layer.map-sheet {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--foreground) 14%, transparent),
+    0 2px 4px rgb(0 0 0 / 0.06),
+    0 16px 48px -12px rgb(0 0 0 / 0.3);
+}
+.map-grid {
+  pointer-events: none;
+  position: absolute;
+}
+.map-grid > * {
+  position: absolute;
+  inset: 0;
+  background-size: var(--tile) var(--tile);
+  background-position: var(--x) var(--y);
+}
+/* A tile holds four dots, a pitch apart; the first is always drawn. */
+.map-grid-main {
+  background-image: radial-gradient(circle at 25% 25%, var(--map-dot) 0.9px, transparent 1.4px);
+}
+/* The other three fade in and out as the map zooms. */
+.map-grid-extra {
+  opacity: var(--extra);
+  transition: opacity 250ms ease-out;
+  background-image:
+    radial-gradient(circle at 75% 25%, var(--map-dot) 0.9px, transparent 1.4px),
+    radial-gradient(circle at 25% 75%, var(--map-dot) 0.9px, transparent 1.4px),
+    radial-gradient(circle at 75% 75%, var(--map-dot) 0.9px, transparent 1.4px);
+}
 .map-placing .leaflet-container,
 .map-placing .leaflet-container .leaflet-interactive,
 .map-placing .leaflet-marker-icon {

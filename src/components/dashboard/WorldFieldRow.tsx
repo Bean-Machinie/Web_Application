@@ -1,4 +1,4 @@
-import { Lock } from "lucide-react"
+import { Lock, LockOpen } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import type { FieldDef } from "@/lib/world-kinds"
 import type { StoredField } from "@/lib/world-fields"
@@ -26,8 +26,8 @@ export function WorldFieldRow({ def, context, stored, manage }: Props) {
         <h3 className="text-sm font-medium">{def.label}</h3>
         {manage && def.canBePrivate && (
           <label className="text-muted-foreground flex cursor-pointer items-center gap-2 text-xs">
-            <Lock className="size-3.5" />
-            {isPrivate ? "Private — only you can see this" : "Private"}
+            {isPrivate ? <Lock className="size-3.5" /> : <LockOpen className="size-3.5" />}
+            Private
             <Switch
               size="sm"
               checked={isPrivate}

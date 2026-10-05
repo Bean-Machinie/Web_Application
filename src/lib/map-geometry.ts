@@ -9,6 +9,10 @@ export type Percent = { x: number; y: number }
 export const mapBounds = ({ width, height }: MapSize) =>
   L.latLngBounds([0, 0], [height, width])
 
+// What "the whole map" shows: the image with a little room around it, so the
+// sheet's edge is visible.
+export const fitBounds = (size: MapSize) => mapBounds(size).pad(0.05)
+
 const clamp = (value: number) => Math.min(Math.max(value, 0), 100)
 
 export const toLatLng = ({ x, y }: Percent, { width, height }: MapSize) =>
