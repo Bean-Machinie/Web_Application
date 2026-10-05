@@ -77,3 +77,49 @@ export async function removeMapMarker(id: string) {
   const { error } = await supabase.rpc("remove_map_marker", { target_marker: id })
   if (error) throw error
 }
+
+// Where an entry stands on maps: one per marker, with what a preview needs.
+// The same rules as above apply, so a player only gets revealed maps.
+export type Placement = {
+  id: string
+  x: number
+  y: number
+  mapId: string
+  mapName: string
+  mapRevealed: boolean
+  image: { url: string; width?: number; height?: number } | null
+}
+
+type PlacementRow = {
+  id: string
+  x: number
+  y: number
+  map: {
+    id: string
+    name: string
+    revealed: boolean
+    world_entry_fields: { key: string; value: unknown }[]
+  }
+}
+
+export async function fetchPlacements(entryId: string) {
+  const { data, error } = await supabase
+    .from("world_map_markers")
+    .select("id, x, y, map:world_entries!map_id(id, name, revealed, world_entry_fields(key, value))")
+    .eq("entry_id", entryId)
+    .eq("map.world_entry_fields.key", COVER_FIELD)
+    .order("created_at", { ascending: true })
+  if (error) throw error
+
+  return (data as unknown as PlacementRow[]).map(
+    (row): Placement => ({
+      id: row.id,
+      x: row.x,
+      y: row.y,
+      mapId: row.map.id,
+      mapName: row.map.name,
+      mapRevealed: row.map.revealed,
+      image: toWorldImage(row.map.world_entry_fields[0]?.value),
+    })
+  )
+}
