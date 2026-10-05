@@ -1,4 +1,5 @@
-import { defaultWidth } from "@/lib/map-assets"
+import { useEffect } from "react"
+import { defaultWidth, loadAssetInfo, loadedAssetInfo } from "@/lib/map-assets"
 import type { MapAsset } from "@/lib/map-assets"
 
 type Props = {
@@ -10,28 +11,39 @@ type Props = {
 
 // One piece of art in the library: click to place it in the middle of the view,
 // or drag it onto the canvas. What follows the pointer while dragging is the art
-// itself, at the size it will have where it lands at the current zoom.
+// itself, at the size it will have where it lands at the current zoom, held by
+// the middle of what is painted, as it is when it is dropped.
 export function MapAssetTile({ asset, viewScale, onPlace }: Props) {
+  // Measured ahead, so the preview is right the moment a drag starts.
+  useEffect(() => {
+    void loadAssetInfo(asset.id)
+  }, [asset.id])
+
   function startDrag(event: React.DragEvent<HTMLButtonElement>) {
     event.dataTransfer.setData("application/x-map-asset", asset.id)
     event.dataTransfer.effectAllowed = "copy"
+    const info = loadedAssetInfo(asset.id)
     const picture = event.currentTarget.querySelector("img")
-    if (!picture?.naturalWidth) return
-    const width = defaultWidth(asset.category) * viewScale
-    const height = (width * picture.naturalHeight) / picture.naturalWidth
+    if (!info || !picture) return
+    const { trim, image } = info
+    // Pixels on screen for each pixel of the picture.
+    const factor = (defaultWidth(asset.category) * viewScale) / trim.width
     const ghost = picture.cloneNode() as HTMLImageElement
     Object.assign(ghost.style, {
       position: "fixed",
       top: "-10000px",
       left: "0",
-      width: `${width}px`,
-      height: `${height}px`,
+      width: `${image.naturalWidth * factor}px`,
+      height: `${image.naturalHeight * factor}px`,
       maxWidth: "none",
       pointerEvents: "none",
     })
     document.body.appendChild(ghost)
-    // Centred on the pointer, as the art is when it is dropped.
-    event.dataTransfer.setDragImage(ghost, width / 2, height / 2)
+    event.dataTransfer.setDragImage(
+      ghost,
+      (trim.x + trim.width / 2) * factor,
+      (trim.y + trim.height / 2) * factor
+    )
     setTimeout(() => ghost.remove(), 0)
   }
 

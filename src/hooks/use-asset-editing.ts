@@ -8,7 +8,7 @@ import {
   removeAssets,
 } from "@/lib/map-asset-edit"
 import type { AssetPatch } from "@/lib/map-asset-edit"
-import { assetById, defaultWidth, loadAssetImage } from "@/lib/map-assets"
+import { assetById, defaultWidth, loadAssetInfo } from "@/lib/map-assets"
 import type { MapScene, PlacedAsset } from "@/lib/map-scene"
 
 // How far a duplicate lands from the original, in canvas pixels.
@@ -68,9 +68,10 @@ export function useAssetEditing({ assets, change, centre, pointer, onPlaced }: O
   const place = useCallback(
     async (assetId: string, at?: Point) => {
       const asset = assetById(assetId)
-      const image = asset && (await loadAssetImage(assetId))
-      if (!asset || !image) return
-      const scale = defaultWidth(asset.category) / image.naturalWidth
+      const info = asset && (await loadAssetInfo(assetId))
+      if (!asset || !info) return
+      // The usual width is the width of what is painted, not of the picture.
+      const scale = defaultWidth(asset.category) / info.trim.width
       const spot = at ?? centre()
       const placed: PlacedAsset = {
         id: crypto.randomUUID(),

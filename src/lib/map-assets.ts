@@ -1,3 +1,6 @@
+import { shapeOf } from "./map-asset-shape"
+import type { AssetShape } from "./map-asset-shape"
+
 // The art that can be placed on a map: every image in
 // src/assets/map-assets/<category>/. Dropping a file in a category folder adds
 // it to the library, with no list to keep. A file's path under map-assets is
@@ -42,20 +45,25 @@ const DEFAULT_WIDTH: Record<string, number> = {
 const FALLBACK_WIDTH = 160
 export const defaultWidth = (category: string) => DEFAULT_WIDTH[category] ?? FALLBACK_WIDTH
 
-// Images are loaded once and kept, so placing and drawing never wait twice.
-const loading = new Map<string, Promise<HTMLImageElement | null>>()
-const loaded = new Map<string, HTMLImageElement>()
+// A loaded picture, and what was worked out about it once (see map-asset-shape).
+export type AssetInfo = AssetShape & { image: HTMLImageElement }
 
-export function loadAssetImage(id: string) {
+// Pictures are loaded and measured once and kept, so placing and drawing never
+// wait twice, and copies on a map share the work.
+const loading = new Map<string, Promise<AssetInfo | null>>()
+const loaded = new Map<string, AssetInfo>()
+
+export function loadAssetInfo(id: string) {
   const known = loading.get(id)
   if (known) return known
   const asset = assetById(id)
-  const promise = new Promise<HTMLImageElement | null>((resolve) => {
+  const promise = new Promise<AssetInfo | null>((resolve) => {
     if (!asset) return resolve(null)
     const image = new Image()
     image.onload = () => {
-      loaded.set(id, image)
-      resolve(image)
+      const info = { image, ...shapeOf(image) }
+      loaded.set(id, info)
+      resolve(info)
     }
     image.onerror = () => resolve(null)
     image.src = asset.url
@@ -64,4 +72,4 @@ export function loadAssetImage(id: string) {
   return promise
 }
 
-export const loadedAssetImage = (id: string) => loaded.get(id)
+export const loadedAssetInfo = (id: string) => loaded.get(id)

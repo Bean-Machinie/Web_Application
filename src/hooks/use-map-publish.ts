@@ -5,7 +5,7 @@ import type { MapImageUpload } from "@/hooks/use-map-image-upload"
 import type { SceneSaveState } from "@/hooks/use-scene-autosave"
 import { errorMessage } from "@/lib/campaigns"
 import { exportCanvas } from "@/lib/map-export"
-import { loadAssetImage } from "@/lib/map-assets"
+import { loadAssetInfo } from "@/lib/map-assets"
 import type { MapScene } from "@/lib/map-scene"
 
 type Autosave = {
@@ -39,7 +39,7 @@ export function useMapPublish(
         return false
       }
       // Art still loading would be missing from the picture.
-      await Promise.all(scene.assets.map((asset) => loadAssetImage(asset.asset)))
+      await Promise.all(scene.assets.map((asset) => loadAssetInfo(asset.asset)))
       await nextFrame()
       await nextFrame()
       const picture = await exportCanvas(stage.current, scene.canvas)

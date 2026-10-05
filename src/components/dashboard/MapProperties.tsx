@@ -3,7 +3,7 @@ import { Link2, Unlink2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
-import { loadedAssetImage } from "@/lib/map-assets"
+import { loadedAssetInfo } from "@/lib/map-assets"
 import type { PlacedAsset } from "@/lib/map-scene"
 import { PropertyField } from "./PropertyField"
 
@@ -18,8 +18,9 @@ export function MapProperties({ assets, editing }: Props) {
   const [linked, setLinked] = useState(true)
   const chosen = assets.filter((asset) => editing.selected.includes(asset.id))
   const asset = chosen.length === 1 ? chosen[0] : null
-  const image = asset && loadedAssetImage(asset.asset)
-  const natural = { width: image?.naturalWidth ?? 100, height: image?.naturalHeight ?? 100 }
+  const info = asset && loadedAssetInfo(asset.asset)
+  // Sizes are those of what is painted.
+  const natural = { width: info?.trim.width ?? 100, height: info?.trim.height ?? 100 }
 
   function resize(side: "width" | "height", size: number) {
     if (!asset || size <= 0) return
