@@ -1,12 +1,10 @@
 import { AlertCircle, ArrowLeft, Check, Loader2, Redo2, Undo2, Upload } from "lucide-react"
-import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { SceneSaveState } from "@/hooks/use-scene-autosave"
 
 type Props = {
   name: string
-  backTo: string
   saveState: SceneSaveState
   unpublished: boolean
   publishing: boolean
@@ -14,6 +12,7 @@ type Props = {
   canRedo: boolean
   onUndo: () => void
   onRedo: () => void
+  onBack: () => void
   onPublish: () => void
 }
 
@@ -36,10 +35,8 @@ export function MapBuilderTopBar(props: Props) {
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b px-3">
-      <Button asChild variant="ghost" size="icon" aria-label="Back to the map">
-        <Link to={props.backTo}>
-          <ArrowLeft />
-        </Link>
+      <Button variant="ghost" size="icon" aria-label="Back to the map" onClick={props.onBack}>
+        <ArrowLeft />
       </Button>
       <h1 className="min-w-0 truncate font-medium">{props.name}</h1>
       <div className="flex items-center">

@@ -78,8 +78,29 @@ export function useBuilderViewport(canvas: Size) {
     [zoomAt]
   )
 
+  // Dragging with the middle button pans whatever the tool, so drawing never
+  // has to be put down to move around.
+  const onMiddlePan = useCallback((event: React.PointerEvent) => {
+    if (event.button !== 1) return
+    event.preventDefault()
+    let last = { x: event.clientX, y: event.clientY }
+    const move = (next: PointerEvent) => {
+      const dx = next.clientX - last.x
+      const dy = next.clientY - last.y
+      last = { x: next.clientX, y: next.clientY }
+      setView((old) => ({ ...old, x: old.x + dx, y: old.y + dy }))
+    }
+    const end = () => {
+      window.removeEventListener("pointermove", move)
+      window.removeEventListener("pointerup", end)
+    }
+    window.addEventListener("pointermove", move)
+    window.addEventListener("pointerup", end)
+  }, [])
+
   return {
     container,
+    onMiddlePan,
     size,
     view,
     fit: () => setView(fitted(size)),

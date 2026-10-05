@@ -11,28 +11,38 @@ export const DEFAULT_MAP_CHOICE: NewMapChoice = {
   background: "parchment",
 }
 
-type Props = { value: NewMapChoice; onChange: (value: NewMapChoice) => void }
+type Props = {
+  value: NewMapChoice
+  onChange: (value: NewMapChoice) => void
+  // False when the choice is already made, and only the canvas is left to pick.
+  askSource?: boolean
+}
 
 const keys = <T extends string>(record: Record<T, unknown>) => Object.keys(record) as T[]
 
 // What the creating of a map asks beyond its name: an image to upload later,
 // or a canvas to build on, and for a canvas its shape and background.
-export function NewMapOptions({ value, onChange }: Props) {
+export function NewMapOptions({ value, onChange, askSource = true }: Props) {
+  // Where only the canvas is left to pick, a build is what is being made.
+  const building = !askSource || value.source === "build"
+
   return (
     <div className="grid gap-4">
-      <div className="grid gap-2">
-        <Label>How do you want to make it?</Label>
-        <OptionButtons
-          label="How to make the map"
-          value={value.source}
-          options={[
-            { value: "upload", label: "Upload image" },
-            { value: "build", label: "Build map" },
-          ]}
-          onChange={(source) => onChange({ ...value, source })}
-        />
-      </div>
-      {value.source === "build" && (
+      {askSource && (
+        <div className="grid gap-2">
+          <Label>How do you want to make it?</Label>
+          <OptionButtons
+            label="How to make the map"
+            value={value.source}
+            options={[
+              { value: "upload", label: "Upload image" },
+              { value: "build", label: "Build map" },
+            ]}
+            onChange={(source) => onChange({ ...value, source })}
+          />
+        </div>
+      )}
+      {building && (
         <>
           <div className="grid gap-2">
             <Label>Canvas shape</Label>

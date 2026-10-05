@@ -5,6 +5,8 @@
 // "version" is the format version: when the shape of a scene changes, readScene
 // upgrades older ones. Layers draw in a fixed order: background, land, roads,
 // assets.
+import type { MultiPolygon } from "polygon-clipping"
+
 export const SCENE_VERSION = 1
 
 export type CanvasPreset = "3:2" | "16:9" | "square"
@@ -35,6 +37,9 @@ export type MapScene = {
     // Seeds the background's noise, so every render looks the same.
     seed: number
   }
+  // All the land as one merged shape: polygons with their holes, as rings of
+  // [x, y] points in canvas pixels. Empty until something is drawn.
+  land: MultiPolygon
 }
 
 export type CanvasChoice = { preset: CanvasPreset; background: SceneBackground }
@@ -44,6 +49,7 @@ export function createScene({ preset, background }: CanvasChoice): MapScene {
   return {
     version: SCENE_VERSION,
     canvas: { preset, width, height, background, seed: Math.floor(Math.random() * 2 ** 31) },
+    land: [],
   }
 }
 
@@ -55,11 +61,12 @@ export function readScene(json: unknown): MapScene | null {
   const { preset, background, seed } = scene.canvas
   if (!(preset in CANVAS_PRESETS) || !(background in BACKGROUNDS)) return null
   if (typeof seed !== "number") return null
-  return createSceneFrom(scene as MapScene)
-}
-
-// The canvas size comes from the preset, never from what was stored.
-function createSceneFrom(scene: MapScene): MapScene {
-  const { width, height } = CANVAS_PRESETS[scene.canvas.preset]
-  return { ...scene, canvas: { ...scene.canvas, width, height } }
+  // The canvas size comes from the preset, never from what was stored. Parts
+  // added to the format later start empty in scenes saved before them.
+  const { width, height } = CANVAS_PRESETS[preset]
+  return {
+    version: SCENE_VERSION,
+    canvas: { preset, width, height, background, seed },
+    land: Array.isArray(scene.land) ? scene.land : [],
+  }
 }

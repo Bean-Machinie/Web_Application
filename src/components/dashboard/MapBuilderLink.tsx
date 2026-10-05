@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 export function MapBuilderLink({ mapId }: { mapId: string }) {
   return (
     <Button asChild variant="outline" className="w-fit">
-      <Link to={`/app/world/${mapId}/build`}>
+      <Link to={`/app/world/${mapId}/build`} state={{ fromMap: true }}>
         <Hammer />
         Edit map
       </Link>

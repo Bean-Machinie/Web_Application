@@ -10,8 +10,10 @@ export type SceneSaveState = "saved" | "saving" | "error" | "conflict"
 
 // Keeps the draft in the database as the scene changes, a moment after each
 // change. A save that finds the scene changed elsewhere stops everything: the
-// builder must reload rather than overwrite the other tab. Publishing is
-// separate: the draft is saved, then marked as rendered into the map image.
+// builder must reload rather than overwrite the other tab. The draft is also
+// sent when the builder is left or its tab is hidden, and closing the tab with
+// changes unsent asks first. Publishing is separate: the caller saves the draft
+// (flush), renders it, and then marks that same scene as rendered (publish).
 export function useSceneAutosave(mapId: string, scene: MapScene, loaded: LoadedScene) {
   const [state, setState] = useState<SceneSaveState>("saved")
   const [error, setError] = useState<string | null>(null)
@@ -27,10 +29,10 @@ export function useSceneAutosave(mapId: string, scene: MapScene, loaded: LoadedS
 
   // Saves what is newest, once whatever is already being saved is done.
   const save = useCallback(
-    (markRendered = false) => {
+    (markRendered = false, snapshot?: MapScene) => {
       const run = async () => {
         if (stopped.current) return false
-        const next = latest.current
+        const next = snapshot ?? latest.current
         if (next === saved.current && !markRendered) return true
         setState("saving")
         try {
@@ -63,18 +65,29 @@ export function useSceneAutosave(mapId: string, scene: MapScene, loaded: LoadedS
     return () => window.clearTimeout(timer.current)
   }, [scene, save])
 
-  // Leaving the builder must not drop a change still waiting to be sent.
-  useEffect(
-    () => () => {
+  // Leaving the builder, or hiding its tab (the last moment a closing tab can
+  // be counted on to send anything), must not drop a change still waiting.
+  // Closing with unsent changes asks first.
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === "hidden") void save()
+    }
+    const onUnload = (event: BeforeUnloadEvent) => {
+      if (latest.current !== saved.current && !stopped.current) event.preventDefault()
+    }
+    document.addEventListener("visibilitychange", onHide)
+    window.addEventListener("beforeunload", onUnload)
+    return () => {
+      document.removeEventListener("visibilitychange", onHide)
+      window.removeEventListener("beforeunload", onUnload)
       void save()
-    },
-    [save]
-  )
+    }
+  }, [save])
 
-  // Saves the draft and marks the map image as rendered from it.
-  const publish = useCallback(async () => {
+  // Marks the map image as rendered from this scene, saving it if need be.
+  const publish = useCallback(async (rendered: MapScene) => {
     window.clearTimeout(timer.current)
-    const ok = await save(true)
+    const ok = await save(true, rendered)
     if (ok) setUnpublished(false)
     return ok
   }, [save])
