@@ -5,7 +5,8 @@ export type BuilderView = { x: number; y: number; scale: number }
 
 // Room around the canvas when it is fitted.
 const MARGIN = 56
-const MAX_SCALE = 4
+// Close enough to place single pixels of a canvas.
+const MAX_SCALE = 8
 // Far enough out to see the canvas small, never lost.
 const MIN_OF_FIT = 0.4
 

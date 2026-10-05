@@ -3,14 +3,20 @@ import type { MultiPolygon, Pair, Ring } from "polygon-clipping"
 import polygonSmooth from "@turf/polygon-smooth"
 import simplify from "@turf/simplify"
 
-// How rough a hand-drawn outline may be before it is ironed out, in canvas
-// pixels, and how many times the corners are then cut for a soft curve.
-const TOLERANCE = 4
-const SMOOTHING = 3
-// What is left of a smoothed curve is thinned a little, to keep scenes small.
-const THINNING = 0.6
-// Specks smaller than this are not land, nor holes in it.
-const MIN_AREA = 800
+// How much of a hand-drawn outline is ironed out is measured on the screen, not
+// on the canvas, so zooming in lets you draw finer detail: a wobble smaller than
+// this many screen pixels is smoothed away, and no more. The corners are then
+// cut for a soft curve.
+const TOLERANCE_PX = 1.2
+const THINNING_PX = 0.3
+const SMOOTHING = 2
+// A drawn shape smaller than this, in screen pixels squared, is a slip of the
+// hand rather than land.
+const MIN_DRAWN_PX = 16
+// What is left of land or of a hole after an edit is only dropped when it is
+// no longer a shape at all, in canvas pixels squared. Anything a person could
+// have drawn at any zoom must survive.
+const MIN_LEFT = 4
 
 function area(ring: Ring) {
   let sum = 0
@@ -22,14 +28,15 @@ function area(ring: Ring) {
   return Math.abs(sum) / 2
 }
 
-const round = ([x, y]: Pair): Pair => [Math.round(x * 10) / 10, Math.round(y * 10) / 10]
+const round = ([x, y]: Pair): Pair => [Math.round(x * 100) / 100, Math.round(y * 100) / 100]
 
-// Without specks, and with coordinates kept to a tenth of a pixel.
-function tidy(shape: MultiPolygon): MultiPolygon {
+// Without slivers smaller than minArea, and with coordinates kept to a
+// hundredth of a pixel.
+function tidy(shape: MultiPolygon, minArea: number): MultiPolygon {
   return shape
-    .filter((polygon) => area(polygon[0]) >= MIN_AREA)
+    .filter((polygon) => area(polygon[0]) >= minArea)
     .map((polygon) =>
-      polygon.filter((ring, index) => index === 0 || area(ring) >= MIN_AREA).map((ring) => ring.map(round))
+      polygon.filter((ring, index) => index === 0 || area(ring) >= minArea).map((ring) => ring.map(round))
     )
 }
 
@@ -39,21 +46,23 @@ const normalize = (shape: MultiPolygon) => (shape.length === 0 ? shape : union(s
 const geometry = (shape: MultiPolygon) => ({ type: "MultiPolygon" as const, coordinates: shape })
 
 // A dragged outline as clean, smoothed land, or null when it is too small or
-// too tangled to be a shape. The ends are joined, crossings are resolved,
-// the wobble is evened out, and the corners are cut into a soft curve.
-export function lassoToShape(points: Pair[]): MultiPolygon | null {
-  if (points.length < 6) return null
+// too tangled to be a shape. The ends are joined, crossings are resolved, the
+// wobble is evened out, and the corners are cut into a soft curve. "scale" is
+// how many screen pixels one canvas pixel is, which sets how fine the detail
+// kept is.
+export function lassoToShape(points: Pair[], scale: number): MultiPolygon | null {
+  if (points.length < 4) return null
   try {
     const clean = normalize([[[...points, points[0]]]])
-    const even = simplify(geometry(clean), { tolerance: TOLERANCE, highQuality: true })
+    const even = simplify(geometry(clean), { tolerance: TOLERANCE_PX / scale, highQuality: true })
     const smooth = polygonSmooth(even, { iterations: SMOOTHING })
     const pieces: MultiPolygon = smooth.features.flatMap((feature) =>
       feature.geometry.type === "Polygon"
         ? [feature.geometry.coordinates as Ring[]]
         : (feature.geometry.coordinates as Ring[][])
     )
-    const thin = simplify(geometry(normalize(pieces)), { tolerance: THINNING })
-    const shape = tidy(normalize(thin.coordinates as MultiPolygon))
+    const thin = simplify(geometry(normalize(pieces)), { tolerance: THINNING_PX / scale })
+    const shape = tidy(normalize(thin.coordinates as MultiPolygon), MIN_DRAWN_PX / scale ** 2)
     return shape.length > 0 ? shape : null
   } catch {
     return null
@@ -61,10 +70,10 @@ export function lassoToShape(points: Pair[]): MultiPolygon | null {
 }
 
 export function addLand(land: MultiPolygon, shape: MultiPolygon) {
-  return tidy(land.length === 0 ? shape : union(land, shape))
+  return tidy(land.length === 0 ? shape : union(land, shape), MIN_LEFT)
 }
 
 // Bays, lakes and straits: what the shape covers stops being land.
 export function cutLand(land: MultiPolygon, shape: MultiPolygon) {
-  return land.length === 0 ? land : tidy(difference(land, shape))
+  return land.length === 0 ? land : tidy(difference(land, shape), MIN_LEFT)
 }

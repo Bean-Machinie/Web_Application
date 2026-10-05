@@ -10,7 +10,8 @@ type Props = {
   enabled: boolean
   // Whether what is drawn now cuts land away instead of adding it.
   cutting: boolean
-  onLasso: (points: Pair[], cut: boolean) => void
+  // "scale" is the zoom of the view the outline was drawn in.
+  onLasso: (points: Pair[], cut: boolean, scale: number) => void
 }
 
 // The lasso: hold the pointer, scribble an outline, let go. The outline shows
@@ -51,7 +52,7 @@ export function MapLassoLayer({ enabled, cutting, onLasso }: Props) {
       window.removeEventListener("pointermove", onMove)
       window.removeEventListener("pointerup", onUp)
       window.removeEventListener("pointercancel", onCancel)
-      if (points && commit) latest.current.onLasso(points, strokeCuts)
+      if (points && commit) latest.current.onLasso(points, strokeCuts, stage.scaleX())
       points = null
       setOutline([])
     }

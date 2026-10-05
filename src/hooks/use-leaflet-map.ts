@@ -9,7 +9,10 @@ import type { MapSize } from "@/lib/map-geometry"
 // returned ref on an empty element with an explicit size, and never change
 // that element's className: Leaflet keeps its own classes on it, and React
 // would overwrite them.
-export function useLeafletMap(url: string, size: MapSize) {
+// How far in a map zooms unless its image says otherwise: four times its pixels.
+const DEFAULT_MAX_ZOOM = 2
+
+export function useLeafletMap(url: string, size: MapSize, maxZoom = DEFAULT_MAX_ZOOM) {
   const container = useRef<HTMLDivElement>(null)
   const [map, setMap] = useState<L.Map | null>(null)
 
@@ -32,7 +35,7 @@ export function useLeafletMap(url: string, size: MapSize) {
       // Leaflet clamps "fit the image" to this, so it must be low enough for
       // any map; the real limit is set below once the image is measured.
       minZoom: -20,
-      maxZoom: 2,
+      maxZoom,
       maxBoundsViscosity: 0.9,
     })
     L.imageOverlay(url, bounds, { className: "map-sheet" }).addTo(instance)
@@ -61,7 +64,7 @@ export function useLeafletMap(url: string, size: MapSize) {
       instance.remove()
       setMap(null)
     }
-  }, [url, size])
+  }, [url, size, maxZoom])
 
   return { container, map }
 }

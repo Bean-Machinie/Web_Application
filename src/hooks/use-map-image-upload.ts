@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { errorMessage } from "@/lib/campaigns"
 import { prepareMapImage } from "@/lib/resize-map-image"
+import type { PreparedMap } from "@/lib/resize-map-image"
 import { deleteWorldImage, uploadWorldImage } from "@/lib/world-images"
 import type { WorldImage } from "@/lib/world-images"
 
@@ -12,7 +13,7 @@ type Options = {
   onSave: (value: WorldImage) => Promise<boolean>
 }
 
-// Shrinks and converts the picked map, uploads it with its size, and saves it
+// Uploads a map (a picked one is shrunk and converted first) with its size, and saves it
 // on the entry. The old file goes only once the entry points at the new one,
 // and a file the database refused is deleted again. Resolves to whether the
 // map now has the new image.
@@ -20,16 +21,17 @@ export function useMapImageUpload({ campaignId, entryId, current, onSave }: Opti
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function pick(file: File) {
+  async function upload(prepare: () => Promise<PreparedMap>) {
     setBusy(true)
     setError(null)
     try {
-      const prepared = await prepareMapImage(file)
+      const prepared = await prepare()
       const uploaded = await uploadWorldImage(campaignId, entryId, prepared.file, "map")
       const saved = await onSave({
         ...uploaded,
         width: prepared.width,
         height: prepared.height,
+        maxZoom: prepared.maxZoom,
       })
       await deleteWorldImage(saved ? current?.path : uploaded.path, "map").catch(() => {})
       return saved
@@ -41,7 +43,14 @@ export function useMapImageUpload({ campaignId, entryId, current, onSave }: Opti
     }
   }
 
-  return { busy, error, pick }
+  return {
+    busy,
+    error,
+    // A file picked by hand: shrunk and converted first.
+    pick: (file: File) => upload(() => prepareMapImage(file)),
+    // A map that is already as it should be, as the builder renders it.
+    publish: (prepared: PreparedMap) => upload(async () => prepared),
+  }
 }
 
 export type MapImageUpload = ReturnType<typeof useMapImageUpload>

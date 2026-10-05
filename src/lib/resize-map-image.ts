@@ -1,3 +1,7 @@
+// A map ready to upload: a WebP file, its size in pixels, and how far the viewer
+// may zoom into it, if that is not the usual.
+export type PreparedMap = { file: File; width: number; height: number; maxZoom?: number }
+
 // The longest side of a map after shrinking, so it stays quick on phones.
 const MAX_SIDE = 4096
 const QUALITY = 0.85
@@ -6,7 +10,7 @@ export const MAP_INPUT_TYPES = "image/png,image/jpeg,image/webp,image/gif"
 
 // Shrinks a map to at most 4096 px on its longest side and converts it to
 // WebP, in the browser, before it is uploaded.
-export async function prepareMapImage(file: File) {
+export async function prepareMapImage(file: File): Promise<PreparedMap> {
   const bitmap = await createImageBitmap(file).catch(() => {
     throw new Error("Could not read that image.")
   })

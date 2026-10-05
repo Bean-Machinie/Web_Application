@@ -28,7 +28,7 @@ type Props = {
   campaignId: string
   mapId: string
   mapName: string
-  image: { url: string; width: number; height: number }
+  image: { url: string; width: number; height: number; maxZoom?: number }
   canManage: boolean
 }
 
@@ -40,7 +40,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Prop
     () => ({ width: image.width, height: image.height }),
     [image.width, image.height]
   )
-  const { container, map } = useLeafletMap(image.url, size)
+  const { container, map } = useLeafletMap(image.url, size, image.maxZoom)
   const { markers, error, add, move, relink, remove } = useMapMarkers(mapId)
   useMapGrid(map)
   useMapView(map, size, mapId)

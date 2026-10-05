@@ -18,14 +18,22 @@ function storedPath(user: User) {
 }
 
 // Uploads into "<folder>/<timestamp>.<ext>" and returns where it went.
-export async function uploadImage(bucket: string, folder: string, file: File) {
+export async function uploadImage(
+  bucket: string,
+  folder: string,
+  file: File,
+  cacheSeconds?: number
+) {
   const extension = file.type.split("/")[1] ?? "png"
   // A fresh name per upload avoids the CDN serving the previous image.
   const path = `${folder}/${Date.now()}.${extension}`
 
   const { error } = await supabase.storage
     .from(bucket)
-    .upload(path, file, { contentType: file.type })
+    .upload(path, file, {
+      contentType: file.type,
+      cacheControl: cacheSeconds === undefined ? undefined : String(cacheSeconds),
+    })
   if (error) throw error
 
   const { data } = supabase.storage.from(bucket).getPublicUrl(path)

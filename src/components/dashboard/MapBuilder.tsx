@@ -69,7 +69,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
       }
       const picture = await exportCanvas(stage.current, scene.canvas)
       // A failure is shown by the upload's own error, or by the draft's state.
-      if (await upload.pick(picture)) await autosave.publish(scene)
+      if (await upload.publish(picture)) await autosave.publish(scene)
     } catch (failure) {
       setPublishError(errorMessage(failure))
     } finally {
@@ -85,8 +85,8 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const altHeld = useAltHeld()
   const cutting = (mode === "cut") !== altHeld
 
-  function drawLand(points: Pair[], cut: boolean) {
-    const shape = lassoToShape(points)
+  function drawLand(points: Pair[], cut: boolean, scale: number) {
+    const shape = lassoToShape(points, scale)
     if (!shape) return
     const land = cut ? cutLand(scene.land, shape) : addLand(scene.land, shape)
     if (land !== scene.land && !(cut && scene.land.length === 0)) {

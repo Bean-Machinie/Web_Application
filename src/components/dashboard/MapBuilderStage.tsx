@@ -20,7 +20,7 @@ type Props = {
   cutting: boolean
   // False while the scene must not change, as when publishing.
   editable: boolean
-  onLasso: (points: Pair[], cut: boolean) => void
+  onLasso: (points: Pair[], cut: boolean, scale: number) => void
   onWheel: (event: Konva.KonvaEventObject<WheelEvent>) => void
   onPan: (x: number, y: number) => void
 }

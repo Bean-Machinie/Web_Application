@@ -70,3 +70,18 @@ export function readScene(json: unknown): MapScene | null {
     land: Array.isArray(scene.land) ? scene.land : [],
   }
 }
+
+// A built map's picture is rendered as large as fits in this many pixels,
+// whatever the canvas shape: a bigger picture can fail to load on a phone,
+// leaving the map blank or reloading the tab, however it was made.
+export const RENDER_PIXELS = 16_000_000
+
+// How many times larger than the canvas the picture is drawn, so that it has
+// RENDER_PIXELS (at most) and the canvas's proportions.
+export const renderScale = ({ width, height }: { width: number; height: number }) =>
+  Math.sqrt(RENDER_PIXELS / (width * height))
+
+// How far the viewer may zoom into a built map: two screen pixels to each pixel
+// of the picture, which is one device pixel on a sharp screen. Past that there
+// is nothing more to see, only blur.
+export const BUILT_MAX_ZOOM = 1

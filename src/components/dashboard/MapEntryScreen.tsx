@@ -52,7 +52,12 @@ export function MapEntryScreen(props: EntryProps) {
             campaignId={campaignId}
             mapId={entryId}
             mapName={name}
-            image={{ url: image.url, width: image.width, height: image.height }}
+            image={{
+              url: image.url,
+              width: image.width,
+              height: image.height,
+              maxZoom: image.maxZoom,
+            }}
             canManage={canManage}
           />
         </Suspense>
