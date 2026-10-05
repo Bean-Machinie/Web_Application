@@ -3,7 +3,7 @@ import { BACKGROUNDS, CANVAS_PRESETS } from "@/lib/map-scene"
 import type { MapScene, SceneBackground } from "@/lib/map-scene"
 import { OptionButtons } from "./OptionButtons"
 
-export type BuilderTool = "hand" | "land"
+export type BuilderTool = "hand" | "land" | "select"
 export type LandMode = "add" | "cut"
 
 type Props = {
@@ -34,8 +34,9 @@ export function MapBuilderSidebar(props: Props) {
           label="Tool"
           value={tool}
           options={[
-            { value: "hand", label: "Pan" },
+            { value: "select", label: "Select" },
             { value: "land", label: "Land" },
+            { value: "hand", label: "Pan" },
           ]}
           onChange={props.onTool}
         />
@@ -58,7 +59,15 @@ export function MapBuilderSidebar(props: Props) {
             </p>
           </>
         )}
-        <p className="text-muted-foreground text-xs">Drag with the middle mouse button to pan while drawing.</p>
+        {tool === "select" && (
+          <p className="text-muted-foreground text-[13px] leading-snug">
+            Click art to select it, Shift-click to add, or drag a box. Drag the handles to scale
+            (Shift keeps the proportions) and rotate (Shift snaps to 15°). Arrow keys nudge.
+          </p>
+        )}
+        <p className="text-muted-foreground text-xs">
+          Drag with the middle mouse button to pan from any tool.
+        </p>
       </section>
       <section className="flex flex-col gap-2">
         <h2 className="text-sm font-medium">Canvas</h2>

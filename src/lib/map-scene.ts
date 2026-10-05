@@ -40,6 +40,22 @@ export type MapScene = {
   // All the land as one merged shape: polygons with their holes, as rings of
   // [x, y] points in canvas pixels. Empty until something is drawn.
   land: MultiPolygon
+  assets: PlacedAsset[]
+}
+
+// A piece of art placed on the map. "x" and "y" are where its centre is, in
+// canvas pixels. The scales multiply the picture's own size and are signed:
+// a negative one is a flip. The rotation is in degrees. Assets draw in list
+// order, the last on top.
+export type PlacedAsset = {
+  id: string
+  // The asset's id in the library: its path under src/assets/map-assets.
+  asset: string
+  x: number
+  y: number
+  scaleX: number
+  scaleY: number
+  rotation: number
 }
 
 export type CanvasChoice = { preset: CanvasPreset; background: SceneBackground }
@@ -50,7 +66,19 @@ export function createScene({ preset, background }: CanvasChoice): MapScene {
     version: SCENE_VERSION,
     canvas: { preset, width, height, background, seed: Math.floor(Math.random() * 2 ** 31) },
     land: [],
+    assets: [],
   }
+}
+
+const isPlacedAsset = (value: unknown): value is PlacedAsset => {
+  const asset = value as Partial<PlacedAsset> | null
+  return (
+    typeof asset?.id === "string" &&
+    typeof asset.asset === "string" &&
+    [asset.x, asset.y, asset.scaleX, asset.scaleY, asset.rotation].every(
+      (number) => typeof number === "number" && Number.isFinite(number)
+    )
+  )
 }
 
 // Turns what the database holds into a scene of the current format, or null if
@@ -68,6 +96,7 @@ export function readScene(json: unknown): MapScene | null {
     version: SCENE_VERSION,
     canvas: { preset, width, height, background, seed },
     land: Array.isArray(scene.land) ? scene.land : [],
+    assets: Array.isArray(scene.assets) ? scene.assets.filter(isPlacedAsset) : [],
   }
 }
 

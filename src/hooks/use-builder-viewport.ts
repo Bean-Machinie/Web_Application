@@ -99,8 +99,22 @@ export function useBuilderViewport(canvas: Size) {
     window.addEventListener("pointerup", end)
   }, [])
 
+  // The middle of what is in view, on the canvas.
+  const centre = useCallback(
+    () =>
+      // Before the view is measured, the middle of the canvas.
+      size.width === 0
+        ? { x: canvas.width / 2, y: canvas.height / 2 }
+        : {
+            x: (size.width / 2 - view.x) / view.scale,
+            y: (size.height / 2 - view.y) / view.scale,
+          },
+    [size, view, canvas.width, canvas.height]
+  )
+
   return {
     container,
+    centre,
     onMiddlePan,
     size,
     view,

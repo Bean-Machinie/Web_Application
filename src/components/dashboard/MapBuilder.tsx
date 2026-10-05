@@ -1,25 +1,29 @@
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import type Konva from "konva"
+import type { Pair } from "polygon-clipping"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
+import { useAssetEditing } from "@/hooks/use-asset-editing"
+import { useAssetKeys } from "@/hooks/use-asset-keys"
 import { useBuilderViewport } from "@/hooks/use-builder-viewport"
+import { useHeldModifiers } from "@/hooks/use-held-modifiers"
 import { useMapImageUpload } from "@/hooks/use-map-image-upload"
+import { useMapPublish } from "@/hooks/use-map-publish"
 import { useSceneAutosave } from "@/hooks/use-scene-autosave"
-import { useAltHeld } from "@/hooks/use-alt-held"
 import { useSceneHistory } from "@/hooks/use-scene-history"
-import { errorMessage } from "@/lib/campaigns"
-import { exportCanvas } from "@/lib/map-export"
+import { useUndoKeys } from "@/hooks/use-undo-keys"
 import { addLand, cutLand, lassoToShape } from "@/lib/map-land"
 import type { SceneBackground } from "@/lib/map-scene"
-import type { Pair } from "polygon-clipping"
 import type { WorldImage } from "@/lib/world-images"
 import type { LoadedScene } from "@/lib/world-map-scenes"
+import { MapAssetPanel } from "./MapAssetPanel"
 import { MapBuilderSidebar } from "./MapBuilderSidebar"
 import type { BuilderTool, LandMode } from "./MapBuilderSidebar"
 import { MapBuilderStage } from "./MapBuilderStage"
 import { MapBuilderTopBar } from "./MapBuilderTopBar"
 import { MapBuilderZoom } from "./MapBuilderZoom"
+import { MapSelectionBar } from "./MapSelectionBar"
 
 type Props = {
   campaignId: string
@@ -46,6 +50,8 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
     current: image,
     onSave: onSaveImage,
   })
+  const { publishing, error, publish } = useMapPublish(stage, scene, autosave, upload)
+
   const navigate = useNavigate()
   // Set by "Edit map", so Back returns to the map exactly as it was left, with
   // its view and how it was reached; otherwise it opens the map in place of
@@ -53,37 +59,23 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const fromMap = (useLocation().state as { fromMap?: boolean } | null)?.fromMap
   const goBack = () =>
     fromMap ? navigate(-1) : navigate(`/app/world/${mapId}`, { replace: true })
-  const [publishing, setPublishing] = useState(false)
-  const [publishError, setPublishError] = useState<string | null>(null)
-
-  async function publish() {
-    if (!stage.current) return
-    setPublishing(true)
-    setPublishError(null)
-    try {
-      // The draft goes first, so the image can never come from a scene that
-      // is not the saved one. Editing is locked until this is done.
-      if (!(await autosave.flush())) {
-        setPublishError("The draft could not be saved, so nothing was published.")
-        return
-      }
-      const picture = await exportCanvas(stage.current, scene.canvas)
-      // A failure is shown by the upload's own error, or by the draft's state.
-      if (await upload.publish(picture)) await autosave.publish(scene)
-    } catch (failure) {
-      setPublishError(errorMessage(failure))
-    } finally {
-      setPublishing(false)
-    }
-  }
-
-  const setBackground = (background: SceneBackground) =>
-    history.change((old) => ({ ...old, canvas: { ...old.canvas, background } }))
 
   const [tool, setTool] = useState<BuilderTool>("land")
   const [mode, setMode] = useState<LandMode>("add")
-  const altHeld = useAltHeld()
-  const cutting = (mode === "cut") !== altHeld
+  const { alt, shift } = useHeldModifiers()
+  const cutting = (mode === "cut") !== alt
+
+  const editing = useAssetEditing({
+    assets: scene.assets,
+    change: history.change,
+    centre: viewport.centre,
+    onPlaced: () => setTool("select"),
+  })
+  useUndoKeys(undo, redo, !publishing)
+  useAssetKeys(editing, tool === "select" && !publishing)
+
+  const setBackground = (background: SceneBackground) =>
+    history.change((old) => ({ ...old, canvas: { ...old.canvas, background } }))
 
   function drawLand(points: Pair[], cut: boolean, scale: number) {
     const shape = lassoToShape(points, scale)
@@ -94,25 +86,15 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
     }
   }
 
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (publishing || !(event.ctrlKey || event.metaKey)) return
-      if (event.target instanceof HTMLInputElement) return
-      const key = event.key.toLowerCase()
-      if (key === "z") {
-        event.preventDefault()
-        if (event.shiftKey) redo()
-        else undo()
-      } else if (key === "y") {
-        event.preventDefault()
-        redo()
-      }
-    }
-    window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
-  }, [undo, redo, publishing])
-
-  const shownError = publishError ?? upload.error
+  // Art dropped from the library lands where it was let go.
+  function dropAsset(event: React.DragEvent) {
+    const id = event.dataTransfer.getData("application/x-map-asset")
+    if (!id || !stage.current) return
+    event.preventDefault()
+    stage.current.setPointersPositions(event.nativeEvent)
+    const at = stage.current.getRelativePointerPosition()
+    if (at) void editing.place(id, at)
+  }
 
   return (
     <div className="bg-background fixed inset-0 z-50 flex flex-col">
@@ -136,9 +118,9 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           </Button>
         </div>
       )}
-      {shownError && (
+      {error && (
         <div className="border-b px-3 py-2">
-          <FormAlert tone="error">{shownError}</FormAlert>
+          <FormAlert tone="error">{error}</FormAlert>
         </div>
       )}
       <div className="flex min-h-0 flex-1">
@@ -146,7 +128,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           canvas={scene.canvas}
           tool={tool}
           mode={mode}
-          altHeld={altHeld}
+          altHeld={alt}
           disabled={publishing}
           onTool={setTool}
           onMode={setMode}
@@ -155,8 +137,14 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
         <div
           ref={viewport.container}
           onPointerDown={viewport.onMiddlePan}
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={dropAsset}
           className={`bg-muted relative min-w-0 flex-1 touch-none overflow-hidden ${
-            tool === "hand" ? "cursor-grab active:cursor-grabbing" : "cursor-crosshair"
+            tool === "hand"
+              ? "cursor-grab active:cursor-grabbing"
+              : tool === "land"
+                ? "cursor-crosshair"
+                : "cursor-default"
           }`}
         >
           {viewport.size.width > 0 && (
@@ -168,13 +156,17 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               tool={tool}
               cutting={cutting}
               editable={!publishing}
+              editing={editing}
+              snapRotation={shift}
               onLasso={drawLand}
               onWheel={viewport.onWheel}
               onPan={viewport.onPan}
             />
           )}
+          <MapSelectionBar editing={editing} />
           <MapBuilderZoom onZoom={viewport.zoomBy} onFit={viewport.fit} />
         </div>
+        <MapAssetPanel onPlace={(id) => void editing.place(id)} disabled={publishing} />
       </div>
     </div>
   )

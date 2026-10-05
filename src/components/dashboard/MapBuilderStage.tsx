@@ -7,8 +7,11 @@ import { renderBackground } from "@/lib/map-background"
 import type { MapScene } from "@/lib/map-scene"
 import type { Pair } from "polygon-clipping"
 import type { BuilderTool } from "./MapBuilderSidebar"
+import type { AssetEditing } from "@/hooks/use-asset-editing"
+import { MapAssetsLayer } from "./MapAssetsLayer"
 import { MapLandLayer } from "./MapLandLayer"
 import { MapLassoLayer } from "./MapLassoLayer"
+import { MapSelectionLayer } from "./MapSelectionLayer"
 
 type Props = {
   scene: MapScene
@@ -21,6 +24,9 @@ type Props = {
   // False while the scene must not change, as when publishing.
   editable: boolean
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
+  editing: AssetEditing
+  // Shift is held: rotating snaps to 15 degrees.
+  snapRotation: boolean
   onWheel: (event: Konva.KonvaEventObject<WheelEvent>) => void
   onPan: (x: number, y: number) => void
 }
@@ -28,7 +34,7 @@ type Props = {
 // The canvas, drawn in layers that follow the scene's fixed order. "chrome"
 // layers are only for the editor and never end up in the rendered image.
 export function MapBuilderStage(props: Props) {
-  const { scene, size, view, stageRef, tool, cutting, editable, onWheel, onPan } = props
+  const { scene, size, view, stageRef, tool, cutting, editable, editing, onWheel, onPan } = props
   const { canvas } = scene
   const background = useMemo(() => renderBackground(canvas), [canvas])
 
@@ -65,10 +71,25 @@ export function MapBuilderStage(props: Props) {
         <KonvaImage image={background} width={canvas.width} height={canvas.height} />
       </Layer>
       <MapLandLayer land={scene.land} background={canvas.background} />
+      <MapAssetsLayer
+        assets={scene.assets}
+        selected={editing.selected}
+        editable={editable && tool === "select"}
+        onSelect={editing.select}
+        onChange={editing.commit}
+      />
       <MapLassoLayer
         enabled={editable && tool === "land"}
         cutting={cutting}
         onLasso={props.onLasso}
+      />
+      <MapSelectionLayer
+        enabled={editable && tool === "select"}
+        selected={editing.selected}
+        assets={scene.assets}
+        snapRotation={props.snapRotation}
+        onSelect={editing.selectMany}
+        onChange={editing.commit}
       />
     </Stage>
   )
