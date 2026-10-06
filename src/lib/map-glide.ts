@@ -115,7 +115,12 @@ function settle(map: L.Map, glide: Glide) {
   glide.base = null
   const image = map.getPane("overlayPane")!
   image.style.transform = ""
-  map.setView(limit(map, camera.center, camera.zoom), camera.zoom, { animate: false })
+  const center = limit(map, camera.center, camera.zoom)
+  map.setView(center, camera.zoom, { animate: false })
+  // Leaflet rounds where the view starts to whole pixels, which would nudge
+  // everything by up to half a pixel. The pane takes the remainder back.
+  const exact = map.project(center, camera.zoom).subtract(map.getSize().divideBy(2))
+  L.DomUtil.setPosition(map.getPane("mapPane")!, map.getPixelOrigin().subtract(exact))
   // Leaflet re-places pins only when the zoom level changes. Ending at the
   // starting zoom just pans the pane, leaving glide's transforms offset.
   map.eachLayer((layer) => {

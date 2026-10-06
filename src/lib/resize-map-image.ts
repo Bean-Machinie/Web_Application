@@ -1,3 +1,5 @@
+import { canvasToWebp } from "./encode-webp"
+
 // A map ready to upload: a WebP file, its size in pixels, and how far the viewer
 // may zoom into it, if that is not the usual.
 export type PreparedMap = { file: File; width: number; height: number; maxZoom?: number }
@@ -26,12 +28,7 @@ export async function prepareMapImage(file: File): Promise<PreparedMap> {
   context.drawImage(bitmap, 0, 0, width, height)
   bitmap.close()
 
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/webp", QUALITY)
-  )
-  if (!blob || blob.type !== "image/webp") {
-    throw new Error("This browser could not convert the image to WebP.")
-  }
+  const blob = await canvasToWebp(canvas, QUALITY)
   if (blob.size > MAP_MAX_BYTES) {
     throw new Error("This map is still over 10 MB after shrinking. Try a simpler image.")
   }

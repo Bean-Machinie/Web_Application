@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import * as L from "leaflet"
 import { attachGlide } from "@/lib/map-glide"
 import { fitBounds, mapBounds } from "@/lib/map-geometry"
+import { SmoothImageOverlay } from "@/lib/smooth-image-overlay"
 import type { MapSize } from "@/lib/map-geometry"
 
 // A flat, non-geographic Leaflet map showing one image. The image fits the
@@ -41,7 +42,7 @@ export function useLeafletMap(url: string, size: MapSize, maxZoom = DEFAULT_MAX_
       maxZoom: maxZoom - ZOOM_IN_TRIM,
       maxBoundsViscosity: 0.9,
     })
-    L.imageOverlay(url, bounds, { className: "map-sheet" }).addTo(instance)
+    new SmoothImageOverlay(url, bounds, { className: "map-sheet" }).addTo(instance)
     // A generous margin: the map can be pushed aside, but never out of sight.
     instance.setMaxBounds(bounds.pad(0.5))
 

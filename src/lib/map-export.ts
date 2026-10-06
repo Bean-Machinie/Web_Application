@@ -1,4 +1,5 @@
 import type Konva from "konva"
+import { canvasToWebp } from "./encode-webp"
 import { MAP_MAX_BYTES } from "./resize-map-image"
 import type { PreparedMap } from "./resize-map-image"
 import { BUILT_MAX_ZOOM, renderScale } from "./map-scene"
@@ -36,12 +37,7 @@ export async function exportCanvas(
   chrome.forEach((layer) => layer.show())
 
   for (const quality of QUALITIES) {
-    const blob = await new Promise<Blob | null>((resolve) =>
-      drawn.toBlob(resolve, "image/webp", quality)
-    )
-    if (!blob || blob.type !== "image/webp") {
-      throw new Error("This browser could not convert the map to WebP.")
-    }
+    const blob = await canvasToWebp(drawn, quality)
     if (blob.size <= MAP_MAX_BYTES) {
       return {
         file: new File([blob], "map.webp", { type: "image/webp" }),
