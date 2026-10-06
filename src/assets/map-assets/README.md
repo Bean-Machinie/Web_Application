@@ -13,10 +13,11 @@ in the builder's asset panel by itself: there is no list to edit.
   one level of folders is read.
 - **File names become display names.** `stone-bridge.png` is shown as
   "Stone bridge" (dashes and underscores become spaces, the extension goes).
-- **Formats:** SVG, PNG, WebP or JPG. Use transparent backgrounds. For raster
-  art, aim for at least 512 px on the longest side, so it stays sharp when the
-  map is rendered at its full size. SVGs need `width` and `height` attributes,
-  which set the shape they are drawn at.
+- **Formats:** SVG is preferred: it stays sharp at any size the map is drawn
+  at. SVGs need `width` and `height` attributes, which set the shape they are
+  drawn at. PNG, WebP or JPG also work. Use transparent backgrounds. Raster art
+  needs at least 512 px on the longest side, so it stays sharp when the map is
+  rendered at its full size.
 
 ## How big art is when first placed
 
