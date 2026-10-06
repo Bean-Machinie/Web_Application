@@ -116,6 +116,11 @@ function settle(map: L.Map, glide: Glide) {
   const image = map.getPane("overlayPane")!
   image.style.transform = ""
   map.setView(limit(map, camera.center, camera.zoom), camera.zoom, { animate: false })
+  // Leaflet re-places pins only when the zoom level changes. Ending at the
+  // starting zoom just pans the pane, leaving glide's transforms offset.
+  map.eachLayer((layer) => {
+    if (layer instanceof L.Marker) layer.setLatLng(layer.getLatLng())
+  })
 }
 
 function run(map: L.Map, glide: Glide) {
