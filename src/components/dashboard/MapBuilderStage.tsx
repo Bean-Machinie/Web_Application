@@ -3,6 +3,7 @@ import type { RefObject } from "react"
 import type Konva from "konva"
 import { Image as KonvaImage, Layer, Rect, Stage } from "react-konva"
 import type { BuilderView } from "@/hooks/use-builder-viewport"
+import { useShownLand } from "@/hooks/use-shown-land"
 import { renderBackground } from "@/lib/map-background"
 import type { MapScene } from "@/lib/map-scene"
 import type { Pair } from "polygon-clipping"
@@ -10,6 +11,7 @@ import type { BuilderTool } from "@/lib/map-builder-tools"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import { MapAssetsLayer } from "./MapAssetsLayer"
 import { MapLandLayer } from "./MapLandLayer"
+import { MapWaterLayer } from "./MapWaterLayer"
 import { MapLassoLayer } from "./MapLassoLayer"
 import { MapSelectionLayer } from "./MapSelectionLayer"
 
@@ -37,6 +39,7 @@ export function MapBuilderStage(props: Props) {
   const { scene, size, view, stageRef, tool, cutting, editable, editing, onWheel, onPan } = props
   const { canvas } = scene
   const background = useMemo(() => renderBackground(canvas), [canvas])
+  const land = useShownLand(scene.land, scene.style.roundness, canvas)
 
   return (
     <Stage
@@ -70,7 +73,13 @@ export function MapBuilderStage(props: Props) {
       <Layer listening={false}>
         <KonvaImage image={background} width={canvas.width} height={canvas.height} />
       </Layer>
-      <MapLandLayer land={scene.land} background={canvas.background} />
+      <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} />
+      <MapLandLayer
+        land={land}
+        background={canvas.background}
+        style={scene.style}
+        canvas={canvas}
+      />
       <MapAssetsLayer
         assets={scene.assets}
         selected={editing.selected}

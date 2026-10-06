@@ -1,15 +1,12 @@
 import { difference, union } from "polygon-clipping"
 import type { MultiPolygon, Pair, Ring } from "polygon-clipping"
-import polygonSmooth from "@turf/polygon-smooth"
 import simplify from "@turf/simplify"
+import { clipToCanvas } from "./map-land-clip"
 
 // How much of a hand-drawn outline is ironed out is measured on the screen, not
 // on the canvas, so zooming in lets you draw finer detail: a wobble smaller than
-// this many screen pixels is smoothed away, and no more. The corners are then
-// cut for a soft curve.
+// this many screen pixels is smoothed away, and no more.
 const TOLERANCE_PX = 1.2
-const THINNING_PX = 0.3
-const SMOOTHING = 2
 // A drawn shape smaller than this, in screen pixels squared, is a slip of the
 // hand rather than land.
 const MIN_DRAWN_PX = 16
@@ -45,24 +42,23 @@ const normalize = (shape: MultiPolygon) => (shape.length === 0 ? shape : union(s
 
 const geometry = (shape: MultiPolygon) => ({ type: "MultiPolygon" as const, coordinates: shape })
 
-// A dragged outline as clean, smoothed land, or null when it is too small or
-// too tangled to be a shape. The ends are joined, crossings are resolved, the
-// wobble is evened out, and the corners are cut into a soft curve. "scale" is
-// how many screen pixels one canvas pixel is, which sets how fine the detail
-// kept is.
-export function lassoToShape(points: Pair[], scale: number): MultiPolygon | null {
+// A dragged outline as clean land, or null when it is too small or too tangled
+// to be a shape. The ends are joined, crossings are resolved, the wobble is
+// evened out, and whatever lies outside the canvas is cut off. The corners are
+// left as drawn: rounding them is how the land is shown (see smoothLand).
+// "scale" is how many screen pixels one canvas pixel is, which sets how fine the
+// detail kept is.
+export function lassoToShape(
+  points: Pair[],
+  scale: number,
+  canvas: { width: number; height: number }
+): MultiPolygon | null {
   if (points.length < 4) return null
   try {
     const clean = normalize([[[...points, points[0]]]])
     const even = simplify(geometry(clean), { tolerance: TOLERANCE_PX / scale, highQuality: true })
-    const smooth = polygonSmooth(even, { iterations: SMOOTHING })
-    const pieces: MultiPolygon = smooth.features.flatMap((feature) =>
-      feature.geometry.type === "Polygon"
-        ? [feature.geometry.coordinates as Ring[]]
-        : (feature.geometry.coordinates as Ring[][])
-    )
-    const thin = simplify(geometry(normalize(pieces)), { tolerance: THINNING_PX / scale })
-    const shape = tidy(normalize(thin.coordinates as MultiPolygon), MIN_DRAWN_PX / scale ** 2)
+    const inside = clipToCanvas(normalize(even.coordinates as MultiPolygon), canvas)
+    const shape = tidy(inside, MIN_DRAWN_PX / scale ** 2)
     return shape.length > 0 ? shape : null
   } catch {
     return null

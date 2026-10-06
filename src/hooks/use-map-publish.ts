@@ -42,7 +42,7 @@ export function useMapPublish(
       await Promise.all(scene.assets.map((asset) => loadAssetInfo(asset.asset)))
       await nextFrame()
       await nextFrame()
-      const picture = await exportCanvas(stage.current, scene.canvas)
+      const picture = await exportCanvas(stage.current, scene)
       // A failure is shown by the upload's own error, or by the draft's state.
       return (await upload.publish(picture)) && (await autosave.publish(scene))
     } catch (failure) {

@@ -2,7 +2,9 @@ import type Konva from "konva"
 import { canvasToWebp } from "./encode-webp"
 import { MAP_MAX_BYTES } from "./resize-map-image"
 import type { PreparedMap } from "./resize-map-image"
+import { sharpWater } from "./map-export-water"
 import { BUILT_MAX_ZOOM, renderScale } from "./map-scene"
+import type { MapScene } from "./map-scene"
 
 // Tried in turn, until the picture fits what the bucket accepts.
 const QUALITIES = [0.92, 0.85, 0.75]
@@ -16,8 +18,9 @@ const QUALITIES = [0.92, 0.85, 0.75]
 // resized.
 export async function exportCanvas(
   stage: Konva.Stage,
-  canvas: { width: number; height: number }
+  scene: MapScene
 ): Promise<PreparedMap> {
+  const { canvas } = scene
   const { x, y } = stage.position()
   const scale = stage.scaleX()
   const chrome = stage.find<Konva.Layer>(".chrome")
@@ -25,16 +28,23 @@ export async function exportCanvas(
   chrome.forEach((layer) => layer.hide())
   stage.scale({ x: 1, y: 1 })
   stage.position({ x: 0, y: 0 })
-  const drawn = stage.toCanvas({
-    x: 0,
-    y: 0,
-    width: canvas.width,
-    height: canvas.height,
-    pixelRatio: renderScale(canvas),
-  })
-  stage.scale({ x: scale, y: scale })
-  stage.position({ x, y })
-  chrome.forEach((layer) => layer.show())
+  let restoreWater = () => {}
+  let drawn: HTMLCanvasElement
+  try {
+    restoreWater = sharpWater(stage, scene)
+    drawn = stage.toCanvas({
+      x: 0,
+      y: 0,
+      width: canvas.width,
+      height: canvas.height,
+      pixelRatio: renderScale(canvas),
+    })
+  } finally {
+    restoreWater()
+    stage.scale({ x: scale, y: scale })
+    stage.position({ x, y })
+    chrome.forEach((layer) => layer.show())
+  }
 
   for (const quality of QUALITIES) {
     const blob = await canvasToWebp(drawn, quality)

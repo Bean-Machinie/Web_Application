@@ -6,6 +6,7 @@ import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
 import { useAssetEditing } from "@/hooks/use-asset-editing"
 import { useAssetKeys } from "@/hooks/use-asset-keys"
+import { useMapStyle } from "@/hooks/use-map-style"
 import { useBuilderViewport } from "@/hooks/use-builder-viewport"
 import { useHeldModifiers } from "@/hooks/use-held-modifiers"
 import { useMapImageUpload } from "@/hooks/use-map-image-upload"
@@ -44,6 +45,7 @@ type Props = {
 export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage }: Props) {
   const history = useSceneHistory(loaded.scene)
   const { scene, undo, redo } = history
+  const landStyle = useMapStyle(scene, history.change)
   const autosave = useSceneAutosave(mapId, scene, loaded)
   const viewport = useBuilderViewport(scene.canvas)
   const stage = useRef<Konva.Stage>(null)
@@ -93,7 +95,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
     history.change((old) => ({ ...old, canvas: { ...old.canvas, background } }))
 
   function drawLand(points: Pair[], cut: boolean, scale: number) {
-    const shape = lassoToShape(points, scale)
+    const shape = lassoToShape(points, scale, scene.canvas)
     if (!shape) return
     const land = cut ? cutLand(scene.land, shape) : addLand(scene.land, shape)
     if (land !== scene.land && !(cut && scene.land.length === 0)) {
@@ -119,8 +121,11 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
       >
         <MapSettingsPopover
           canvas={scene.canvas}
+          style={landStyle.style}
           disabled={publishing}
           onBackground={setBackground}
+          onPreviewStyle={landStyle.preview}
+          onCommitStyle={landStyle.commit}
         />
       </MapBuilderTopBar>
       {autosave.state === "conflict" && (
@@ -140,7 +145,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
       <div className="flex min-h-0 flex-1">
         <MapToolStrip tool={tool} disabled={publishing} onTool={changeTool} />
         <MapBuilderCanvas
-          scene={scene}
+          scene={landStyle.shown}
           tool={tool}
           cutting={cutting}
           editable={!publishing}

@@ -4,15 +4,21 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { BACKGROUNDS, CANVAS_PRESETS } from "@/lib/map-scene"
 import type { MapScene, SceneBackground } from "@/lib/map-scene"
+import type { MapStyle } from "@/lib/map-style"
+import { MapStyleSliders } from "./MapStyleSliders"
 
 type Props = {
   canvas: MapScene["canvas"]
+  style: MapStyle
   disabled: boolean
   onBackground: (background: SceneBackground) => void
+  onPreviewStyle: (style: MapStyle) => void
+  onCommitStyle: (style: MapStyle) => void
 }
 
 // The canvas's facts and its background, kept out of the way until wanted.
-export function MapSettingsPopover({ canvas, disabled, onBackground }: Props) {
+export function MapSettingsPopover(props: Props) {
+  const { canvas, style, disabled, onBackground } = props
   return (
     <Popover>
       <Tooltip>
@@ -49,6 +55,11 @@ export function MapSettingsPopover({ canvas, disabled, onBackground }: Props) {
               ))}
             </div>
           </div>
+          <MapStyleSliders
+            style={style}
+            onPreview={props.onPreviewStyle}
+            onCommit={props.onCommitStyle}
+          />
         </div>
       </PopoverContent>
     </Popover>

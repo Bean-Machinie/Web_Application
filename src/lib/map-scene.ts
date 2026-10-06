@@ -6,6 +6,9 @@
 // upgrades older ones. Layers draw in a fixed order: background, land, roads,
 // assets.
 import type { MultiPolygon } from "polygon-clipping"
+import { clipToCanvas } from "./map-land-clip"
+import { DEFAULT_STYLE, readStyle } from "./map-style"
+import type { MapStyle } from "./map-style"
 
 export const SCENE_VERSION = 1
 
@@ -38,8 +41,10 @@ export type MapScene = {
     seed: number
   }
   // All the land as one merged shape: polygons with their holes, as rings of
-  // [x, y] points in canvas pixels. Empty until something is drawn.
+  // [x, y] points in canvas pixels, as drawn and never past the canvas's edge.
+  // Empty until something is drawn.
   land: MultiPolygon
+  style: MapStyle
   assets: PlacedAsset[]
 }
 
@@ -66,6 +71,7 @@ export function createScene({ preset, background }: CanvasChoice): MapScene {
     version: SCENE_VERSION,
     canvas: { preset, width, height, background, seed: Math.floor(Math.random() * 2 ** 31) },
     land: [],
+    style: DEFAULT_STYLE,
     assets: [],
   }
 }
@@ -79,6 +85,17 @@ const isPlacedAsset = (value: unknown): value is PlacedAsset => {
       (number) => typeof number === "number" && Number.isFinite(number)
     )
   )
+}
+
+// Land saved before it was kept inside the canvas is cut to it now. A shape
+// that cannot be clipped is kept as it is.
+function readLand(land: unknown, canvas: { width: number; height: number }): MultiPolygon {
+  if (!Array.isArray(land)) return []
+  try {
+    return clipToCanvas(land, canvas)
+  } catch {
+    return land
+  }
 }
 
 // Turns what the database holds into a scene of the current format, or null if
@@ -95,7 +112,8 @@ export function readScene(json: unknown): MapScene | null {
   return {
     version: SCENE_VERSION,
     canvas: { preset, width, height, background, seed },
-    land: Array.isArray(scene.land) ? scene.land : [],
+    land: readLand(scene.land, { width, height }),
+    style: readStyle(scene.style),
     assets: Array.isArray(scene.assets) ? scene.assets.filter(isPlacedAsset) : [],
   }
 }
