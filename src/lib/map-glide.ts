@@ -70,7 +70,6 @@ function start(map: L.Map, glide: Glide) {
   glide.camera = { center, zoom }
   const image = map.getPane("overlayPane")!
   image.style.transformOrigin = "0 0"
-  image.style.willChange = "transform"
   // An open label would be left behind.
   map.eachLayer((layer) => layer.closeTooltip())
   map.fire("movestart")
@@ -116,7 +115,6 @@ function settle(map: L.Map, glide: Glide) {
   glide.base = null
   const image = map.getPane("overlayPane")!
   image.style.transform = ""
-  image.style.willChange = ""
   map.setView(limit(map, camera.center, camera.zoom), camera.zoom, { animate: false })
 }
 
