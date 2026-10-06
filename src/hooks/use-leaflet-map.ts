@@ -11,6 +11,9 @@ import type { MapSize } from "@/lib/map-geometry"
 // would overwrite them.
 // How far in a map zooms unless its image says otherwise: four times its pixels.
 const DEFAULT_MAX_ZOOM = 2
+// Zoom levels the viewer stops short of a map's own maximum, which is stored
+// with each map, so this reaches maps that were already published.
+const ZOOM_IN_TRIM = 1
 
 export function useLeafletMap(url: string, size: MapSize, maxZoom = DEFAULT_MAX_ZOOM) {
   const container = useRef<HTMLDivElement>(null)
@@ -35,7 +38,7 @@ export function useLeafletMap(url: string, size: MapSize, maxZoom = DEFAULT_MAX_
       // Leaflet clamps "fit the image" to this, so it must be low enough for
       // any map; the real limit is set below once the image is measured.
       minZoom: -20,
-      maxZoom,
+      maxZoom: maxZoom - ZOOM_IN_TRIM,
       maxBoundsViscosity: 0.9,
     })
     L.imageOverlay(url, bounds, { className: "map-sheet" }).addTo(instance)
