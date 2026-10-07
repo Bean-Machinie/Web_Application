@@ -13,43 +13,88 @@ in the builder's asset panel by itself: there is no list to edit.
   one level of folders is read.
 - **File names become display names.** `stone-bridge.png` is shown as
   "Stone bridge" (dashes and underscores become spaces, the extension goes).
-- **Formats:** SVG is preferred: it stays sharp at any size the map is drawn
-  at. SVGs need `width` and `height` attributes, which set the shape they are
-  drawn at. PNG, WebP or JPG also work. Raster art needs at least 512 px on the
-  longest side, so it stays sharp when the map is rendered at its full size.
+- **Formats:** SVG, PNG, WebP or JPG, with a transparent background. SVGs need
+  `width` and `height` attributes, which set the shape they are drawn at.
+  Painted art is best exported as **WebP at about 1024 px** on the longest side:
+  it is far smaller than PNG, and 1024 px is enough to stay sharp when the map is
+  published. Anything above about 1500 px only costs memory.
 
-## The art rules
+## Two kinds of art
 
-One drawing has to work on every biome, so art is **ink only**. The map adds the
-colour: the lines are drawn in the map's ink colour, and the ground (land,
-biome, texture) shows through wherever the art is solid.
+The builder looks at the colour of each picture when it loads and treats it as
+one of two kinds. You do not choose: it is decided by how much of the picture is
+coloured.
 
-- **Monochrome.** Black for ink lines. Greys are lighter ink: the darker a pixel,
-  the stronger the ink. No colour: colour is read only by how dark it is, so a
-  coloured fill would turn into a see-through blob of ink.
-- **Pure white (`#fff`) where the shape is solid.** The ground shows through it,
-  and it hides whatever is behind the art, with ground, not with white. A shape
-  drawn only in outline, with no white inside, lets what is behind show through.
-- **Transparent outside the shape.** Nothing is drawn there, and clicks go
-  through it to whatever is behind.
-- **A consistent line weight.** The coast is drawn at 2.5 px (the theme's
-  `LINE_WEIGHT`, in `src/lib/map-theme.ts`), and art should match it at the size
-  it is first placed. A piece is placed at its category's default width (below),
-  so a line should be
+### Ink art (monochrome)
 
-  `2.5 × (the art's width ÷ the category's default width)`
+Black lines, greys, pure white and transparent. The map adds the colour.
 
-  pixels wide in the SVG's own units. The easiest way is to draw the art at its
-  category's default width with 2.5 px lines. Fine detail such as hatching can be
-  about half that.
-- **Light from the top left.** Shade the right and bottom of shapes, with light
-  grey and hatching running down to the right, and leave the left and top
-  white.
-- **Several variants per type**, so a forest or a range of mountains does not
-  look copy-pasted. Name them after the type with a number: `peak.svg`,
-  `peak-2.svg`, `peak-3.svg`.
-- **Gradients and transparency in the art** work, and are read like any other
-  pixel by darkness and by opacity, but plain greys keep the line work clean.
+- **Lines** are drawn in the map's ink colour. The darker a pixel, the stronger the
+  ink; greys are lighter ink. Where the ground has a biome painted on it, the
+  ink takes on that biome's ink (dark orange on desert, dark green in swamp),
+  changing along the art as the ground does. How far it follows the ground is set
+  per category in `src/lib/map-assets.ts` (`INK_FOLLOWS`): nature fully,
+  buildings only a little.
+- **Pure white (`#fff`)** marks where the shape is solid. The ground shows through
+  it, and the art hides whatever is behind it with ground, not with white.
+- **Transparent** outside the shape: nothing is drawn, and clicks go through.
+- **A consistent line weight.** The coast is drawn at 2.5 px (`LINE_WEIGHT` in
+  `src/lib/map-theme.ts`). Art should match it at the size it is first placed, so
+  a line should be `2.5 × (the art's width ÷ the category's default width)` pixels
+  wide, in the SVG's own units. Light comes from the top left.
+
+### Painted art (colour)
+
+Anything that is clearly coloured is drawn as you painted it, over what is
+behind it. Nothing shows through it. It gets, automatically:
+
+- **Careful shrinking.** The picture is shrunk in steps to the size it is drawn
+  at, then sharpened a little, and given a little more contrast the further it
+  was shrunk, so brush texture stays readable.
+- **The map's colour grade**, one look over all painted art so it sits in the map.
+- **A soft contact shadow** at its foot, cast to the lower right.
+
+All of these are set in `src/lib/map-theme.ts`, under `paint` (`grade`,
+`sharpen`, `smallContrast`, `shadow`), per background.
+
+## Painted art that changes with the biome
+
+Some painted art changes colour with the biome it stands on, so a forest looks
+right on desert, in swamp and on ice. This is **opt-in per category**, in
+`RECOLOURS` in `src/lib/map-assets.ts`. At the moment only **`forests`** change.
+Buildings, mountains and everything else are drawn as painted. Ink art never
+changes.
+
+**What changes.** By default the greens and yellow-greens of a painting change,
+with a soft edge on the range of colour. Browns and greys, such as trunks, stay,
+and so does anything very dark or hardly coloured.
+
+**How it changes.** The painting's own lights and darks are kept and mapped onto
+a set of colours for the biome, so the brushwork and volume survive. The range is
+taken from the changing parts only, so a pale trunk or dark outline does not make
+foliage too bright or dark. The colour sets are in `src/lib/map-theme.ts`
+(`paint.recolour`): frosty blue-green with white highlights for ice, dry olive for
+desert, murky dark green for swamp, charred grey for volcanic. Plains keeps the
+painting's own colours.
+
+**Which biome.** Each piece looks at the paint at its foot and blends between
+the biomes there, so a forest fades gradually across a border, tree by tree.
+
+### Choosing what changes with a mask
+
+To say exactly which parts may change, put a mask next to the art with the same
+name and `.mask.png` (or `.mask.webp`):
+
+```
+forests/tree.png
+forests/tree.mask.png
+```
+
+White means the part may change, black means it may not, and greys change by
+that much. The mask can be any resolution, but it must have the **same
+proportions** as the art, because it is stretched to fit it. A mask is not art:
+it does not appear in the library. With a mask, the automatic colour pick is not
+used at all. An all-black mask turns recolouring off for that file.
 
 ## How big art is when first placed
 
@@ -70,9 +115,9 @@ category its own.
 ## Do not rename or move files that maps already use
 
 A map stores each piece of art by its path under this folder
-(for example `towns/castle.svg`). Renaming or moving a file would leave maps
+(for example `forests/tree.png`). Renaming or moving a file would leave maps
 that use it with a dashed placeholder box where the art was. Changing what a
-file looks like is fine.
+file looks like is fine, and so is adding a mask.
 
 ## Drawing order
 

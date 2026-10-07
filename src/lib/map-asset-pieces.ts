@@ -9,13 +9,20 @@ export type Rect = { x: number; y: number; width: number; height: number }
 export type Piece = { asset: PlacedAsset; info: AssetInfo; box: Rect }
 
 // The box a piece covers on the canvas, with a pixel to spare for soft edges.
-export function boxOf(asset: PlacedAsset, { width, height }: { width: number; height: number }): Rect {
+export function boxOf(
+  asset: PlacedAsset,
+  { width, height }: { width: number; height: number },
+  shadow = false
+): Rect {
   const turn = (asset.rotation * Math.PI) / 180
   const w = Math.abs(asset.scaleX) * width
   const h = Math.abs(asset.scaleY) * height
   const halfX = (Math.abs(Math.cos(turn)) * w + Math.abs(Math.sin(turn)) * h) / 2 + 1
   const halfY = (Math.abs(Math.sin(turn)) * w + Math.abs(Math.cos(turn)) * h) / 2 + 1
-  return { x: asset.x - halfX, y: asset.y - halfY, width: halfX * 2, height: halfY * 2 }
+  // Painted art has a shadow at its foot, a little past its edges.
+  const side = shadow ? Math.abs(asset.scaleX) * width * 0.12 : 0
+  const below = shadow ? Math.abs(asset.scaleY) * height * 0.2 : 0
+  return { x: asset.x - halfX - side, y: asset.y - halfY, width: halfX * 2 + side * 2, height: halfY * 2 + below }
 }
 
 const overlaps = (a: Rect, b: Rect) =>
@@ -33,7 +40,7 @@ export function makePieces(
   const pieces: Piece[] = []
   for (const asset of assets) {
     const info = infoOf(asset.asset)
-    if (info && !hidden.has(asset.id)) pieces.push({ asset, info, box: boxOf(asset, info.trim) })
+    if (info && !hidden.has(asset.id)) pieces.push({ asset, info, box: boxOf(asset, info.trim, info.colour) })
   }
   const bottom = (piece: Piece) => bottomEdge(piece.asset, piece.info.trim.width, piece.info.trim.height)
   return pieces.sort((a, b) => bottom(a) - bottom(b))

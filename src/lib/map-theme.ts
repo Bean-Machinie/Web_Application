@@ -18,6 +18,30 @@ export const LINE_WEIGHT = 2.5
 
 type Biomes = Record<Biome, { fill: Rgb; ink: Rgb }>
 
+// A ramp of colour from the darkest of a painting (0) to its lightest (1), as
+// stops in order.
+export type Ramp = [number, Rgb][]
+
+// How art painted in colour is drawn.
+export type PaintLook = {
+  // One grade over all painted art, so that it sits in the map: saturation and
+  // contrast are 1 for no change, brightness is added (0 for none), and the tint
+  // multiplies the colours toward it by "tintAmount".
+  grade: { saturation: number; contrast: number; brightness: number; tint: Rgb; tintAmount: number }
+  // Sharpening when art is drawn smaller than it was painted, so that brush
+  // texture stays readable. This is the most, at a strong shrinking, 0 to 1; it
+  // is gentle, because more makes halos on brushstrokes. "smallContrast" is the
+  // most contrast added at the same time.
+  sharpen: number
+  smallContrast: number
+  // The soft shadow at the foot of art: its colour, how dark it is at most, and
+  // how far it is blurred, as a share of the art's width.
+  shadow: { colour: Rgb; opacity: number; blur: number }
+  // What foliage becomes in each biome: its own lights and darks, in these colours.
+  // Plains keeps the painting as it is, so it has no ramp.
+  recolour: Record<Biome, Ramp>
+}
+
 export type MapTheme = {
   // The ink the coast and the art are drawn in.
   ink: Rgb
@@ -37,6 +61,7 @@ export type MapTheme = {
   // The sea around the land: a dark band along the coast and light lines
   // spreading out from it, with grain over the sea.
   water: { dark: Rgb; darkAlpha: number; light: Rgb; lightAlpha: number; grain: number }
+  paint: PaintLook
 }
 
 const BIOMES: Biomes & { volcanic: { accent: Rgb } } = {
@@ -63,6 +88,21 @@ function muted(land: { fill: Rgb; ink: Rgb }): MapTheme["biomes"] {
   }
 }
 
+// The same colours on every background: the grade, below, is what makes them sit.
+const RECOLOUR: PaintLook["recolour"] = {
+  ice: [[0, [38, 74, 84]], [0.45, [104, 152, 156]], [0.8, [196, 226, 228]], [1, [255, 255, 255]]],
+  desert: [[0, [52, 50, 26]], [0.5, [122, 116, 56]], [1, [198, 190, 118]]],
+  swamp: [[0, [20, 28, 18]], [0.5, [46, 60, 34]], [1, [96, 112, 58]]],
+  volcanic: [[0, [18, 17, 16]], [0.5, [56, 54, 52]], [1, [116, 112, 108]]],
+}
+
+const PAINT = {
+  sharpen: 0.3,
+  smallContrast: 0.05,
+  shadow: { colour: [30, 24, 16] as Rgb, opacity: 0.32, blur: 0.06 },
+  recolour: RECOLOUR,
+}
+
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }
 
 const PARCHMENT_LAND = { fill: [239, 227, 189] as Rgb, ink: [52, 38, 26] as Rgb }
@@ -74,6 +114,7 @@ const THEMES: Record<SceneBackground, MapTheme> = {
     land: { fill: PARCHMENT_LAND.fill, grain: 0.4, shadow: SHADOW },
     biomes: muted(PARCHMENT_LAND),
     water: { dark: [96, 66, 36], darkAlpha: 0.42, light: [255, 252, 240], lightAlpha: 0.95, grain: 0.3 },
+    paint: { ...PAINT, grade: { saturation: 0.92, contrast: 1.03, brightness: 0, tint: [255, 232, 190], tintAmount: 0.1 } },
   },
   ocean: {
     ink: [34, 34, 30],
@@ -81,6 +122,7 @@ const THEMES: Record<SceneBackground, MapTheme> = {
     land: { fill: [198, 209, 147], grain: 0.4, shadow: SHADOW },
     biomes: BIOMES,
     water: { dark: [8, 38, 58], darkAlpha: 0.45, light: [214, 244, 248], lightAlpha: 0.85, grain: 0.3 },
+    paint: { ...PAINT, grade: { saturation: 1, contrast: 1.03, brightness: 0, tint: [255, 244, 220], tintAmount: 0.04 } },
   },
 }
 

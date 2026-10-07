@@ -7,6 +7,8 @@
 export type Trim = { x: number; y: number; width: number; height: number }
 
 export type AssetShape = {
+  // Whether the art is painted in colour, and not drawn in ink: see PAINTED_SHARE.
+  colour: boolean
   trim: Trim
   // The painted pixels as a path, in pixels from the trim's top left corner.
   hit: Path2D
@@ -14,6 +16,10 @@ export type AssetShape = {
 
 // A pixel counts as painted from this much opacity (of 255).
 const PAINTED = 20
+// A pixel counts as coloured when it is this saturated (and not nearly black),
+// and art is painted, not ink, when this share of what it covers is coloured.
+const COLOURED = 0.2
+const PAINTED_SHARE = 0.08
 // Pictures are looked at no larger than this on their long side.
 const MAX_LOOK = 640
 
@@ -30,6 +36,17 @@ export function shapeOf(image: HTMLImageElement): AssetShape {
   context.drawImage(image, 0, 0, w, h)
   const { data } = context.getImageData(0, 0, w, h)
   const painted = (x: number, y: number) => data[(y * w + x) * 4 + 3] >= PAINTED
+
+  let opaque = 0
+  let coloured = 0
+  for (let i = 0; i < w * h; i++) {
+    if (data[i * 4 + 3] < PAINTED) continue
+    opaque++
+    const high = Math.max(data[i * 4], data[i * 4 + 1], data[i * 4 + 2])
+    const low = Math.min(data[i * 4], data[i * 4 + 1], data[i * 4 + 2])
+    if (high > 40 && (high - low) / high > COLOURED) coloured++
+  }
+  const colour = opaque > 0 && coloured / opaque > PAINTED_SHARE
 
   let minX = w
   let minY = h
@@ -48,7 +65,7 @@ export function shapeOf(image: HTMLImageElement): AssetShape {
   if (maxX < 0) {
     const hit = new Path2D()
     hit.rect(0, 0, whole.width, whole.height)
-    return { trim: whole, hit }
+    return { colour, trim: whole, hit }
   }
 
   // Back to the picture's own pixels, rounded outwards so nothing is cut off.
@@ -87,5 +104,5 @@ export function shapeOf(image: HTMLImageElement): AssetShape {
     for (const key of [...open.keys()]) if (!runs.has(key)) close(key, y)
     for (const key of runs) if (!open.has(key)) open.set(key, y)
   }
-  return { trim, hit }
+  return { colour, trim, hit }
 }

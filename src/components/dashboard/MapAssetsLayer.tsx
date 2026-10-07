@@ -8,6 +8,7 @@ import type { BuilderView } from "@/hooks/use-builder-viewport"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { Surface } from "@/lib/biomes/surface"
 import { artFor } from "@/lib/map-asset-art"
+import { paintedArtFor } from "@/lib/map-asset-paint"
 import type { AssetPatch } from "@/lib/map-asset-edit"
 import type { MapScene, PlacedAsset } from "@/lib/map-scene"
 import { themeFor } from "@/lib/map-theme"
@@ -174,8 +175,10 @@ export function MapAssetsLayer(props: Props) {
             sceneFunc={(context) => {
               if (!moving.has(asset.id)) return
               const drawn = trim.width * Math.abs(asset.scaleX) * view.scale
-              const art = artFor(asset.asset, info, drawn, theme.ink, theme.land.fill)
-              context.drawImage(art.preview, 0, 0, trim.width, trim.height)
+              const flat = info.colour
+                ? paintedArtFor(asset.asset, info, drawn, canvas.background, false).base
+                : artFor(asset.asset, info, drawn, theme.ink, theme.land.fill).preview
+              context.drawImage(flat, 0, 0, trim.width, trim.height)
             }}
             // Only the painted pixels can be picked.
             hitFunc={(context, shape) => {

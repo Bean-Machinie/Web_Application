@@ -22,7 +22,7 @@ const LIMIT = 40_000_000
 const cache = new Map<string, { art: Art; pixels: number }>()
 let used = 0
 
-const sized = (width: number) =>
+export const sized = (width: number) =>
   Math.max(16, Math.round(STEP ** Math.ceil(Math.log(Math.max(width, 1)) / Math.log(STEP))))
 
 function canvasOf(width: number, height: number) {

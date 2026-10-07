@@ -2,6 +2,8 @@ import { css } from "./colour"
 import type { Rgb } from "./colour"
 import { artFor } from "./map-asset-art"
 import { inkField } from "./map-asset-ink"
+import { drawPainted } from "./map-asset-painted"
+import { place, room } from "./map-asset-place"
 import { inkFollows } from "./map-assets"
 import type { Piece, Rect } from "./map-asset-pieces"
 import { drawGround } from "./map-ground"
@@ -19,29 +21,6 @@ const scratch = (() => {
   const make = () => document.createElement("canvas")
   return { ground: make(), piece: make() }
 })()
-
-// Resizing a canvas throws its memory away, so the one a piece is cut on only
-// ever grows, and the part in use is cleared.
-function room(canvas: HTMLCanvasElement, width: number, height: number) {
-  if (canvas.width < width || canvas.height < height) {
-    canvas.width = Math.max(canvas.width, width)
-    canvas.height = Math.max(canvas.height, height)
-  }
-}
-
-// Sets the context to draw a piece's art, in the art's own pixels, where the
-// piece goes in the picture. "offset" is the picture pixel that is the context's
-// origin.
-function place(context: CanvasRenderingContext2D, picture: Picture, piece: Piece, offsetX: number, offsetY: number) {
-  const { asset, info } = piece
-  context.setTransform(1, 0, 0, 1, 0, 0)
-  context.translate(-offsetX, -offsetY)
-  context.scale(picture.scale, picture.scale)
-  context.translate(asset.x - picture.x, asset.y - picture.y)
-  context.rotate((asset.rotation * Math.PI) / 180)
-  context.scale(asset.scaleX, asset.scaleY)
-  context.translate(-info.trim.width / 2, -info.trim.height / 2)
-}
 
 // Draws the pieces that touch a rectangle of the canvas into a picture, back to
 // front, in place of what was there. "pieces" are those pieces, in order. Each
@@ -93,13 +72,6 @@ export function bakeRect(picture: Picture, rect: Rect, pieces: Piece[], ground: 
   cutContext.imageSmoothingQuality = "high"
   for (const piece of pieces) {
     const { asset, info, box } = piece
-    const art = artFor(
-      asset.asset,
-      info,
-      info.trim.width * Math.abs(asset.scaleX) * scale,
-      colours.ink,
-      colours.fill
-    )
     // The part of the picture the piece covers, inside the rectangle.
     const bx0 = Math.max(Math.floor((box.x - picture.x) * scale), x0)
     const by0 = Math.max(Math.floor((box.y - picture.y) * scale), y0)
@@ -110,6 +82,19 @@ export function bakeRect(picture: Picture, rect: Rect, pieces: Piece[], ground: 
     const w = bx1 - bx0
     const h = by1 - by0
     room(cut, w, h)
+    // Painted art is drawn as painted, over what is behind it: no ground shows
+    // through it, and its ink does not follow the ground.
+    if (info.colour) {
+      drawPainted(context, cut, cutContext, picture, piece, ground, { x: bx0, y: by0, width: w, height: h })
+      continue
+    }
+    const art = artFor(
+      asset.asset,
+      info,
+      info.trim.width * Math.abs(asset.scaleX) * scale,
+      colours.ink,
+      colours.fill
+    )
     cutContext.setTransform(1, 0, 0, 1, 0, 0)
     cutContext.globalCompositeOperation = "source-over"
     cutContext.clearRect(0, 0, w, h)
