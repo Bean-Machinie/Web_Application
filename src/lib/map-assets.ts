@@ -43,6 +43,17 @@ const DEFAULT_WIDTH: Record<string, number> = {
   towns: 170,
 }
 const FALLBACK_WIDTH = 160
+
+// How much the ink of art takes on the colour of the ground it stands on, from 0
+// (always the map's ink) to 1 (the ground's own ink: dark orange on desert, dark
+// green in swamp). Nature follows the ground; buildings only lean toward it.
+const INK_FOLLOWS: Record<string, number> = {
+  mountains: 1,
+  forests: 1,
+  towns: 0.25,
+}
+const FALLBACK_FOLLOWS = 0.6
+export const inkFollows = (category: string) => INK_FOLLOWS[category] ?? FALLBACK_FOLLOWS
 export const defaultWidth = (category: string) => DEFAULT_WIDTH[category] ?? FALLBACK_WIDTH
 
 // A loaded picture, and what was worked out about it once (see map-asset-shape).

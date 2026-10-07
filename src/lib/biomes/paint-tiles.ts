@@ -20,6 +20,17 @@ export function gridSize({ width, height }: { width: number; height: number }) {
   return { cols: Math.ceil(width / PAINT_CELL), rows: Math.ceil(height / PAINT_CELL) }
 }
 
+// How much of each biome is at a point of the canvas, 0 to 1, in biome order;
+// null where nothing is painted.
+export function weightsAtPoint(paint: Paint, x: number, y: number): number[] | null {
+  const cx = Math.floor(x / PAINT_CELL)
+  const cy = Math.floor(y / PAINT_CELL)
+  const tile = paint.get(tileKey(Math.floor(cx / TILE), Math.floor(cy / TILE)))
+  if (!tile) return null
+  const at = ((cy % TILE) * TILE + (cx % TILE)) * CHANNELS
+  return Array.from({ length: CHANNELS }, (_, channel) => tile[at + channel] / 255)
+}
+
 // Weights this close to nothing, or to everything, are taken to be exactly that,
 // so that clearing a biome leaves no faint tint and a full one is full.
 const NONE = 3

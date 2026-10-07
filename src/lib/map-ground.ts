@@ -1,4 +1,5 @@
 import type { MultiPolygon } from "polygon-clipping"
+import type { Paint } from "./biomes/paint-tiles"
 import { css } from "./colour"
 import { traceLand } from "./map-land-trace"
 import type { Rect } from "./map-asset-pieces"
@@ -15,6 +16,9 @@ export type Ground = {
   landGrain: HTMLImageElement | null
   // The land as it is shown, rounded.
   land: MultiPolygon
+  // The biome paint, read when art picks its ink. A box so that it can change
+  // without the ground being a different one.
+  paint: { current: Paint }
   // The biomes' picture, of any size, drawn over the land; none if nothing is painted.
   biomes: HTMLCanvasElement | null
 }

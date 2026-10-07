@@ -1,9 +1,8 @@
 import type { MultiPolygon } from "polygon-clipping"
 import { Shape } from "react-konva"
 import { strokeCoast } from "@/lib/biomes/coast-tint"
-import { BIOMES } from "@/lib/biomes/biomes"
+import { groundInk } from "@/lib/biomes/ink"
 import type { Surface } from "@/lib/biomes/surface"
-import { mixRgb } from "@/lib/colour"
 import type { Rgb } from "@/lib/colour"
 import type { SceneBackground } from "@/lib/map-scene"
 import { themeFor } from "@/lib/map-theme"
@@ -24,7 +23,6 @@ type Props = {
 export function MapCoastShape({ land, canvas, background, outline, surface }: Props) {
   const theme = themeFor(background)
   const plains = theme.ink
-  const inks = BIOMES.map((biome) => theme.biomes[biome].ink)
 
   // The ground by the coast. The line is drawn on the rounded coast, which can lie
   // a little off the land that paint is allowed on, so the ground is also read a
@@ -43,20 +41,8 @@ export function MapCoastShape({ land, canvas, background, outline, surface }: Pr
     return best
   }
 
-  const inkAt = (x: number, y: number, nx: number, ny: number): Rgb => {
-    const weights = groundAt(x, y, nx, ny)
-    if (!weights) return plains
-    // What no biome covers is plains.
-    let used = Math.max(1 - weights.reduce((sum, weight) => sum + weight, 0), 0)
-    let ink = plains
-    weights.forEach((weight, biome) => {
-      if (weight <= 0) return
-      used += weight
-      // Each biome pulls the ink toward its own by its share of what is left.
-      ink = mixRgb(ink, inks[biome], weight / used)
-    })
-    return ink
-  }
+  const inkAt = (x: number, y: number, nx: number, ny: number): Rgb =>
+    groundInk(theme, groundAt(x, y, nx, ny))
 
   return (
     <Shape

@@ -107,6 +107,9 @@ export function useAssetPictures(input: Input) {
   const theme = themeFor(background)
   const colours = useMemo(() => ({ ink: theme.ink, fill: theme.land.fill }), [theme])
   const painted = paint.size > 0
+  // Read when art picks its ink, so that it is always the latest.
+  const paintBox = useRef({ current: paint })
+  paintBox.current.current = paint
   const ground = useMemo<Ground>(
     () => ({
       canvas: { width, height },
@@ -115,6 +118,7 @@ export function useAssetPictures(input: Input) {
       seaGrain,
       landGrain,
       land,
+      paint: paintBox.current,
       biomes: painted ? surface.picture : null,
     }),
     [width, height, background, backdrop, seaGrain, landGrain, land, surface, painted]

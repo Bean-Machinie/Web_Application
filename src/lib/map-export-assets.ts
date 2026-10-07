@@ -31,6 +31,7 @@ export async function exportAssets(scene: MapScene, biomes: HTMLCanvasElement | 
     seaGrain,
     landGrain,
     land: smoothLand(scene.land, scene.style.roundness, canvas),
+    paint: { current: scene.paint },
     biomes,
   }
   const theme = themeFor(canvas.background)

@@ -1,5 +1,8 @@
+import { css } from "./colour"
 import type { Rgb } from "./colour"
 import { artFor } from "./map-asset-art"
+import { inkField } from "./map-asset-ink"
+import { inkFollows } from "./map-assets"
 import type { Piece, Rect } from "./map-asset-pieces"
 import { drawGround } from "./map-ground"
 import type { Ground } from "./map-ground"
@@ -8,6 +11,8 @@ import type { Ground } from "./map-ground"
 // and how many of its pixels go to one canvas pixel.
 export type Picture = { canvas: HTMLCanvasElement; x: number; y: number; scale: number }
 
+// The fill is what a piece looks like in flat colour while it is moved. The ink
+// is the map's own, and is taken toward the ground's ink where there is paint.
 export type Colours = { ink: Rgb; fill: Rgb }
 
 const scratch = (() => {
@@ -75,12 +80,26 @@ export function bakeRect(picture: Picture, rect: Rect, pieces: Piece[], ground: 
   context.rect(x0, y0, x1 - x0, y1 - y0)
   context.clip()
   context.imageSmoothingQuality = "high"
+  // The colour of the ink at each place of the rectangle, for each of the amounts
+  // that kinds of art follow the ground by; null where it is one flat colour.
+  const rectOnCanvas = { x: picture.x + x0 / scale, y: picture.y + y0 / scale, width: (x1 - x0) / scale, height: (y1 - y0) / scale }
+  const fields = new Map<number, HTMLCanvasElement | null>()
+  const fieldFor = (follows: number) => {
+    if (!fields.has(follows)) fields.set(follows, inkField(rectOnCanvas, ground, colours.ink, follows))
+    return fields.get(follows)!
+  }
   const cut = scratch.piece
   const cutContext = cut.getContext("2d")!
   cutContext.imageSmoothingQuality = "high"
   for (const piece of pieces) {
     const { asset, info, box } = piece
-    const art = artFor(asset.asset, info, info.trim.width * Math.abs(asset.scaleX) * scale, colours.ink, colours.fill)
+    const art = artFor(
+      asset.asset,
+      info,
+      info.trim.width * Math.abs(asset.scaleX) * scale,
+      colours.ink,
+      colours.fill
+    )
     // The part of the picture the piece covers, inside the rectangle.
     const bx0 = Math.max(Math.floor((box.x - picture.x) * scale), x0)
     const by0 = Math.max(Math.floor((box.y - picture.y) * scale), y0)
@@ -102,8 +121,26 @@ export function bakeRect(picture: Picture, rect: Rect, pieces: Piece[], ground: 
     context.setTransform(1, 0, 0, 1, 0, 0)
     context.drawImage(cut, 0, 0, w, h, bx0, by0, w, h)
 
-    place(context, picture, piece, 0, 0)
-    context.drawImage(art.ink, 0, 0, info.trim.width, info.trim.height)
+    // The ink: its lines cut out of the colour of the ink there, so that it
+    // changes along a piece as the ground under it changes.
+    const field = fieldFor(inkFollows(asset.asset.split("/")[0]))
+    cutContext.setTransform(1, 0, 0, 1, 0, 0)
+    cutContext.globalCompositeOperation = "source-over"
+    cutContext.clearRect(0, 0, w, h)
+    place(cutContext, picture, piece, bx0, by0)
+    cutContext.drawImage(art.ink, 0, 0, info.trim.width, info.trim.height)
+    cutContext.setTransform(1, 0, 0, 1, 0, 0)
+    cutContext.globalCompositeOperation = "source-in"
+    if (field) {
+      const across = field.width / (x1 - x0)
+      const down = field.height / (y1 - y0)
+      cutContext.drawImage(field, (bx0 - x0) * across, (by0 - y0) * down, w * across, h * down, 0, 0, w, h)
+    } else {
+      cutContext.fillStyle = css(colours.ink)
+      cutContext.fillRect(0, 0, w, h)
+    }
+    context.setTransform(1, 0, 0, 1, 0, 0)
+    context.drawImage(cut, 0, 0, w, h, bx0, by0, w, h)
   }
   context.restore()
 }

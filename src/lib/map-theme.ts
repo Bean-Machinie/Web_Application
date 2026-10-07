@@ -42,7 +42,7 @@ export type MapTheme = {
 const BIOMES: Biomes & { volcanic: { accent: Rgb } } = {
   ice: { fill: [208, 230, 238], ink: [86, 120, 140] },
   swamp: { fill: [106, 126, 66], ink: [48, 62, 32] },
-  desert: { fill: [226, 196, 124], ink: [128, 94, 44] },
+  desert: { fill: [226, 196, 124], ink: [136, 82, 30] },
   volcanic: { fill: [74, 68, 64], ink: [30, 24, 22], accent: [196, 70, 30] },
 }
 
@@ -65,7 +65,7 @@ function muted(land: { fill: Rgb; ink: Rgb }): MapTheme["biomes"] {
 
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }
 
-const PARCHMENT_LAND = { fill: [239, 227, 189] as Rgb, ink: [91, 65, 40] as Rgb }
+const PARCHMENT_LAND = { fill: [239, 227, 189] as Rgb, ink: [52, 38, 26] as Rgb }
 
 const THEMES: Record<SceneBackground, MapTheme> = {
   parchment: {
@@ -76,7 +76,7 @@ const THEMES: Record<SceneBackground, MapTheme> = {
     water: { dark: [96, 66, 36], darkAlpha: 0.42, light: [255, 252, 240], lightAlpha: 0.95, grain: 0.3 },
   },
   ocean: {
-    ink: [74, 87, 45],
+    ink: [34, 34, 30],
     backdrop: { low: [28, 92, 122], high: [64, 144, 168], edge: [10, 40, 62], edgeAmount: 0.3, waves: 0.06 },
     land: { fill: [198, 209, 147], grain: 0.4, shadow: SHADOW },
     biomes: BIOMES,
