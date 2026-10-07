@@ -98,7 +98,7 @@ export function MapBrushLayer({ enabled, blending, brush, paint, land, surface, 
     const onDown = (event: Konva.KonvaEventObject<PointerEvent>) => {
       if (event.evt.button !== 0 || stroke) return
       const { blending, brush, paint, land } = latest.current
-      stroke = startStroke(paint, blending ? "blend" : brush.biome, land.mask, land.cols, land.rows, brush.strength)
+      stroke = startStroke(paint, blending ? "blend" : brush.biome, land.mask, land.cols, land.rows, brush.strength, brush.stretch)
       base = paint
       last = place(event.evt)
       show(stroke.dab(last[0], last[1], brush.size / 2))

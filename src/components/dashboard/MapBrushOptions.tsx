@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { Brush } from "@/hooks/use-brush"
-import { BIOMES, BLEND_STRENGTH, BRUSH_SIZE } from "@/lib/biomes/biomes"
+import { BIOMES, BLEND_STRENGTH, BLEND_STRETCH, BRUSH_SIZE } from "@/lib/biomes/biomes"
 import type { BrushBiome } from "@/lib/biomes/biomes"
 import { biomeColours, css, hexToRgb } from "@/lib/biomes/palette"
 import { LAND_COLOURS } from "@/lib/map-land-colours"
@@ -71,6 +71,19 @@ export function MapBrushOptions({ tool, brush, background }: Props) {
           />
           <span className="text-muted-foreground w-10 text-xs tabular-nums">
             {Math.round(brush.strength * 100)}%
+          </span>
+          <span className="text-muted-foreground ml-3 text-xs">Stretch</span>
+          <Slider
+            className="w-28"
+            aria-label="Blend stretch"
+            min={BLEND_STRETCH.min}
+            max={BLEND_STRETCH.max}
+            step={0.01}
+            value={[brush.stretch]}
+            onValueChange={([stretch]) => brush.onStretch(stretch)}
+          />
+          <span className="text-muted-foreground w-10 text-xs tabular-nums">
+            {Math.round(brush.stretch * 100)}%
           </span>
         </>
       )}

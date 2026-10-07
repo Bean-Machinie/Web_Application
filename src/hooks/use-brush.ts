@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { BLEND_STRENGTH, BRUSH_SIZE } from "@/lib/biomes/biomes"
+import { BLEND_STRENGTH, BLEND_STRETCH, BRUSH_SIZE } from "@/lib/biomes/biomes"
 import type { BrushBiome } from "@/lib/biomes/biomes"
 
 export type Brush = {
@@ -8,9 +8,12 @@ export type Brush = {
   size: number
   // How strongly the blend brush softens, 0 to 1.
   strength: number
+  // How much of what it has picked up the blend brush pulls along, 0 to 1.
+  stretch: number
   onBiome: (biome: BrushBiome) => void
   onSize: (size: number) => void
   onStrength: (strength: number) => void
+  onStretch: (stretch: number) => void
 }
 
 const clamp = (size: number) => Math.round(Math.min(Math.max(size, BRUSH_SIZE.min), BRUSH_SIZE.max))
@@ -21,6 +24,7 @@ export function useBrush(enabled: boolean): Brush {
   const [biome, onBiome] = useState<BrushBiome>("desert")
   const [size, onSize] = useState(BRUSH_SIZE.start)
   const [strength, onStrength] = useState(BLEND_STRENGTH.start)
+  const [stretch, onStretch] = useState(BLEND_STRETCH.start)
 
   useEffect(() => {
     if (!enabled) return
@@ -36,5 +40,5 @@ export function useBrush(enabled: boolean): Brush {
     return () => window.removeEventListener("keydown", onKey)
   }, [enabled])
 
-  return { biome, size, strength, onBiome, onSize: (next) => onSize(clamp(next)), onStrength }
+  return { biome, size, strength, stretch, onBiome, onSize: (next) => onSize(clamp(next)), onStrength, onStretch }
 }

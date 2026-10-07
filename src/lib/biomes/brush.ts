@@ -1,6 +1,7 @@
 import { BIOMES, PAINT_CELL, TILE } from "./biomes"
 import type { BrushBiome } from "./biomes"
 import { blendStamp } from "./blend"
+import type { Carry } from "./blend"
 import { CHANNELS, TILE_BYTES, settle, tileKey } from "./paint-tiles"
 import type { Paint, Tile } from "./paint-tiles"
 import { FINE_BRUSH, SPACING, coverage } from "./stamp"
@@ -26,10 +27,12 @@ export function startStroke(
   land: Uint8Array,
   cols: number,
   rows: number,
-  strength = 0
+  strength = 0,
+  stretch = 0
 ) {
   const channel = biome === "plains" || biome === "blend" ? -1 : BIOMES.indexOf(biome)
   const touched = new Map<string, Touched>()
+  const carry: Carry = { amounts: null }
 
   const tileFor = (tx: number, ty: number) => {
     const key = tileKey(tx, ty)
@@ -72,16 +75,11 @@ export function startStroke(
       y1: Math.min(Math.ceil(y / PAINT_CELL + reach), rows - 1),
     }
     if (biome === "blend") {
-      blendStamp({
-        cells,
-        radius,
-        strength,
-        coverage: (cx, cy) => coverage(cx, cy, x, y, radius, fine),
-        land,
-        cols,
-        rows,
-        tileWork,
-      })
+      blendStamp(
+        { cells, strength, coverage: (cx, cy) => coverage(cx, cy, x, y, radius, fine), land, cols, tileWork },
+        carry,
+        stretch
+      )
       return cells
     }
     for (let cy = cells.y0; cy <= cells.y1; cy++) {

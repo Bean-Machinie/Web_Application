@@ -13,5 +13,8 @@ export const TILE = 64
 
 // How strongly the blend brush softens, the share of full: subtle to start.
 export const BLEND_STRENGTH = { min: 0.05, max: 1, start: 0.25 }
+// How much of what the blend brush has picked up is pulled along the stroke:
+// low to start.
+export const BLEND_STRETCH = { min: 0, max: 1, start: 0.2 }
 
 export const BRUSH_SIZE = { min: 20, max: 400, start: 120, step: 1.15 }
