@@ -3,13 +3,13 @@ import type { MutableRefObject, RefObject } from "react"
 import type Konva from "konva"
 import type { Pair } from "polygon-clipping"
 import { useAssetPick } from "@/hooks/use-asset-pick"
-import { useTerrain } from "@/hooks/use-terrain"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import type { Brush } from "@/hooks/use-brush"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { useBuilderViewport } from "@/hooks/use-builder-viewport"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 import type { MapScene } from "@/lib/map-scene"
+import type { Terrain } from "@/lib/terrain"
 import { MapArmedGhost } from "./MapArmedGhost"
 import { MapBuilderStage } from "./MapBuilderStage"
 import { MapContextMenu } from "./MapContextMenu"
@@ -17,6 +17,8 @@ import type { ContextSpot } from "./MapContextMenu"
 
 type Props = {
   scene: MapScene
+  // The painted ground, null until its tiles have loaded.
+  terrain: Terrain | null
   tool: BuilderTool
   cutting: boolean
   editable: boolean
@@ -52,9 +54,8 @@ const CURSORS: Record<BuilderTool, string> = {
 // The canvas area: the stage, dropping art from the library, stamping the art
 // that was picked there, and the right-click menu.
 export function MapBuilderCanvas(props: Props) {
-  const { scene, tool, editing, viewport, stageRef, pointer } = props
+  const { scene, terrain, tool, editing, viewport, stageRef, pointer } = props
   const [spot, setSpot] = useState<ContextSpot | null>(null)
-  const terrain = useTerrain(scene.canvas)
   const pick = useAssetPick(scene.assets, scene.canvas)
   const pressed = useRef<{ x: number; y: number } | null>(null)
 
@@ -127,6 +128,7 @@ export function MapBuilderCanvas(props: Props) {
           onPaint={props.onPaint}
           onWheel={viewport.onWheel}
           onPan={viewport.onPan}
+          onPanning={viewport.follow}
         />
       )}
       {props.armed && (

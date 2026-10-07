@@ -35,13 +35,18 @@ export function useBuilderViewport(
   // Where the view really is, ahead of "view" while a gesture goes on.
   const live = useRef(view)
   const settle = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  // Whoever wants the view as it moves, which "view" does not say until it stops
+  // (the navigator's rectangle).
+  const watchers = useRef(new Set<(view: BuilderView) => void>())
   useLayoutEffect(() => {
     live.current = view
+    watchers.current.forEach((watcher) => watcher(view))
   }, [view])
 
   const moveTo = useCallback(
     (next: BuilderView) => {
       live.current = next
+      watchers.current.forEach((watcher) => watcher(next))
       const target = stage.current
       if (!target) return setView(next)
       target.position({ x: next.x, y: next.y })
@@ -143,6 +148,33 @@ export function useBuilderViewport(
     [inset, size]
   )
 
+  // How far in and out the zoom goes.
+  const limits = useMemo(() => ({ min: fitted(size).scale * MIN_OF_FIT, max: MAX_SCALE }), [fitted, size])
+
+  const subscribe = useCallback((watcher: (view: BuilderView) => void) => {
+    watchers.current.add(watcher)
+    return () => {
+      watchers.current.delete(watcher)
+    }
+  }, [])
+
+  // Moves the view to have a point of the canvas in the middle of what can be seen.
+  const centreOn = useCallback(
+    (point: { x: number; y: number }) => {
+      const { scale } = live.current
+      moveTo({ scale, x: seenMiddle.x - point.x * scale, y: seenMiddle.y - point.y * scale })
+    },
+    [moveTo, seenMiddle]
+  )
+
+  // The stage is being dragged by the hand tool: the view follows it, unsaid.
+  const follow = useCallback((x: number, y: number) => {
+    live.current = { ...live.current, x, y }
+    watchers.current.forEach((watcher) => watcher(live.current))
+  }, [])
+
+  const liveView = useCallback(() => live.current, [])
+
   // The middle of what is in view, on the canvas.
   const centre = useCallback(
     () =>
@@ -159,6 +191,12 @@ export function useBuilderViewport(
   return {
     container,
     centre,
+    centreOn,
+    follow,
+    subscribe,
+    limits,
+    inset,
+    liveView,
     onMiddlePan,
     size,
     view,

@@ -5,6 +5,7 @@ import { useBuilderShortcuts } from "@/hooks/use-builder-shortcuts"
 import { useBuilderTools } from "@/hooks/use-builder-tools"
 import { useMapStyle } from "@/hooks/use-map-style"
 import { useBuilderViewport } from "@/hooks/use-builder-viewport"
+import { useTerrain } from "@/hooks/use-terrain"
 import { useHeldModifiers } from "@/hooks/use-held-modifiers"
 import { useLandDrawing } from "@/hooks/use-land-drawing"
 import { useMapImageUpload } from "@/hooks/use-map-image-upload"
@@ -53,6 +54,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
     stage,
     panelOpen ? TOOL_PANEL_INSET.open : TOOL_PANEL_INSET.closed
   )
+  const terrain = useTerrain(scene.canvas)
   const pointer = useRef<{ x: number; y: number } | null>(null)
   const upload = useMapImageUpload({
     campaignId,
@@ -136,6 +138,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
             />
             <MapBuilderCanvas
               scene={landStyle.shown}
+              terrain={terrain}
               tool={tools.activeTool}
               cutting={cutting}
               editable={!publishing && !tools.armed}
@@ -162,8 +165,10 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           />
         </div>
         <MapRightPanel
-          assets={scene.assets}
+          scene={scene}
           editing={editing}
+          terrain={terrain}
+          viewport={viewport}
           settings={
             <MapSettings
               canvas={scene.canvas}
@@ -175,7 +180,6 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           }
           armed={tools.armed}
           onArm={tools.armAsset}
-          viewScale={viewport.view.scale}
           disabled={publishing}
         />
       </div>

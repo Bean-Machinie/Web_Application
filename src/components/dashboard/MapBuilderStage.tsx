@@ -47,6 +47,8 @@ type Props = {
   altHeld: boolean
   onWheel: (event: Konva.KonvaEventObject<WheelEvent>) => void
   onPan: (x: number, y: number) => void
+  // While the stage is being dragged.
+  onPanning: (x: number, y: number) => void
 }
 
 // The canvas, drawn in three layers, since every layer is a canvas of the page's
@@ -80,6 +82,9 @@ export function MapBuilderStage(props: Props) {
       // tool (see useBuilderViewport).
       draggable={tool === "hand"}
       onWheel={onWheel}
+      onDragMove={(event) => {
+        if (event.target === event.target.getStage()) props.onPanning(event.target.x(), event.target.y())
+      }}
       onDragEnd={(event) => {
         if (event.target === event.target.getStage()) onPan(event.target.x(), event.target.y())
       }}
