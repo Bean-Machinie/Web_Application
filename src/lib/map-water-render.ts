@@ -79,7 +79,9 @@ export function renderWater(
             const own = noise[k]
             const wobble = (sway * 0.35 + own.wander(x, y) * 0.65 - 0.5) * 2 * sizes.swing * ring.amp
             const shake = (own.shake(x, y) - 0.5) * 2 * sizes.tremor
-            const across = Math.abs(distance + wobble + shake - ring.centre)
+            // However it wanders, a line stays clear of the dark band at the coast.
+            const at = Math.max(ring.centre - wobble - shake, sizes.band * 0.8 + ring.half)
+            const across = Math.abs(distance - at)
             // Swells and thins like pen pressure, and fades away where the
             // line breaks.
             const pressure = Math.max(1 + (own.swell(x, y) - 0.5) * 1.4 * style.variation, 0.5)

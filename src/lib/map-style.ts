@@ -24,11 +24,11 @@ export const STYLE_LIMITS = {
 }
 
 export const DEFAULT_STYLE: MapStyle = {
-  roundness: 0.8,
-  outline: 3,
-  rings: 5,
-  thickness: 4,
-  spacing: 28,
+  roundness: 0.2,
+  outline: 2.5,
+  rings: 4,
+  thickness: 2.5,
+  spacing: 10,
   variation: 0.5,
 }
 

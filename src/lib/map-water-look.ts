@@ -60,10 +60,12 @@ export function makeRings(count: number, style: WaterStyle, sizes: Sizes, seed: 
   let centre = sizes.first
   for (let k = 0; k < count; k++) {
     const gap = spacing * (1 + (next() - 0.5) * 0.9 * variation)
-    const amp = 0.7 + 0.6 * next()
+    const own = 0.7 + 0.6 * next()
     const weight = 1 + (next() - 0.5) * 0.3 * variation
     if (k > 0) centre += gap
     const along = k / Math.max(count - 1, 1)
+    // The inner rings follow the coast closely; the wander builds up outwards.
+    const amp = own * (0.3 + 0.7 * along)
     const half = Math.max(((sizes.near + (sizes.far - sizes.near) * along) / 2) * weight, sizes.least)
     // Without variation nothing breaks: the cut sits below any noise.
     const cut = -0.3 + (0.4 + 0.25 * along) * variation
