@@ -14,6 +14,9 @@ export type Ground = {
   backdrop: HTMLCanvasElement
   seaGrain: HTMLImageElement | null
   landGrain: HTMLImageElement | null
+  // The painted land, where there is a tile, of any size: it is used as painted,
+  // and the land's colour and grain are not.
+  landTexture: HTMLCanvasElement | null
   // The land as it is shown, rounded.
   land: MultiPolygon
   // The biome paint, read when art picks its ink. A box so that it can change
@@ -35,7 +38,20 @@ export function drawGround(context: CanvasRenderingContext2D, rect: Rect, scale:
   context.setTransform(scale, 0, 0, scale, -rect.x * scale, -rect.y * scale)
   context.imageSmoothingQuality = "high"
 
-  context.drawImage(backdrop, rect.x, rect.y, rect.width, rect.height, rect.x, rect.y, rect.width, rect.height)
+  // The backdrop may be a picture of any size, so it is read by shares of it.
+  const sideways = backdrop.width / canvas.width
+  const down = backdrop.height / canvas.height
+  context.drawImage(
+    backdrop,
+    rect.x * sideways,
+    rect.y * down,
+    rect.width * sideways,
+    rect.height * down,
+    rect.x,
+    rect.y,
+    rect.width,
+    rect.height
+  )
   const grain = (image: HTMLImageElement | null, amount: number, fill: () => void) => {
     if (!image) return
     context.save()
@@ -49,20 +65,40 @@ export function drawGround(context: CanvasRenderingContext2D, rect: Rect, scale:
 
   if (land.length > 0) {
     traceLand(context, land)
-    context.fillStyle = css(theme.land.fill)
-    context.fill("evenodd")
-    grain(ground.landGrain, theme.land.grain, () => context.fill("evenodd"))
+    if (ground.landTexture) {
+      const texture = ground.landTexture
+      context.save()
+      context.clip("evenodd")
+      const across = texture.width / canvas.width
+      const high = texture.height / canvas.height
+      context.drawImage(
+        texture,
+        rect.x * across,
+        rect.y * high,
+        rect.width * across,
+        rect.height * high,
+        rect.x,
+        rect.y,
+        rect.width,
+        rect.height
+      )
+      context.restore()
+    } else {
+      context.fillStyle = css(theme.land.fill)
+      context.fill("evenodd")
+      grain(ground.landGrain, theme.land.grain, () => context.fill("evenodd"))
+    }
     if (biomes) {
       context.save()
       context.clip("evenodd")
       const across = biomes.width / canvas.width
-      const down = biomes.height / canvas.height
+      const high = biomes.height / canvas.height
       context.drawImage(
         biomes,
         rect.x * across,
-        rect.y * down,
+        rect.y * high,
         rect.width * across,
-        rect.height * down,
+        rect.height * high,
         rect.x,
         rect.y,
         rect.width,

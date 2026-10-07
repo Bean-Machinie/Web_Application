@@ -62,7 +62,7 @@ All of these are set in `src/lib/map-theme.ts`, under `paint` (`grade`,
 Some painted art changes colour with the biome it stands on, so a forest looks
 right on desert, in swamp and on ice. This is **opt-in per category**, in
 `RECOLOURS` in `src/lib/map-assets.ts`. At the moment **`forests`**,
-**`mountains`** and **`desert-trees`** change. Buildings and everything else are
+**`mountains`**, **`hills`** and **`desert-trees`** change. Buildings and everything else are
 drawn as painted. Ink art never changes. A folder's name is its category, with
 spaces and dashes counting the same (`desert trees` and `desert-trees` are one).
 
@@ -118,6 +118,15 @@ on desert ground itself: it is the tree's resting look, set by `base` in
 `RECOLOURS`, so the painting as exported is only the start of it. The pale
 highlights on the trunk are told apart from the leaves by being less saturated,
 so keep the trunk's lights paler than the leaves.
+
+### Hills
+
+Hills are golden meadow with orange-brown ridges and teal shadows. The sunlit
+meadow is picked as the grass, and the shaded sides and ridges are the rock, and
+both change. Their colours on ice, swamp and volcanic ground are the same as the
+mountains', so hills and mountains match on every ground; on desert they are
+sandy dunes. Their resting look, on plains, is a green meadow (`base: "plains"`
+in `RECOLOURS`), so the painting's golden colours are only the start of it.
 
 ### Choosing the grass with a mask
 

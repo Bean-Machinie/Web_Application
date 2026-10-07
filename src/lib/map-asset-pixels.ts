@@ -51,6 +51,17 @@ export function grade(pixels: Uint8ClampedArray, look: PaintLook["grade"], extra
   }
 }
 
+// Tints in place: the colours multiplied toward "colour" by "amount", 0 to 1.
+export function tint(pixels: Uint8ClampedArray, colour: Rgb, amount: number) {
+  if (amount <= 0) return
+  const factor = colour.map((value) => 1 - amount + (amount * value) / 255)
+  for (let i = 0; i < pixels.length; i += 4) {
+    pixels[i] *= factor[0]
+    pixels[i + 1] *= factor[1]
+    pixels[i + 2] *= factor[2]
+  }
+}
+
 // An average over 2r + 1 along each row and then each column, twice over, which
 // is close to a soft blur.
 function blur(alpha: Float32Array, w: number, h: number, r: number) {

@@ -122,7 +122,7 @@ export function paintedArtFor(
   let found: { surfaces: Surfaces; ranges: Record<keyof Surfaces, { low: number; high: number }> } | null = null
 
   // The painting taken to a biome's colours, or null if nothing in it changes there.
-  const recoloured = (biome: Biome) => {
+  const recoloured = (biome: Biome | "plains") => {
     if (!found) {
       const parts = surfaces(source, maskPixels(info, w, h), recolourOf(category))
       const rangeOf = (amount: Float32Array | null) => (amount ? lightRange(source, amount) : { low: 0, high: 1 })
@@ -133,6 +133,7 @@ export function paintedArtFor(
     }
     // What each surface becomes here, if anything; a surface with none stays as painted.
     const ramps = (look.recolour[categoryKey(category)] ?? look.recolour.default)[biome]
+    if (!ramps) return null
     const parts = (["grass", "snow", "rock"] as const).flatMap((surface) => {
       const amount = found!.surfaces[surface]
       const ramp = ramps[surface]

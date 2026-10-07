@@ -4,6 +4,7 @@ import { MAP_MAX_BYTES } from "./resize-map-image"
 import type { PreparedMap } from "./resize-map-image"
 import { exportAssets, sharpAssets } from "./map-export-assets"
 import { exportBiomes, sharpBiomes } from "./map-export-biomes"
+import { exportTerrain, sharpTerrain } from "./map-export-terrain"
 import { sharpWater } from "./map-export-water"
 import { BUILT_MAX_ZOOM, renderScale } from "./map-scene"
 import type { MapScene } from "./map-scene"
@@ -24,8 +25,9 @@ export async function exportCanvas(
 ): Promise<PreparedMap> {
   const { canvas } = scene
   // The slow, asynchronous drawing is done before the stage is touched.
-  const biomes = exportBiomes(scene)
-  const art = await exportAssets(scene, biomes)
+  const terrain = await exportTerrain(scene)
+  const biomes = exportBiomes(scene, terrain)
+  const art = await exportAssets(scene, biomes, terrain)
   const { x, y } = stage.position()
   const scale = stage.scaleX()
   const chrome = stage.find<Konva.Layer>(".chrome")
@@ -36,9 +38,11 @@ export async function exportCanvas(
   let restoreWater = () => {}
   let restoreBiomes = () => {}
   let restoreAssets = () => {}
+  let restoreTerrain = () => {}
   let drawn: HTMLCanvasElement
   try {
     restoreWater = sharpWater(stage, scene)
+    restoreTerrain = sharpTerrain(stage, terrain)
     restoreBiomes = sharpBiomes(stage, biomes)
     restoreAssets = sharpAssets(stage, art)
     drawn = stage.toCanvas({
@@ -52,6 +56,7 @@ export async function exportCanvas(
     restoreWater()
     restoreBiomes()
     restoreAssets()
+    restoreTerrain()
     stage.scale({ x: scale, y: scale })
     stage.position({ x, y })
     chrome.forEach((layer) => layer.show())

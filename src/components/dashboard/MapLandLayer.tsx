@@ -15,10 +15,14 @@ type Props = {
   // As it is shown, its corners already rounded.
   land: MultiPolygon
   background: SceneBackground
+  // The painted ground, where there is a tile for it, and how many of its pixels
+  // go to a canvas pixel; without one the land is its colour and grain.
+  texture: HTMLCanvasElement | null
+  textureScale: number
 }
 
 // All the land, in the scene's fixed place above the background.
-export function MapLandLayer({ land: shown, background }: Props) {
+export function MapLandLayer({ land: shown, background, texture, textureScale }: Props) {
   const { fill, grain: grainAmount, shadow } = themeFor(background).land
   const grain = useTexture(landGrain)
 
@@ -33,14 +37,20 @@ export function MapLandLayer({ land: shown, background }: Props) {
           traceFill(context)
           context.fillShape(shape)
         }}
-        fill={css(fill)}
+        name="land-fill"
+        fill={texture ? undefined : css(fill)}
+        // Konva takes any picture here, a canvas as well as an image element.
+        fillPatternImage={(texture ?? undefined) as unknown as HTMLImageElement | undefined}
+        fillPatternScale={{ x: 1 / textureScale, y: 1 / textureScale }}
+        fillPatternRepeat="no-repeat"
+        fillPriority={texture ? "pattern" : "color"}
         fillRule="evenodd"
         shadowColor={shadow.colour}
         shadowBlur={shadow.blur}
         shadowOffsetY={shadow.offsetY}
         shadowOpacity={shadow.opacity}
       />
-      {grain && (
+      {grain && !texture && (
         <Shape
           sceneFunc={(context, shape) => {
             traceFill(context)

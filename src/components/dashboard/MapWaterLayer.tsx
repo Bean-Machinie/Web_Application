@@ -14,11 +14,13 @@ type Props = {
   canvas: MapScene["canvas"]
   view: BuilderView
   size: { width: number; height: number }
+  // The sea is a painted tile, which is used as painted, so it has no grain over it.
+  painted: boolean
 }
 
 // The sea around the land: a dark band along the coast and light wavy lines
 // spreading out from it, with paper grain over the sea, below the land.
-export function MapWaterLayer({ land, style, canvas, view, size }: Props) {
+export function MapWaterLayer({ land, style, canvas, view, size, painted }: Props) {
   const water = useWaterImage(land, style, canvas, view, size)
   // Tiles are mid-grey, so overlay leaves the colours as they are and only adds
   // the grain.
@@ -29,7 +31,7 @@ export function MapWaterLayer({ land, style, canvas, view, size }: Props) {
       <Layer listening={false}>
         {water && <KonvaImage name="water" image={water.image} {...water.region} />}
       </Layer>
-      {grain && (
+      {grain && !painted && (
         <Layer listening={false} globalCompositeOperation="overlay" opacity={grainAmount}>
           <Rect
             width={canvas.width}

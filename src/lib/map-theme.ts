@@ -32,6 +32,9 @@ export type PaintLook = {
   // contrast are 1 for no change, brightness is added (0 for none), and the tint
   // multiplies the colours toward it by "tintAmount".
   grade: { saturation: number; contrast: number; brightness: number; tint: Rgb; tintAmount: number }
+  // The light tint over painted ground (the tiles in src/assets/textures), on top
+  // of the grade above; none when the amount is 0.
+  terrainTint: { tint: Rgb; amount: number }
   // Sharpening when art is drawn smaller than it was painted, so that brush
   // texture stays readable. This is the most, at a strong shrinking, 0 to 1; it
   // is gentle, because more makes halos on brushstrokes. "smallContrast" is the
@@ -45,7 +48,7 @@ export type PaintLook = {
   // and darks, in these colours. There is a set for each category that needs its
   // own; "default" is what the rest use. Plains keeps the painting as it is, so
   // it has none. A surface left out, or null, stays as painted in that biome.
-  recolour: Record<string, Record<Biome, Surfaced>>
+  recolour: Record<string, Record<Biome, Surfaced> & { plains?: Surfaced }>
 }
 
 export type MapTheme = {
@@ -151,11 +154,26 @@ const DESERT_TREES: Record<Biome, Surfaced> = {
   },
 }
 
+// Hills: the same ground colours as the slopes and rock of the mountains, so the
+// two match on every biome, and a green meadow of their own for plains, which is
+// the look they rest in where nothing is painted.
+const HILLS: Record<Biome, Surfaced> & { plains: Surfaced } = {
+  plains: {
+    grass: [[0, [44, 56, 22]], [0.5, [112, 124, 52]], [1, [192, 196, 100]]],
+    rock: [[0, [30, 38, 22]], [0.5, [92, 98, 50]], [1, [160, 156, 96]]],
+  },
+  ice: { grass: MOUNTAINS.ice.grass, rock: MOUNTAINS.ice.rock },
+  // Sandier than the mountains' red rock: hills are dunes here, not cliffs.
+  desert: { grass: MOUNTAINS.desert.grass, rock: [[0, [74, 52, 32]], [0.5, [150, 114, 74]], [1, [208, 178, 130]]] },
+  swamp: { grass: MOUNTAINS.swamp.grass, rock: MOUNTAINS.swamp.rock },
+  volcanic: { grass: MOUNTAINS.volcanic.grass, rock: MOUNTAINS.volcanic.rock },
+}
+
 const PAINT = {
   sharpen: 0.3,
   smallContrast: 0.05,
   shadow: { colour: [30, 24, 16] as Rgb, opacity: 0.32, blur: 0.06 },
-  recolour: { default: FOLIAGE, mountains: MOUNTAINS, "desert-trees": DESERT_TREES },
+  recolour: { default: FOLIAGE, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES },
 }
 
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }
@@ -169,7 +187,11 @@ const THEMES: Record<SceneBackground, MapTheme> = {
     land: { fill: PARCHMENT_LAND.fill, grain: 0.4, shadow: SHADOW },
     biomes: muted(PARCHMENT_LAND),
     water: { dark: [96, 66, 36], darkAlpha: 0.42, light: [255, 252, 240], lightAlpha: 0.95, grain: 0.3 },
-    paint: { ...PAINT, grade: { saturation: 0.92, contrast: 1.03, brightness: 0, tint: [255, 232, 190], tintAmount: 0.1 } },
+    paint: {
+      ...PAINT,
+      grade: { saturation: 0.92, contrast: 1.03, brightness: 0, tint: [255, 232, 190], tintAmount: 0.1 },
+      terrainTint: { tint: [255, 238, 205], amount: 0.06 },
+    },
   },
   ocean: {
     ink: [34, 34, 30],
@@ -177,7 +199,11 @@ const THEMES: Record<SceneBackground, MapTheme> = {
     land: { fill: [198, 209, 147], grain: 0.4, shadow: SHADOW },
     biomes: BIOMES,
     water: { dark: [8, 38, 58], darkAlpha: 0.45, light: [214, 244, 248], lightAlpha: 0.85, grain: 0.3 },
-    paint: { ...PAINT, grade: { saturation: 1, contrast: 1.03, brightness: 0, tint: [255, 244, 220], tintAmount: 0.04 } },
+    paint: {
+      ...PAINT,
+      grade: { saturation: 1, contrast: 1.03, brightness: 0, tint: [255, 244, 220], tintAmount: 0.04 },
+      terrainTint: { tint: [255, 255, 255], amount: 0 },
+    },
   },
 }
 

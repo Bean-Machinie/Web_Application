@@ -7,6 +7,7 @@ import { useAssetPictures } from "@/hooks/use-asset-pictures"
 import type { BuilderView } from "@/hooks/use-builder-viewport"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { Surface } from "@/lib/biomes/surface"
+import type { Terrain } from "@/lib/terrain"
 import { artFor } from "@/lib/map-asset-art"
 import { paintedArtFor } from "@/lib/map-asset-paint"
 import type { AssetPatch } from "@/lib/map-asset-edit"
@@ -26,6 +27,7 @@ type Props = {
   land: MultiPolygon
   paint: Paint
   surface: Surface
+  terrain: Terrain
   backdrop: HTMLCanvasElement
   view: BuilderView
   size: { width: number; height: number }

@@ -8,6 +8,7 @@ import { loadAssetInfo, loadedAssetInfo } from "./map-assets"
 import { renderBackground } from "./map-background"
 import { smoothLand } from "./map-coast-smooth"
 import type { Ground } from "./map-ground"
+import type { Terrain } from "./terrain"
 import { renderScale } from "./map-scene"
 import type { MapScene } from "./map-scene"
 import { loadTexture } from "./map-textures"
@@ -17,7 +18,11 @@ import { themeFor } from "./map-theme"
 // larger, so the art is drawn again for it, from the same pieces and the same
 // ground, at that size: the ink is made from the artwork at the size it ends up,
 // so it is as sharp as the picture allows. Null if there is nothing to draw.
-export async function exportAssets(scene: MapScene, biomes: HTMLCanvasElement | null): Promise<Picture | null> {
+export async function exportAssets(
+  scene: MapScene,
+  biomes: HTMLCanvasElement | null,
+  terrain: Terrain
+): Promise<Picture | null> {
   const { canvas } = scene
   await Promise.all(scene.assets.map((asset) => loadAssetInfo(asset.asset)))
   const pieces = makePieces(scene.assets, loadedAssetInfo, new Set())
@@ -27,9 +32,11 @@ export async function exportAssets(scene: MapScene, biomes: HTMLCanvasElement | 
   const ground: Ground = {
     canvas,
     background: canvas.background,
-    backdrop: renderBackground(canvas),
-    seaGrain,
-    landGrain,
+    backdrop: terrain.sea ?? renderBackground(canvas),
+    // Painted ground is used as painted, so it has no grain over it.
+    seaGrain: terrain.sea ? null : seaGrain,
+    landGrain: terrain.land ? null : landGrain,
+    landTexture: terrain.land,
     land: smoothLand(scene.land, scene.style.roundness, canvas),
     paint: { current: scene.paint },
     biomes,

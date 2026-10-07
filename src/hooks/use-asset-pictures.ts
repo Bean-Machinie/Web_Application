@@ -5,6 +5,7 @@ import waterGrainUrl from "@/assets/textures/water-grain.png"
 import { PAINT_CELL, TILE } from "@/lib/biomes/biomes"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { Surface } from "@/lib/biomes/surface"
+import type { Terrain } from "@/lib/terrain"
 import { indexPieces, makePieces } from "@/lib/map-asset-pieces"
 import type { Piece, Rect } from "@/lib/map-asset-pieces"
 import { createPictures } from "@/lib/map-asset-pictures"
@@ -78,6 +79,7 @@ type Input = {
   land: MultiPolygon
   paint: Paint
   surface: Surface
+  terrain: Terrain
   canvas: MapScene["canvas"]
   // The sheet or sea under everything.
   backdrop: HTMLCanvasElement
@@ -90,7 +92,7 @@ type Input = {
 // paint under it redraws only the places near it; a change to the land, or to
 // what the ground is made of, redraws everything.
 export function useAssetPictures(input: Input) {
-  const { assets, hidden, land, paint, surface, canvas, backdrop, view, size } = input
+  const { assets, hidden, land, paint, surface, terrain, canvas, backdrop, view, size } = input
   const { width, height, background } = canvas
   const pictures = useMemo(() => createPictures({ width, height }), [width, height])
   const infoOf = useAssetInfos(assets.map((asset) => asset.asset))
@@ -115,13 +117,15 @@ export function useAssetPictures(input: Input) {
       canvas: { width, height },
       background,
       backdrop,
-      seaGrain,
-      landGrain,
+      // Painted ground is used as painted, so it has no grain over it.
+      seaGrain: terrain.sea ? null : seaGrain,
+      landGrain: terrain.land ? null : landGrain,
+      landTexture: terrain.land,
       land,
       paint: paintBox.current,
       biomes: painted ? surface.picture : null,
     }),
-    [width, height, background, backdrop, seaGrain, landGrain, land, surface, painted]
+    [width, height, background, backdrop, seaGrain, landGrain, terrain.sea, terrain.land, land, surface, painted]
   )
   const drawing = useMemo(
     () => ({ pieces, near: indexPieces(pieces, { width, height }), ground, colours }),

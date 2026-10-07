@@ -10,6 +10,7 @@ import type { Pair } from "polygon-clipping"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import { useBiomeSurface } from "@/hooks/use-biome-surface"
+import { useTerrain } from "@/hooks/use-terrain"
 import type { Brush } from "@/hooks/use-brush"
 import { landMask } from "@/lib/biomes/land-mask"
 import { gridSize } from "@/lib/biomes/paint-tiles"
@@ -47,9 +48,11 @@ type Props = {
 export function MapBuilderStage(props: Props) {
   const { scene, size, view, stageRef, tool, cutting, editable, editing, onWheel, onPan } = props
   const { canvas } = scene
-  const background = useMemo(() => renderBackground(canvas), [canvas])
+  const terrain = useTerrain(canvas)
+  // The sea is the painted tile where there is one, and made by the code where not.
+  const background = useMemo(() => terrain.sea ?? renderBackground(canvas), [canvas, terrain.sea])
   const land = useShownLand(scene.land, scene.style.roundness, canvas)
-  const surface = useBiomeSurface(canvas)
+  const surface = useBiomeSurface(canvas, terrain)
   // Paint sticks where the land is as it is shown, rounded corners and all, so
   // that none of the land you see is out of its reach.
   const mask = useMemo(() => ({ mask: landMask(land, canvas), ...gridSize(canvas) }), [land, canvas])
@@ -84,16 +87,17 @@ export function MapBuilderStage(props: Props) {
         />
       </Layer>
       <Layer listening={false}>
-        <KonvaImage image={background} width={canvas.width} height={canvas.height} />
+        <KonvaImage name="sea" image={background} width={canvas.width} height={canvas.height} />
       </Layer>
-      <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} />
-      <MapLandLayer land={land} background={canvas.background} />
+      <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} painted={terrain.sea !== null} />
+      <MapLandLayer land={land} background={canvas.background} texture={terrain.land} textureScale={terrain.scale} />
       <MapBiomeLayer land={land} canvas={canvas} style={scene.style} paint={scene.paint} surface={surface} />
       <MapAssetsLayer
         canvas={canvas}
         land={land}
         paint={scene.paint}
         surface={surface}
+        terrain={terrain}
         backdrop={background}
         view={view}
         size={size}
