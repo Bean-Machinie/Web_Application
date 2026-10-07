@@ -1,34 +1,51 @@
-import { useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useAssetThumb } from "@/hooks/use-asset-thumb"
 import { defaultWidth, loadAssetInfo, loadedAssetInfo } from "@/lib/map-assets"
 import type { MapAsset } from "@/lib/map-assets"
+import { cn } from "@/lib/utils"
 
 type Props = {
   asset: MapAsset
+  // Picked to be stamped on the map.
+  armed: boolean
   // How many screen pixels one canvas pixel is right now.
   viewScale: number
-  onPlace: (id: string) => void
+  onArm: (id: string) => void
 }
 
-// One piece of art in the library: click to place it in the middle of the view,
-// or drag it onto the canvas. What follows the pointer while dragging is the art
-// itself, at the size it will have where it lands at the current zoom, held by
-// the middle of what is painted, as it is when it is dropped.
-export function MapAssetTile({ asset, viewScale, onPlace }: Props) {
-  // Measured ahead, so the preview is right the moment a drag starts.
+// One piece of art in the library, as a small picture: click it to pick it up and
+// stamp it on the map, or drag it onto the canvas. Its name shows on hover. The
+// picture is a thumbnail made when the tile first comes into view; the full-size
+// art is only loaded when the pointer reaches the tile. What follows the pointer
+// when dragging is the art itself, at the size it will have where it lands at
+// the current zoom, held by the middle of what is painted.
+export function MapAssetTile({ asset, armed, viewScale, onArm }: Props) {
+  const tile = useRef<HTMLButtonElement>(null)
+  const [seen, setSeen] = useState(false)
+  const thumb = useAssetThumb(asset.id, seen)
+
   useEffect(() => {
-    void loadAssetInfo(asset.id)
-  }, [asset.id])
+    const element = tile.current
+    if (!element || seen) return
+    const watch = new IntersectionObserver(([entry]) => entry.isIntersecting && setSeen(true), {
+      rootMargin: "200px",
+    })
+    watch.observe(element)
+    return () => watch.disconnect()
+  }, [seen])
 
   function startDrag(event: React.DragEvent<HTMLButtonElement>) {
     event.dataTransfer.setData("application/x-map-asset", asset.id)
     event.dataTransfer.effectAllowed = "copy"
+    // Measured on arrival of the pointer, so it is nearly always there by now;
+    // without it the drag shows the tile.
     const info = loadedAssetInfo(asset.id)
-    const picture = event.currentTarget.querySelector("img")
-    if (!info || !picture) return
+    if (!info) return
     const { trim, image } = info
     // Pixels on screen for each pixel of the picture.
     const factor = (defaultWidth(asset.category) * viewScale) / trim.width
-    const ghost = picture.cloneNode() as HTMLImageElement
+    const ghost = image.cloneNode() as HTMLImageElement
     Object.assign(ghost.style, {
       position: "fixed",
       top: "-10000px",
@@ -48,23 +65,34 @@ export function MapAssetTile({ asset, viewScale, onPlace }: Props) {
   }
 
   return (
-    <button
-      type="button"
-      draggable
-      title={asset.name}
-      onClick={() => onPlace(asset.id)}
-      onDragStart={startDrag}
-      className="group/tile bg-card hover:border-foreground/25 focus-visible:ring-ring flex flex-col overflow-hidden rounded-lg border text-left outline-none transition-colors focus-visible:ring-2"
-    >
-      <span className="bg-muted/60 flex aspect-square items-center justify-center p-2">
-        <img
-          src={asset.url}
-          alt=""
-          draggable={false}
-          className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover/tile:scale-105"
-        />
-      </span>
-      <span className="truncate px-2 py-1.5 text-xs font-medium">{asset.name}</span>
-    </button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          ref={tile}
+          type="button"
+          draggable
+          aria-label={asset.name}
+          aria-pressed={armed}
+          onPointerEnter={() => void loadAssetInfo(asset.id)}
+          onFocus={() => void loadAssetInfo(asset.id)}
+          onClick={() => onArm(asset.id)}
+          onDragStart={startDrag}
+          className={cn(
+            "group/tile bg-muted/60 hover:border-foreground/25 focus-visible:ring-ring flex aspect-square items-center justify-center overflow-hidden rounded-md border p-1.5 outline-none transition-colors focus-visible:ring-2",
+            armed && "border-ring bg-secondary ring-ring ring-2"
+          )}
+        >
+          {thumb && (
+            <img
+              src={thumb}
+              alt=""
+              draggable={false}
+              className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover/tile:scale-105"
+            />
+          )}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>{asset.name}</TooltipContent>
+    </Tooltip>
   )
 }

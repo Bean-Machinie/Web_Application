@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import type { MutableRefObject, RefObject } from "react"
 import type Konva from "konva"
 import type { Pair } from "polygon-clipping"
@@ -10,6 +10,7 @@ import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { useBuilderViewport } from "@/hooks/use-builder-viewport"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 import type { MapScene } from "@/lib/map-scene"
+import { MapArmedGhost } from "./MapArmedGhost"
 import { MapBuilderStage } from "./MapBuilderStage"
 import { MapContextMenu } from "./MapContextMenu"
 import type { ContextSpot } from "./MapContextMenu"
@@ -23,6 +24,9 @@ type Props = {
   shift: boolean
   editing: AssetEditing
   showAssets: boolean
+  // The art picked in the library, stamped by every click on the canvas.
+  armed: string | null
+  onStamp: (asset: string, at: { x: number; y: number }) => void
   brush: Brush
   viewport: ReturnType<typeof useBuilderViewport>
   stageRef: RefObject<Konva.Stage | null>
@@ -32,6 +36,10 @@ type Props = {
   onPaint: (paint: Paint) => void
 }
 
+// A press that moves further than this (screen pixels) before it is let go is a
+// drag, not a click, and stamps nothing.
+const STAMP_SLOP = 4
+
 const CURSORS: Record<BuilderTool, string> = {
   hand: "cursor-grab active:cursor-grabbing",
   land: "cursor-crosshair",
@@ -40,13 +48,14 @@ const CURSORS: Record<BuilderTool, string> = {
   select: "cursor-default",
 }
 
-// The canvas area: the stage, dropping art from the library,
-// and the right-click menu.
+// The canvas area: the stage, dropping art from the library, stamping the art
+// that was picked there, and the right-click menu.
 export function MapBuilderCanvas(props: Props) {
   const { scene, tool, editing, viewport, stageRef, pointer } = props
   const [spot, setSpot] = useState<ContextSpot | null>(null)
   const terrain = useTerrain(scene.canvas)
   const pick = useAssetPick(scene.assets, scene.canvas)
+  const pressed = useRef<{ x: number; y: number } | null>(null)
 
   const place = (event: { nativeEvent: MouseEvent | DragEvent }) => {
     const stage = stageRef.current
@@ -58,7 +67,19 @@ export function MapBuilderCanvas(props: Props) {
   return (
     <div
       ref={viewport.container}
-      onPointerDown={viewport.onMiddlePan}
+      onPointerDown={(event) => {
+        viewport.onMiddlePan(event)
+        pressed.current = event.button === 0 ? { x: event.clientX, y: event.clientY } : null
+      }}
+      onPointerUp={(event) => {
+        const start = pressed.current
+        pressed.current = null
+        // While the hand is out (Space), a click is the end of a pan.
+        if (!props.armed || !start || tool === "hand") return
+        if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > STAMP_SLOP) return
+        const at = place(event)
+        if (at) props.onStamp(props.armed, at)
+      }}
       onPointerMove={(event) => {
         pointer.current = place(event)
       }}
@@ -83,7 +104,7 @@ export function MapBuilderCanvas(props: Props) {
         if (id && !editing.selected.includes(id)) editing.select(id, false)
         setSpot({ x: event.clientX, y: event.clientY, at, onAsset: id !== null })
       }}
-      className={`bg-muted relative min-w-0 flex-1 touch-none overflow-hidden ${CURSORS[tool]}`}
+      className={`bg-muted relative min-w-0 flex-1 touch-none overflow-hidden ${props.armed ? "cursor-crosshair" : CURSORS[tool]}`}
     >
       {viewport.size.width > 0 && terrain && (
         <MapBuilderStage
@@ -105,6 +126,9 @@ export function MapBuilderCanvas(props: Props) {
           onWheel={viewport.onWheel}
           onPan={viewport.onPan}
         />
+      )}
+      {props.armed && (
+        <MapArmedGhost asset={props.armed} viewScale={viewport.view.scale} area={viewport.container} />
       )}
       <MapContextMenu spot={spot} editing={editing} onClose={() => setSpot(null)} />
     </div>

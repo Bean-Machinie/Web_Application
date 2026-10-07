@@ -13,6 +13,8 @@ type Props = {
   editing: AssetEditing
   // The map's settings, for the Map tab.
   settings: React.ReactNode
+  armed: string | null
+  onArm: (id: string) => void
   viewScale: number
   disabled: boolean
 }
@@ -20,7 +22,7 @@ type Props = {
 // The panel on the right, as two groups with a border between them that can be
 // dragged: tabs for the map and for what is selected above, the library below.
 // Each group scrolls on its own.
-export function MapRightPanel({ assets, editing, settings, viewScale, disabled }: Props) {
+export function MapRightPanel({ assets, editing, settings, armed, onArm, viewScale, disabled }: Props) {
   const layout = useRightPanelLayout()
   const selected = assets.some((asset) => editing.selected.includes(asset.id))
   const [tab, pick] = useSelectionTab(selected)
@@ -57,7 +59,8 @@ export function MapRightPanel({ assets, editing, settings, viewScale, disabled }
         <ResizableHandle className="data-[separator=active]:bg-foreground/30 data-[separator=hover]:bg-foreground/20" />
         <ResizablePanel id="library" defaultSize="55%" minSize="20%">
           <MapAssetPanel
-            onPlace={(id) => void editing.place(id)}
+            armed={armed}
+            onArm={onArm}
             viewScale={viewScale}
             disabled={disabled}
           />

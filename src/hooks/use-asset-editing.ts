@@ -64,9 +64,10 @@ export function useAssetEditing({ assets, change, centre, pointer, onPlaced }: O
   }, [])
 
   // Placed at a point, or at the middle of the view, at the category's usual
-  // size, and chosen at once so it can be adjusted.
+  // size, and chosen at once so it can be adjusted. A stamp is left as it is, so
+  // the next can follow: it is not chosen, and the tool does not change.
   const place = useCallback(
-    async (assetId: string, at?: Point) => {
+    async (assetId: string, at?: Point, stamp = false) => {
       const asset = assetById(assetId)
       const info = asset && (await loadAssetInfo(assetId))
       if (!asset || !info) return
@@ -83,6 +84,7 @@ export function useAssetEditing({ assets, change, centre, pointer, onPlaced }: O
         rotation: 0,
       }
       edit((list) => [...list, placed])
+      if (stamp) return
       setPicked([placed.id])
       onPlaced()
     },

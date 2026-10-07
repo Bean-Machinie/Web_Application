@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import type Konva from "konva"
 import { useAssetEditing } from "@/hooks/use-asset-editing"
 import { useAssetKeys } from "@/hooks/use-asset-keys"
+import { useArmedAsset } from "@/hooks/use-armed-asset"
 import { useBrush } from "@/hooks/use-brush"
 import { useMapStyle } from "@/hooks/use-map-style"
 import { useBuilderViewport } from "@/hooks/use-builder-viewport"
@@ -92,13 +93,22 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   })
   // The selection only means something with the select tool.
   const { clear } = editing
+  const stamping = useArmedAsset(!publishing)
+  const { disarm } = stamping
   const changeTool = useCallback(
     (next: BuilderTool) => {
       setTool(next)
+      disarm()
       if (next !== "select") clear()
     },
-    [clear]
+    [clear, disarm]
   )
+  // Picking art up lets go of the selection, which would otherwise be out of
+  // sight and still there for Delete.
+  const armAsset = (id: string) => {
+    clear()
+    stamping.arm(id)
+  }
   useUndoKeys(undo, redo, !publishing)
   useToolKeys(changeTool, !publishing)
   useAssetKeys(editing, !publishing)
@@ -155,10 +165,12 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               scene={landStyle.shown}
               tool={activeTool}
               cutting={cutting}
-              editable={!publishing}
+              editable={!publishing && !stamping.armed}
               shift={shift}
               editing={editing}
               showAssets={showAssets}
+              armed={stamping.armed}
+              onStamp={(asset, at) => void editing.place(asset, at, true)}
               brush={brush}
               onPaint={paintBiomes}
               viewport={viewport}
@@ -186,6 +198,8 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               onCommitStyle={landStyle.commit}
             />
           }
+          armed={stamping.armed}
+          onArm={armAsset}
           viewScale={viewport.view.scale}
           disabled={publishing}
         />
