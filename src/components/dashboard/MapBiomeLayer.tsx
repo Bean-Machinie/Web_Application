@@ -33,12 +33,15 @@ export function MapBiomeLayer({ land, canvas, style, paint, surface }: Props) {
   return (
     <Layer ref={layer} name="biomes" listening={false}>
       <Shape
-        sceneFunc={(context) => {
+        name="biome-paint"
+        sceneFunc={(context, shape) => {
           if (land.length === 0 || !surface.state.touched) return
+          // Publishing swaps in a sharper picture for the instant of drawing.
+          const picture: HTMLCanvasElement = shape.getAttr("picture") ?? surface.picture
           context.save()
           traceLand(context, land)
           context.clip("evenodd")
-          context.drawImage(surface.picture, 0, 0, surface.picture.width, surface.picture.height, 0, 0, canvas.width, canvas.height)
+          context.drawImage(picture, 0, 0, picture.width, picture.height, 0, 0, canvas.width, canvas.height)
           context.restore()
         }}
       />

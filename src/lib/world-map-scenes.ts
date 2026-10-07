@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase"
+import { readPaint, writePaint } from "./biomes/paint-codec"
 import { readScene } from "./map-scene"
 import type { MapScene } from "./map-scene"
 
@@ -19,7 +20,8 @@ export async function fetchMapScene(mapId: string): Promise<LoadedScene | null> 
 
   const scene = readScene(data.scene)
   if (!scene) throw new Error("This map was made with a newer version of the builder.")
-  return { scene, updatedAt: data.updated_at, renderedAt: data.rendered_at }
+  const paint = await readPaint((data.scene as { biomes?: unknown } | null)?.biomes)
+  return { scene: { ...scene, paint }, updatedAt: data.updated_at, renderedAt: data.rendered_at }
 }
 
 // Whether the map has a scene, without loading it.
@@ -40,9 +42,10 @@ export async function saveMapScene(
   expectedUpdatedAt: string | null,
   markRendered = false
 ) {
+  const { paint, ...rest } = scene
   const { data, error } = await supabase.rpc("save_map_scene", {
     target_map: mapId,
-    new_scene: scene,
+    new_scene: { ...rest, biomes: await writePaint(paint) },
     expected_updated_at: expectedUpdatedAt,
     mark_rendered: markRendered,
   })

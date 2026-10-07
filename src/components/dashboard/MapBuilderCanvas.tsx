@@ -22,7 +22,6 @@ type Props = {
   shift: boolean
   editing: AssetEditing
   brush: Brush
-  paint: Paint
   viewport: ReturnType<typeof useBuilderViewport>
   stageRef: RefObject<Konva.Stage | null>
   // Kept up to date with where the pointer is on the canvas, for pasting there.
@@ -95,7 +94,6 @@ export function MapBuilderCanvas(props: Props) {
           snapRotation={props.shift}
           onLasso={props.onLasso}
           brush={props.brush}
-          paint={props.paint}
           onPaint={props.onPaint}
           onWheel={viewport.onWheel}
           onPan={viewport.onPan}

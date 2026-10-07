@@ -17,7 +17,7 @@ import { useSceneHistory } from "@/hooks/use-scene-history"
 import { useToolKeys } from "@/hooks/use-tool-keys"
 import { useUndoKeys } from "@/hooks/use-undo-keys"
 import { landMask } from "@/lib/biomes/land-mask"
-import { EMPTY_PAINT, eraseOutside, gridSize } from "@/lib/biomes/paint-tiles"
+import { eraseOutside, gridSize } from "@/lib/biomes/paint-tiles"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import { addLand, cutLand, lassoToShape } from "@/lib/map-land"
 import type { BuilderTool, LandMode } from "@/lib/map-builder-tools"
@@ -73,9 +73,6 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const [tool, setTool] = useState<BuilderTool>("land")
   const [mode, setMode] = useState<LandMode>("add")
   const brush = useBrush(tool === "brush" && !publishing)
-  // For now the paint lives only in this page, not in the scene: it is not
-  // saved, published or undone yet.
-  const [paint, setPaint] = useState<Paint>(EMPTY_PAINT)
   const { alt, shift } = useHeldModifiers()
   const cutting = (mode === "cut") !== alt
 
@@ -107,14 +104,17 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
     if (!shape) return
     const land = cut ? cutLand(scene.land, shape) : addLand(scene.land, shape)
     if (land !== scene.land && !(cut && scene.land.length === 0)) {
-      history.change((old) => ({ ...old, land }))
       // Land cut away loses its paint, so land drawn there again starts as plains.
-      if (cut) {
-        const { cols, rows } = gridSize(scene.canvas)
-        setPaint((old) => eraseOutside(old, landMask(land, scene.canvas), cols, rows))
-      }
+      const { cols, rows } = gridSize(scene.canvas)
+      history.change((old) => ({
+        ...old,
+        land,
+        paint: cut ? eraseOutside(old.paint, landMask(land, old.canvas), cols, rows) : old.paint,
+      }))
     }
   }
+
+  const paintBiomes = (paint: Paint) => history.change((old) => ({ ...old, paint }))
 
   return (
     <div className="bg-background fixed inset-0 z-50 flex flex-col">
@@ -169,8 +169,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           shift={shift}
           editing={editing}
           brush={brush}
-          paint={paint}
-          onPaint={setPaint}
+          onPaint={paintBiomes}
           viewport={viewport}
           stageRef={stage}
           pointer={pointer}

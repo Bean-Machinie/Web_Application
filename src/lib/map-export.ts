@@ -2,6 +2,7 @@ import type Konva from "konva"
 import { canvasToWebp } from "./encode-webp"
 import { MAP_MAX_BYTES } from "./resize-map-image"
 import type { PreparedMap } from "./resize-map-image"
+import { sharpBiomes } from "./map-export-biomes"
 import { sharpWater } from "./map-export-water"
 import { BUILT_MAX_ZOOM, renderScale } from "./map-scene"
 import type { MapScene } from "./map-scene"
@@ -29,9 +30,11 @@ export async function exportCanvas(
   stage.scale({ x: 1, y: 1 })
   stage.position({ x: 0, y: 0 })
   let restoreWater = () => {}
+  let restoreBiomes = () => {}
   let drawn: HTMLCanvasElement
   try {
     restoreWater = sharpWater(stage, scene)
+    restoreBiomes = sharpBiomes(stage, scene)
     drawn = stage.toCanvas({
       x: 0,
       y: 0,
@@ -41,6 +44,7 @@ export async function exportCanvas(
     })
   } finally {
     restoreWater()
+    restoreBiomes()
     stage.scale({ x: scale, y: scale })
     stage.position({ x, y })
     chrome.forEach((layer) => layer.show())

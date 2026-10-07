@@ -35,7 +35,6 @@ type Props = {
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
   editing: AssetEditing
   brush: Brush
-  paint: Paint
   onPaint: (paint: Paint) => void
   // Shift is held: rotating snaps to 15 degrees.
   snapRotation: boolean
@@ -91,7 +90,7 @@ export function MapBuilderStage(props: Props) {
       </Layer>
       <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} />
       <MapLandLayer land={land} background={canvas.background} />
-      <MapBiomeLayer land={land} canvas={canvas} style={scene.style} paint={props.paint} surface={surface} />
+      <MapBiomeLayer land={land} canvas={canvas} style={scene.style} paint={scene.paint} surface={surface} />
       <MapAssetsLayer
         assets={scene.assets}
         selected={editing.selected}
@@ -107,7 +106,7 @@ export function MapBuilderStage(props: Props) {
       <MapBrushLayer
         enabled={editable && tool === "brush"}
         brush={props.brush}
-        paint={props.paint}
+        paint={scene.paint}
         land={mask}
         surface={surface}
         onPaint={props.onPaint}
