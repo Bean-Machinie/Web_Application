@@ -37,6 +37,9 @@ export function useMapView(map: L.Map | null, size: MapSize, mapId: string) {
   useEffect(() => {
     if (!map) return
     let pending = false
+    // Read while the map is alive: by the time this effect is cleaned up, the
+    // map has usually been removed and can no longer say where it is.
+    let lastText = ""
     let timer: ReturnType<typeof setTimeout> | undefined
     const save = () => {
       pending = false
@@ -55,6 +58,7 @@ export function useMapView(map: L.Map | null, size: MapSize, mapId: string) {
     }
     const onMoveEnd = () => {
       pending = true
+      lastText = encodeView(map, size)
       clearTimeout(timer)
       timer = setTimeout(save, SETTLE_MS)
     }
@@ -64,7 +68,7 @@ export function useMapView(map: L.Map | null, size: MapSize, mapId: string) {
       clearTimeout(timer)
       // Leaving mid-pan still keeps the view for the session, but must not
       // change the URL of a page that is going away.
-      if (pending) rememberView(mapId, encodeView(map, size))
+      if (pending) rememberView(mapId, lastText)
     }
   }, [map, size, mapId])
 }
