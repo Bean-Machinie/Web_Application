@@ -13,8 +13,9 @@ type Props = { assets: PlacedAsset[]; editing: AssetEditing }
 // -180 to 180, so the number shown is the shortest way round.
 const wrap = (degrees: number) => ((((degrees + 180) % 360) + 360) % 360) - 180
 
-// The size and turn of the selected art, as numbers. Sizes are in canvas
-// pixels. With the link on, changing one side changes the other to match.
+// The size and turn of the selected art, as numbers, and what can be done to
+// it; nothing while nothing is selected. Sizes are in canvas pixels. With the
+// link on, changing one side changes the other to match.
 export function MapProperties({ assets, editing }: Props) {
   const [linked, setLinked] = useState(true)
   const chosen = assets.filter((asset) => editing.selected.includes(asset.id))
@@ -40,16 +41,15 @@ export function MapProperties({ assets, editing }: Props) {
     ])
   }
 
+  if (chosen.length === 0) return null
+
   return (
     <section className="flex flex-col gap-3 border-b p-4">
       <h2 className="text-sm font-medium">Properties</h2>
-      {chosen.length === 0 && (
-        <p className="text-muted-foreground text-[13px]">Select art to adjust it.</p>
-      )}
       {chosen.length > 1 && (
         <p className="text-muted-foreground text-[13px]">{chosen.length} selected</p>
       )}
-      {chosen.length > 0 && <MapSelectionActions editing={editing} />}
+      <MapSelectionActions editing={editing} />
       {asset && (
         <>
           <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-1.5">

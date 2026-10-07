@@ -31,9 +31,9 @@ export function MapAssetPanel({ onPlace, viewScale, disabled }: Props) {
   return (
     <section
       aria-label="Assets"
-      className={cn("flex min-h-0 flex-1 flex-col", disabled && "pointer-events-none opacity-60")}
+      className={cn("flex flex-col", disabled && "pointer-events-none opacity-60")}
     >
-      <div className="flex flex-col gap-3 p-4 pb-3">
+      <div className="bg-background sticky top-0 z-10 flex flex-col gap-3 p-4 pb-3">
         <h2 className="text-sm font-medium" title="Click to place, or drag onto the map">
           Assets
         </h2>
@@ -76,7 +76,7 @@ export function MapAssetPanel({ onPlace, viewScale, disabled }: Props) {
           ))}
         </div>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]">
+      <div className="px-4 pb-4">
         {shown.length === 0 ? (
           <p className="text-muted-foreground py-6 text-center text-[13px]">
             {MAP_ASSETS.length === 0

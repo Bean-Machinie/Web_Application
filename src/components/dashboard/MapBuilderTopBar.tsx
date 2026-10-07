@@ -14,8 +14,6 @@ type Props = {
   onRedo: () => void
   onBack: () => void
   onPublish: () => void
-  // Beside the name: the map settings.
-  children?: React.ReactNode
 }
 
 function status(state: SceneSaveState, unpublished: boolean) {
@@ -41,7 +39,6 @@ export function MapBuilderTopBar(props: Props) {
         <ArrowLeft />
       </Button>
       <h1 className="min-w-0 truncate font-medium">{props.name}</h1>
-      {props.children}
       <div className="flex items-center">
         <Button
           variant="ghost"

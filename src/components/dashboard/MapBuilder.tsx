@@ -26,7 +26,7 @@ import { MapBuilderBanners } from "./MapBuilderBanners"
 import { MapBuilderCanvas } from "./MapBuilderCanvas"
 import { MapBuilderTopBar } from "./MapBuilderTopBar"
 import { MapRightPanel } from "./MapRightPanel"
-import { MapSettingsPopover } from "./MapSettingsPopover"
+import { MapSettings } from "./MapSettings"
 import { MapStatusBar } from "./MapStatusBar"
 import { MapToolPanel } from "./MapToolPanel"
 import { MapToolStrip } from "./MapToolStrip"
@@ -128,16 +128,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
         onPublish={async () => {
           if (await publish()) goBack()
         }}
-      >
-        <MapSettingsPopover
-          canvas={scene.canvas}
-          style={landStyle.style}
-          disabled={publishing}
-          onBackground={setBackground}
-          onPreviewStyle={landStyle.preview}
-          onCommitStyle={landStyle.commit}
-        />
-      </MapBuilderTopBar>
+      />
       <MapBuilderBanners autosave={autosave} error={error} />
       <div className="flex min-h-0 flex-1">
         <MapToolStrip tool={tool} disabled={publishing} onTool={changeTool} />
@@ -186,6 +177,15 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
         <MapRightPanel
           assets={scene.assets}
           editing={editing}
+          settings={
+            <MapSettings
+              canvas={scene.canvas}
+              style={landStyle.style}
+              onBackground={setBackground}
+              onPreviewStyle={landStyle.preview}
+              onCommitStyle={landStyle.commit}
+            />
+          }
           viewScale={viewport.view.scale}
           disabled={publishing}
         />
