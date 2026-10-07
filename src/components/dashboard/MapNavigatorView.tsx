@@ -112,8 +112,12 @@ export function MapNavigatorView({ scene, terrain, viewport }: Props) {
       onPointerMove={onPointerMove}
       onPointerUp={() => (holding.current = null)}
       onPointerCancel={() => (holding.current = null)}
-      style={{ aspectRatio: `${canvasWidth} / ${canvasHeight}` }}
-      className="bg-muted relative w-full cursor-crosshair touch-none overflow-hidden rounded-md border"
+      // As wide as the room allows, and no taller than it, in the map's own shape.
+      style={{
+        aspectRatio: `${canvasWidth} / ${canvasHeight}`,
+        width: `min(100cqw, calc(100cqh * ${canvasWidth / canvasHeight}))`,
+      }}
+      className="bg-muted relative shrink-0 cursor-crosshair touch-none overflow-hidden rounded-md border"
     >
       <canvas ref={picture} width={width} height={height} className="size-full" />
       <div

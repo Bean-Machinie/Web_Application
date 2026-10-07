@@ -37,7 +37,7 @@ export function MapAssetPanel({ armed, onArm, tileSize, viewScale, disabled }: P
       aria-label="Assets"
       className={cn("flex flex-col", disabled && "pointer-events-none opacity-60")}
     >
-      <div className="bg-background sticky top-8 z-10 flex flex-col gap-2 p-3 pb-2">
+      <div className="bg-background sticky top-0 z-10 flex flex-col gap-2 p-3 pb-2">
         <div className="relative">
           <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
           <Input

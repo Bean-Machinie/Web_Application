@@ -7,7 +7,7 @@ export type RightTab = "map" | "properties" | "navigator"
 // stays. When the selection clears, the tab that was showing before comes back. A
 // tab picked by hand is never taken away from the person who picked it.
 export function useSelectionTab(hasSelection: boolean) {
-  const [tab, setTab] = useState<RightTab>("map")
+  const [tab, setTab] = useState<RightTab>("navigator")
   // The tab to go back to, set only when Properties was opened by selecting.
   const [before, setBefore] = useState<RightTab | null>(null)
   const [had, setHad] = useState(hasSelection)
