@@ -61,9 +61,10 @@ All of these are set in `src/lib/map-theme.ts`, under `paint` (`grade`,
 
 Some painted art changes colour with the biome it stands on, so a forest looks
 right on desert, in swamp and on ice. This is **opt-in per category**, in
-`RECOLOURS` in `src/lib/map-assets.ts`. At the moment **`forests`** and
-**`mountains`** change. Buildings and everything else are drawn as painted. Ink
-art never changes.
+`RECOLOURS` in `src/lib/map-assets.ts`. At the moment **`forests`**,
+**`mountains`** and **`desert-trees`** change. Buildings and everything else are
+drawn as painted. Ink art never changes. A folder's name is its category, with
+spaces and dashes counting the same (`desert trees` and `desert-trees` are one).
 
 **What changes.** By default the greens and yellow-greens of a painting change,
 with a soft edge on the range of colour. Browns and greys, such as trunks, stay,
@@ -106,6 +107,18 @@ the colours of the ground. For colours to look right, snow should be clearly
 brighter than the rock around it, and the grass should be olive or green rather
 than brown.
 
+### Desert trees: leaves and trunk
+
+Desert trees have golden leaves and an orange trunk, which would stand out on any
+other ground, so both change. The leaves are picked by their golden colour and
+take the ground's foliage colours; the trunk is everything else and takes bark of
+the ground (cool grey-brown on ice, dark brown in swamp, charred black on
+volcanic ground). The desert look is also what the trees look like on plains, and
+on desert ground itself: it is the tree's resting look, set by `base` in
+`RECOLOURS`, so the painting as exported is only the start of it. The pale
+highlights on the trunk are told apart from the leaves by being less saturated,
+so keep the trunk's lights paler than the leaves.
+
 ### Choosing the grass with a mask
 
 To say exactly which parts are grass (or, for foliage, may change), put a mask
@@ -133,6 +146,7 @@ is 3072 to 3840 px wide). They are set in `src/lib/map-assets.ts`, in
 | ----------- | ------------- |
 | `mountains` | 220 px        |
 | `forests`   | 180 px        |
+| `desert-trees` | 180 px     |
 | `towns`     | 170 px        |
 
 A category that is not listed there, such as a new folder, gets the fallback

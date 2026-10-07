@@ -1,3 +1,4 @@
+import type { Biome } from "./biomes/biomes"
 import { shapeOf } from "./map-asset-shape"
 import type { AssetShape } from "./map-asset-shape"
 
@@ -47,11 +48,16 @@ export const assetById = (id: string) => BY_ID.get(id)
 
 export const categoryLabel = (category: string) => words(category)
 
+// The settings below are looked up by a folder's name, with spaces and dashes
+// counting the same, so "desert trees" and "desert-trees" are one category.
+export const categoryKey = (category: string) => category.toLowerCase().replace(/\s+/g, "-")
+
 // How wide an asset is when first placed, in canvas pixels, by category. The
 // canvas is a few thousand pixels wide. Categories not listed get the fallback.
 const DEFAULT_WIDTH: Record<string, number> = {
   mountains: 220,
   forests: 180,
+  "desert-trees": 180,
   towns: 170,
 }
 const FALLBACK_WIDTH = 160
@@ -65,7 +71,7 @@ const INK_FOLLOWS: Record<string, number> = {
   towns: 0.25,
 }
 const FALLBACK_FOLLOWS = 0.6
-export const inkFollows = (category: string) => INK_FOLLOWS[category] ?? FALLBACK_FOLLOWS
+export const inkFollows = (category: string) => INK_FOLLOWS[categoryKey(category)] ?? FALLBACK_FOLLOWS
 
 // The categories whose painted art changes colour with the biome it stands on,
 // and, for each, which colours count as what changes when there is no mask. A
@@ -79,14 +85,19 @@ export type Window = { hue: [number, number]; saturation: [number, number]; ligh
 // "snow" and "rock" say that the art of the category has those surfaces too,
 // which each biome treats on its own: snow is found by colour, and rock is what
 // is neither snow nor grass.
-export type Recolour = { grass: Window; snow?: boolean; rock?: boolean }
+// "base" is a biome whose colours the art has where no biome is painted (on
+// plains) and in that biome itself, so the painting as it was made is only the
+// start of that look.
+export type Recolour = { grass: Window; snow?: boolean; rock?: boolean; base?: Biome }
 const RECOLOURS: Record<string, Recolour> = {
   forests: { grass: { hue: [34, 58], saturation: [0.12, 0.3], light: [1, 1.01] } },
+  // Golden leaves and olive leaf shadows change; the orange trunk is the rock.
+  "desert-trees": { grass: { hue: [34, 40], saturation: [0.5, 0.62], light: [1, 1.01] }, rock: true, base: "desert" },
   mountains: { grass: { hue: [35, 41], saturation: [0.08, 0.16], light: [0.74, 0.86] }, snow: true, rock: true },
 }
-export const recolours = (category: string) => category in RECOLOURS
-export const recolourOf = (category: string): Recolour => RECOLOURS[category] ?? RECOLOURS.forests
-export const defaultWidth = (category: string) => DEFAULT_WIDTH[category] ?? FALLBACK_WIDTH
+export const recolours = (category: string) => categoryKey(category) in RECOLOURS
+export const recolourOf = (category: string): Recolour => RECOLOURS[categoryKey(category)] ?? RECOLOURS.forests
+export const defaultWidth = (category: string) => DEFAULT_WIDTH[categoryKey(category)] ?? FALLBACK_WIDTH
 
 // A loaded picture, and what was worked out about it once (see map-asset-shape).
 // "mask" is the picture saying what may change colour, where there is one.

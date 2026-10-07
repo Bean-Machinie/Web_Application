@@ -128,11 +128,34 @@ const MOUNTAINS: Record<Biome, Surfaced> = {
   },
 }
 
+// Desert trees: golden leaves and an orange trunk, which would stand out on any
+// other ground. The leaves take the ground's foliage colours, and the trunk takes
+// bark of the ground, so the tree belongs wherever it is. On desert ground both
+// are only toned down and dried.
+const DESERT_TREES: Record<Biome, Surfaced> = {
+  ice: {
+    grass: FOLIAGE.ice.grass,
+    rock: [[0, [40, 44, 52]], [0.5, [96, 100, 112]], [1, [176, 180, 192]]],
+  },
+  desert: {
+    grass: [[0, [70, 60, 26]], [0.5, [150, 128, 56]], [1, [220, 194, 110]]],
+    rock: [[0, [70, 44, 28]], [0.5, [150, 104, 70]], [1, [212, 170, 126]]],
+  },
+  swamp: {
+    grass: FOLIAGE.swamp.grass,
+    rock: [[0, [22, 20, 16]], [0.5, [62, 54, 40]], [1, [108, 98, 76]]],
+  },
+  volcanic: {
+    grass: FOLIAGE.volcanic.grass,
+    rock: [[0, [10, 9, 9]], [0.5, [46, 42, 40]], [1, [100, 92, 88]]],
+  },
+}
+
 const PAINT = {
   sharpen: 0.3,
   smallContrast: 0.05,
   shadow: { colour: [30, 24, 16] as Rgb, opacity: 0.32, blur: 0.06 },
-  recolour: { default: FOLIAGE, mountains: MOUNTAINS },
+  recolour: { default: FOLIAGE, mountains: MOUNTAINS, "desert-trees": DESERT_TREES },
 }
 
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }

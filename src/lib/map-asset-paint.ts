@@ -1,7 +1,7 @@
 import type { Biome } from "./biomes/biomes"
 import { lightRange, recolour, rampTable, surfaces } from "./map-asset-recolour"
 import type { Surfaces } from "./map-asset-recolour"
-import { recolourOf } from "./map-assets"
+import { categoryKey, recolourOf, recolours } from "./map-assets"
 import { footShadow, grade, sharpen } from "./map-asset-pixels"
 import { sized } from "./map-asset-art"
 import type { AssetInfo } from "./map-assets"
@@ -117,38 +117,49 @@ export function paintedArtFor(
     return canvas
   }
 
-  const base = finish(new Uint8ClampedArray(source))
   const shadow = footShadow(source, w, h, look.shadow)
   const variants = new Map<Biome, HTMLCanvasElement | null>()
   let found: { surfaces: Surfaces; ranges: Record<keyof Surfaces, { low: number; high: number }> } | null = null
+
+  // The painting taken to a biome's colours, or null if nothing in it changes there.
+  const recoloured = (biome: Biome) => {
+    if (!found) {
+      const parts = surfaces(source, maskPixels(info, w, h), recolourOf(category))
+      const rangeOf = (amount: Float32Array | null) => (amount ? lightRange(source, amount) : { low: 0, high: 1 })
+      found = {
+        surfaces: parts,
+        ranges: { grass: rangeOf(parts.grass), snow: rangeOf(parts.snow), rock: rangeOf(parts.rock) },
+      }
+    }
+    // What each surface becomes here, if anything; a surface with none stays as painted.
+    const ramps = (look.recolour[categoryKey(category)] ?? look.recolour.default)[biome]
+    const parts = (["grass", "snow", "rock"] as const).flatMap((surface) => {
+      const amount = found!.surfaces[surface]
+      const ramp = ramps[surface]
+      return amount && ramp ? [{ amount, range: found!.ranges[surface], table: rampTable(ramp) }] : []
+    })
+    if (!parts.some(({ amount }) => amount.some((value) => value > 0.05))) return null
+    const pixels = new Uint8ClampedArray(source)
+    recolour(pixels, parts)
+    return pixels
+  }
+
+  // Art of some categories is shown in one biome's colours wherever there is no
+  // biome painted: plains takes that look, and so does that biome itself.
+  const resting = recolours(category) ? recolourOf(category).base : undefined
+  const restingPixels = resting ? recoloured(resting) : null
+  const base = finish(restingPixels ?? new Uint8ClampedArray(source))
 
   const art: PaintedArt = {
     base,
     shadow,
     width: w,
     variant(biome) {
-      if (!changes) return null
+      if (!changes || biome === resting) return null
       if (variants.has(biome)) return variants.get(biome)!
-      if (!found) {
-        const parts = surfaces(source, maskPixels(info, w, h), recolourOf(category))
-        const rangeOf = (amount: Float32Array | null) => (amount ? lightRange(source, amount) : { low: 0, high: 1 })
-        found = {
-          surfaces: parts,
-          ranges: { grass: rangeOf(parts.grass), snow: rangeOf(parts.snow), rock: rangeOf(parts.rock) },
-        }
-      }
-      // What each surface becomes here, if anything; a surface with none stays as painted.
-      const ramps = (look.recolour[category] ?? look.recolour.default)[biome]
-      const parts = (["grass", "snow", "rock"] as const).flatMap((surface) => {
-        const amount = found!.surfaces[surface]
-        const ramp = ramps[surface]
-        return amount && ramp ? [{ amount, range: found!.ranges[surface], table: rampTable(ramp) }] : []
-      })
-      const touched = parts.some(({ amount }) => amount.some((value) => value > 0.05))
+      const pixels = recoloured(biome)
       let made: HTMLCanvasElement | null = null
-      if (touched) {
-        const pixels = new Uint8ClampedArray(source)
-        recolour(pixels, parts)
+      if (pixels) {
         made = finish(pixels)
         const added = w * h
         used += added
