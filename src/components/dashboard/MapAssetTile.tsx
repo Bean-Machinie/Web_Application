@@ -92,7 +92,11 @@ export function MapAssetTile({ asset, armed, viewScale, onArm }: Props) {
           )}
         </button>
       </TooltipTrigger>
-      <TooltipContent>{asset.name}</TooltipContent>
+      {/* Below the tile, so that the name of one in the top row is never over the search
+          and categories above the tiles. It closes by itself when the list scrolls. */}
+      <TooltipContent side="bottom" sideOffset={4}>
+        {asset.name}
+      </TooltipContent>
     </Tooltip>
   )
 }
