@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 import type Konva from "konva"
 import type { Pair } from "polygon-clipping"
-import { Circle, Group, Layer } from "react-konva"
+import { Circle, Group } from "react-konva"
 import type { Brush } from "@/hooks/use-brush"
 import { startStroke } from "@/lib/biomes/brush"
 import type { Cells, Stroke } from "@/lib/biomes/brush"
@@ -30,9 +30,11 @@ type Props = {
 // The brush: hold the pointer and drag to paint, with a ring showing the size.
 // The stroke is drawn straight onto the biome picture as it goes, and becomes
 // one change of the paint when the pointer is let go. The ring is only for the
-// editor and is left out of the rendered image. The middle button pans.
+// editor and is left out of the rendered image, as a group of the editor layer.
+// Painting redraws the surfaces layer, which holds the biomes, and the ring
+// moves in the editor layer: no other layer is touched. The middle button pans.
 export function MapBrushLayer({ enabled, blending, brush, paint, land, surface, onPaint }: Props) {
-  const layer = useRef<Konva.Layer>(null)
+  const layer = useRef<Konva.Group>(null)
   const ring = useRef<Konva.Group>(null)
   const latest = useRef({ blending, brush, paint, land, onPaint })
   useEffect(() => {
@@ -57,7 +59,7 @@ export function MapBrushLayer({ enabled, blending, brush, paint, land, surface, 
       const before = base!
       const { working } = stroke!
       surface.draw(cells, (key) => working.get(key)?.work ?? before.get(key))
-      stage.findOne<Konva.Layer>(".biomes")?.batchDraw()
+      stage.findOne(".biomes")?.getLayer()?.batchDraw()
     }
 
     const onMove = (event: PointerEvent) => {
@@ -90,7 +92,7 @@ export function MapBrushLayer({ enabled, blending, brush, paint, land, surface, 
       }
       // Nothing to keep: the picture goes back to how it was.
       surface.drawAll(before)
-      stage.findOne<Konva.Layer>(".biomes")?.batchDraw()
+      stage.findOne(".biomes")?.getLayer()?.batchDraw()
     }
     const onUp = () => end(true)
     const onCancel = () => end(false)
@@ -110,11 +112,11 @@ export function MapBrushLayer({ enabled, blending, brush, paint, land, surface, 
       const at = stage.getRelativePointerPosition()
       if (!at || !ring.current) return
       ring.current.position(at).visible(true)
-      layer.current?.batchDraw()
+      layer.current?.getLayer()?.batchDraw()
     }
     const onLeave = () => {
       ring.current?.visible(false)
-      layer.current?.batchDraw()
+      layer.current?.getLayer()?.batchDraw()
     }
 
     stage.on("pointerdown.brush", onDown)
@@ -124,17 +126,17 @@ export function MapBrushLayer({ enabled, blending, brush, paint, land, surface, 
       stage.off(".brush")
       if (stroke) end(false)
       hint?.visible(false)
-      node?.batchDraw()
+      node?.getLayer()?.batchDraw()
     }
   }, [enabled, surface])
 
   const radius = brush.size / 2
   return (
-    <Layer ref={layer} name="chrome" listening={false}>
+    <Group ref={layer} listening={false}>
       <Group ref={ring} visible={false}>
         <Circle radius={radius} stroke="rgba(0, 0, 0, 0.5)" strokeWidth={3.5} strokeScaleEnabled={false} />
         <Circle radius={radius} stroke="#fff" strokeWidth={1.5} strokeScaleEnabled={false} />
       </Group>
-    </Layer>
+    </Group>
   )
 }

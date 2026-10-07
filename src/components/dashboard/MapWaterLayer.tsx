@@ -1,5 +1,5 @@
 import type { MultiPolygon } from "polygon-clipping"
-import { Image as KonvaImage, Layer, Rect } from "react-konva"
+import { Image as KonvaImage, Rect } from "react-konva"
 import type { BuilderView } from "@/hooks/use-builder-viewport"
 import { useTexture } from "@/hooks/use-texture"
 import { useWaterImage } from "@/hooks/use-water-image"
@@ -19,27 +19,26 @@ type Props = {
 }
 
 // The sea around the land: a dark band along the coast and light wavy lines
-// spreading out from it, with paper grain over the sea, below the land.
+// spreading out from it, with paper grain over the sea, below the land. These
+// are nodes of the surfaces layer.
 export function MapWaterLayer({ land, style, canvas, view, size, painted }: Props) {
   const water = useWaterImage(land, style, canvas, view, size)
-  // Tiles are mid-grey, so overlay leaves the colours as they are and only adds
-  // the grain.
+  // The grain is laid over the sea as a plain film at the theme's strength, as it
+  // always was: it had a layer of its own, and a layer's blend never reached the
+  // sea below it, only its opacity did.
   const grain = useTexture(waterGrain)
   const grainAmount = themeFor(canvas.background).water.grain
   return (
     <>
-      <Layer listening={false}>
-        {water && <KonvaImage name="water" image={water.image} {...water.region} />}
-      </Layer>
+      {water && <KonvaImage name="water" image={water.image} {...water.region} />}
       {grain && !painted && (
-        <Layer listening={false} globalCompositeOperation="overlay" opacity={grainAmount}>
-          <Rect
-            width={canvas.width}
-            height={canvas.height}
-            fillPatternImage={grain}
-            fillPatternRepeat="repeat"
-          />
-        </Layer>
+        <Rect
+          width={canvas.width}
+          height={canvas.height}
+          fillPatternImage={grain}
+          fillPatternRepeat="repeat"
+          opacity={grainAmount}
+        />
       )}
     </>
   )

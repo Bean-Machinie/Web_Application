@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import type { RefObject } from "react"
 import type Konva from "konva"
-import { Image as KonvaImage, Layer, Rect, Stage } from "react-konva"
+import { Group, Image as KonvaImage, Layer, Rect, Stage } from "react-konva"
 import type { BuilderView } from "@/hooks/use-builder-viewport"
 import { useShownLand } from "@/hooks/use-shown-land"
 import { renderBackground } from "@/lib/map-background"
@@ -43,8 +43,15 @@ type Props = {
   onPan: (x: number, y: number) => void
 }
 
-// The canvas, drawn in layers that follow the scene's fixed order. "chrome"
-// layers are only for the editor and never end up in the rendered image.
+// The canvas, drawn in three layers, since every layer is a canvas of the page's
+// size and Konva advises against more than about five:
+// - "surfaces": what is under the art and changes seldom (the sheet's shadow, the
+//   sea, the water, the land, the biomes and the coast), in the scene's fixed
+//   order. Painting redraws this layer, and only this one;
+// - the assets, which dragging one redraws, and only that;
+// - "chrome": the editor's own things (the selection and its handles, the brush
+//   ring, the lasso's outline), which are never in the rendered image.
+// Anything named "chrome" is left out when the map is rendered.
 export function MapBuilderStage(props: Props) {
   const { scene, size, view, stageRef, tool, cutting, editable, editing, onWheel, onPan } = props
   const { canvas } = scene
@@ -74,24 +81,24 @@ export function MapBuilderStage(props: Props) {
         if (event.target === event.target.getStage()) onPan(event.target.x(), event.target.y())
       }}
     >
-      {/* The canvas lies on the surface like a sheet. */}
-      <Layer name="chrome" listening={false}>
-        <Rect
-          width={canvas.width}
-          height={canvas.height}
-          fill="#000"
-          shadowColor="#000"
-          shadowBlur={90}
-          shadowOffsetY={24}
-          shadowOpacity={0.3}
-        />
-      </Layer>
-      <Layer listening={false}>
+      <Layer name="surfaces" listening={false}>
+        {/* The canvas lies on the surface like a sheet. */}
+        <Group name="chrome">
+          <Rect
+            width={canvas.width}
+            height={canvas.height}
+            fill="#000"
+            shadowColor="#000"
+            shadowBlur={90}
+            shadowOffsetY={24}
+            shadowOpacity={0.3}
+          />
+        </Group>
         <KonvaImage name="sea" image={background} width={canvas.width} height={canvas.height} />
+        <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} painted={terrain.sea !== null} />
+        <MapLandLayer land={land} background={canvas.background} texture={terrain.land} textureScale={terrain.scale} />
+        <MapBiomeLayer land={land} canvas={canvas} style={scene.style} paint={scene.paint} surface={surface} />
       </Layer>
-      <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} painted={terrain.sea !== null} />
-      <MapLandLayer land={land} background={canvas.background} texture={terrain.land} textureScale={terrain.scale} />
-      <MapBiomeLayer land={land} canvas={canvas} style={scene.style} paint={scene.paint} surface={surface} />
       <MapAssetsLayer
         canvas={canvas}
         land={land}
@@ -107,28 +114,30 @@ export function MapBuilderStage(props: Props) {
         onSelect={editing.select}
         onChange={editing.commit}
       />
-      <MapLassoLayer
-        enabled={editable && tool === "land"}
-        cutting={cutting}
-        onLasso={props.onLasso}
-      />
-      <MapBrushLayer
-        enabled={editable && (tool === "brush" || tool === "blend")}
-        blending={tool === "blend"}
-        brush={props.brush}
-        paint={scene.paint}
-        land={mask}
-        surface={surface}
-        onPaint={props.onPaint}
-      />
-      <MapSelectionLayer
-        enabled={editable && tool === "select"}
-        selected={editing.selected}
-        assets={scene.assets}
-        snapRotation={props.snapRotation}
-        onSelect={editing.selectMany}
-        onChange={editing.commit}
-      />
+      <Layer name="chrome">
+        <MapLassoLayer
+          enabled={editable && tool === "land"}
+          cutting={cutting}
+          onLasso={props.onLasso}
+        />
+        <MapBrushLayer
+          enabled={editable && (tool === "brush" || tool === "blend")}
+          blending={tool === "blend"}
+          brush={props.brush}
+          paint={scene.paint}
+          land={mask}
+          surface={surface}
+          onPaint={props.onPaint}
+        />
+        <MapSelectionLayer
+          enabled={editable && tool === "select"}
+          selected={editing.selected}
+          assets={scene.assets}
+          snapRotation={props.snapRotation}
+          onSelect={editing.selectMany}
+          onChange={editing.commit}
+        />
+      </Layer>
     </Stage>
   )
 }

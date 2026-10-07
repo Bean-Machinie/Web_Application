@@ -16,7 +16,7 @@ const QUALITIES = [0.92, 0.85, 0.75]
 // scene's render size allows, and encodes it as WebP once (no lossless middle
 // step, and so no second round of loss). The view is put to one-to-one for the
 // instant of the drawing and put back before anything can paint, and the
-// layers named "chrome" (what only the editor shows) are left out. Drawing goes
+// layers and groups named "chrome" (what only the editor shows) are left out. Drawing goes
 // straight onto a canvas of the picture's size, so the stage itself is never
 // resized.
 export async function exportCanvas(
@@ -30,7 +30,7 @@ export async function exportCanvas(
   const art = await exportAssets(scene, biomes, terrain)
   const { x, y } = stage.position()
   const scale = stage.scaleX()
-  const chrome = stage.find<Konva.Layer>(".chrome")
+  const chrome = stage.find<Konva.Node>(".chrome")
 
   chrome.forEach((layer) => layer.hide())
   stage.scale({ x: 1, y: 1 })

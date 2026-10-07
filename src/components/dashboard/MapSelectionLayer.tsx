@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import Konva from "konva"
-import { Layer, Rect, Transformer } from "react-konva"
+import { Group, Rect, Transformer } from "react-konva"
 import type { AssetPatch } from "@/lib/map-asset-edit"
 import type { PlacedAsset } from "@/lib/map-scene"
 
@@ -27,10 +27,11 @@ type Box = { x: number; y: number; width: number; height: number }
 
 // What is drawn over the art while editing it: handles to scale and rotate the
 // selection, and the box dragged on the empty canvas to select what it
-// touches. All of it is left out of the rendered image.
+// touches. All of it is left out of the rendered image, as a group of the editor
+// layer, so that moving the handles redraws only that layer.
 export function MapSelectionLayer(props: Props) {
   const { enabled, selected, assets, snapRotation } = props
-  const layer = useRef<Konva.Layer>(null)
+  const layer = useRef<Konva.Group>(null)
   const transformer = useRef<Konva.Transformer>(null)
   const [box, setBox] = useState<Box | null>(null)
   const latest = useRef(props)
@@ -127,7 +128,7 @@ export function MapSelectionLayer(props: Props) {
   }
 
   return (
-    <Layer ref={layer} name="chrome" listening={enabled}>
+    <Group ref={layer} listening={enabled}>
       <Transformer
         ref={transformer}
         // Scaling keeps the proportions; Shift frees them, and brings out the
@@ -158,6 +159,6 @@ export function MapSelectionLayer(props: Props) {
           listening={false}
         />
       )}
-    </Layer>
+    </Group>
   )
 }

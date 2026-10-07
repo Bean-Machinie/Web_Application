@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 import type Konva from "konva"
 import type { MultiPolygon } from "polygon-clipping"
-import { Layer, Shape } from "react-konva"
+import { Group, Shape } from "react-konva"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { Surface } from "@/lib/biomes/surface"
 import { traceLand } from "@/lib/map-land-trace"
@@ -19,19 +19,20 @@ type Props = {
 }
 
 // The biomes over the land, cut to its edge, and the coast's ink line over
-// them. The layer is named so the brush can redraw it while painting.
+// them. The group is named so the brush can find the layer it is in, and redraw
+// that, while painting.
 export function MapBiomeLayer({ land, canvas, style, paint, surface }: Props) {
-  const layer = useRef<Konva.Layer>(null)
+  const group = useRef<Konva.Group>(null)
 
   // Paint the brush has been drawing is already on the picture.
   useEffect(() => {
     if (surface.state.drawn === paint) return
     surface.drawAll(paint)
-    layer.current?.batchDraw()
+    group.current?.getLayer()?.batchDraw()
   }, [surface, paint])
 
   return (
-    <Layer ref={layer} name="biomes" listening={false}>
+    <Group ref={group} name="biomes" listening={false}>
       <Shape
         name="biome-paint"
         sceneFunc={(context, shape) => {
@@ -52,6 +53,6 @@ export function MapBiomeLayer({ land, canvas, style, paint, surface }: Props) {
         outline={style.outline}
         surface={surface}
       />
-    </Layer>
+    </Group>
   )
 }

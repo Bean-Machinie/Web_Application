@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import type Konva from "konva"
 import type { Pair } from "polygon-clipping"
-import { Layer, Line } from "react-konva"
+import { Group, Line } from "react-konva"
 
 // A point is only kept when the pointer has moved this far, in screen pixels.
 const STEP = 3
@@ -15,10 +15,11 @@ type Props = {
 }
 
 // The lasso: hold the pointer, scribble an outline, let go. The outline shows
-// while it is drawn, over everything and left out of the rendered image. Mouse,
-// pen and touch all work; the middle mouse button is left for panning.
+// while it is drawn, over everything and left out of the rendered image, as a
+// group of the editor layer. Mouse, pen and touch all work; the middle mouse
+// button is left for panning.
 export function MapLassoLayer({ enabled, cutting, onLasso }: Props) {
-  const layer = useRef<Konva.Layer>(null)
+  const layer = useRef<Konva.Group>(null)
   const [outline, setOutline] = useState<number[]>([])
   const latest = useRef({ cutting, onLasso })
   useEffect(() => {
@@ -79,7 +80,7 @@ export function MapLassoLayer({ enabled, cutting, onLasso }: Props) {
   const color = cut ? "#ef4444" : "#ffffff"
 
   return (
-    <Layer ref={layer} name="chrome" listening={false}>
+    <Group ref={layer} listening={false}>
       {outline.length >= 4 && (
         <>
           <Line
@@ -101,6 +102,6 @@ export function MapLassoLayer({ enabled, cutting, onLasso }: Props) {
           />
         </>
       )}
-    </Layer>
+    </Group>
   )
 }
