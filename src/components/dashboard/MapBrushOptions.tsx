@@ -4,10 +4,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import type { Brush } from "@/hooks/use-brush"
 import { BIOMES, BLEND_STRENGTH, BLEND_STRETCH, BRUSH_OPACITY, BRUSH_SIZE } from "@/lib/biomes/biomes"
 import type { BrushBiome } from "@/lib/biomes/biomes"
-import { biomeColours, css, hexToRgb } from "@/lib/biomes/palette"
-import { LAND_COLOURS } from "@/lib/map-land-colours"
+import { css } from "@/lib/colour"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 import type { SceneBackground } from "@/lib/map-scene"
+import { themeFor } from "@/lib/map-theme"
 import { Shortcut } from "./Shortcut"
 
 const CHOICES: { id: BrushBiome; label: string }[] = [
@@ -21,7 +21,7 @@ type Props = { tool: BuilderTool; brush: Brush; background: SceneBackground }
 // how big it is; for the blend brush, how strongly it softens instead.
 export function MapBrushOptions({ tool, brush, background }: Props) {
   const swatch = (id: BrushBiome) =>
-    css(id === "plains" ? hexToRgb(LAND_COLOURS[background].fill) : biomeColours(id, background).fill)
+    css(id === "plains" ? themeFor(background).land.fill : themeFor(background).biomes[id].fill)
 
   return (
     <>

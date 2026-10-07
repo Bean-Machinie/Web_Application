@@ -1,22 +1,15 @@
 import { mix, random, smooth, valueNoise } from "./map-noise"
-import type { MapScene, SceneBackground } from "./map-scene"
+import type { MapScene } from "./map-scene"
+import { themeFor } from "./map-theme"
 
 type Canvas = MapScene["canvas"]
-
-type Rgb = [number, number, number]
-
-// Art, not interface, so these are fixed colours rather than theme tokens.
-const PALETTES: Record<SceneBackground, { low: Rgb; high: Rgb; edge: Rgb; edgeAmount: number }> = {
-  parchment: { low: [205, 178, 132], high: [240, 225, 190], edge: [120, 84, 44], edgeAmount: 0.38 },
-  ocean: { low: [28, 92, 122], high: [64, 144, 168], edge: [10, 40, 62], edgeAmount: 0.3 },
-}
 
 // The noise is worked out at a fraction of the canvas and scaled up, which is
 // both quick and soft. Same seed and size always give the same picture.
 const SCALE = 0.5
 
 export function renderBackground({ width, height, background, seed }: Canvas) {
-  const palette = PALETTES[background]
+  const palette = themeFor(background).backdrop
   const w = Math.round(width * SCALE)
   const h = Math.round(height * SCALE)
   const next = random(seed)
@@ -38,8 +31,8 @@ export function renderBackground({ width, height, background, seed }: Canvas) {
     for (let x = 0; x < w; x++) {
       let tone = 0
       for (const { read, weight } of octaves) tone += read(x, y) * weight
-      if (background === "ocean") {
-        tone += (Math.sin((y + waves(x, y) * 160) * 0.09) * 0.5 + 0.5) * 0.06
+      if (palette.waves > 0) {
+        tone += (Math.sin((y + waves(x, y) * 160) * 0.09) * 0.5 + 0.5) * palette.waves
       }
       tone += (next() - 0.5) * 0.04
 

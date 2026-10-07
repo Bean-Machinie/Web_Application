@@ -2,8 +2,9 @@ import { random, smooth } from "../map-noise"
 import type { SceneBackground } from "../map-scene"
 import { BIOMES } from "./biomes"
 import type { Biome } from "./biomes"
-import { biomeColours, mixRgb } from "./palette"
-import type { Rgb } from "./palette"
+import { mixRgb } from "../colour"
+import type { Rgb } from "../colour"
+import { themeFor } from "../map-theme"
 
 // How many canvas pixels one repeat of a texture covers.
 const TEXTURE_SPAN = 256
@@ -41,7 +42,6 @@ const SHADE: Record<Biome, { amount: number; of: (f: Fields, i: number) => numbe
   volcanic: { amount: 0.2, of: (f, i) => f.broad[i] * 0.5 + f.medium[i] * 0.5 },
 }
 
-const EMBER: Rgb = [196, 70, 30]
 const EMBER_WIDTH = 0.014
 
 // One repeat of a biome's ground, as a canvas drawn for "scale" pixels to each
@@ -56,7 +56,8 @@ export function biomeTile(biome: Biome, background: SceneBackground, scale: numb
     fine: tiled(size, 32, 32, next),
     streak: tiled(size, 3, 32, next),
   }
-  const { fill } = biomeColours(biome, background)
+  const { biomes } = themeFor(background)
+  const { fill } = biomes[biome]
   const { amount, of } = SHADE[biome]
   const tile = document.createElement("canvas")
   tile.width = size
@@ -68,7 +69,7 @@ export function biomeTile(biome: Biome, background: SceneBackground, scale: numb
     let colour: Rgb = [fill[0] * shade, fill[1] * shade, fill[2] * shade]
     if (biome === "volcanic") {
       const vein = Math.abs(fields.medium[i] - 0.5)
-      if (vein < EMBER_WIDTH) colour = mixRgb(colour, EMBER, (1 - vein / EMBER_WIDTH) * 0.45)
+      if (vein < EMBER_WIDTH) colour = mixRgb(colour, biomes.volcanic.accent, (1 - vein / EMBER_WIDTH) * 0.45)
     }
     for (let c = 0; c < 3; c++) image.data[i * 4 + c] = Math.min(Math.max(colour[c], 0), 255)
     image.data[i * 4 + 3] = 255

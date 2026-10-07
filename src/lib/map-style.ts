@@ -1,3 +1,5 @@
+import { LINE_WEIGHT } from "./map-theme"
+
 // How all of a map's land looks. These are applied when the land is drawn, so
 // they change what is already there too, and the land itself stays as drawn.
 export type MapStyle = {
@@ -25,7 +27,7 @@ export const STYLE_LIMITS = {
 
 export const DEFAULT_STYLE: MapStyle = {
   roundness: 0.2,
-  outline: 2.5,
+  outline: LINE_WEIGHT,
   rings: 4,
   thickness: 2.5,
   spacing: 10,

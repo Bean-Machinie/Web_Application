@@ -1,11 +1,12 @@
 import type { MultiPolygon } from "polygon-clipping"
 import { Shape } from "react-konva"
 import { strokeCoast } from "@/lib/biomes/coast-tint"
-import { biomeInks, hexToRgb, mixRgb } from "@/lib/biomes/palette"
-import type { Rgb } from "@/lib/biomes/palette"
+import { BIOMES } from "@/lib/biomes/biomes"
 import type { Surface } from "@/lib/biomes/surface"
-import { LAND_COLOURS } from "@/lib/map-land-colours"
+import { mixRgb } from "@/lib/colour"
+import type { Rgb } from "@/lib/colour"
 import type { SceneBackground } from "@/lib/map-scene"
+import { themeFor } from "@/lib/map-theme"
 
 // How far either side of the coast the ground is read, in canvas pixels.
 const REACH = 6
@@ -21,8 +22,9 @@ type Props = {
 // The ink line along the coast, in the colour of the ground beside it, blended
 // where the ground changes. All of it is drawn by this one shape.
 export function MapCoastShape({ land, canvas, background, outline, surface }: Props) {
-  const plains = hexToRgb(LAND_COLOURS[background].ink)
-  const inks = biomeInks(background)
+  const theme = themeFor(background)
+  const plains = theme.ink
+  const inks = BIOMES.map((biome) => theme.biomes[biome].ink)
 
   // The ground by the coast. The line is drawn on the rounded coast, which can lie
   // a little off the land that paint is allowed on, so the ground is also read a

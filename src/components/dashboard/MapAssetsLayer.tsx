@@ -1,10 +1,16 @@
+import { useState } from "react"
 import type Konva from "konva"
-import { Image as KonvaImage, Layer, Rect } from "react-konva"
+import type { MultiPolygon } from "polygon-clipping"
+import { Image as KonvaImage, Layer, Rect, Shape } from "react-konva"
 import { useAssetInfos } from "@/hooks/use-asset-infos"
-import { bottomEdge } from "@/lib/map-asset-edit"
+import { useAssetPictures } from "@/hooks/use-asset-pictures"
+import type { BuilderView } from "@/hooks/use-builder-viewport"
+import type { Paint } from "@/lib/biomes/paint-tiles"
+import type { Surface } from "@/lib/biomes/surface"
+import { artFor } from "@/lib/map-asset-art"
 import type { AssetPatch } from "@/lib/map-asset-edit"
-import type { AssetInfo } from "@/lib/map-assets"
-import type { PlacedAsset } from "@/lib/map-scene"
+import type { MapScene, PlacedAsset } from "@/lib/map-scene"
+import { themeFor } from "@/lib/map-theme"
 
 type Props = {
   assets: PlacedAsset[]
@@ -14,14 +20,20 @@ type Props = {
   // Plain click replaces the selection; Shift-click adds or removes one.
   onSelect: (id: string, additive: boolean) => void
   onChange: (patches: AssetPatch[]) => void
+  // What the art is drawn over, for the pictures of it.
+  canvas: MapScene["canvas"]
+  land: MultiPolygon
+  paint: Paint
+  surface: Surface
+  backdrop: HTMLCanvasElement
+  view: BuilderView
+  size: { width: number; height: number }
 }
 
-type InfoOf = (id: string) => AssetInfo | undefined
-
-const bottom = (asset: PlacedAsset, infoOf: InfoOf) => {
-  const trim = infoOf(asset.asset)?.trim
-  return bottomEdge(asset, trim?.width ?? 100, trim?.height ?? 100)
-}
+const NONE: ReadonlySet<string> = new Set()
+// A piece that was let go stops drawing itself after this long, if nothing
+// changed to take over from it.
+const LETTING_GO_MS = 250
 
 const patchOf = (node: Konva.Node): AssetPatch => ({
   id: node.id(),
@@ -39,12 +51,27 @@ const setCursor = (event: Konva.KonvaEventObject<MouseEvent>, cursor: string) =>
   if (container) container.style.cursor = cursor
 }
 
-// The placed art, above the land. Each piece is only what is painted: the empty
-// margin of its picture is trimmed off, and a click on a clear pixel goes to
-// whatever is behind. What a piece is, and where it is painted, is worked out
-// once per kind of art and shared by every copy.
-export function MapAssetsLayer({ assets, selected, editable, onSelect, onChange }: Props) {
+// The placed art, above the land, drawn as pictures: the art is ink, and where
+// it is solid the ground shows through it (see useAssetPictures). The pieces
+// themselves are shapes that draw nothing and are only there to be picked,
+// moved and scaled, and a click on a clear pixel goes to whatever is behind.
+// A piece that is being moved draws itself, in flat colour, until it is let go.
+export function MapAssetsLayer(props: Props) {
+  const { assets, selected, editable, onSelect, onChange, canvas, view, size } = props
   const infoOf = useAssetInfos(assets.map((asset) => asset.asset))
+  // The pieces being moved, as long as the assets are the ones they were moved from.
+  const [movement, setMovement] = useState<{ ids: ReadonlySet<string>; from: PlacedAsset[] } | null>(null)
+  const moving = movement && movement.from === assets ? movement.ids : NONE
+  const { pictures } = useAssetPictures({ ...props, hidden: moving })
+  const theme = themeFor(canvas.background)
+
+  const start = (event: Konva.KonvaEventObject<Event>) => {
+    const dragged = event.target.id()
+    setMovement({ ids: new Set(selected.includes(dragged) ? selected : [dragged]), from: assets })
+  }
+  const letGo = () => {
+    window.setTimeout(() => setMovement(null), LETTING_GO_MS)
+  }
 
   // The Transformer carries the whole selection along with the piece that is
   // dragged; once it is let go, what moved is saved as one change.
@@ -56,15 +83,46 @@ export function MapAssetsLayer({ assets, selected, editable, onSelect, onChange 
       .map((id) => layer?.findOne(`#${id}`))
       .filter((node): node is Konva.Node => Boolean(node))
     onChange(nodes.map(patchOf))
+    letGo()
   }
 
-  // Drawn by the lowest point of each, so what is lower on the map is in front.
-  // The sort is stable, so equal ones keep the order they were placed in.
-  const sorted = [...assets].sort((a, b) => bottom(a, infoOf) - bottom(b, infoOf))
+  // The sharp picture stands in for the overview where it covers what is in
+  // sight; otherwise the overview shows, so there is never an empty edge.
+  const sharp = pictures.view
+  const left = Math.max(-view.x / view.scale, 0)
+  const top = Math.max(-view.y / view.scale, 0)
+  const right = Math.min((size.width - view.x) / view.scale, canvas.width)
+  const bottom = Math.min((size.height - view.y) / view.scale, canvas.height)
+  const covered =
+    sharp !== null &&
+    sharp.x <= left + 1 &&
+    sharp.y <= top + 1 &&
+    sharp.x + sharp.canvas.width / sharp.scale >= right - 1 &&
+    sharp.y + sharp.canvas.height / sharp.scale >= bottom - 1
+  const whole = pictures.overview
 
   return (
     <Layer listening={editable}>
-      {sorted.map((asset) => {
+      <KonvaImage
+        name="assets-overview"
+        image={whole.canvas}
+        width={canvas.width}
+        height={canvas.height}
+        visible={!covered}
+        listening={false}
+      />
+      {sharp && (
+        <KonvaImage
+          name="assets-view"
+          image={sharp.canvas}
+          x={sharp.x}
+          y={sharp.y}
+          width={sharp.canvas.width / sharp.scale}
+          height={sharp.canvas.height / sharp.scale}
+          listening={false}
+        />
+      )}
+      {assets.map((asset) => {
         const info = infoOf(asset.asset)
         const common = {
           id: asset.id,
@@ -82,7 +140,10 @@ export function MapAssetsLayer({ assets, selected, editable, onSelect, onChange 
           },
           onMouseEnter: (event: Konva.KonvaEventObject<MouseEvent>) => setCursor(event, "move"),
           onMouseLeave: (event: Konva.KonvaEventObject<MouseEvent>) => setCursor(event, ""),
+          onDragStart: start,
           onDragEnd: finish,
+          onTransformStart: start,
+          onTransformEnd: letGo,
         }
         // Art that is not there (the file was removed) stays as a box, so it
         // can still be found and deleted.
@@ -101,17 +162,21 @@ export function MapAssetsLayer({ assets, selected, editable, onSelect, onChange 
             />
           )
         }
-        const { image, trim, hit } = info
+        const { trim, hit } = info
         return (
-          <KonvaImage
+          <Shape
             key={asset.id}
             {...common}
-            image={image}
-            crop={trim}
             width={trim.width}
             height={trim.height}
             offsetX={trim.width / 2}
             offsetY={trim.height / 2}
+            sceneFunc={(context) => {
+              if (!moving.has(asset.id)) return
+              const drawn = trim.width * Math.abs(asset.scaleX) * view.scale
+              const art = artFor(asset.asset, info, drawn, theme.ink, theme.land.fill)
+              context.drawImage(art.preview, 0, 0, trim.width, trim.height)
+            }}
             // Only the painted pixels can be picked.
             hitFunc={(context, shape) => {
               context.setAttr("fillStyle", shape.colorKey)

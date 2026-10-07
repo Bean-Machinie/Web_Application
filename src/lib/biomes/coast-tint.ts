@@ -1,8 +1,8 @@
 import type Konva from "konva"
 import type { MultiPolygon } from "polygon-clipping"
 import { alongBorder } from "../map-land-clip"
-import { css } from "./palette"
-import type { Rgb } from "./palette"
+import { css } from "../colour"
+import type { Rgb } from "../colour"
 
 // The coast is stroked in pieces no longer than this, each in the colour of the
 // ground beside it, so the ink changes smoothly where biomes meet.

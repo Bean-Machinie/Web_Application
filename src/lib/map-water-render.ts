@@ -1,11 +1,12 @@
 import { CELL } from "./map-water-field"
 import type { Field } from "./map-water-field"
 import { smooth } from "./map-noise"
-import { LOOKS, MAX_RINGS, makeRings, sizesFor } from "./map-water-look"
+import { MAX_RINGS, makeRings, sizesFor } from "./map-water-look"
 import type { WaterStyle } from "./map-water-look"
 import { waterNoise } from "./map-water-noise"
 import type { SceneBackground } from "./map-scene"
 import type { MapStyle } from "./map-style"
+import { themeFor } from "./map-theme"
 
 // A rectangle of the canvas, drawn at "scale" pixels to each canvas pixel.
 export type Region = { x: number; y: number; width: number; height: number; scale: number }
@@ -25,7 +26,7 @@ export function renderWater(
   canvas: { width: number; height: number },
   region: Region
 ) {
-  const look = LOOKS[background]
+  const look = themeFor(background).water
   const out = document.createElement("canvas")
   out.width = Math.max(1, Math.round(region.width * region.scale))
   out.height = Math.max(1, Math.round(region.height * region.scale))

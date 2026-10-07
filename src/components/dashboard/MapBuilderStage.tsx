@@ -90,6 +90,13 @@ export function MapBuilderStage(props: Props) {
       <MapLandLayer land={land} background={canvas.background} />
       <MapBiomeLayer land={land} canvas={canvas} style={scene.style} paint={scene.paint} surface={surface} />
       <MapAssetsLayer
+        canvas={canvas}
+        land={land}
+        paint={scene.paint}
+        surface={surface}
+        backdrop={background}
+        view={view}
+        size={size}
         assets={scene.assets}
         selected={editing.selected}
         editable={editable && tool === "select"}

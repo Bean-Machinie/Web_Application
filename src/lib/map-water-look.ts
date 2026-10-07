@@ -1,15 +1,5 @@
 import { random } from "./map-noise"
-import type { SceneBackground } from "./map-scene"
 import type { MapStyle } from "./map-style"
-
-type Rgb = [number, number, number]
-
-// Art, not interface, so fixed colours. A dark band hugs the coast; light lines
-// spread out from it.
-export const LOOKS: Record<SceneBackground, { dark: Rgb; darkAlpha: number; light: Rgb; lightAlpha: number }> = {
-  parchment: { dark: [96, 66, 36], darkAlpha: 0.42, light: [255, 252, 240], lightAlpha: 0.95 },
-  ocean: { dark: [8, 38, 58], darkAlpha: 0.45, light: [214, 244, 248], lightAlpha: 0.85 },
-}
 
 export const MAX_RINGS = 8
 // The widest a line can swell to, as a share of its usual width.
