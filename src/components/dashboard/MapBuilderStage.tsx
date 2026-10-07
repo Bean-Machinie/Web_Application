@@ -104,7 +104,8 @@ export function MapBuilderStage(props: Props) {
         onLasso={props.onLasso}
       />
       <MapBrushLayer
-        enabled={editable && tool === "brush"}
+        enabled={editable && (tool === "brush" || tool === "blend")}
+        blending={tool === "blend"}
         brush={props.brush}
         paint={scene.paint}
         land={mask}

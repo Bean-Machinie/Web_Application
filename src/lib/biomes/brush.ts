@@ -1,21 +1,9 @@
 import { BIOMES, PAINT_CELL, TILE } from "./biomes"
 import type { BrushBiome } from "./biomes"
+import { blendStamp } from "./blend"
 import { CHANNELS, TILE_BYTES, settle, tileKey } from "./paint-tiles"
 import type { Paint, Tile } from "./paint-tiles"
-import { smooth } from "../map-noise"
-
-// The stamp is full strength out to this share of the radius, then fades to
-// nothing exactly at the radius, where the size ring is drawn.
-const CORE = 0.5
-// Stamps are placed this share of the diameter apart along the path.
-const SPACING = 0.1
-// Cells are measured by averaging this many samples across, when the brush is
-// small enough for a cell to matter; larger brushes look at the cell's centre.
-const SAMPLES = 3
-const FINE_BRUSH = 24
-
-const falloff = (share: number) =>
-  share <= CORE ? 1 : share >= 1 ? 0 : 1 - smooth((share - CORE) / (1 - CORE))
+import { FINE_BRUSH, SPACING, coverage } from "./stamp"
 
 // What a stroke has done to one tile so far. The weights are kept as exact
 // numbers and only rounded when the stroke ends.
@@ -29,14 +17,18 @@ export type Cells = { x0: number; y0: number; x1: number; y1: number }
 // cell's result is worked out afresh from how it was before the stroke. A
 // paint of full strength therefore always reaches exactly nothing or exactly
 // all, whatever the order of the dabs.
+//
+// A blend stroke is the exception: its stamps do build up, each one softening
+// what the last left, so that scrubbing an area blends it more and more.
 export function startStroke(
   paint: Paint,
-  biome: BrushBiome,
+  biome: BrushBiome | "blend",
   land: Uint8Array,
   cols: number,
-  rows: number
+  rows: number,
+  strength = 0
 ) {
-  const channel = biome === "plains" ? -1 : BIOMES.indexOf(biome)
+  const channel = biome === "plains" || biome === "blend" ? -1 : BIOMES.indexOf(biome)
   const touched = new Map<string, Touched>()
 
   const tileFor = (tx: number, ty: number) => {
@@ -54,22 +46,20 @@ export function startStroke(
     return entry
   }
 
-  // How much of the stamp at (x, y) falls on a cell: the stamp's strength at
-  // its centre, or for a small brush the average over the cell, so that the
-  // footprint is as true as the cells allow.
-  function coverage(cx: number, cy: number, x: number, y: number, radius: number, fine: boolean) {
-    const left = cx * PAINT_CELL
-    const top = cy * PAINT_CELL
-    if (!fine) return falloff(Math.hypot(left + PAINT_CELL / 2 - x, top + PAINT_CELL / 2 - y) / radius)
-    let sum = 0
-    for (let j = 0; j < SAMPLES; j++) {
-      for (let i = 0; i < SAMPLES; i++) {
-        const px = left + ((i + 0.5) / SAMPLES) * PAINT_CELL
-        const py = top + ((j + 0.5) / SAMPLES) * PAINT_CELL
-        sum += falloff(Math.hypot(px - x, py - y) / radius)
-      }
+  // The stroke's weights for the tile a cell is in. Asked for cell after cell, so
+  // the last tile is kept.
+  let lastX = -1
+  let lastY = -1
+  let lastWork: Float32Array | null = null
+  const tileWork = (cx: number, cy: number) => {
+    const tx = Math.floor(cx / TILE)
+    const ty = Math.floor(cy / TILE)
+    if (tx !== lastX || ty !== lastY || !lastWork) {
+      lastX = tx
+      lastY = ty
+      lastWork = tileFor(tx, ty).work
     }
-    return sum / (SAMPLES * SAMPLES)
+    return lastWork
   }
 
   function dab(x: number, y: number, radius: number): Cells {
@@ -81,18 +71,31 @@ export function startStroke(
       x1: Math.min(Math.ceil(x / PAINT_CELL + reach), cols - 1),
       y1: Math.min(Math.ceil(y / PAINT_CELL + reach), rows - 1),
     }
+    if (biome === "blend") {
+      blendStamp({
+        cells,
+        radius,
+        strength,
+        coverage: (cx, cy) => coverage(cx, cy, x, y, radius, fine),
+        land,
+        cols,
+        rows,
+        tileWork,
+      })
+      return cells
+    }
     for (let cy = cells.y0; cy <= cells.y1; cy++) {
       for (let cx = cells.x0; cx <= cells.x1; cx++) {
         if (!land[cy * cols + cx]) continue
-        const strength = coverage(cx, cy, x, y, radius, fine)
-        if (strength <= 0) continue
+        const covered = coverage(cx, cy, x, y, radius, fine)
+        if (covered <= 0) continue
         const tile = tileFor(Math.floor(cx / TILE), Math.floor(cy / TILE))
         const cell = (cy % TILE) * TILE + (cx % TILE)
-        if (strength <= tile.cover[cell]) continue
-        tile.cover[cell] = strength
+        if (covered <= tile.cover[cell]) continue
+        tile.cover[cell] = covered
         for (let c = 0; c < CHANNELS; c++) {
           const before = tile.base?.[cell * CHANNELS + c] ?? 0
-          tile.work[cell * CHANNELS + c] = before * (1 - strength) + (c === channel ? 255 : 0) * strength
+          tile.work[cell * CHANNELS + c] = before * (1 - covered) + (c === channel ? 255 : 0) * covered
         }
       }
     }
@@ -127,11 +130,20 @@ export function startStroke(
       const tile = new Uint8Array(work.length)
       let changed = base === undefined
       let any = false
-      for (let i = 0; i < work.length; i++) {
-        const weight = settle(work[i])
-        tile[i] = weight
-        if (weight !== 0) any = true
-        if (base && weight !== base[i]) changed = true
+      for (let i = 0; i < work.length; i += CHANNELS) {
+        let sum = 0
+        let biggest = i
+        for (let c = 0; c < CHANNELS; c++) {
+          tile[i + c] = settle(work[i + c])
+          sum += tile[i + c]
+          if (tile[i + c] > tile[biggest]) biggest = i + c
+        }
+        // Rounding must not make a cell add up to more than the whole.
+        if (sum > 255) tile[biggest] -= sum - 255
+        for (let c = 0; c < CHANNELS; c++) {
+          if (tile[i + c] !== 0) any = true
+          if (base && tile[i + c] !== base[i + c]) changed = true
+        }
       }
       if (!changed && base) continue
       if (!base && !any) continue

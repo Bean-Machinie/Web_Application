@@ -34,6 +34,7 @@ const CURSORS: Record<BuilderTool, string> = {
   hand: "cursor-grab active:cursor-grabbing",
   land: "cursor-crosshair",
   brush: "cursor-crosshair",
+  blend: "cursor-crosshair",
   select: "cursor-default",
 }
 

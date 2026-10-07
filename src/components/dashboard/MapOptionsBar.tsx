@@ -102,7 +102,9 @@ export function MapOptionsBar({ tool, mode, altHeld, editing, brush, background,
           </span>
         </>
       )}
-      {tool === "brush" && <MapBrushOptions brush={brush} background={background} />}
+      {(tool === "brush" || tool === "blend") && (
+        <MapBrushOptions tool={tool} brush={brush} background={background} />
+      )}
       {tool === "hand" && <span className="text-muted-foreground text-xs">Drag to move around</span>}
     </div>
   )

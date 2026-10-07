@@ -1,22 +1,26 @@
 import { useEffect, useState } from "react"
-import { BRUSH_SIZE } from "@/lib/biomes/biomes"
+import { BLEND_STRENGTH, BRUSH_SIZE } from "@/lib/biomes/biomes"
 import type { BrushBiome } from "@/lib/biomes/biomes"
 
 export type Brush = {
   biome: BrushBiome
   // Across the brush, in canvas pixels.
   size: number
+  // How strongly the blend brush softens, 0 to 1.
+  strength: number
   onBiome: (biome: BrushBiome) => void
   onSize: (size: number) => void
+  onStrength: (strength: number) => void
 }
 
 const clamp = (size: number) => Math.round(Math.min(Math.max(size, BRUSH_SIZE.min), BRUSH_SIZE.max))
 
-// What the brush paints and how big it is, which [ and ] change while the brush
-// is the tool. These belong to the editor, not to the map.
+// What the brush paints, how big it is and how strongly it blends, with [ and ]
+// changing the size while the brush or the blend brush is the tool. These belong to the editor, not to the map.
 export function useBrush(enabled: boolean): Brush {
   const [biome, onBiome] = useState<BrushBiome>("desert")
   const [size, onSize] = useState(BRUSH_SIZE.start)
+  const [strength, onStrength] = useState(BLEND_STRENGTH.start)
 
   useEffect(() => {
     if (!enabled) return
@@ -32,5 +36,5 @@ export function useBrush(enabled: boolean): Brush {
     return () => window.removeEventListener("keydown", onKey)
   }, [enabled])
 
-  return { biome, size, onBiome, onSize: (next) => onSize(clamp(next)) }
+  return { biome, size, strength, onBiome, onSize: (next) => onSize(clamp(next)), onStrength }
 }

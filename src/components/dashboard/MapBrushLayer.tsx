@@ -17,6 +17,8 @@ const union = (a: Cells, b: Cells): Cells => ({
 
 type Props = {
   enabled: boolean
+  // The brush blends the biomes already there instead of painting one.
+  blending: boolean
   brush: Brush
   paint: Paint
   // A 1 for each cell of the paint grid that has land, and the grid's size.
@@ -29,12 +31,12 @@ type Props = {
 // The stroke is drawn straight onto the biome picture as it goes, and becomes
 // one change of the paint when the pointer is let go. The ring is only for the
 // editor and is left out of the rendered image. The middle button pans.
-export function MapBrushLayer({ enabled, brush, paint, land, surface, onPaint }: Props) {
+export function MapBrushLayer({ enabled, blending, brush, paint, land, surface, onPaint }: Props) {
   const layer = useRef<Konva.Layer>(null)
   const ring = useRef<Konva.Group>(null)
-  const latest = useRef({ brush, paint, land, onPaint })
+  const latest = useRef({ blending, brush, paint, land, onPaint })
   useEffect(() => {
-    latest.current = { brush, paint, land, onPaint }
+    latest.current = { blending, brush, paint, land, onPaint }
   })
 
   useEffect(() => {
@@ -95,8 +97,8 @@ export function MapBrushLayer({ enabled, brush, paint, land, surface, onPaint }:
 
     const onDown = (event: Konva.KonvaEventObject<PointerEvent>) => {
       if (event.evt.button !== 0 || stroke) return
-      const { brush, paint, land } = latest.current
-      stroke = startStroke(paint, brush.biome, land.mask, land.cols, land.rows)
+      const { blending, brush, paint, land } = latest.current
+      stroke = startStroke(paint, blending ? "blend" : brush.biome, land.mask, land.cols, land.rows, brush.strength)
       base = paint
       last = place(event.evt)
       show(stroke.dab(last[0], last[1], brush.size / 2))

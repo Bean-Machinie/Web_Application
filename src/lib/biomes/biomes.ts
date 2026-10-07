@@ -11,4 +11,7 @@ export const PAINT_CELL = 2
 // Cells are grouped in square tiles, so a stroke only copies what it touches.
 export const TILE = 64
 
+// How strongly the blend brush softens, the share of full: subtle to start.
+export const BLEND_STRENGTH = { min: 0.05, max: 1, start: 0.25 }
+
 export const BRUSH_SIZE = { min: 20, max: 400, start: 120, step: 1.15 }

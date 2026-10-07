@@ -76,7 +76,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
 
   const [tool, setTool] = useState<BuilderTool>("land")
   const [mode, setMode] = useState<LandMode>("add")
-  const brush = useBrush(tool === "brush" && !publishing)
+  const brush = useBrush((tool === "brush" || tool === "blend") && !publishing)
   const { alt, shift } = useHeldModifiers()
   const cutting = (mode === "cut") !== alt
 
