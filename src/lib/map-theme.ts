@@ -54,22 +54,16 @@ export type PaintLook = {
 export type MapTheme = {
   // The ink the coast and the art are drawn in.
   ink: Rgb
-  // What the sheet or the sea looks like under everything: the colour from low to
-  // high ground of the noise, the darker edge of the sheet, and how strong the
-  // bands of waves are (none on paper).
-  backdrop: { low: Rgb; high: Rgb; edge: Rgb; edgeAmount: number; waves: number }
   land: {
     fill: Rgb
-    // How strongly the grain shows on the land.
-    grain: number
     shadow: { colour: string; blur: number; offsetY: number; opacity: number }
   }
   // Each biome's ground, and the ink the coast takes where it borders it.
   // "accent" is the glow in volcanic ground.
   biomes: Biomes & { volcanic: { accent: Rgb } }
   // The sea around the land: a dark band along the coast and light lines
-  // spreading out from it, with grain over the sea.
-  water: { dark: Rgb; darkAlpha: number; light: Rgb; lightAlpha: number; grain: number }
+  // spreading out from it.
+  water: { dark: Rgb; darkAlpha: number; light: Rgb; lightAlpha: number }
   paint: PaintLook
 }
 
@@ -183,10 +177,9 @@ const PARCHMENT_LAND = { fill: [239, 227, 189] as Rgb, ink: [52, 38, 26] as Rgb 
 const THEMES: Record<SceneBackground, MapTheme> = {
   parchment: {
     ink: PARCHMENT_LAND.ink,
-    backdrop: { low: [205, 178, 132], high: [240, 225, 190], edge: [120, 84, 44], edgeAmount: 0.38, waves: 0 },
-    land: { fill: PARCHMENT_LAND.fill, grain: 0.4, shadow: SHADOW },
+    land: { fill: PARCHMENT_LAND.fill, shadow: SHADOW },
     biomes: muted(PARCHMENT_LAND),
-    water: { dark: [96, 66, 36], darkAlpha: 0.42, light: [255, 252, 240], lightAlpha: 0.95, grain: 0.3 },
+    water: { dark: [96, 66, 36], darkAlpha: 0.42, light: [255, 252, 240], lightAlpha: 0.95 },
     paint: {
       ...PAINT,
       grade: { saturation: 0.92, contrast: 1.03, brightness: 0, tint: [255, 232, 190], tintAmount: 0.1 },
@@ -195,10 +188,9 @@ const THEMES: Record<SceneBackground, MapTheme> = {
   },
   ocean: {
     ink: [34, 34, 30],
-    backdrop: { low: [28, 92, 122], high: [64, 144, 168], edge: [10, 40, 62], edgeAmount: 0.3, waves: 0.06 },
-    land: { fill: [198, 209, 147], grain: 0.4, shadow: SHADOW },
+    land: { fill: [198, 209, 147], shadow: SHADOW },
     biomes: BIOMES,
-    water: { dark: [8, 38, 58], darkAlpha: 0.45, light: [214, 244, 248], lightAlpha: 0.85, grain: 0.3 },
+    water: { dark: [8, 38, 58], darkAlpha: 0.45, light: [214, 244, 248], lightAlpha: 0.85 },
     paint: {
       ...PAINT,
       grade: { saturation: 1, contrast: 1.03, brightness: 0, tint: [255, 244, 220], tintAmount: 0.04 },

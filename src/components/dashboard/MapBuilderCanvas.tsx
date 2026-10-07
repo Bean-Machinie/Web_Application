@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { MutableRefObject, RefObject } from "react"
 import type Konva from "konva"
 import type { Pair } from "polygon-clipping"
+import { useTerrain } from "@/hooks/use-terrain"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import type { Brush } from "@/hooks/use-brush"
 import type { Paint } from "@/lib/biomes/paint-tiles"
@@ -43,6 +44,7 @@ const CURSORS: Record<BuilderTool, string> = {
 export function MapBuilderCanvas(props: Props) {
   const { scene, tool, editing, viewport, stageRef, pointer } = props
   const [spot, setSpot] = useState<ContextSpot | null>(null)
+  const terrain = useTerrain(scene.canvas)
 
   const place = (event: { nativeEvent: MouseEvent | DragEvent }) => {
     const stage = stageRef.current
@@ -82,9 +84,10 @@ export function MapBuilderCanvas(props: Props) {
       }}
       className={`bg-muted relative min-w-0 flex-1 touch-none overflow-hidden ${CURSORS[tool]}`}
     >
-      {viewport.size.width > 0 && (
+      {viewport.size.width > 0 && terrain && (
         <MapBuilderStage
           scene={scene}
+          terrain={terrain}
           size={viewport.size}
           view={viewport.view}
           stageRef={stageRef}

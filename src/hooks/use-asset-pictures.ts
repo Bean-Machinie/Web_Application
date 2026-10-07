@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { MultiPolygon } from "polygon-clipping"
-import landGrainUrl from "@/assets/textures/land-grain.png"
-import waterGrainUrl from "@/assets/textures/water-grain.png"
 import { PAINT_CELL, TILE } from "@/lib/biomes/biomes"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { Surface } from "@/lib/biomes/surface"
@@ -14,7 +12,6 @@ import type { MapScene, PlacedAsset } from "@/lib/map-scene"
 import { themeFor } from "@/lib/map-theme"
 import { useAssetInfos } from "./use-asset-infos"
 import type { BuilderView } from "./use-builder-viewport"
-import { useTexture } from "./use-texture"
 
 // The sharp picture covers what is in sight with this much extra around it, so
 // that panning a little needs no new picture, and is never made larger than this.
@@ -81,7 +78,7 @@ type Input = {
   surface: Surface
   terrain: Terrain
   canvas: MapScene["canvas"]
-  // The sheet or sea under everything.
+  // The sea under everything.
   backdrop: HTMLCanvasElement
   view: BuilderView
   size: { width: number; height: number }
@@ -98,8 +95,6 @@ export function useAssetPictures(input: Input) {
   const infoOf = useAssetInfos(assets.map((asset) => asset.asset))
   const [version, setVersion] = useState(0)
   const bump = useCallback(() => setVersion((current) => current + 1), [])
-  const seaGrain = useTexture(waterGrainUrl)
-  const landGrain = useTexture(landGrainUrl)
 
   // Art that has loaded since last time is drawable now.
   const loaded = new Set(assets.filter((asset) => infoOf(asset.asset)).map((asset) => asset.asset)).size
@@ -117,15 +112,12 @@ export function useAssetPictures(input: Input) {
       canvas: { width, height },
       background,
       backdrop,
-      // Painted ground is used as painted, so it has no grain over it.
-      seaGrain: terrain.sea ? null : seaGrain,
-      landGrain: terrain.land ? null : landGrain,
       landTexture: terrain.land,
       land,
       paint: paintBox.current,
       biomes: painted ? surface.picture : null,
     }),
-    [width, height, background, backdrop, seaGrain, landGrain, terrain.sea, terrain.land, land, surface, painted]
+    [width, height, background, backdrop, terrain.land, land, surface, painted]
   )
   const drawing = useMemo(
     () => ({ pieces, near: indexPieces(pieces, { width, height }), ground, colours }),

@@ -10,7 +10,7 @@ import type { Terrain } from "./terrain"
 export function exportBiomes(scene: MapScene, terrain: Terrain) {
   if (scene.paint.size === 0) return null
   const { canvas } = scene
-  const surface = createSurface(canvas, canvas.background, renderScale(canvas), terrain.biomes)
+  const surface = createSurface(canvas, renderScale(canvas), terrain.biomes)
   surface.drawAll(scene.paint)
   return surface.picture
 }

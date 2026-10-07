@@ -4,16 +4,15 @@ import type Konva from "konva"
 import { Group, Image as KonvaImage, Layer, Rect, Stage } from "react-konva"
 import type { BuilderView } from "@/hooks/use-builder-viewport"
 import { useShownLand } from "@/hooks/use-shown-land"
-import { renderBackground } from "@/lib/map-background"
 import type { MapScene } from "@/lib/map-scene"
 import type { Pair } from "polygon-clipping"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import { useBiomeSurface } from "@/hooks/use-biome-surface"
-import { useTerrain } from "@/hooks/use-terrain"
 import type { Brush } from "@/hooks/use-brush"
 import { landMask } from "@/lib/biomes/land-mask"
 import { gridSize } from "@/lib/biomes/paint-tiles"
+import type { Terrain } from "@/lib/terrain"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import { MapAssetsLayer } from "./MapAssetsLayer"
 import { MapBiomeLayer } from "./MapBiomeLayer"
@@ -25,6 +24,8 @@ import { MapSelectionLayer } from "./MapSelectionLayer"
 
 type Props = {
   scene: MapScene
+  // The painted ground, which is loaded before the stage is shown.
+  terrain: Terrain
   size: { width: number; height: number }
   view: BuilderView
   stageRef: RefObject<Konva.Stage | null>
@@ -53,11 +54,8 @@ type Props = {
 //   ring, the lasso's outline), which are never in the rendered image.
 // Anything named "chrome" is left out when the map is rendered.
 export function MapBuilderStage(props: Props) {
-  const { scene, size, view, stageRef, tool, cutting, editable, editing, onWheel, onPan } = props
+  const { scene, terrain, size, view, stageRef, tool, cutting, editable, editing, onWheel, onPan } = props
   const { canvas } = scene
-  const terrain = useTerrain(canvas)
-  // The sea is the painted tile where there is one, and made by the code where not.
-  const background = useMemo(() => terrain.sea ?? renderBackground(canvas), [canvas, terrain.sea])
   const land = useShownLand(scene.land, scene.style.roundness, canvas)
   const surface = useBiomeSurface(canvas, terrain)
   // Paint sticks where the land is as it is shown, rounded corners and all, so
@@ -94,8 +92,8 @@ export function MapBuilderStage(props: Props) {
             shadowOpacity={0.3}
           />
         </Group>
-        <KonvaImage name="sea" image={background} width={canvas.width} height={canvas.height} />
-        <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} painted={terrain.sea !== null} />
+        <KonvaImage name="sea" image={terrain.sea} width={canvas.width} height={canvas.height} />
+        <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} />
         <MapLandLayer land={land} background={canvas.background} texture={terrain.land} textureScale={terrain.scale} />
         <MapBiomeLayer land={land} canvas={canvas} style={scene.style} paint={scene.paint} surface={surface} />
       </Layer>
@@ -105,7 +103,7 @@ export function MapBuilderStage(props: Props) {
         paint={scene.paint}
         surface={surface}
         terrain={terrain}
-        backdrop={background}
+        backdrop={terrain.sea}
         view={view}
         size={size}
         assets={scene.assets}

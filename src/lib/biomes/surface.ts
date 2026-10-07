@@ -1,10 +1,8 @@
-import type { SceneBackground } from "../map-scene"
 import { BIOMES, PAINT_CELL, TILE } from "./biomes"
 import type { Biome } from "./biomes"
 import type { Cells } from "./brush"
 import { CHANNELS, gridSize } from "./paint-tiles"
 import type { Paint } from "./paint-tiles"
-import { biomeTile } from "./texture"
 
 // Where the weights of a tile are read from: the paint, or a stroke in progress.
 export type TileAt = (key: string) => ArrayLike<number> | undefined
@@ -19,11 +17,9 @@ const REACH = 2
 // again, so painting stays quick on a big map.
 export function createSurface(
   canvas: { width: number; height: number },
-  background: SceneBackground,
   scale: number,
-  // Painted ground for biomes that have a tile, as pictures at this same scale.
-  // The others have the ground the code makes.
-  painted: Partial<Record<Biome, HTMLCanvasElement>> = {}
+  // The painted ground of each biome, as pictures at this same scale.
+  painted: Record<Biome, HTMLCanvasElement>
 ) {
   const { cols, rows } = gridSize(canvas)
   const picture = document.createElement("canvas")
@@ -37,7 +33,6 @@ export function createSurface(
     plane.height = rows
     return plane
   })
-  const tiles = BIOMES.map((biome) => (painted[biome] ? null : biomeTile(biome, background, scale)))
   const scratch = document.createElement("canvas")
   const scratchContext = scratch.getContext("2d")!
   let reading: TileAt = () => undefined
@@ -97,16 +92,8 @@ export function createSurface(
       if (!present[c]) continue
       // The texture is laid on first, then cut down to the biome's weights.
       scratchContext.globalCompositeOperation = "source-over"
-      const ground = painted[BIOMES[c]]
-      if (ground) {
-        scratchContext.setTransform(1, 0, 0, 1, 0, 0)
-        scratchContext.drawImage(ground, dx, dy, dw, dh, 0, 0, dw, dh)
-      } else {
-        scratchContext.setTransform(1, 0, 0, 1, -dx, -dy)
-        scratchContext.fillStyle = scratchContext.createPattern(tiles[c]!, "repeat")!
-        scratchContext.fillRect(dx, dy, dw, dh)
-        scratchContext.setTransform(1, 0, 0, 1, 0, 0)
-      }
+      scratchContext.setTransform(1, 0, 0, 1, 0, 0)
+      scratchContext.drawImage(painted[BIOMES[c]], dx, dy, dw, dh, 0, 0, dw, dh)
       scratchContext.globalCompositeOperation = "destination-in"
       scratchContext.imageSmoothingEnabled = true
       scratchContext.drawImage(planes[c], x0, y0, width, height, 0, 0, dw, dh)

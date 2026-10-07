@@ -1,17 +1,13 @@
 import type Konva from "konva"
-import landGrainUrl from "@/assets/textures/land-grain.png"
-import waterGrainUrl from "@/assets/textures/water-grain.png"
 import { bakeAll, blankPicture } from "./map-asset-pictures"
 import type { Picture } from "./map-asset-bake"
 import { indexPieces, makePieces } from "./map-asset-pieces"
 import { loadAssetInfo, loadedAssetInfo } from "./map-assets"
-import { renderBackground } from "./map-background"
 import { smoothLand } from "./map-coast-smooth"
 import type { Ground } from "./map-ground"
 import type { Terrain } from "./terrain"
 import { renderScale } from "./map-scene"
 import type { MapScene } from "./map-scene"
-import { loadTexture } from "./map-textures"
 import { themeFor } from "./map-theme"
 
 // The builder draws the placed art for the screen. The published picture is
@@ -28,14 +24,10 @@ export async function exportAssets(
   const pieces = makePieces(scene.assets, loadedAssetInfo, new Set())
   if (pieces.length === 0) return null
 
-  const [seaGrain, landGrain] = await Promise.all([loadTexture(waterGrainUrl), loadTexture(landGrainUrl)])
   const ground: Ground = {
     canvas,
     background: canvas.background,
-    backdrop: terrain.sea ?? renderBackground(canvas),
-    // Painted ground is used as painted, so it has no grain over it.
-    seaGrain: terrain.sea ? null : seaGrain,
-    landGrain: terrain.land ? null : landGrain,
+    backdrop: terrain.sea,
     landTexture: terrain.land,
     land: smoothLand(scene.land, scene.style.roundness, canvas),
     paint: { current: scene.paint },

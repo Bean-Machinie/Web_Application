@@ -15,10 +15,7 @@ folder with the right name, reload the builder, and it is used. That's all.
 | `desert.png`   | the desert biome                |
 | `volcanic.png` | the volcanic biome              |
 
-`.webp` and `.jpg` work too. **A tile that is not there is not an error:** that
-ground keeps the look the code makes for it, so tiles can be added one at a time.
-`land-grain.png` and `water-grain.png` are that generated look's grain, and are
-only used where there is no tile of the real thing.
+`.webp` and `.jpg` work too. **All six must be there**: the builder loads them before it shows the map, and says which one is missing if not.
 
 ## How a tile is used
 
