@@ -6,6 +6,7 @@ import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
 import { useAssetEditing } from "@/hooks/use-asset-editing"
 import { useAssetKeys } from "@/hooks/use-asset-keys"
+import { useBrush } from "@/hooks/use-brush"
 import { useMapStyle } from "@/hooks/use-map-style"
 import { useBuilderViewport } from "@/hooks/use-builder-viewport"
 import { useHeldModifiers } from "@/hooks/use-held-modifiers"
@@ -15,6 +16,9 @@ import { useSceneAutosave } from "@/hooks/use-scene-autosave"
 import { useSceneHistory } from "@/hooks/use-scene-history"
 import { useToolKeys } from "@/hooks/use-tool-keys"
 import { useUndoKeys } from "@/hooks/use-undo-keys"
+import { landMask } from "@/lib/biomes/land-mask"
+import { EMPTY_PAINT, eraseOutside, gridSize } from "@/lib/biomes/paint-tiles"
+import type { Paint } from "@/lib/biomes/paint-tiles"
 import { addLand, cutLand, lassoToShape } from "@/lib/map-land"
 import type { BuilderTool, LandMode } from "@/lib/map-builder-tools"
 import type { SceneBackground } from "@/lib/map-scene"
@@ -68,6 +72,10 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
 
   const [tool, setTool] = useState<BuilderTool>("land")
   const [mode, setMode] = useState<LandMode>("add")
+  const brush = useBrush(tool === "brush" && !publishing)
+  // For now the paint lives only in this page, not in the scene: it is not
+  // saved, published or undone yet.
+  const [paint, setPaint] = useState<Paint>(EMPTY_PAINT)
   const { alt, shift } = useHeldModifiers()
   const cutting = (mode === "cut") !== alt
 
@@ -100,6 +108,11 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
     const land = cut ? cutLand(scene.land, shape) : addLand(scene.land, shape)
     if (land !== scene.land && !(cut && scene.land.length === 0)) {
       history.change((old) => ({ ...old, land }))
+      // Land cut away loses its paint, so land drawn there again starts as plains.
+      if (cut) {
+        const { cols, rows } = gridSize(scene.canvas)
+        setPaint((old) => eraseOutside(old, landMask(land, scene.canvas), cols, rows))
+      }
     }
   }
 
@@ -141,7 +154,11 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           <FormAlert tone="error">{error}</FormAlert>
         </div>
       )}
-      <MapOptionsBar tool={tool} mode={mode} altHeld={alt} editing={editing} onMode={setMode} />
+      <MapOptionsBar tool={tool} mode={mode} altHeld={alt} editing={editing}
+        brush={brush}
+        background={scene.canvas.background}
+        onMode={setMode}
+      />
       <div className="flex min-h-0 flex-1">
         <MapToolStrip tool={tool} disabled={publishing} onTool={changeTool} />
         <MapBuilderCanvas
@@ -151,6 +168,9 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           editable={!publishing}
           shift={shift}
           editing={editing}
+          brush={brush}
+          paint={paint}
+          onPaint={setPaint}
           viewport={viewport}
           stageRef={stage}
           pointer={pointer}

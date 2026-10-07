@@ -3,6 +3,8 @@ import type { MutableRefObject, RefObject } from "react"
 import type Konva from "konva"
 import type { Pair } from "polygon-clipping"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
+import type { Brush } from "@/hooks/use-brush"
+import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { useBuilderViewport } from "@/hooks/use-builder-viewport"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 import type { MapScene } from "@/lib/map-scene"
@@ -19,16 +21,20 @@ type Props = {
   // Shift is held.
   shift: boolean
   editing: AssetEditing
+  brush: Brush
+  paint: Paint
   viewport: ReturnType<typeof useBuilderViewport>
   stageRef: RefObject<Konva.Stage | null>
   // Kept up to date with where the pointer is on the canvas, for pasting there.
   pointer: MutableRefObject<{ x: number; y: number } | null>
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
+  onPaint: (paint: Paint) => void
 }
 
 const CURSORS: Record<BuilderTool, string> = {
   hand: "cursor-grab active:cursor-grabbing",
   land: "cursor-crosshair",
+  brush: "cursor-crosshair",
   select: "cursor-default",
 }
 
@@ -88,6 +94,9 @@ export function MapBuilderCanvas(props: Props) {
           editing={editing}
           snapRotation={props.shift}
           onLasso={props.onLasso}
+          brush={props.brush}
+          paint={props.paint}
+          onPaint={props.onPaint}
           onWheel={viewport.onWheel}
           onPan={viewport.onPan}
         />

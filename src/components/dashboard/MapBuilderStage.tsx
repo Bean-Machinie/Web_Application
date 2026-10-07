@@ -9,7 +9,14 @@ import type { MapScene } from "@/lib/map-scene"
 import type { Pair } from "polygon-clipping"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
+import { useBiomeSurface } from "@/hooks/use-biome-surface"
+import type { Brush } from "@/hooks/use-brush"
+import { landMask } from "@/lib/biomes/land-mask"
+import { gridSize } from "@/lib/biomes/paint-tiles"
+import type { Paint } from "@/lib/biomes/paint-tiles"
 import { MapAssetsLayer } from "./MapAssetsLayer"
+import { MapBiomeLayer } from "./MapBiomeLayer"
+import { MapBrushLayer } from "./MapBrushLayer"
 import { MapLandLayer } from "./MapLandLayer"
 import { MapWaterLayer } from "./MapWaterLayer"
 import { MapLassoLayer } from "./MapLassoLayer"
@@ -27,6 +34,9 @@ type Props = {
   editable: boolean
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
   editing: AssetEditing
+  brush: Brush
+  paint: Paint
+  onPaint: (paint: Paint) => void
   // Shift is held: rotating snaps to 15 degrees.
   snapRotation: boolean
   onWheel: (event: Konva.KonvaEventObject<WheelEvent>) => void
@@ -40,6 +50,12 @@ export function MapBuilderStage(props: Props) {
   const { canvas } = scene
   const background = useMemo(() => renderBackground(canvas), [canvas])
   const land = useShownLand(scene.land, scene.style.roundness, canvas)
+  const surface = useBiomeSurface(canvas)
+  // Paint sticks only where the land is as it is drawn, not as it is rounded.
+  const mask = useMemo(
+    () => ({ mask: landMask(scene.land, canvas), ...gridSize(canvas) }),
+    [scene.land, canvas]
+  )
 
   return (
     <Stage
@@ -74,12 +90,8 @@ export function MapBuilderStage(props: Props) {
         <KonvaImage image={background} width={canvas.width} height={canvas.height} />
       </Layer>
       <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} />
-      <MapLandLayer
-        land={land}
-        background={canvas.background}
-        style={scene.style}
-        canvas={canvas}
-      />
+      <MapLandLayer land={land} background={canvas.background} />
+      <MapBiomeLayer land={land} canvas={canvas} style={scene.style} paint={props.paint} surface={surface} />
       <MapAssetsLayer
         assets={scene.assets}
         selected={editing.selected}
@@ -91,6 +103,14 @@ export function MapBuilderStage(props: Props) {
         enabled={editable && tool === "land"}
         cutting={cutting}
         onLasso={props.onLasso}
+      />
+      <MapBrushLayer
+        enabled={editable && tool === "brush"}
+        brush={props.brush}
+        paint={props.paint}
+        land={mask}
+        surface={surface}
+        onPaint={props.onPaint}
       />
       <MapSelectionLayer
         enabled={editable && tool === "select"}

@@ -3,7 +3,10 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
+import type { Brush } from "@/hooks/use-brush"
 import type { BuilderTool, LandMode } from "@/lib/map-builder-tools"
+import type { SceneBackground } from "@/lib/map-scene"
+import { MapBrushOptions } from "./MapBrushOptions"
 import { Shortcut } from "./Shortcut"
 
 type Props = {
@@ -12,12 +15,14 @@ type Props = {
   // Alt is held, which flips the land mode for as long as it is.
   altHeld: boolean
   editing: AssetEditing
+  brush: Brush
+  background: SceneBackground
   onMode: (mode: LandMode) => void
 }
 
 // The bar under the title, which changes with the tool: add or cut for land,
 // what can be done to the selection for select.
-export function MapOptionsBar({ tool, mode, altHeld, editing, onMode }: Props) {
+export function MapOptionsBar({ tool, mode, altHeld, editing, brush, background, onMode }: Props) {
   const cutting = (mode === "cut") !== altHeld
   const some = editing.selected.length > 0
 
@@ -97,6 +102,7 @@ export function MapOptionsBar({ tool, mode, altHeld, editing, onMode }: Props) {
           </span>
         </>
       )}
+      {tool === "brush" && <MapBrushOptions brush={brush} background={background} />}
       {tool === "hand" && <span className="text-muted-foreground text-xs">Drag to move around</span>}
     </div>
   )
