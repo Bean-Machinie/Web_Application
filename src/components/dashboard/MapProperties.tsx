@@ -14,7 +14,7 @@ type Props = { assets: PlacedAsset[]; editing: AssetEditing }
 const wrap = (degrees: number) => ((((degrees + 180) % 360) + 360) % 360) - 180
 
 // The size and turn of the selected art, as numbers, and what can be done to
-// it; nothing while nothing is selected. Sizes are in canvas pixels. With the
+// it; a hint while nothing is selected. Sizes are in canvas pixels. With the
 // link on, changing one side changes the other to match.
 export function MapProperties({ assets, editing }: Props) {
   const [linked, setLinked] = useState(true)
@@ -41,11 +41,12 @@ export function MapProperties({ assets, editing }: Props) {
     ])
   }
 
-  if (chosen.length === 0) return null
+  if (chosen.length === 0) {
+    return <p className="text-muted-foreground text-xs">Select art on the canvas to adjust it.</p>
+  }
 
   return (
-    <section className="flex flex-col gap-3 border-b p-4">
-      <h2 className="text-sm font-medium">Properties</h2>
+    <section className="flex flex-col gap-3">
       {chosen.length > 1 && (
         <p className="text-muted-foreground text-[13px]">{chosen.length} selected</p>
       )}
