@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { Brush } from "@/hooks/use-brush"
-import { BIOMES, BLEND_STRENGTH, BLEND_STRETCH, BRUSH_SIZE } from "@/lib/biomes/biomes"
+import { BIOMES, BLEND_STRENGTH, BLEND_STRETCH, BRUSH_OPACITY, BRUSH_SIZE } from "@/lib/biomes/biomes"
 import type { BrushBiome } from "@/lib/biomes/biomes"
 import { biomeColours, css, hexToRgb } from "@/lib/biomes/palette"
 import { LAND_COLOURS } from "@/lib/map-land-colours"
@@ -57,6 +57,23 @@ export function MapBrushOptions({ tool, brush, background }: Props) {
         onValueChange={([size]) => brush.onSize(size)}
       />
       <span className="text-muted-foreground w-12 text-xs tabular-nums">{brush.size} px</span>
+      {tool === "brush" && (
+        <>
+          <span className="text-muted-foreground ml-3 text-xs">Opacity</span>
+          <Slider
+            className="w-32"
+            aria-label="Brush opacity"
+            min={BRUSH_OPACITY.min}
+            max={BRUSH_OPACITY.max}
+            step={0.01}
+            value={[brush.opacity]}
+            onValueChange={([opacity]) => brush.onOpacity(opacity)}
+          />
+          <span className="text-muted-foreground w-10 text-xs tabular-nums">
+            {Math.round(brush.opacity * 100)}%
+          </span>
+        </>
+      )}
       {tool === "blend" && (
         <>
           <span className="text-muted-foreground ml-3 text-xs">Strength</span>

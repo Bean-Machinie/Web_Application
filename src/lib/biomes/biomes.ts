@@ -17,4 +17,7 @@ export const BLEND_STRENGTH = { min: 0.05, max: 1, start: 0.25 }
 // low to start.
 export const BLEND_STRETCH = { min: 0, max: 1, start: 0.2 }
 
+// How much of a biome one stroke of the brush lays down at most: all of it to start.
+export const BRUSH_OPACITY = { min: 0.05, max: 1, start: 1 }
+
 export const BRUSH_SIZE = { min: 20, max: 400, start: 120, step: 1.15 }

@@ -28,7 +28,8 @@ export function startStroke(
   cols: number,
   rows: number,
   strength = 0,
-  stretch = 0
+  stretch = 0,
+  opacity = 1
 ) {
   const channel = biome === "plains" || biome === "blend" ? -1 : BIOMES.indexOf(biome)
   const touched = new Map<string, Touched>()
@@ -85,7 +86,8 @@ export function startStroke(
     for (let cy = cells.y0; cy <= cells.y1; cy++) {
       for (let cx = cells.x0; cx <= cells.x1; cx++) {
         if (!land[cy * cols + cx]) continue
-        const covered = coverage(cx, cy, x, y, radius, fine)
+        // Opacity caps what a stroke lays down, however often it passes over a cell.
+        const covered = coverage(cx, cy, x, y, radius, fine) * opacity
         if (covered <= 0) continue
         const tile = tileFor(Math.floor(cx / TILE), Math.floor(cy / TILE))
         const cell = (cy % TILE) * TILE + (cx % TILE)
