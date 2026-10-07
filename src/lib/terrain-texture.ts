@@ -7,18 +7,23 @@ import { themeFor } from "./map-theme"
 // to each of those, so that it stays sharp in the published picture.
 export const TILE_SPAN = 512
 
-// The second copy of a tile is drawn this much larger than the first, and turned
-// a quarter, so that its marks never line up with the first's.
-const SECOND_SCALE = 1.37
+// The second copy of a tile is drawn this much larger than the first, and moved
+// along, so that its marks never line up with the first's. It is not turned or
+// mirrored, because painted marks have a direction, and that must stay the same.
+const SECOND_SCALE = 1.22
 // How big the patches are in which one copy or the other shows, and the larger
 // ones over which the light and dark of the ground drift, in canvas pixels.
 const PATCH = 320
 const DRIFT = 1100
+// How much of the noise's range one copy takes to give way to the other. Small,
+// so that the places where both show at once, which are duller than either, are
+// narrow.
+const TRANSITION = 0.08
 // How far the light and dark drift, as the strength of the overlay.
 const DRIFT_AMOUNT = 0.3
 // The noise that picks the patches is worked out at this many canvas pixels to
 // each of its own.
-const MASK_STEP = 32
+const MASK_STEP = 16
 
 type Canvas = { width: number; height: number; seed: number }
 
@@ -54,7 +59,7 @@ function gradedTile(image: HTMLImageElement, background: SceneBackground) {
 
 // A soft low-resolution picture of noise, stretched over the canvas when drawn:
 // white with the noise as its opacity, or grey with it as its tone.
-function noiseMask(canvas: Canvas, cell: number, seed: number, toAlpha: boolean) {
+function noiseMask(canvas: Canvas, cell: number, seed: number, toAlpha: boolean, transition = TRANSITION) {
   const w = Math.ceil(canvas.width / MASK_STEP)
   const h = Math.ceil(canvas.height / MASK_STEP)
   const noise = valueNoise(canvas.width, canvas.height, cell, random(seed))
@@ -65,7 +70,7 @@ function noiseMask(canvas: Canvas, cell: number, seed: number, toAlpha: boolean)
       const at = (y * w + x) * 4
       if (toAlpha) {
         out.data[at] = out.data[at + 1] = out.data[at + 2] = 255
-        out.data[at + 3] = smooth(Math.min(Math.max((n - 0.3) / 0.4, 0), 1)) * 255
+        out.data[at + 3] = smooth(Math.min(Math.max((n - 0.5) / transition + 0.5, 0), 1)) * 255
       } else {
         const tone = 128 + (n - 0.5) * 2 * 90
         out.data[at] = out.data[at + 1] = out.data[at + 2] = tone
@@ -80,8 +85,9 @@ function noiseMask(canvas: Canvas, cell: number, seed: number, toAlpha: boolean)
 
 // The painted tile laid over the whole canvas, at "scale" pixels to each canvas
 // pixel, without a visible repeat. Plain tiling shows the same marks every 512
-// pixels, so a second copy, larger and turned, is mixed in over soft patches of
-// noise, and the light and dark of the ground drift a little over larger ones.
+// pixels, so a second copy, larger and moved along, takes over in patches of
+// noise with short edges, and the light and dark of the ground drift a little
+// over larger ones.
 // The same seed always makes the same picture. "kind" only varies the noise, so
 // that sea and land do not drift together.
 export function terrainTexture(
@@ -90,9 +96,10 @@ export function terrainTexture(
   canvas: Canvas,
   background: SceneBackground,
   scale: number,
-  // For tuning and tests: the size of the patches, in canvas pixels.
-  patch = PATCH
+  // For tuning and tests.
+  options: { patch?: number; secondScale?: number; transition?: number } = {}
 ) {
+  const { patch = PATCH, secondScale = SECOND_SCALE, transition = TRANSITION } = options
   const tile = gradedTile(image, background)
   const w = Math.round(canvas.width * scale)
   const h = Math.round(canvas.height * scale)
@@ -101,11 +108,12 @@ export function terrainTexture(
   context.imageSmoothingQuality = "high"
   const seed = (canvas.seed ^ (kind * 0x9e3779b1)) >>> 0
 
-  const lay = (target: CanvasRenderingContext2D, span: number, turn: boolean) => {
+  const lay = (target: CanvasRenderingContext2D, span: number, moved: boolean) => {
     const pattern = target.createPattern(tile, "repeat")!
     const k = (span * scale) / tile.width
-    // Offsets so that the copies do not meet at the same corner.
-    pattern.setTransform(turn ? new DOMMatrix().translate(span * scale * 0.37, 0).rotate(90).scale(k) : new DOMMatrix().scale(k))
+    // Moved along so that the copies do not meet at the same corner.
+    const along = new DOMMatrix().translate(span * scale * 0.37, span * scale * 0.61)
+    pattern.setTransform((moved ? along : new DOMMatrix()).scale(k))
     target.fillStyle = pattern
     target.fillRect(0, 0, w, h)
   }
@@ -113,10 +121,10 @@ export function terrainTexture(
 
   const second = canvasOf(w, h)
   const secondContext = second.getContext("2d")!
-  lay(secondContext, TILE_SPAN * SECOND_SCALE, true)
+  lay(secondContext, TILE_SPAN * secondScale, true)
   secondContext.globalCompositeOperation = "destination-in"
   secondContext.imageSmoothingQuality = "high"
-  secondContext.drawImage(noiseMask(canvas, patch, seed, true), 0, 0, w, h)
+  secondContext.drawImage(noiseMask(canvas, patch, seed, true, transition), 0, 0, w, h)
   context.drawImage(second, 0, 0)
 
   context.globalCompositeOperation = "overlay"
