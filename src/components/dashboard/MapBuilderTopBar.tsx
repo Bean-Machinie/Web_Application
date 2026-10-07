@@ -2,6 +2,8 @@ import { AlertCircle, ArrowLeft, Check, Loader2, Redo2, Undo2, Upload } from "lu
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { SceneSaveState } from "@/hooks/use-scene-autosave"
+import { useShortcutText } from "@/hooks/use-shortcut-text"
+import { Shortcut } from "./Shortcut"
 
 type Props = {
   name: string
@@ -31,6 +33,7 @@ function status(state: SceneSaveState, unpublished: boolean) {
 // Back to the map, undo and redo, the draft's state, and publishing. The draft
 // saves by itself; only Publish changes the map image players see.
 export function MapBuilderTopBar(props: Props) {
+  const keyOf = useShortcutText()
   const { Icon, text, spin } = status(props.saveState, props.unpublished)
 
   return (
@@ -40,24 +43,38 @@ export function MapBuilderTopBar(props: Props) {
       </Button>
       <h1 className="min-w-0 truncate font-medium">{props.name}</h1>
       <div className="flex items-center">
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Undo"
-          disabled={!props.canUndo}
-          onClick={props.onUndo}
-        >
-          <Undo2 />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Redo"
-          disabled={!props.canRedo}
-          onClick={props.onRedo}
-        >
-          <Redo2 />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Undo"
+              disabled={!props.canUndo}
+              onClick={props.onUndo}
+            >
+              <Undo2 />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            Undo<Shortcut>{keyOf("history.undo")}</Shortcut>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Redo"
+              disabled={!props.canRedo}
+              onClick={props.onRedo}
+            >
+              <Redo2 />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            Redo<Shortcut>{keyOf("history.redo")}</Shortcut>
+          </TooltipContent>
+        </Tooltip>
       </div>
       <div className="ml-auto flex items-center gap-4">
         <span role="status" className="text-muted-foreground flex items-center gap-1.5 text-xs">

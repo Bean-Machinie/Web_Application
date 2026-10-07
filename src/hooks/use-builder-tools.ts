@@ -3,10 +3,8 @@ import type { MapScene } from "@/lib/map-scene"
 import type { BuilderTool, LandMode } from "@/lib/map-builder-tools"
 import { useArmedAsset } from "./use-armed-asset"
 import { useAssetEditing } from "./use-asset-editing"
-import { useAssetKeys } from "./use-asset-keys"
 import { useBrush } from "./use-brush"
 import { useSpacePan } from "./use-space-pan"
-import { useToolKeys } from "./use-tool-keys"
 
 type Options = {
   assets: MapScene["assets"]
@@ -24,7 +22,7 @@ export function useBuilderTools({ assets, change, centre, pointer, locked }: Opt
   const [tool, setTool] = useState<BuilderTool>("land")
   const [mode, setMode] = useState<LandMode>("add")
   const [hideAssets, setHideAssets] = useState(false)
-  const brush = useBrush((tool === "brush" || tool === "blend") && !locked)
+  const brush = useBrush()
   const stamping = useArmedAsset(!locked)
   const { disarm } = stamping
 
@@ -56,20 +54,20 @@ export function useBuilderTools({ assets, change, centre, pointer, locked }: Opt
     stamping.arm(id)
   }
 
-  useToolKeys(changeTool, !locked)
-  useAssetKeys(editing, !locked)
-  // Space is the hand for as long as it is held, and the tool is not changed,
+  // The hand is out for as long as its key is held, and the tool is not changed,
   // so the selection is kept.
-  const panning = useSpacePan(!locked)
+  const pan = useSpacePan(!locked)
 
   return {
     tool,
-    activeTool: panning ? ("hand" as const) : tool,
+    activeTool: pan.panning ? ("hand" as const) : tool,
+    panHold: pan.hold,
     mode,
     setMode,
     brush,
     editing,
     armed: stamping.armed,
+    disarm,
     armAsset,
     changeTool,
     // Hiding the art is for painting under it.

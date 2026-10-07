@@ -1,4 +1,4 @@
-import { Maximize, Minus, Plus } from "lucide-react"
+import { Keyboard, Maximize, Minus, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -9,6 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useShortcutText } from "@/hooks/use-shortcut-text"
+import type { ActionId } from "@/lib/shortcut-actions"
 import { Shortcut } from "./Shortcut"
 
 const PRESETS = [0.25, 0.5, 1, 2, 4]
@@ -19,9 +21,11 @@ type Props = {
   onZoomBy: (factor: number) => void
   onZoomTo: (scale: number) => void
   onFit: () => void
+  onHelp: () => void
 }
 
-function Step(props: { label: string; keys: string; onClick: () => void; children: React.ReactNode }) {
+function Step(props: { label: string; action: ActionId; onClick: () => void; children: React.ReactNode }) {
+  const keyOf = useShortcutText()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -31,7 +35,7 @@ function Step(props: { label: string; keys: string; onClick: () => void; childre
       </TooltipTrigger>
       <TooltipContent>
         {props.label}
-        <Shortcut>{props.keys}</Shortcut>
+        <Shortcut>{keyOf(props.action)}</Shortcut>
       </TooltipContent>
     </Tooltip>
   )
@@ -39,13 +43,18 @@ function Step(props: { label: string; keys: string; onClick: () => void; childre
 
 // The thin bar under the canvas: how far it is zoomed, as a percentage that
 // opens a list of zooms to jump to, with the buttons to step and to fit.
-export function MapStatusBar({ zoom, onZoomBy, onZoomTo, onFit }: Props) {
+export function MapStatusBar({ zoom, onZoomBy, onZoomTo, onFit, onHelp }: Props) {
+  const keyOf = useShortcutText()
   return (
-    <footer className="bg-background flex h-7 shrink-0 items-center justify-end gap-0.5 border-t px-2">
-      <Step label="Fit canvas to view" keys="Ctrl+0" onClick={onFit}>
+    <footer className="bg-background flex h-7 shrink-0 items-center gap-0.5 border-t px-2">
+      <Step label="Keyboard shortcuts" action="help.toggle" onClick={onHelp}>
+        <Keyboard />
+      </Step>
+      <span className="flex-1" />
+      <Step label="Fit canvas to view" action="view.fit" onClick={onFit}>
         <Maximize />
       </Step>
-      <Step label="Zoom out" keys="Ctrl+−" onClick={() => onZoomBy(1 / 1.4)}>
+      <Step label="Zoom out" action="view.zoomOut" onClick={() => onZoomBy(1 / 1.4)}>
         <Minus />
       </Step>
       <DropdownMenu>
@@ -56,18 +65,18 @@ export function MapStatusBar({ zoom, onZoomBy, onZoomTo, onFit }: Props) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" side="top" className="w-44">
           <DropdownMenuItem onSelect={onFit}>
-            Fit <DropdownMenuShortcut>Ctrl+0</DropdownMenuShortcut>
+            Fit <DropdownMenuShortcut>{keyOf("view.fit")}</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {PRESETS.map((scale) => (
             <DropdownMenuItem key={scale} onSelect={() => onZoomTo(scale)}>
               {scale * 100}%
-              {scale === 1 && <DropdownMenuShortcut>Ctrl+Alt+0</DropdownMenuShortcut>}
+              {scale === 1 && <DropdownMenuShortcut>{keyOf("view.zoom100")}</DropdownMenuShortcut>}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      <Step label="Zoom in" keys="Ctrl++" onClick={() => onZoomBy(1.4)}>
+      <Step label="Zoom in" action="view.zoomIn" onClick={() => onZoomBy(1.4)}>
         <Plus />
       </Step>
     </footer>

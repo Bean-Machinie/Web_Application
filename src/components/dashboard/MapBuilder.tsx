@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import type Konva from "konva"
+import { useBuilderShortcuts } from "@/hooks/use-builder-shortcuts"
 import { useBuilderTools } from "@/hooks/use-builder-tools"
 import { useMapStyle } from "@/hooks/use-map-style"
 import { useBuilderViewport } from "@/hooks/use-builder-viewport"
@@ -10,8 +11,6 @@ import { useMapImageUpload } from "@/hooks/use-map-image-upload"
 import { useMapPublish } from "@/hooks/use-map-publish"
 import { useSceneAutosave } from "@/hooks/use-scene-autosave"
 import { useSceneHistory } from "@/hooks/use-scene-history"
-import { useUndoKeys } from "@/hooks/use-undo-keys"
-import { useZoomKeys } from "@/hooks/use-zoom-keys"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import { TOOL_PANEL_INSET } from "@/lib/map-builder-tools"
 import type { SceneBackground } from "@/lib/map-scene"
@@ -22,6 +21,7 @@ import { MapBuilderCanvas } from "./MapBuilderCanvas"
 import { MapBuilderTopBar } from "./MapBuilderTopBar"
 import { MapRightPanel } from "./MapRightPanel"
 import { MapSettings } from "./MapSettings"
+import { MapShortcutDialog } from "./MapShortcutDialog"
 import { MapStatusBar } from "./MapStatusBar"
 import { MapToolPanel } from "./MapToolPanel"
 import { MapToolStrip } from "./MapToolStrip"
@@ -80,8 +80,15 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const { editing } = tools
   const { alt, shift } = useHeldModifiers()
   const cutting = (tools.mode === "cut") !== alt
-  useUndoKeys(undo, redo, !publishing)
-  useZoomKeys(viewport, !publishing)
+  const [helpOpen, setHelpOpen] = useState(false)
+  useBuilderShortcuts({
+    enabled: !publishing,
+    tools,
+    viewport,
+    undo,
+    redo,
+    toggleHelp: () => setHelpOpen((open) => !open),
+  })
 
   const setBackground = (background: SceneBackground) =>
     history.change((old) => ({ ...old, canvas: { ...old.canvas, background } }))
@@ -151,6 +158,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
             onZoomBy={viewport.zoomBy}
             onZoomTo={viewport.zoomTo}
             onFit={viewport.fit}
+            onHelp={() => setHelpOpen(true)}
           />
         </div>
         <MapRightPanel
@@ -171,6 +179,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           disabled={publishing}
         />
       </div>
+      <MapShortcutDialog open={helpOpen} onOpenChange={setHelpOpen} />
     </div>
   )
 }

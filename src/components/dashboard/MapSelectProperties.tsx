@@ -6,7 +6,6 @@ const GESTURES: [string, string][] = [
   ["Drag on empty canvas", "Box select"],
   ["Shift+drag box", "Add to selection"],
   ["Alt+drag", "Duplicate"],
-  ["Ctrl+A", "Select all"],
   ["Shift while scaling", "Free scale"],
   ["Shift while turning", "Snap to 15°"],
 ]
