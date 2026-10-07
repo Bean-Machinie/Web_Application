@@ -11,4 +11,4 @@ export const PAINT_CELL = 4
 // Cells are grouped in square tiles, so a stroke only copies what it touches.
 export const TILE = 64
 
-export const BRUSH_SIZE = { min: 10, max: 400, start: 120, step: 1.15 }
+export const BRUSH_SIZE = { min: 40, max: 400, start: 120, step: 1.15 }

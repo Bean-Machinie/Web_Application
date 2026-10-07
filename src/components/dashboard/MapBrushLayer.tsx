@@ -8,6 +8,13 @@ import type { Cells, Stroke } from "@/lib/biomes/brush"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { Surface } from "@/lib/biomes/surface"
 
+const union = (a: Cells, b: Cells): Cells => ({
+  x0: Math.min(a.x0, b.x0),
+  y0: Math.min(a.y0, b.y0),
+  x1: Math.max(a.x1, b.x1),
+  y1: Math.max(a.y1, b.y1),
+})
+
 type Props = {
   enabled: boolean
   brush: Brush
@@ -53,9 +60,17 @@ export function MapBrushLayer({ enabled, brush, paint, land, surface, onPaint }:
 
     const onMove = (event: PointerEvent) => {
       if (!stroke || !last) return
-      const next = place(event)
-      show(stroke.line(last[0], last[1], next[0], next[1], latest.current.brush.size / 2))
-      last = next
+      // Every position the pointer passed through since the last event, where
+      // the browser reports them, so a fast stroke is not cut into long straight runs.
+      const events = event.getCoalescedEvents?.()
+      let cells: Cells | null = null
+      for (const each of events?.length ? events : [event]) {
+        const next = place(each)
+        const done = stroke.line(last[0], last[1], next[0], next[1], latest.current.brush.size / 2)
+        last = next
+        if (done) cells = cells ? union(cells, done) : done
+      }
+      if (cells) show(cells)
     }
     const end = (commit: boolean) => {
       window.removeEventListener("pointermove", onMove)
