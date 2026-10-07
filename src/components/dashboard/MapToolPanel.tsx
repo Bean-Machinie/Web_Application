@@ -1,25 +1,33 @@
-import { useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { Brush } from "@/hooks/use-brush"
-import { BUILDER_TOOLS, toolHasSettings } from "@/lib/map-builder-tools"
+import { BUILDER_TOOLS } from "@/lib/map-builder-tools"
 import type { BuilderTool, LandMode } from "@/lib/map-builder-tools"
 import type { SceneBackground } from "@/lib/map-scene"
 import { MapBiomeSubTools } from "./MapBiomeSubTools"
 import { MapBrushProperties } from "./MapBrushProperties"
 import { MapLandSubTools } from "./MapLandSubTools"
+import { MapPanProperties } from "./MapPanProperties"
+import { MapSelectProperties } from "./MapSelectProperties"
 
 type Props = {
   tool: BuilderTool
+  open: boolean
   cutting: boolean
   brush: Brush
   background: SceneBackground
   showAssets: boolean
+  hasAssets: boolean
+  zoom: number
   disabled: boolean
+  onOpen: (open: boolean) => void
   onMode: (mode: LandMode) => void
   onShowAssets: (show: boolean) => void
+  onSelectAll: () => void
+  onZoom: (scale: number) => void
+  onFit: () => void
 }
 
 const Heading = ({ children }: { children: string }) => (
@@ -27,23 +35,23 @@ const Heading = ({ children }: { children: string }) => (
 )
 
 // The docked panel beside the tool strip: the sub tools of the tool in use above,
-// its settings below. It is closed for tools with nothing to set, and opens again
-// for the others unless it was put away by hand.
+// its settings below. It lies over the canvas and slides in and out like the
+// sidebar does, so the canvas is never resized and the map stays where it is;
+// only putting it away by hand closes it, whatever the tool.
 export function MapToolPanel(props: Props) {
-  const { tool, cutting, brush, background, showAssets, disabled } = props
-  const [putAway, setPutAway] = useState(false)
-  const open = toolHasSettings(tool) && !putAway
+  const { tool, open, cutting, brush, background, disabled } = props
   const label = BUILDER_TOOLS.find(({ id }) => id === tool)?.label
+  const hasSubTools = tool === "land" || tool === "brush"
 
   return (
     <Collapsible
       open={open}
-      onOpenChange={(next) => setPutAway(!next)}
-      className={`flex shrink-0 ${disabled ? "pointer-events-none opacity-60" : ""}`}
+      onOpenChange={props.onOpen}
+      className={`absolute inset-y-0 left-0 z-20 flex transition-transform duration-200 ease-linear motion-reduce:transition-none data-[state=closed]:-translate-x-56 ${disabled ? "pointer-events-none opacity-60" : ""}`}
     >
-      <CollapsibleContent className="flex w-56 flex-col overflow-y-auto border-r">
+      <div inert={!open} className="bg-background flex w-56 flex-col overflow-y-auto border-r">
         <h2 className="flex h-9 shrink-0 items-center border-b px-3 text-sm font-medium">{label}</h2>
-        {tool !== "blend" && (
+        {hasSubTools && (
           <>
             <section className="grid gap-1 p-2">
               <Heading>Sub tool</Heading>
@@ -60,29 +68,33 @@ export function MapToolPanel(props: Props) {
               Hold Alt to switch between adding and cutting.
             </p>
           )}
-          {tool !== "land" && (
+          {(tool === "brush" || tool === "blend") && (
             <MapBrushProperties
               blending={tool === "blend"}
               brush={brush}
-              showAssets={showAssets}
+              showAssets={props.showAssets}
               onShowAssets={props.onShowAssets}
             />
           )}
+          {tool === "select" && (
+            <MapSelectProperties hasAssets={props.hasAssets} onSelectAll={props.onSelectAll} />
+          )}
+          {tool === "hand" && (
+            <MapPanProperties zoom={props.zoom} onZoom={props.onZoom} onFit={props.onFit} />
+          )}
         </section>
-      </CollapsibleContent>
-      {toolHasSettings(tool) && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <CollapsibleTrigger
-              aria-label={open ? "Put the tool panel away" : "Show the tool panel"}
-              className="text-muted-foreground hover:bg-muted flex w-3 items-center border-r outline-none"
-            >
-              {open ? <ChevronLeft className="size-3" /> : <ChevronRight className="size-3" />}
-            </CollapsibleTrigger>
-          </TooltipTrigger>
-          <TooltipContent side="right">{open ? "Put the tool panel away" : "Show the tool panel"}</TooltipContent>
-        </Tooltip>
-      )}
+      </div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <CollapsibleTrigger
+            aria-label={open ? "Put the tool panel away" : "Show the tool panel"}
+            className="text-muted-foreground bg-background hover:bg-muted flex w-3 items-center border-r outline-none"
+          >
+            {open ? <ChevronLeft className="size-3" /> : <ChevronRight className="size-3" />}
+          </CollapsibleTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="right">{open ? "Put the tool panel away" : "Show the tool panel"}</TooltipContent>
+      </Tooltip>
     </Collapsible>
   )
 }

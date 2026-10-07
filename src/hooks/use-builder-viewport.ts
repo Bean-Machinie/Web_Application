@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react"
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react"
 import type { RefObject } from "react"
 import type Konva from "konva"
 
@@ -21,7 +21,13 @@ type Size = { width: number; height: number }
 // starts fitted, and the wheel zooms around the pointer. While a gesture goes on
 // the stage is moved directly, as redrawing the page on every step is slow with
 // much art on it; "view" catches up when it stops.
-export function useBuilderViewport(canvas: Size, stage: RefObject<Konva.Stage | null>) {
+export function useBuilderViewport(
+  canvas: Size,
+  stage: RefObject<Konva.Stage | null>,
+  // How much of the container's left side a docked panel covers: fitting and
+  // zooming by buttons use the part that can be seen.
+  inset: number
+) {
   const container = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState<Size>({ width: 0, height: 0 })
   const [view, setView] = useState<BuilderView>({ x: 0, y: 0, scale: 1 })
@@ -49,17 +55,18 @@ export function useBuilderViewport(canvas: Size, stage: RefObject<Konva.Stage | 
 
   const fitted = useCallback(
     (box: Size): BuilderView => {
+      const seen = box.width - inset
       const scale = Math.min(
-        (box.width - MARGIN * 2) / canvas.width,
+        (seen - MARGIN * 2) / canvas.width,
         (box.height - MARGIN * 2) / canvas.height
       )
       return {
         scale,
-        x: (box.width - canvas.width * scale) / 2,
+        x: inset + (seen - canvas.width * scale) / 2,
         y: (box.height - canvas.height * scale) / 2,
       }
     },
-    [canvas.width, canvas.height]
+    [canvas.width, canvas.height, inset]
   )
 
   useLayoutEffect(() => {
@@ -130,6 +137,12 @@ export function useBuilderViewport(canvas: Size, stage: RefObject<Konva.Stage | 
     window.addEventListener("pointerup", end)
   }, [moveTo, stage])
 
+  // The middle of what can be seen, on the screen.
+  const seenMiddle = useMemo(
+    () => ({ x: inset + (size.width - inset) / 2, y: size.height / 2 }),
+    [inset, size]
+  )
+
   // The middle of what is in view, on the canvas.
   const centre = useCallback(
     () =>
@@ -137,10 +150,10 @@ export function useBuilderViewport(canvas: Size, stage: RefObject<Konva.Stage | 
       size.width === 0
         ? { x: canvas.width / 2, y: canvas.height / 2 }
         : {
-            x: (size.width / 2 - live.current.x) / live.current.scale,
-            y: (size.height / 2 - live.current.y) / live.current.scale,
+            x: (seenMiddle.x - live.current.x) / live.current.scale,
+            y: (seenMiddle.y - live.current.y) / live.current.scale,
           },
-    [size, canvas.width, canvas.height]
+    [size, seenMiddle, canvas.width, canvas.height]
   )
 
   return {
@@ -150,7 +163,9 @@ export function useBuilderViewport(canvas: Size, stage: RefObject<Konva.Stage | 
     size,
     view,
     fit: () => setView(fitted(size)),
-    zoomBy: (factor: number) => zoomAt({ x: size.width / 2, y: size.height / 2 }, factor),
+    zoomBy: (factor: number) => zoomAt(seenMiddle, factor),
+    // To a zoom of the canvas's own pixels to screen pixels: 1 is 100%.
+    zoomTo: (scale: number) => zoomAt(seenMiddle, scale / live.current.scale),
     onWheel,
     onPan: (x: number, y: number) => setView((old) => ({ ...old, x, y })),
   }

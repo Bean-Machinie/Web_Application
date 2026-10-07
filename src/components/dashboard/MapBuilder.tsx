@@ -1,39 +1,35 @@
 import { useCallback, useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import type Konva from "konva"
-import type { Pair } from "polygon-clipping"
-import { FormAlert } from "@/components/auth/FormAlert"
-import { Button } from "@/components/ui/button"
 import { useAssetEditing } from "@/hooks/use-asset-editing"
 import { useAssetKeys } from "@/hooks/use-asset-keys"
 import { useBrush } from "@/hooks/use-brush"
 import { useMapStyle } from "@/hooks/use-map-style"
 import { useBuilderViewport } from "@/hooks/use-builder-viewport"
 import { useHeldModifiers } from "@/hooks/use-held-modifiers"
+import { useLandDrawing } from "@/hooks/use-land-drawing"
 import { useMapImageUpload } from "@/hooks/use-map-image-upload"
 import { useMapPublish } from "@/hooks/use-map-publish"
 import { useSceneAutosave } from "@/hooks/use-scene-autosave"
 import { useSceneHistory } from "@/hooks/use-scene-history"
+import { useSpacePan } from "@/hooks/use-space-pan"
 import { useToolKeys } from "@/hooks/use-tool-keys"
 import { useUndoKeys } from "@/hooks/use-undo-keys"
-import { landMask } from "@/lib/biomes/land-mask"
-import { eraseOutside, gridSize } from "@/lib/biomes/paint-tiles"
+import { useZoomKeys } from "@/hooks/use-zoom-keys"
 import type { Paint } from "@/lib/biomes/paint-tiles"
-import { addLand, cutLand, lassoToShape } from "@/lib/map-land"
+import { TOOL_PANEL_INSET } from "@/lib/map-builder-tools"
 import type { BuilderTool, LandMode } from "@/lib/map-builder-tools"
 import type { SceneBackground } from "@/lib/map-scene"
 import type { WorldImage } from "@/lib/world-images"
-import { SCENE_LIMIT_BYTES } from "@/lib/world-map-scenes"
 import type { LoadedScene } from "@/lib/world-map-scenes"
+import { MapBuilderBanners } from "./MapBuilderBanners"
 import { MapBuilderCanvas } from "./MapBuilderCanvas"
 import { MapBuilderTopBar } from "./MapBuilderTopBar"
 import { MapRightPanel } from "./MapRightPanel"
 import { MapSettingsPopover } from "./MapSettingsPopover"
+import { MapStatusBar } from "./MapStatusBar"
 import { MapToolPanel } from "./MapToolPanel"
 import { MapToolStrip } from "./MapToolStrip"
-
-// How much of the most a map can hold it may take before the builder warns.
-const SIZE_WARNING = 0.7
 
 type Props = {
   campaignId: string
@@ -56,7 +52,12 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const landStyle = useMapStyle(scene, history.change)
   const autosave = useSceneAutosave(mapId, scene, loaded)
   const stage = useRef<Konva.Stage>(null)
-  const viewport = useBuilderViewport(scene.canvas, stage)
+  const [panelOpen, setPanelOpen] = useState(true)
+  const viewport = useBuilderViewport(
+    scene.canvas,
+    stage,
+    panelOpen ? TOOL_PANEL_INSET.open : TOOL_PANEL_INSET.closed
+  )
   const pointer = useRef<{ x: number; y: number } | null>(null)
   const upload = useMapImageUpload({
     campaignId,
@@ -80,8 +81,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const { alt, shift } = useHeldModifiers()
   const cutting = (mode === "cut") !== alt
   const [hideAssets, setHideAssets] = useState(false)
-  // Hiding is for painting under the art; the rendered map always has it.
-  const showAssets = !hideAssets || tool !== "brush" || publishing
+  const showAssets = !hideAssets || tool !== "brush"
 
   const editing = useAssetEditing({
     assets: scene.assets,
@@ -102,25 +102,15 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   useUndoKeys(undo, redo, !publishing)
   useToolKeys(changeTool, !publishing)
   useAssetKeys(editing, !publishing)
+  useZoomKeys(viewport, !publishing)
+  // Space is the hand for as long as it is held, and the tool is not changed,
+  // so the selection is kept.
+  const activeTool = useSpacePan(!publishing) ? "hand" : tool
 
   const setBackground = (background: SceneBackground) =>
     history.change((old) => ({ ...old, canvas: { ...old.canvas, background } }))
 
-  function drawLand(points: Pair[], cut: boolean, scale: number) {
-    const shape = lassoToShape(points, scale, scene.canvas)
-    if (!shape) return
-    const land = cut ? cutLand(scene.land, shape) : addLand(scene.land, shape)
-    if (land !== scene.land && !(cut && scene.land.length === 0)) {
-      // Land cut away loses its paint, so land drawn there again starts as plains.
-      const { cols, rows } = gridSize(scene.canvas)
-      history.change((old) => ({
-        ...old,
-        land,
-        paint: cut ? eraseOutside(old.paint, landMask(land, old.canvas), cols, rows) : old.paint,
-      }))
-    }
-  }
-
+  const drawLand = useLandDrawing(scene, history.change)
   const paintBiomes = (paint: Paint) => history.change((old) => ({ ...old, paint }))
 
   return (
@@ -148,53 +138,51 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           onCommitStyle={landStyle.commit}
         />
       </MapBuilderTopBar>
-      {autosave.state === "conflict" && (
-        <div className="flex items-center gap-3 border-b px-3 py-2">
-          <FormAlert tone="error">{autosave.error ?? "Saving failed."}</FormAlert>
-          <Button size="sm" onClick={() => window.location.reload()}>
-            Reload
-          </Button>
-        </div>
-      )}
-      {autosave.bytes > SCENE_LIMIT_BYTES * SIZE_WARNING && (
-        <div className="border-b px-3 py-2">
-          <FormAlert tone="warning">
-            {`This map is getting large: ${(autosave.bytes / 2 ** 20).toFixed(1)} MB of the ${SCENE_LIMIT_BYTES / 2 ** 20} MB a map can hold. Past that it cannot be saved. Clear some paint or land to make room.`}
-          </FormAlert>
-        </div>
-      )}
-      {error && (
-        <div className="border-b px-3 py-2">
-          <FormAlert tone="error">{error}</FormAlert>
-        </div>
-      )}
+      <MapBuilderBanners autosave={autosave} error={error} />
       <div className="flex min-h-0 flex-1">
         <MapToolStrip tool={tool} disabled={publishing} onTool={changeTool} />
-        <MapToolPanel
-          tool={tool}
-          cutting={cutting}
-          brush={brush}
-          background={scene.canvas.background}
-          showAssets={!hideAssets}
-          disabled={publishing}
-          onMode={setMode}
-          onShowAssets={(show) => setHideAssets(!show)}
-        />
-        <MapBuilderCanvas
-          scene={landStyle.shown}
-          tool={tool}
-          cutting={cutting}
-          editable={!publishing}
-          shift={shift}
-          editing={editing}
-          showAssets={showAssets}
-          brush={brush}
-          onPaint={paintBiomes}
-          viewport={viewport}
-          stageRef={stage}
-          pointer={pointer}
-          onLasso={drawLand}
-        />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="relative flex min-h-0 flex-1 overflow-hidden">
+            <MapToolPanel
+              tool={tool}
+              open={panelOpen}
+              cutting={cutting}
+              brush={brush}
+              background={scene.canvas.background}
+              showAssets={!hideAssets}
+              hasAssets={scene.assets.length > 0}
+              zoom={viewport.view.scale}
+              disabled={publishing}
+              onOpen={setPanelOpen}
+              onMode={setMode}
+              onShowAssets={(show) => setHideAssets(!show)}
+              onSelectAll={() => editing.selectMany(scene.assets.map((asset) => asset.id), false)}
+              onZoom={viewport.zoomTo}
+              onFit={viewport.fit}
+            />
+            <MapBuilderCanvas
+              scene={landStyle.shown}
+              tool={activeTool}
+              cutting={cutting}
+              editable={!publishing}
+              shift={shift}
+              editing={editing}
+              showAssets={showAssets}
+              brush={brush}
+              onPaint={paintBiomes}
+              viewport={viewport}
+              stageRef={stage}
+              pointer={pointer}
+              onLasso={drawLand}
+            />
+          </div>
+          <MapStatusBar
+            zoom={viewport.view.scale}
+            onZoomBy={viewport.zoomBy}
+            onZoomTo={viewport.zoomTo}
+            onFit={viewport.fit}
+          />
+        </div>
         <MapRightPanel
           assets={scene.assets}
           editing={editing}

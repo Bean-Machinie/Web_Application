@@ -4,8 +4,9 @@ import type { LucideIcon } from "lucide-react"
 export type BuilderTool = "select" | "land" | "brush" | "blend" | "hand"
 export type LandMode = "add" | "cut"
 
-// Select and Pan have nothing to set, so the tool panel is closed for them.
-export const toolHasSettings = (tool: BuilderTool) => tool !== "select" && tool !== "hand"
+// How much of the canvas's left side the tool panel covers, in pixels: its handle
+// alone when it is put away, and its width (w-56) with the handle (w-3) when open.
+export const TOOL_PANEL_INSET = { closed: 12, open: 236 }
 
 // The tools in the strip, in order, with the single key that picks each.
 export const BUILDER_TOOLS: { id: BuilderTool; label: string; key: string; Icon: LucideIcon }[] = [

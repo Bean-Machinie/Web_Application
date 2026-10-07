@@ -11,7 +11,6 @@ import type { useBuilderViewport } from "@/hooks/use-builder-viewport"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 import type { MapScene } from "@/lib/map-scene"
 import { MapBuilderStage } from "./MapBuilderStage"
-import { MapBuilderZoom } from "./MapBuilderZoom"
 import { MapContextMenu } from "./MapContextMenu"
 import type { ContextSpot } from "./MapContextMenu"
 
@@ -41,7 +40,7 @@ const CURSORS: Record<BuilderTool, string> = {
   select: "cursor-default",
 }
 
-// The canvas area: the stage, the zoom buttons, dropping art from the library,
+// The canvas area: the stage, dropping art from the library,
 // and the right-click menu.
 export function MapBuilderCanvas(props: Props) {
   const { scene, tool, editing, viewport, stageRef, pointer } = props
@@ -107,7 +106,6 @@ export function MapBuilderCanvas(props: Props) {
           onPan={viewport.onPan}
         />
       )}
-      <MapBuilderZoom onZoom={viewport.zoomBy} onFit={viewport.fit} />
       <MapContextMenu spot={spot} editing={editing} onClose={() => setSpot(null)} />
     </div>
   )

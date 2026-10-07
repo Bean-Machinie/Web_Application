@@ -106,7 +106,7 @@ export function MapAssetsLayer(props: Props) {
 
   return (
     <>
-      <Layer ref={picturesLayer} listening={false} visible={props.visible}>
+      <Layer ref={picturesLayer} name="assets-pictures" listening={false} visible={props.visible}>
         <AssetPictures overview={pictures.overview} canvas={canvas} sharp={pictures.view} />
       </Layer>
       <Layer listening={editable}>

@@ -51,10 +51,15 @@ export function sharpAssets(stage: Konva.Stage, picture: Picture | null) {
   // it are put away.
   const hidden = [sharp, ...stage.find(".assets-erase")].filter((node) => node !== undefined)
   const before = { image: overview.image(), visible: overview.visible(), shown: hidden.map((node) => node.visible()) }
+  // The editor may have the art hidden to paint under it; the picture never does.
+  const layer = stage.findOne(".assets-pictures")
+  const layerShown = layer?.visible()
+  layer?.visible(true)
   overview.setAttrs({ image: picture.canvas, visible: true })
   hidden.forEach((node) => node.visible(false))
   return () => {
     overview.setAttrs({ image: before.image, visible: before.visible })
     hidden.forEach((node, index) => node.visible(before.shown[index]))
+    if (layerShown !== undefined) layer?.visible(layerShown)
   }
 }
