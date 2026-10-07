@@ -68,10 +68,10 @@ export type MapTheme = {
 }
 
 const BIOMES: Biomes & { volcanic: { accent: Rgb } } = {
-  ice: { fill: [208, 230, 238], ink: [86, 120, 140] },
-  swamp: { fill: [106, 126, 66], ink: [48, 62, 32] },
-  desert: { fill: [226, 196, 124], ink: [136, 82, 30] },
-  volcanic: { fill: [74, 68, 64], ink: [30, 24, 22], accent: [196, 70, 30] },
+  ice: { fill: [193, 208, 220], ink: [86, 120, 140] },
+  swamp: { fill: [93, 89, 45], ink: [48, 46, 22] },
+  desert: { fill: [200, 148, 97], ink: [120, 70, 28] },
+  volcanic: { fill: [89, 76, 67], ink: [34, 26, 22], accent: [196, 70, 30] },
 }
 
 // On paper the biome colours are drawn toward the land's own, where saturated
@@ -94,9 +94,9 @@ function muted(land: { fill: Rgb; ink: Rgb }): MapTheme["biomes"] {
 // The same colours on every background: the grade, below, is what makes them sit.
 const FOLIAGE: Record<Biome, Surfaced> = {
   ice: { grass: [[0, [38, 74, 84]], [0.45, [104, 152, 156]], [0.8, [196, 226, 228]], [1, [255, 255, 255]]] },
-  desert: { grass: [[0, [52, 50, 26]], [0.5, [122, 116, 56]], [1, [198, 190, 118]]] },
-  swamp: { grass: [[0, [20, 28, 18]], [0.5, [46, 60, 34]], [1, [96, 112, 58]]] },
-  volcanic: { grass: [[0, [18, 17, 16]], [0.5, [56, 54, 52]], [1, [116, 112, 108]]] },
+  desert: { grass: [[0, [56, 48, 22]], [0.5, [128, 112, 52]], [1, [206, 184, 104]]] },
+  swamp: { grass: [[0, [16, 20, 10]], [0.5, [44, 52, 24]], [1, [96, 106, 48]]] },
+  volcanic: { grass: [[0, [16, 13, 12]], [0.5, [54, 46, 42]], [1, [116, 100, 90]]] },
 }
 
 // Mountains: grass on the slopes, snow and rock, each in the biome's terms. Snow
@@ -109,19 +109,19 @@ const MOUNTAINS: Record<Biome, Surfaced> = {
     rock: [[0, [28, 38, 52]], [0.5, [84, 100, 120]], [1, [160, 176, 192]]],
   },
   desert: {
-    grass: [[0, [118, 90, 52]], [0.5, [194, 162, 100]], [1, [232, 208, 152]]],
-    snow: [[0, [150, 112, 70]], [0.5, [214, 178, 126]], [1, [244, 224, 184]]],
-    rock: [[0, [58, 30, 20]], [0.5, [160, 88, 52]], [1, [222, 150, 96]]],
+    grass: [[0, [112, 78, 48]], [0.5, [182, 134, 86]], [1, [226, 184, 128]]],
+    snow: [[0, [140, 100, 66]], [0.5, [200, 154, 106]], [1, [226, 188, 140]]],
+    rock: [[0, [86, 54, 36]], [0.5, [158, 108, 70]], [1, [212, 160, 108]]],
   },
   swamp: {
-    grass: [[0, [24, 34, 24]], [0.5, [52, 66, 40]], [1, [92, 106, 62]]],
-    snow: [[0, [60, 70, 56]], [0.5, [118, 128, 106]], [1, [176, 184, 158]]],
-    rock: [[0, [16, 22, 18]], [0.5, [56, 68, 54]], [1, [108, 122, 96]]],
+    grass: [[0, [26, 30, 16]], [0.5, [58, 64, 32]], [1, [102, 108, 56]]],
+    snow: [[0, [62, 64, 46]], [0.5, [122, 122, 94]], [1, [180, 178, 146]]],
+    rock: [[0, [18, 20, 12]], [0.5, [58, 62, 40]], [1, [110, 114, 76]]],
   },
   volcanic: {
-    grass: [[0, [44, 42, 42]], [0.5, [96, 92, 90]], [1, [158, 154, 150]]],
-    snow: [[0, [70, 66, 64]], [0.5, [130, 124, 120]], [1, [196, 190, 184]]],
-    rock: [[0, [12, 10, 10]], [0.5, [52, 46, 44]], [1, [112, 100, 94]]],
+    grass: [[0, [44, 38, 34]], [0.5, [98, 86, 76]], [1, [160, 144, 130]]],
+    snow: [[0, [72, 62, 56]], [0.5, [134, 118, 106]], [1, [198, 182, 168]]],
+    rock: [[0, [14, 11, 10]], [0.5, [56, 46, 42]], [1, [116, 100, 90]]],
   },
 }
 
@@ -140,11 +140,11 @@ const DESERT_TREES: Record<Biome, Surfaced> = {
   },
   swamp: {
     grass: FOLIAGE.swamp.grass,
-    rock: [[0, [22, 20, 16]], [0.5, [62, 54, 40]], [1, [108, 98, 76]]],
+    rock: [[0, [22, 20, 12]], [0.5, [62, 58, 34]], [1, [110, 104, 66]]],
   },
   volcanic: {
     grass: FOLIAGE.volcanic.grass,
-    rock: [[0, [10, 9, 9]], [0.5, [46, 42, 40]], [1, [100, 92, 88]]],
+    rock: [[0, [12, 10, 9]], [0.5, [50, 42, 38]], [1, [106, 92, 82]]],
   },
 }
 
@@ -153,12 +153,12 @@ const DESERT_TREES: Record<Biome, Surfaced> = {
 // the look they rest in where nothing is painted.
 const HILLS: Record<Biome, Surfaced> & { plains: Surfaced } = {
   plains: {
-    grass: [[0, [44, 56, 22]], [0.5, [112, 124, 52]], [1, [192, 196, 100]]],
-    rock: [[0, [30, 38, 22]], [0.5, [92, 98, 50]], [1, [160, 156, 96]]],
+    grass: [[0, [62, 58, 34]], [0.5, [122, 114, 68]], [1, [178, 168, 104]]],
+    rock: [[0, [66, 58, 40]], [0.5, [116, 104, 72]], [1, [170, 154, 108]]],
   },
   ice: { grass: MOUNTAINS.ice.grass, rock: MOUNTAINS.ice.rock },
   // Sandier than the mountains' red rock: hills are dunes here, not cliffs.
-  desert: { grass: MOUNTAINS.desert.grass, rock: [[0, [74, 52, 32]], [0.5, [150, 114, 74]], [1, [208, 178, 130]]] },
+  desert: { grass: MOUNTAINS.desert.grass, rock: [[0, [96, 64, 40]], [0.5, [168, 120, 78]], [1, [218, 170, 116]]] },
   swamp: { grass: MOUNTAINS.swamp.grass, rock: MOUNTAINS.swamp.rock },
   volcanic: { grass: MOUNTAINS.volcanic.grass, rock: MOUNTAINS.volcanic.rock },
 }
@@ -188,7 +188,7 @@ const THEMES: Record<SceneBackground, MapTheme> = {
   },
   ocean: {
     ink: [34, 34, 30],
-    land: { fill: [198, 209, 147], shadow: SHADOW },
+    land: { fill: [129, 119, 80], shadow: SHADOW },
     biomes: BIOMES,
     water: { dark: [8, 38, 58], darkAlpha: 0.45, light: [214, 244, 248], lightAlpha: 0.85 },
     paint: {
