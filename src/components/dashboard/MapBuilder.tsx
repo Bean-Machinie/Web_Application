@@ -23,6 +23,7 @@ import { addLand, cutLand, lassoToShape } from "@/lib/map-land"
 import type { BuilderTool, LandMode } from "@/lib/map-builder-tools"
 import type { SceneBackground } from "@/lib/map-scene"
 import type { WorldImage } from "@/lib/world-images"
+import { SCENE_LIMIT_BYTES } from "@/lib/world-map-scenes"
 import type { LoadedScene } from "@/lib/world-map-scenes"
 import { MapBuilderCanvas } from "./MapBuilderCanvas"
 import { MapBuilderTopBar } from "./MapBuilderTopBar"
@@ -30,6 +31,9 @@ import { MapOptionsBar } from "./MapOptionsBar"
 import { MapRightPanel } from "./MapRightPanel"
 import { MapSettingsPopover } from "./MapSettingsPopover"
 import { MapToolStrip } from "./MapToolStrip"
+
+// How much of the most a map can hold it may take before the builder warns.
+const SIZE_WARNING = 0.7
 
 type Props = {
   campaignId: string
@@ -147,6 +151,13 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           <Button size="sm" onClick={() => window.location.reload()}>
             Reload
           </Button>
+        </div>
+      )}
+      {autosave.bytes > SCENE_LIMIT_BYTES * SIZE_WARNING && (
+        <div className="border-b px-3 py-2">
+          <FormAlert tone="warning">
+            {`This map is getting large: ${(autosave.bytes / 2 ** 20).toFixed(1)} MB of the ${SCENE_LIMIT_BYTES / 2 ** 20} MB a map can hold. Past that it cannot be saved. Clear some paint or land to make room.`}
+          </FormAlert>
         </div>
       )}
       {error && (

@@ -1,6 +1,6 @@
 import { BIOMES, PAINT_CELL, TILE } from "./biomes"
 import type { BrushBiome } from "./biomes"
-import { CHANNELS, TILE_BYTES, isEmpty, settle, tileKey } from "./paint-tiles"
+import { CHANNELS, TILE_BYTES, settle, tileKey } from "./paint-tiles"
 import type { Paint, Tile } from "./paint-tiles"
 import { smooth } from "../map-noise"
 
@@ -124,11 +124,20 @@ export function startStroke(
   function finish(): Paint {
     let next: Map<string, Tile> | null = null
     for (const [key, { base, work }] of touched) {
-      const tile = Uint8Array.from(work, settle)
-      if (base ? tile.every((weight, i) => weight === base[i]) : isEmpty(tile)) continue
+      const tile = new Uint8Array(work.length)
+      let changed = base === undefined
+      let any = false
+      for (let i = 0; i < work.length; i++) {
+        const weight = settle(work[i])
+        tile[i] = weight
+        if (weight !== 0) any = true
+        if (base && weight !== base[i]) changed = true
+      }
+      if (!changed && base) continue
+      if (!base && !any) continue
       next ??= new Map(paint)
-      if (isEmpty(tile)) next.delete(key)
-      else next.set(key, tile)
+      if (any) next.set(key, tile)
+      else next.delete(key)
     }
     return next ?? paint
   }

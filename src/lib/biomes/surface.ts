@@ -56,11 +56,21 @@ export function createSurface(
 
     const weights = BIOMES.map(() => new ImageData(width, height))
     const present = BIOMES.map(() => false)
+    // The tile is looked up only when the cell is in a different one.
+    let tile: ReturnType<TileAt>
+    let tileX = -1
+    let tileY = -1
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const cx = x0 + x
         const cy = y0 + y
-        const tile = tileAt(`${Math.floor(cx / TILE)},${Math.floor(cy / TILE)}`)
+        const tx = Math.floor(cx / TILE)
+        const ty = Math.floor(cy / TILE)
+        if (tx !== tileX || ty !== tileY) {
+          tileX = tx
+          tileY = ty
+          tile = tileAt(`${tx},${ty}`)
+        }
         if (!tile) continue
         const cell = ((cy % TILE) * TILE + (cx % TILE)) * CHANNELS
         for (let c = 0; c < CHANNELS; c++) {

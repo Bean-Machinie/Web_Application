@@ -17,6 +17,8 @@ export type SceneSaveState = "saved" | "saving" | "error" | "conflict"
 export function useSceneAutosave(mapId: string, scene: MapScene, loaded: LoadedScene) {
   const [state, setState] = useState<SceneSaveState>("saved")
   const [error, setError] = useState<string | null>(null)
+  // How big the scene was when it was last saved, against the most it can be.
+  const [bytes, setBytes] = useState(0)
   const [unpublished, setUnpublished] = useState(
     loaded.renderedAt === null || Date.parse(loaded.renderedAt) < Date.parse(loaded.updatedAt)
   )
@@ -36,7 +38,9 @@ export function useSceneAutosave(mapId: string, scene: MapScene, loaded: LoadedS
         if (next === saved.current && !markRendered) return true
         setState("saving")
         try {
-          updatedAt.current = await saveMapScene(mapId, next, updatedAt.current, markRendered)
+          const result = await saveMapScene(mapId, next, updatedAt.current, markRendered)
+          updatedAt.current = result.updatedAt
+          setBytes(result.bytes)
           saved.current = next
           setError(null)
           setState(latest.current === next ? "saved" : "saving")
@@ -92,5 +96,5 @@ export function useSceneAutosave(mapId: string, scene: MapScene, loaded: LoadedS
     return ok
   }, [save])
 
-  return { state, error, unpublished, flush: save, publish }
+  return { state, error, bytes, unpublished, flush: save, publish }
 }

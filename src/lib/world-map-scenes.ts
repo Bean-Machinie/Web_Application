@@ -34,8 +34,18 @@ export async function hasMapScene(mapId: string) {
   return (count ?? 0) > 0
 }
 
+// The most a scene may hold, as the database counts it: the length of its text
+// form, which spaces out every comma and colon. The save is refused past it.
+export const SCENE_LIMIT_BYTES = 8 * 1024 * 1024
+
+// How much of the limit a scene as sent takes up.
+const sceneBytes = (scene: unknown) => {
+  const text = JSON.stringify(scene)
+  return text.length + (text.match(/[,:]/g)?.length ?? 0)
+}
+
 // Creates the scene (expected null) or saves over the one that was loaded, and
-// returns the new updated_at. It fails if the scene changed elsewhere since.
+// returns the new updated_at and how big the scene was. It fails if the scene changed elsewhere since.
 export async function saveMapScene(
   mapId: string,
   scene: MapScene,
@@ -43,14 +53,15 @@ export async function saveMapScene(
   markRendered = false
 ) {
   const { paint, ...rest } = scene
+  const sent = { ...rest, biomes: await writePaint(paint) }
   const { data, error } = await supabase.rpc("save_map_scene", {
     target_map: mapId,
-    new_scene: { ...rest, biomes: await writePaint(paint) },
+    new_scene: sent,
     expected_updated_at: expectedUpdatedAt,
     mark_rendered: markRendered,
   })
   if (error) throw error
-  return data as string
+  return { updatedAt: data as string, bytes: sceneBytes(sent) }
 }
 
 export async function discardMapScene(mapId: string) {
