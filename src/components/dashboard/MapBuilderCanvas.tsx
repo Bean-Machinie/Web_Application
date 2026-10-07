@@ -20,8 +20,9 @@ type Props = {
   tool: BuilderTool
   cutting: boolean
   editable: boolean
-  // Shift is held.
+  // Shift and Alt are held.
   shift: boolean
+  alt: boolean
   editing: AssetEditing
   showAssets: boolean
   // The art picked in the library, stamped by every click on the canvas.
@@ -120,6 +121,7 @@ export function MapBuilderCanvas(props: Props) {
           showAssets={props.showAssets}
           pick={pick}
           snapRotation={props.shift}
+          altHeld={props.alt}
           onLasso={props.onLasso}
           brush={props.brush}
           onPaint={props.onPaint}

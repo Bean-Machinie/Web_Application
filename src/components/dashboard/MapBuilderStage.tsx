@@ -43,6 +43,8 @@ type Props = {
   onPaint: (paint: Paint) => void
   // Shift is held: rotating snaps to 15 degrees.
   snapRotation: boolean
+  // Alt is held: a press on art drags a copy of it instead (see MapSelectionLayer).
+  altHeld: boolean
   onWheel: (event: Konva.KonvaEventObject<WheelEvent>) => void
   onPan: (x: number, y: number) => void
 }
@@ -111,6 +113,7 @@ export function MapBuilderStage(props: Props) {
         size={size}
         assets={scene.assets}
         visible={props.showAssets}
+        altHeld={props.altHeld}
         selected={editing.selected}
         editable={editable && tool === "select"}
         onSelect={editing.select}
@@ -139,6 +142,7 @@ export function MapBuilderStage(props: Props) {
           onSelect={editing.selectMany}
           pick={props.pick}
           onPick={editing.select}
+          onClone={editing.cloneForDrag}
           onChange={editing.commit}
         />
       </Layer>

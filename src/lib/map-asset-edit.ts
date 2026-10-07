@@ -48,6 +48,20 @@ export function duplicateAssets(assets: PlacedAsset[], ids: string[], offset: nu
   return { assets: [...assets, ...copies], ids: copies.map((copy) => copy.id) }
 }
 
+// Copies of the chosen assets exactly where they are, each with a new id, and
+// which copy is of which, for a copy that is to be dragged away from its original.
+export function cloneAssets(assets: PlacedAsset[], ids: string[]) {
+  const idOf = new Map<string, string>()
+  const copies = assets
+    .filter((asset) => ids.includes(asset.id))
+    .map((asset) => {
+      const id = crypto.randomUUID()
+      idOf.set(asset.id, id)
+      return { ...asset, id }
+    })
+  return { copies, idOf }
+}
+
 // Copies of art, with its middle moved to a point, each with a new id.
 export function pasteAssets(copied: PlacedAsset[], at: { x: number; y: number }) {
   if (copied.length === 0) return []

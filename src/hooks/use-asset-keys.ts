@@ -12,7 +12,7 @@ const ARROWS: Record<string, [number, number]> = {
   ArrowDown: [0, 1],
 }
 
-// The shortcuts for art: Delete, Ctrl+C, Ctrl+X, Ctrl+V and Ctrl+D, Shift+H and
+// The shortcuts for art: Delete, Ctrl+A, Ctrl+C, Ctrl+X, Ctrl+V and Ctrl+D, Shift+H and
 // Shift+V to flip, the arrows to nudge and Escape to let go. They are off while
 // a field is being typed in.
 export function useAssetKeys(editing: AssetEditing, enabled: boolean) {
@@ -35,6 +35,7 @@ export function useAssetKeys(editing: AssetEditing, enabled: boolean) {
       const has = now.selected.length > 0
 
       if (command && letter === "v") now.paste()
+      else if (command && letter === "a") now.selectAll()
       else if (!has) return
       else if (key === "Delete" || key === "Backspace") now.remove()
       else if (command && letter === "c") now.copy()

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react"
 import {
+  cloneAssets,
   duplicateAssets,
   flipAssets,
   nudgeAssets,
@@ -91,6 +92,24 @@ export function useAssetEditing({ assets, change, centre, pointer, onPlaced }: O
     [centre, edit, onPlaced]
   )
 
+  // Everything on the map, chosen and shown with the select tool.
+  const selectAll = () => {
+    if (assets.length === 0) return
+    setPicked(assets.map((asset) => asset.id))
+    onPlaced()
+  }
+
+  // Alt-drag: copies of the chosen art, where it is, are chosen in its place, so
+  // that dragging goes on with them and the originals stay. Returns the copy of the
+  // piece that was pressed.
+  const cloneForDrag = (ids: string[], pressed: string) => {
+    const { copies, idOf } = cloneAssets(assets, ids)
+    if (copies.length === 0) return null
+    edit((list) => [...list, ...copies])
+    setPicked(copies.map((copy) => copy.id))
+    return idOf.get(pressed) ?? null
+  }
+
   const copy = () => {
     clipboard = assets.filter((asset) => selected.includes(asset.id))
     setCanPaste(clipboard.length > 0)
@@ -116,6 +135,8 @@ export function useAssetEditing({ assets, change, centre, pointer, onPlaced }: O
     canPaste,
     select,
     selectMany,
+    selectAll,
+    cloneForDrag,
     place,
     copy,
     paste,

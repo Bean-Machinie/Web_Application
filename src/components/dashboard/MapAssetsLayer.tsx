@@ -19,6 +19,8 @@ type Props = {
   assets: PlacedAsset[]
   // False while the art is hidden to paint under it.
   visible: boolean
+  // Alt is held, when a press on art drags a copy and the art itself stays put.
+  altHeld: boolean
   selected: string[]
   // Whether assets can be picked and moved: only with the select tool.
   editable: boolean
@@ -122,7 +124,7 @@ export function MapAssetsLayer(props: Props) {
             scaleX: asset.scaleX,
             scaleY: asset.scaleY,
             rotation: asset.rotation,
-            draggable: editable,
+            draggable: editable && !props.altHeld,
             onPointerDown: (event: Konva.KonvaEventObject<PointerEvent>) => {
               if (event.evt.button === 0) onSelect(asset.id, event.evt.shiftKey)
             },

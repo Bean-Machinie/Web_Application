@@ -1,10 +1,7 @@
 import { useCallback, useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import type Konva from "konva"
-import { useAssetEditing } from "@/hooks/use-asset-editing"
-import { useAssetKeys } from "@/hooks/use-asset-keys"
-import { useArmedAsset } from "@/hooks/use-armed-asset"
-import { useBrush } from "@/hooks/use-brush"
+import { useBuilderTools } from "@/hooks/use-builder-tools"
 import { useMapStyle } from "@/hooks/use-map-style"
 import { useBuilderViewport } from "@/hooks/use-builder-viewport"
 import { useHeldModifiers } from "@/hooks/use-held-modifiers"
@@ -13,13 +10,10 @@ import { useMapImageUpload } from "@/hooks/use-map-image-upload"
 import { useMapPublish } from "@/hooks/use-map-publish"
 import { useSceneAutosave } from "@/hooks/use-scene-autosave"
 import { useSceneHistory } from "@/hooks/use-scene-history"
-import { useSpacePan } from "@/hooks/use-space-pan"
-import { useToolKeys } from "@/hooks/use-tool-keys"
 import { useUndoKeys } from "@/hooks/use-undo-keys"
 import { useZoomKeys } from "@/hooks/use-zoom-keys"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import { TOOL_PANEL_INSET } from "@/lib/map-builder-tools"
-import type { BuilderTool, LandMode } from "@/lib/map-builder-tools"
 import type { SceneBackground } from "@/lib/map-scene"
 import type { WorldImage } from "@/lib/world-images"
 import type { LoadedScene } from "@/lib/world-map-scenes"
@@ -76,46 +70,18 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const goBack = () =>
     fromMap ? navigate(-1) : navigate(`/app/world/${mapId}`, { replace: true })
 
-  const [tool, setTool] = useState<BuilderTool>("land")
-  const [mode, setMode] = useState<LandMode>("add")
-  const brush = useBrush((tool === "brush" || tool === "blend") && !publishing)
-  const { alt, shift } = useHeldModifiers()
-  const cutting = (mode === "cut") !== alt
-  const [hideAssets, setHideAssets] = useState(false)
-  const showAssets = !hideAssets || tool !== "brush"
-
-  const editing = useAssetEditing({
+  const tools = useBuilderTools({
     assets: scene.assets,
     change: history.change,
     centre: viewport.centre,
     pointer: useCallback(() => pointer.current, []),
-    onPlaced: () => setTool("select"),
+    locked: publishing,
   })
-  // The selection only means something with the select tool.
-  const { clear } = editing
-  const stamping = useArmedAsset(!publishing)
-  const { disarm } = stamping
-  const changeTool = useCallback(
-    (next: BuilderTool) => {
-      setTool(next)
-      disarm()
-      if (next !== "select") clear()
-    },
-    [clear, disarm]
-  )
-  // Picking art up lets go of the selection, which would otherwise be out of
-  // sight and still there for Delete.
-  const armAsset = (id: string) => {
-    clear()
-    stamping.arm(id)
-  }
+  const { editing } = tools
+  const { alt, shift } = useHeldModifiers()
+  const cutting = (tools.mode === "cut") !== alt
   useUndoKeys(undo, redo, !publishing)
-  useToolKeys(changeTool, !publishing)
-  useAssetKeys(editing, !publishing)
   useZoomKeys(viewport, !publishing)
-  // Space is the hand for as long as it is held, and the tool is not changed,
-  // so the selection is kept.
-  const activeTool = useSpacePan(!publishing) ? "hand" : tool
 
   const setBackground = (background: SceneBackground) =>
     history.change((old) => ({ ...old, canvas: { ...old.canvas, background } }))
@@ -141,37 +107,38 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
       />
       <MapBuilderBanners autosave={autosave} error={error} />
       <div className="flex min-h-0 flex-1">
-        <MapToolStrip tool={tool} disabled={publishing} onTool={changeTool} />
+        <MapToolStrip tool={tools.tool} disabled={publishing} onTool={tools.changeTool} />
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="relative flex min-h-0 flex-1 overflow-hidden">
             <MapToolPanel
-              tool={tool}
+              tool={tools.tool}
               open={panelOpen}
               cutting={cutting}
-              brush={brush}
+              brush={tools.brush}
               background={scene.canvas.background}
-              showAssets={!hideAssets}
+              showAssets={!tools.hideAssets}
               hasAssets={scene.assets.length > 0}
               zoom={viewport.view.scale}
               disabled={publishing}
               onOpen={setPanelOpen}
-              onMode={setMode}
-              onShowAssets={(show) => setHideAssets(!show)}
-              onSelectAll={() => editing.selectMany(scene.assets.map((asset) => asset.id), false)}
+              onMode={tools.setMode}
+              onShowAssets={(show) => tools.setHideAssets(!show)}
+              onSelectAll={editing.selectAll}
               onZoom={viewport.zoomTo}
               onFit={viewport.fit}
             />
             <MapBuilderCanvas
               scene={landStyle.shown}
-              tool={activeTool}
+              tool={tools.activeTool}
               cutting={cutting}
-              editable={!publishing && !stamping.armed}
+              editable={!publishing && !tools.armed}
               shift={shift}
+              alt={alt}
               editing={editing}
-              showAssets={showAssets}
-              armed={stamping.armed}
+              showAssets={tools.showAssets}
+              armed={tools.armed}
               onStamp={(asset, at) => void editing.place(asset, at, true)}
-              brush={brush}
+              brush={tools.brush}
               onPaint={paintBiomes}
               viewport={viewport}
               stageRef={stage}
@@ -198,8 +165,8 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               onCommitStyle={landStyle.commit}
             />
           }
-          armed={stamping.armed}
-          onArm={armAsset}
+          armed={tools.armed}
+          onArm={tools.armAsset}
           viewScale={viewport.view.scale}
           disabled={publishing}
         />

@@ -25,6 +25,9 @@ type Props = {
   // starts moving it.
   pick: AssetPicker
   onPick: (id: string, additive: boolean) => void
+  // Alt-drag: copies of the chosen art (or of the pressed piece) take its place
+  // and are dragged on; gives the copy of the piece pressed.
+  onClone: (ids: string[], pressed: string) => string | null
   onChange: (patches: AssetPatch[]) => void
 }
 
@@ -32,8 +35,10 @@ type Box = { x: number; y: number; width: number; height: number }
 
 // What is drawn over the art while editing it: handles to scale and rotate the
 // selection, and the box dragged on the empty canvas to select what it
-// touches. All of it is left out of the rendered image, as a group of the editor
-// layer, so that moving the handles redraws only that layer.
+// touches. Alt and a drag on art drags a copy of it; the copy is made once the
+// pointer has moved, so an Alt-click alone leaves nothing behind. All of it is
+// left out of the rendered image, as a group of the editor layer, so that moving
+// the handles redraws only that layer.
 export function MapSelectionLayer(props: Props) {
   const { enabled, selected, assets, snapRotation } = props
   const layer = useRef<Konva.Group>(null)
@@ -65,7 +70,8 @@ export function MapSelectionLayer(props: Props) {
     const stage = layer.current?.getStage()
     if (!enabled || !stage) return
 
-    let start: { x: number; y: number; screen: { x: number; y: number } } | null = null
+    let start: { x: number; y: number; shift: boolean; screen: { x: number; y: number } } | null = null
+    let stopClone: (() => void) | null = null
     const place = (event: PointerEvent) => {
       stage.setPointersPositions(event)
       return stage.getRelativePointerPosition()!
@@ -94,7 +100,8 @@ export function MapSelectionLayer(props: Props) {
           height: Math.abs(at.y - start.y),
         }
         const hit = moved < DRAG_PX ? [] : latest.current.pick.within(area)
-        latest.current.onSelect(hit, event.shiftKey)
+        // Shift at either end of the drag adds, so letting go of it first does not matter.
+        latest.current.onSelect(hit, start.shift || event.shiftKey)
       }
       start = null
       setBox(null)
@@ -102,9 +109,42 @@ export function MapSelectionLayer(props: Props) {
     const onUp = (event: PointerEvent) => end(event)
     const onCancel = () => end(null)
 
+    // Pressed on art with Alt: when the pointer has moved, copies are made and
+    // dragged on, and the art pressed stays where it was.
+    const beginClone = (id: string, down: PointerEvent) => {
+      const { selected } = latest.current
+      const ids = selected.includes(id) ? selected : [id]
+      const from = { x: down.clientX, y: down.clientY }
+      const stop = () => {
+        window.removeEventListener("pointermove", onCloneMove)
+        window.removeEventListener("pointerup", stop)
+        window.removeEventListener("pointercancel", stop)
+        stopClone = null
+      }
+      const onCloneMove = (event: PointerEvent) => {
+        if (Math.hypot(event.clientX - from.x, event.clientY - from.y) < DRAG_PX) return
+        stop()
+        stage.setPointersPositions(event)
+        const copy = latest.current.onClone(ids, id)
+        if (copy) picked.current = copy
+      }
+      window.addEventListener("pointermove", onCloneMove)
+      window.addEventListener("pointerup", stop)
+      window.addEventListener("pointercancel", stop)
+      stopClone = stop
+    }
+
     const onDown = (event: Konva.KonvaEventObject<PointerEvent>) => {
-      // Only the bare canvas: art and handles take their own presses.
-      if (event.evt.button !== 0 || event.target !== stage || start) return
+      if (event.evt.button !== 0 || start || stopClone) return
+      // Art is a shape only once chosen; the handles are not art.
+      const art = event.target !== stage && event.target.name() === "asset" ? event.target.id() : null
+      if (event.evt.altKey && (event.target === stage || art)) {
+        const at = place(event.evt)
+        const id = art ?? latest.current.pick.at(at.x, at.y)
+        if (id) return beginClone(id, event.evt)
+      }
+      // Otherwise only the bare canvas: art and handles take their own presses.
+      if (event.target !== stage) return
       const at = place(event.evt)
       const id = latest.current.pick.at(at.x, at.y)
       if (id) {
@@ -114,7 +154,7 @@ export function MapSelectionLayer(props: Props) {
         latest.current.onPick(id, event.evt.shiftKey)
         return
       }
-      start = { ...at, screen: { x: event.evt.clientX, y: event.evt.clientY } }
+      start = { ...at, shift: event.evt.shiftKey, screen: { x: event.evt.clientX, y: event.evt.clientY } }
       window.addEventListener("pointermove", onMove)
       window.addEventListener("pointerup", onUp)
       window.addEventListener("pointercancel", onCancel)
@@ -137,6 +177,7 @@ export function MapSelectionLayer(props: Props) {
       stage.off("pointerdown.marquee")
       stage.off("pointermove.hover")
       if (start) end(null)
+      stopClone?.()
     }
   }, [enabled])
 
