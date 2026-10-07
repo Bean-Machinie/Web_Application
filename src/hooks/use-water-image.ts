@@ -33,7 +33,8 @@ export function useWaterImage(
   )
   const rings = useDeferredValue(style.rings)
   const spacing = useDeferredValue(style.spacing)
-  const waviness = useDeferredValue(style.waviness)
+  const thickness = useDeferredValue(style.thickness)
+  const variation = useDeferredValue(style.variation)
   const [water, setWater] = useState<Water | null>(null)
 
   useEffect(() => {
@@ -53,11 +54,11 @@ export function useWaterImage(
       const region = { x: left, y: top, width: right - left, height: bottom - top }
       const wanted = view.scale * window.devicePixelRatio
       const scale = Math.min(wanted, Math.sqrt(MAX_PIXELS / (region.width * region.height)))
-      const image = renderWater(field, { rings, spacing, waviness }, background, seed, { width, height }, { ...region, scale })
+      const image = renderWater(field, { rings, thickness, spacing, variation }, background, seed, { width, height }, { ...region, scale })
       setWater({ image, region })
     }, SETTLE_MS)
     return () => clearTimeout(timer)
-  }, [field, rings, spacing, waviness, background, seed, width, height, view, size])
+  }, [field, rings, thickness, spacing, variation, background, seed, width, height, view, size])
 
   return field ? water : null
 }

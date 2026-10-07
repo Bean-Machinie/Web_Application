@@ -1,45 +1,25 @@
 import { CELL } from "./map-water-field"
 import type { Field } from "./map-water-field"
-import { random, smooth, valueNoise } from "./map-noise"
+import { smooth } from "./map-noise"
+import { LOOKS, MAX_RINGS, makeRings, sizesFor } from "./map-water-look"
+import type { WaterStyle } from "./map-water-look"
+import { waterNoise } from "./map-water-noise"
 import type { SceneBackground } from "./map-scene"
 import type { MapStyle } from "./map-style"
-
-type Rgb = [number, number, number]
-
-// Art, not interface, so fixed colours. A dark band hugs the coast; light lines
-// spread out from it.
-const LOOKS: Record<SceneBackground, { dark: Rgb; darkAlpha: number; light: Rgb; lightAlpha: number }> = {
-  parchment: { dark: [96, 66, 36], darkAlpha: 0.6, light: [255, 252, 240], lightAlpha: 0.95 },
-  ocean: { dark: [8, 38, 58], darkAlpha: 0.55, light: [214, 244, 248], lightAlpha: 0.7 },
-}
-
-// The dark band, and where the first line sits beyond it, in canvas pixels.
-const BAND = 24
-const FIRST_RING = 0.8 * BAND
-// Line widths run from the first ring to the last.
-const WIDTH_NEAR = 5
-const WIDTH_FAR = 2.8
-const MAX_RINGS = 8
-// Water narrower than this across (twice the half-width given) shows no rings,
-// and they fade in over the next stretch of width. Rings further out need more room.
-const CHANNEL_HALF = 70
-const CHANNEL_FADE = 40
-// How the wandering and the gaps vary across the map, in canvas pixels.
-const WANDER = 190
-const WANDER_FINE = 70
-const BREAKS = 230
 
 // A rectangle of the canvas, drawn at "scale" pixels to each canvas pixel.
 export type Region = { x: number; y: number; width: number; height: number; scale: number }
 
 const STRIP = 128
 
+const unit = (t: number) => Math.min(Math.max(t, 0), 1)
+
 // The water around the land: a canvas holding the region, transparent where
 // there is no water to draw. Every pixel is shaded from its distance to the
 // land, so edges are as smooth at any scale as the pixels allow.
 export function renderWater(
   field: Field,
-  style: Pick<MapStyle, "rings" | "spacing" | "waviness">,
+  style: Pick<MapStyle, "rings"> & WaterStyle,
   background: SceneBackground,
   seed: number,
   canvas: { width: number; height: number },
@@ -51,18 +31,13 @@ export function renderWater(
   out.height = Math.max(1, Math.round(region.height * region.scale))
   const context = out.getContext("2d")!
 
-  const next = random(seed ^ 0x5bd1e995)
-  const wander = valueNoise(canvas.width, canvas.height, WANDER, next)
-  const fine = valueNoise(canvas.width, canvas.height, WANDER_FINE, next)
-  const breaks = Array.from({ length: MAX_RINGS }, () =>
-    valueNoise(canvas.width, canvas.height, BREAKS, next)
-  )
-
-  const { rings, spacing } = style
-  const reach = FIRST_RING + rings * spacing
-  const swing = style.waviness * spacing * 0.55
+  const { shared, rings: noise } = waterNoise(seed, canvas.width, canvas.height)
+  const count = Math.min(style.rings, MAX_RINGS)
+  const sizes = sizesFor(style)
+  const rings = makeRings(count, style, sizes, seed)
   const pixel = 1 / region.scale
-  const limit = reach + swing + WIDTH_NEAR + BAND
+  const last = rings[count - 1]
+  const limit = Math.max(sizes.band, last ? last.centre + last.reach : 0) + sizes.band
 
   const sample = (grid: Float32Array, x: number, y: number) => {
     const fx = Math.min(Math.max(x / CELL - 0.5, 0), field.cols - 1.001)
@@ -88,26 +63,34 @@ export function renderWater(
         const distance = sample(field.land, x, y)
         if (distance > limit) continue
 
-        const sway = (wander(x, y) * 0.7 + fine(x, y) * 0.3 - 0.5) * 2 * swing
-        const here = distance + sway
-        let dark = look.darkAlpha * (1 - smooth(Math.min(Math.max(distance / BAND, 0), 1))) ** 1.4
+                const band = sizes.band * (1 + (noise[0].swell(x, y) - 0.5) * 0.5 * style.variation)
+        let dark = look.darkAlpha * (1 - smooth(unit(distance / band))) ** 1.4
         let light = 0
 
-        if (distance > 0.5 * FIRST_RING && rings > 0) {
-          const room = sample(field.open, x, y)
-          for (let k = 1; k <= rings; k++) {
-            const centre = FIRST_RING + (k - 1) * spacing
-            const across = Math.abs(here - centre)
-            if (across > WIDTH_NEAR) continue
-            const along = (k - 1) / Math.max(rings - 1, 1)
-            // Thinner and fainter the further out, thinning away to nothing
-            // where the line breaks, and gone where the water is a narrow channel.
-            const half = (WIDTH_NEAR + (WIDTH_FAR - WIDTH_NEAR) * along) / 2
-            const gap = smooth(Math.min(Math.max((breaks[k - 1](x, y) - 0.3) / 0.22, 0), 1))
-            const needs = Math.max(CHANNEL_HALF, centre * 1.1)
-            const open = smooth(Math.min(Math.max((room - needs) / Math.max(CHANNEL_FADE, centre * 0.7), 0), 1))
-            const cover = Math.min(Math.max((half * gap - across) / pixel + 0.5, 0), 1)
-            const strength = look.lightAlpha * (1 - 0.5 * along) * open * cover
+        if (distance > 0.5 * sizes.first && count > 0) {
+          const sway = shared(x, y)
+          let room = -1
+          for (let k = 0; k < count; k++) {
+            const ring = rings[k]
+            if (Math.abs(distance - ring.centre) > ring.reach) continue
+            const own = noise[k]
+            const wobble = (sway * 0.35 + own.wander(x, y) * 0.65 - 0.5) * 2 * sizes.swing * ring.amp
+            const shake = (own.shake(x, y) - 0.5) * 2 * sizes.tremor
+            const across = Math.abs(distance + wobble + shake - ring.centre)
+            // Swells and thins like pen pressure, and fades away where the
+            // line breaks.
+            const pressure = Math.max(1 + (own.swell(x, y) - 0.5) * 1.4 * style.variation, 0.5)
+            const gap = smooth(unit((own.breaks(x, y) - ring.cut) / 0.3))
+            if (gap <= 0) continue
+            // Ends dim and narrow only a little, so they dissolve instead of
+            // thinning to a hairline.
+            const half = ring.half * pressure * (0.7 + 0.3 * gap)
+            const cover = unit((half - across) / pixel + 0.5)
+            if (cover <= 0) continue
+            if (room < 0) room = sample(field.open, x, y)
+            const needs = Math.max(sizes.channelHalf, ring.centre * 1.1)
+            const open = smooth(unit((room - needs) / Math.max(sizes.channelFade, ring.centre * 0.7)))
+            const strength = look.lightAlpha * ring.fade * open * cover * gap
             if (strength > light) light = strength
           }
         }

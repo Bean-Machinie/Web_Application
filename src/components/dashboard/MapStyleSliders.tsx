@@ -23,8 +23,9 @@ const GROUPS: { title: string; rows: Row[] }[] = [
     title: "Water",
     rows: [
       { key: "rings", label: "Rings", show: String },
+      { key: "thickness", label: "Ring thickness", show: (value) => `${value} px` },
       { key: "spacing", label: "Ring spacing", show: (value) => `${value} px` },
-      { key: "waviness", label: "Waviness", show: (value) => `${Math.round(value * 100)}%` },
+      { key: "variation", label: "Variation", show: (value) => `${Math.round(value * 100)}%` },
     ],
   },
 ]

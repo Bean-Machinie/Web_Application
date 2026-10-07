@@ -5,27 +5,31 @@ export type MapStyle = {
   roundness: number
   // The ink line along the coast, in canvas pixels.
   outline: number
-  // The water around the land: how many wavy lines spread out from the coast,
-  // how far apart they are in canvas pixels, and how much they wander.
+  // The water around the land: how many lines spread out from the coast, how
+  // wide they are and how far apart, in canvas pixels, and how much all of that
+  // varies at random across the map.
   rings: number
+  thickness: number
   spacing: number
-  waviness: number
+  variation: number
 }
 
 export const STYLE_LIMITS = {
   roundness: { min: 0, max: 1, step: 0.01 },
   outline: { min: 0, max: 10, step: 0.5 },
   rings: { min: 0, max: 8, step: 1 },
-  spacing: { min: 14, max: 70, step: 1 },
-  waviness: { min: 0, max: 1, step: 0.01 },
+  thickness: { min: 1, max: 12, step: 0.5 },
+  spacing: { min: 10, max: 70, step: 1 },
+  variation: { min: 0, max: 1, step: 0.01 },
 }
 
 export const DEFAULT_STYLE: MapStyle = {
   roundness: 0.8,
   outline: 3,
   rings: 5,
-  spacing: 34,
-  waviness: 0.5,
+  thickness: 4,
+  spacing: 28,
+  variation: 0.5,
 }
 
 // Maps made before the style existed hold land that was already smoothed when
@@ -40,14 +44,16 @@ const within = (value: unknown, key: keyof MapStyle, fallback: number) => {
 }
 
 export function readStyle(json: unknown): MapStyle {
-  const style = json as Partial<MapStyle> | null
+  const style = json as (Partial<MapStyle> & { waviness?: number }) | null
   if (typeof style !== "object" || style === null) return LEGACY_STYLE
   const read = (key: keyof MapStyle) => within(style[key], key, DEFAULT_STYLE[key])
   return {
     roundness: read("roundness"),
     outline: read("outline"),
     rings: Math.round(read("rings")),
+    thickness: read("thickness"),
     spacing: read("spacing"),
-    waviness: read("waviness"),
+    // Maps saved before it was renamed hold the same idea as "waviness".
+    variation: within(style.variation ?? style.waviness, "variation", DEFAULT_STYLE.variation),
   }
 }
