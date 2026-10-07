@@ -100,17 +100,26 @@ export function drawOverview(canvas: HTMLCanvasElement, scene: MapScene, terrain
   }
 
   context.fillStyle = css(theme.ink)
-  context.globalAlpha = 0.45
   for (const piece of scene.assets) {
     const info = loadedAssetInfo(piece.asset)
+    if (info) {
+      const { trim, image } = info
+      context.save()
+      context.translate(piece.x * scale, piece.y * scale)
+      context.rotate((piece.rotation * Math.PI) / 180)
+      context.scale(piece.scaleX * scale, piece.scaleY * scale)
+      context.drawImage(image, trim.x, trim.y, trim.width, trim.height, -trim.width / 2, -trim.height / 2, trim.width, trim.height)
+      context.restore()
+      continue
+    }
+    // Before the art has loaded, a faint blot of the usual size holds its place.
     const category = assetById(piece.asset)?.category
-    // Size of what is painted, as it is placed; before the art has loaded, the usual.
-    const across = info ? info.trim.width * Math.abs(piece.scaleX) : category ? defaultWidth(category) : 0
-    const down = info ? info.trim.height * Math.abs(piece.scaleY) : across
-    if (across === 0) continue
+    if (!category) continue
+    const across = defaultWidth(category)
+    context.globalAlpha = 0.25
     context.beginPath()
-    context.ellipse(piece.x * scale, piece.y * scale, Math.max(1, (across * scale) / 2), Math.max(1, (down * scale) / 2), (piece.rotation * Math.PI) / 180, 0, Math.PI * 2)
+    context.ellipse(piece.x * scale, piece.y * scale, Math.max(1, (across * scale) / 2), Math.max(1, (across * scale) / 2), 0, 0, Math.PI * 2)
     context.fill()
+    context.globalAlpha = 1
   }
-  context.globalAlpha = 1
 }
