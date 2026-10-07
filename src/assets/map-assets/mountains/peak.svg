@@ -1,7 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="240" height="200" viewBox="0 0 120 100">
-  <g stroke="#4a3a28" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M6 92 L48 14 L72 52 L84 38 L114 92 Z" fill="#cdb98e"/>
-    <path d="M48 14 L60 36 L52 32 L46 42 L38 30 Z" fill="#f4efe2"/>
-    <path d="M48 14 L72 52 L62 92 L76 92" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="180" viewBox="0 0 220 180">
+  <g fill="#fff" stroke="#000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <polygon points="6,172 112,18 214,172" fill="#fff"/>
+    <clipPath id="s1"><polygon points="112,18 214,172 122,172"/></clipPath>
+    <polygon points="112,18 214,172 122,172" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s1)" d="M19.6 18 L112 172 M25.6 18 L118 172 M31.6 18 L124 172 M37.6 18 L130 172 M43.6 18 L136 172 M49.6 18 L142 172 M55.6 18 L148 172 M61.6 18 L154 172 M67.6 18 L160 172 M73.6 18 L166 172 M79.6 18 L172 172 M85.6 18 L178 172 M91.6 18 L184 172 M97.6 18 L190 172 M103.6 18 L196 172 M109.6 18 L202 172 M115.6 18 L208 172 M121.6 18 L214 172 M127.6 18 L220 172 M133.6 18 L226 172 M139.6 18 L232 172 M145.6 18 L238 172 M151.6 18 L244 172 M157.6 18 L250 172 M163.6 18 L256 172 M169.6 18 L262 172 M175.6 18 L268 172 M181.6 18 L274 172 M187.6 18 L280 172 M193.6 18 L286 172 M199.6 18 L292 172 M205.6 18 L298 172 M211.6 18 L304 172" fill="none" stroke-width="1.125"/>
+    <polygon points="6,172 112,18 214,172" fill="none"/>
+    <path d="M112 18 L122 172" fill="none" stroke-width="2"/>
   </g>
 </svg>

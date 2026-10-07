@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="180" viewBox="0 0 220 180">
+  <g fill="#fff" stroke="#000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <polygon points="8,172 84,34 160,172" fill="#fff"/>
+    <clipPath id="s2"><polygon points="84,34 160,172 92,172"/></clipPath>
+    <polygon points="84,34 160,172 92,172" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s2)" d="M1.2 34 L84 172 M7.2 34 L90 172 M13.2 34 L96 172 M19.2 34 L102 172 M25.2 34 L108 172 M31.2 34 L114 172 M37.2 34 L120 172 M43.2 34 L126 172 M49.2 34 L132 172 M55.2 34 L138 172 M61.2 34 L144 172 M67.2 34 L150 172 M73.2 34 L156 172 M79.2 34 L162 172 M85.2 34 L168 172 M91.2 34 L174 172 M97.2 34 L180 172 M103.2 34 L186 172 M109.2 34 L192 172 M115.2 34 L198 172 M121.2 34 L204 172 M127.2 34 L210 172 M133.2 34 L216 172 M139.2 34 L222 172 M145.2 34 L228 172 M151.2 34 L234 172 M157.2 34 L240 172" fill="none" stroke-width="1.125"/>
+    <polygon points="8,172 84,34 160,172" fill="none"/>
+    <path d="M84 34 L92 172" fill="none" stroke-width="2"/>
+    <polygon points="96,172 150,74 214,172" fill="#fff"/>
+    <clipPath id="s3"><polygon points="150,74 214,172 154,172"/></clipPath>
+    <polygon points="150,74 214,172 154,172" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s3)" d="M91.2 74 L150 172 M97.2 74 L156 172 M103.2 74 L162 172 M109.2 74 L168 172 M115.2 74 L174 172 M121.2 74 L180 172 M127.2 74 L186 172 M133.2 74 L192 172 M139.2 74 L198 172 M145.2 74 L204 172 M151.2 74 L210 172 M157.2 74 L216 172 M163.2 74 L222 172 M169.2 74 L228 172 M175.2 74 L234 172 M181.2 74 L240 172 M187.2 74 L246 172 M193.2 74 L252 172 M199.2 74 L258 172 M205.2 74 L264 172 M211.2 74 L270 172" fill="none" stroke-width="1.125"/>
+    <polygon points="96,172 150,74 214,172" fill="none"/>
+    <path d="M150 74 L154 172" fill="none" stroke-width="2"/>
+  </g>
+</svg>

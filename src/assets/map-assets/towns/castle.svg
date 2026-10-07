@@ -1,10 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 100 100">
-  <g stroke="#4a3a28" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" fill="#d6c8a2">
-    <path d="M8 90 V36 H20 V28 H26 V36 H32 V28 H38 V36 H44 V90 Z"/>
-    <path d="M56 90 V36 H62 V28 H68 V36 H74 V28 H80 V36 H92 V90 Z"/>
-    <path d="M36 90 V50 H64 V90 Z"/>
-    <path d="M30 50 L50 20 L70 50 Z" fill="#a8553a"/>
-    <path d="M44 90 V72 Q50 64 56 72 V90 Z" fill="#6b4a2c"/>
-    <path d="M50 20 V8 L62 12 L50 16" fill="#b33a3a"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="170" height="170" viewBox="0 0 170 170">
+  <g fill="#fff" stroke="#000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M6 160 V90 V83.52 H13.2 V90 H20.4 V83.52 H27.6 V90 H34.8 V83.52 H42 V90 V160 Z" fill="#fff"/>
+    <clipPath id="s30"><polygon points="28.32,160 28.32,90 42,90 42,160"/></clipPath>
+    <polygon points="28.32,160 28.32,90 42,90 42,160" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s30)" d="M-13.68 90 L28.32 160 M-9.68 90 L32.32 160 M-5.68 90 L36.32 160 M-1.68 90 L40.32 160 M2.32 90 L44.32 160 M6.32 90 L48.32 160 M10.32 90 L52.32 160 M14.32 90 L56.32 160 M18.32 90 L60.32 160 M22.32 90 L64.32 160 M26.32 90 L68.32 160 M30.32 90 L72.32 160 M34.32 90 L76.32 160 M38.32 90 L80.32 160" fill="none" stroke-width="1.125"/>
+    <path d="M6 160 V90 V83.52 H13.2 V90 H20.4 V83.52 H27.6 V90 H34.8 V83.52 H42 V90 V160 Z" fill="none"/>
+    <polygon points="1.68,83.52 24,57.52 46.32,83.52" fill="#fff"/>
+    <clipPath id="s31"><polygon points="24,57.52 46.32,83.52 24,83.52"/></clipPath>
+    <polygon points="24,57.52 46.32,83.52 24,83.52" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s31)" d="M8.4 57.52 L24 83.52 M12.4 57.52 L28 83.52 M16.4 57.52 L32 83.52 M20.4 57.52 L36 83.52 M24.4 57.52 L40 83.52 M28.4 57.52 L44 83.52 M32.4 57.52 L48 83.52 M36.4 57.52 L52 83.52 M40.4 57.52 L56 83.52 M44.4 57.52 L60 83.52" fill="none" stroke-width="1.125"/>
+    <polygon points="1.68,83.52 24,57.52 46.32,83.52" fill="none"/>
+    <path d="M128 160 V90 V83.52 H135.2 V90 H142.4 V83.52 H149.6 V90 H156.8 V83.52 H164 V90 V160 Z" fill="#fff"/>
+    <clipPath id="s32"><polygon points="150.32,160 150.32,90 164,90 164,160"/></clipPath>
+    <polygon points="150.32,160 150.32,90 164,90 164,160" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s32)" d="M108.32 90 L150.32 160 M112.32 90 L154.32 160 M116.32 90 L158.32 160 M120.32 90 L162.32 160 M124.32 90 L166.32 160 M128.32 90 L170.32 160 M132.32 90 L174.32 160 M136.32 90 L178.32 160 M140.32 90 L182.32 160 M144.32 90 L186.32 160 M148.32 90 L190.32 160 M152.32 90 L194.32 160 M156.32 90 L198.32 160 M160.32 90 L202.32 160" fill="none" stroke-width="1.125"/>
+    <path d="M128 160 V90 V83.52 H135.2 V90 H142.4 V83.52 H149.6 V90 H156.8 V83.52 H164 V90 V160 Z" fill="none"/>
+    <polygon points="123.68,83.52 146,57.52 168.32,83.52" fill="#fff"/>
+    <clipPath id="s33"><polygon points="146,57.52 168.32,83.52 146,83.52"/></clipPath>
+    <polygon points="146,57.52 168.32,83.52 146,83.52" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s33)" d="M130.4 57.52 L146 83.52 M134.4 57.52 L150 83.52 M138.4 57.52 L154 83.52 M142.4 57.52 L158 83.52 M146.4 57.52 L162 83.52 M150.4 57.52 L166 83.52 M154.4 57.52 L170 83.52 M158.4 57.52 L174 83.52 M162.4 57.52 L178 83.52 M166.4 57.52 L182 83.52" fill="none" stroke-width="1.125"/>
+    <polygon points="123.68,83.52 146,57.52 168.32,83.52" fill="none"/>
+    <polygon points="42,160 42,84 128,84 128,160" fill="#fff"/>
+    <clipPath id="s34"><polygon points="96,160 96,84 128,84 128,160"/></clipPath>
+    <polygon points="96,160 96,84 128,84 128,160" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s34)" d="M50.4 84 L96 160 M54.4 84 L100 160 M58.4 84 L104 160 M62.4 84 L108 160 M66.4 84 L112 160 M70.4 84 L116 160 M74.4 84 L120 160 M78.4 84 L124 160 M82.4 84 L128 160 M86.4 84 L132 160 M90.4 84 L136 160 M94.4 84 L140 160 M98.4 84 L144 160 M102.4 84 L148 160 M106.4 84 L152 160 M110.4 84 L156 160 M114.4 84 L160 160 M118.4 84 L164 160 M122.4 84 L168 160 M126.4 84 L172 160" fill="none" stroke-width="1.125"/>
+    <polygon points="42,160 42,84 128,84 128,160" fill="none"/>
+    <path d="M62 96 V36 V30.0857 H68.5714 V36 H75.1429 V30.0857 H81.7143 V36 H88.2857 V30.0857 H94.8571 V36 H101.429 V30.0857 H108 V36 V96 Z" fill="#fff"/>
+    <clipPath id="s35"><polygon points="90.52,96 90.52,36 108,36 108,96"/></clipPath>
+    <polygon points="90.52,96 90.52,36 108,36 108,96" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s35)" d="M54.52 36 L90.52 96 M58.52 36 L94.52 96 M62.52 36 L98.52 96 M66.52 36 L102.52 96 M70.52 36 L106.52 96 M74.52 36 L110.52 96 M78.52 36 L114.52 96 M82.52 36 L118.52 96 M86.52 36 L122.52 96 M90.52 36 L126.52 96 M94.52 36 L130.52 96 M98.52 36 L134.52 96 M102.52 36 L138.52 96 M106.52 36 L142.52 96" fill="none" stroke-width="1.125"/>
+    <path d="M62 96 V36 V30.0857 H68.5714 V36 H75.1429 V30.0857 H81.7143 V36 H88.2857 V30.0857 H94.8571 V36 H101.429 V30.0857 H108 V36 V96 Z" fill="none"/>
+    <polygon points="56.48,30.0857 85,6.08571 113.52,30.0857" fill="#fff"/>
+    <clipPath id="s36"><polygon points="85,6.08571 113.52,30.0857 85,30.0857"/></clipPath>
+    <polygon points="85,6.08571 113.52,30.0857 85,30.0857" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s36)" d="M70.6 6.08571 L85 30.0857 M74.6 6.08571 L89 30.0857 M78.6 6.08571 L93 30.0857 M82.6 6.08571 L97 30.0857 M86.6 6.08571 L101 30.0857 M90.6 6.08571 L105 30.0857 M94.6 6.08571 L109 30.0857 M98.6 6.08571 L113 30.0857 M102.6 6.08571 L117 30.0857 M106.6 6.08571 L121 30.0857 M110.6 6.08571 L125 30.0857" fill="none" stroke-width="1.125"/>
+    <polygon points="56.48,30.0857 85,6.08571 113.52,30.0857" fill="none"/>
+    <path d="M72 160 V132 Q85 114 98 132 V160 Z" fill="#555"/>
   </g>
 </svg>

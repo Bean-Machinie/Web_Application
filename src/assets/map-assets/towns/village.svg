@@ -1,11 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 120 80">
-  <g stroke="#4a3a28" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M8 46 L26 28 L44 46 V70 H8 Z" fill="#e6d6a8"/>
-    <path d="M8 46 L26 28 L44 46 Z" fill="#a8553a"/>
-    <path d="M50 38 L70 16 L90 38 V70 H50 Z" fill="#e6d6a8"/>
-    <path d="M50 38 L70 16 L90 38 Z" fill="#a8553a"/>
-    <path d="M84 52 L100 36 L116 52 V72 H84 Z" fill="#e6d6a8"/>
-    <path d="M84 52 L100 36 L116 52 Z" fill="#a8553a"/>
-    <rect x="64" y="52" width="12" height="18" fill="#6b4a2c"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="170" height="110" viewBox="0 0 170 110">
+  <g fill="#fff" stroke="#000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <polygon points="8,100 8,72 48,72 48,100" fill="#fff"/>
+    <clipPath id="s43"><polygon points="30,100 30,72 48,72 48,100"/></clipPath>
+    <polygon points="30,100 30,72 48,72 48,100" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s43)" d="M13.2 72 L30 100 M17.2 72 L34 100 M21.2 72 L38 100 M25.2 72 L42 100 M29.2 72 L46 100 M33.2 72 L50 100 M37.2 72 L54 100 M41.2 72 L58 100 M45.2 72 L62 100" fill="none" stroke-width="1.125"/>
+    <polygon points="8,100 8,72 48,72 48,100" fill="none"/>
+    <polygon points="4,72 28,50 52,72" fill="#fff"/>
+    <clipPath id="s44"><polygon points="28,50 52,72 28,72"/></clipPath>
+    <polygon points="28,50 52,72 28,72" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s44)" d="M14.8 50 L28 72 M18.8 50 L32 72 M22.8 50 L36 72 M26.8 50 L40 72 M30.8 50 L44 72 M34.8 50 L48 72 M38.8 50 L52 72 M42.8 50 L56 72 M46.8 50 L60 72 M50.8 50 L64 72" fill="none" stroke-width="1.125"/>
+    <polygon points="4,72 28,50 52,72" fill="none"/>
+    <polygon points="16,100 16,87.4 24.8,87.4 24.8,100" fill="#555"/>
+    <polygon points="60,106 60,70 112,70 112,106" fill="#fff"/>
+    <clipPath id="s45"><polygon points="88.6,106 88.6,70 112,70 112,106"/></clipPath>
+    <polygon points="88.6,106 88.6,70 112,70 112,106" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s45)" d="M67 70 L88.6 106 M71 70 L92.6 106 M75 70 L96.6 106 M79 70 L100.6 106 M83 70 L104.6 106 M87 70 L108.6 106 M91 70 L112.6 106 M95 70 L116.6 106 M99 70 L120.6 106 M103 70 L124.6 106 M107 70 L128.6 106 M111 70 L132.6 106" fill="none" stroke-width="1.125"/>
+    <polygon points="60,106 60,70 112,70 112,106" fill="none"/>
+    <polygon points="54.8,70 86,42 117.2,70" fill="#fff"/>
+    <clipPath id="s46"><polygon points="86,42 117.2,70 86,70"/></clipPath>
+    <polygon points="86,42 117.2,70 86,70" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s46)" d="M69.2 42 L86 70 M73.2 42 L90 70 M77.2 42 L94 70 M81.2 42 L98 70 M85.2 42 L102 70 M89.2 42 L106 70 M93.2 42 L110 70 M97.2 42 L114 70 M101.2 42 L118 70 M105.2 42 L122 70 M109.2 42 L126 70 M113.2 42 L130 70" fill="none" stroke-width="1.125"/>
+    <polygon points="54.8,70 86,42 117.2,70" fill="none"/>
+    <polygon points="70.4,106 70.4,89.8 81.84,89.8 81.84,106" fill="#555"/>
+    <polygon points="122,98 122,72 160,72 160,98" fill="#fff"/>
+    <clipPath id="s47"><polygon points="142.9,98 142.9,72 160,72 160,98"/></clipPath>
+    <polygon points="142.9,98 142.9,72 160,72 160,98" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s47)" d="M127.3 72 L142.9 98 M131.3 72 L146.9 98 M135.3 72 L150.9 98 M139.3 72 L154.9 98 M143.3 72 L158.9 98 M147.3 72 L162.9 98 M151.3 72 L166.9 98 M155.3 72 L170.9 98 M159.3 72 L174.9 98" fill="none" stroke-width="1.125"/>
+    <polygon points="122,98 122,72 160,72 160,98" fill="none"/>
+    <polygon points="118.2,72 141,52 163.8,72" fill="#fff"/>
+    <clipPath id="s48"><polygon points="141,52 163.8,72 141,72"/></clipPath>
+    <polygon points="141,52 163.8,72 141,72" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s48)" d="M129 52 L141 72 M133 52 L145 72 M137 52 L149 72 M141 52 L153 72 M145 52 L157 72 M149 52 L161 72 M153 52 L165 72 M157 52 L169 72 M161 52 L173 72" fill="none" stroke-width="1.125"/>
+    <polygon points="118.2,72 141,52 163.8,72" fill="none"/>
+    <polygon points="129.6,98 129.6,86.3 137.96,86.3 137.96,98" fill="#555"/>
   </g>
 </svg>

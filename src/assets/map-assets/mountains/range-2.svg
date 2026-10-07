@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="100" viewBox="0 0 220 100">
+  <g fill="#fff" stroke="#000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+    <polygon points="2,94 30,36 62,94" fill="#fff"/>
+    <clipPath id="s7"><polygon points="30,36 62,94 35,94"/></clipPath>
+    <polygon points="30,36 62,94 35,94" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s7)" d="M-4.8 36 L30 94 M0.2 36 L35 94 M5.2 36 L40 94 M10.2 36 L45 94 M15.2 36 L50 94 M20.2 36 L55 94 M25.2 36 L60 94 M30.2 36 L65 94 M35.2 36 L70 94 M40.2 36 L75 94 M45.2 36 L80 94 M50.2 36 L85 94 M55.2 36 L90 94 M60.2 36 L95 94" fill="none" stroke-width="1.125"/>
+    <polygon points="2,94 30,36 62,94" fill="none"/>
+    <path d="M30 36 L35 94" fill="none" stroke-width="2"/>
+    <polygon points="160,94 190,32 218,94" fill="#fff"/>
+    <clipPath id="s8"><polygon points="190,32 218,94 195,94"/></clipPath>
+    <polygon points="190,32 218,94 195,94" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s8)" d="M152.8 32 L190 94 M157.8 32 L195 94 M162.8 32 L200 94 M167.8 32 L205 94 M172.8 32 L210 94 M177.8 32 L215 94 M182.8 32 L220 94 M187.8 32 L225 94 M192.8 32 L230 94 M197.8 32 L235 94 M202.8 32 L240 94 M207.8 32 L245 94 M212.8 32 L250 94 M217.8 32 L255 94" fill="none" stroke-width="1.125"/>
+    <polygon points="160,94 190,32 218,94" fill="none"/>
+    <path d="M190 32 L195 94" fill="none" stroke-width="2"/>
+    <polygon points="44,94 84,16 128,94" fill="#fff"/>
+    <clipPath id="s9"><polygon points="84,16 128,94 89,94"/></clipPath>
+    <polygon points="84,16 128,94 89,94" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s9)" d="M37.2 16 L84 94 M42.2 16 L89 94 M47.2 16 L94 94 M52.2 16 L99 94 M57.2 16 L104 94 M62.2 16 L109 94 M67.2 16 L114 94 M72.2 16 L119 94 M77.2 16 L124 94 M82.2 16 L129 94 M87.2 16 L134 94 M92.2 16 L139 94 M97.2 16 L144 94 M102.2 16 L149 94 M107.2 16 L154 94 M112.2 16 L159 94 M117.2 16 L164 94 M122.2 16 L169 94 M127.2 16 L174 94" fill="none" stroke-width="1.125"/>
+    <polygon points="44,94 84,16 128,94" fill="none"/>
+    <path d="M84 16 L89 94" fill="none" stroke-width="2"/>
+    <polygon points="104,94 140,44 176,94" fill="#fff"/>
+    <clipPath id="s10"><polygon points="140,44 176,94 145,94"/></clipPath>
+    <polygon points="140,44 176,94 145,94" fill="#c4c4c4" stroke="none"/>
+    <path clip-path="url(#s10)" d="M110 44 L140 94 M115 44 L145 94 M120 44 L150 94 M125 44 L155 94 M130 44 L160 94 M135 44 L165 94 M140 44 L170 94 M145 44 L175 94 M150 44 L180 94 M155 44 L185 94 M160 44 L190 94 M165 44 L195 94 M170 44 L200 94 M175 44 L205 94" fill="none" stroke-width="1.125"/>
+    <polygon points="104,94 140,44 176,94" fill="none"/>
+    <path d="M140 44 L145 94" fill="none" stroke-width="2"/>
+  </g>
+</svg>
