@@ -24,6 +24,23 @@ export function MapAssetTile({ asset, armed, viewScale, onArm }: Props) {
   const tile = useRef<HTMLButtonElement>(null)
   const [seen, setSeen] = useState(false)
   const thumb = useAssetThumb(asset.id, seen)
+  // The name floats over the page, and when the list scrolls it would take the
+  // time of its fade out to close, riding up with its tile over the panel above.
+  // So it is hidden at the first scroll, before anything is painted.
+  const [named, setNamed] = useState(false)
+  const nameBox = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!named) return
+    const putAway = () => {
+      nameBox.current
+        ?.closest<HTMLElement>("[data-radix-popper-content-wrapper]")
+        ?.style.setProperty("visibility", "hidden")
+      setNamed(false)
+    }
+    // Scrolling does not bubble, so it is heard on the way down.
+    window.addEventListener("scroll", putAway, { capture: true, passive: true })
+    return () => window.removeEventListener("scroll", putAway, { capture: true })
+  }, [named])
 
   useEffect(() => {
     const element = tile.current
@@ -65,7 +82,7 @@ export function MapAssetTile({ asset, armed, viewScale, onArm }: Props) {
   }
 
   return (
-    <Tooltip>
+    <Tooltip open={named} onOpenChange={setNamed}>
       <TooltipTrigger asChild>
         <button
           ref={tile}
@@ -94,7 +111,7 @@ export function MapAssetTile({ asset, armed, viewScale, onArm }: Props) {
       </TooltipTrigger>
       {/* Below the tile, so that the name of one in the top row is never over the search
           and categories above the tiles. It closes by itself when the list scrolls. */}
-      <TooltipContent side="bottom" sideOffset={4}>
+      <TooltipContent ref={nameBox} side="bottom" sideOffset={4}>
         {asset.name}
       </TooltipContent>
     </Tooltip>
