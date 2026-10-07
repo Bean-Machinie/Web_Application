@@ -37,6 +37,7 @@ type Props = {
   editable: boolean
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
   editing: AssetEditing
+  showAssets: boolean
   pick: AssetPicker
   brush: Brush
   onPaint: (paint: Paint) => void
@@ -109,6 +110,7 @@ export function MapBuilderStage(props: Props) {
         view={view}
         size={size}
         assets={scene.assets}
+        visible={props.showAssets}
         selected={editing.selected}
         editable={editable && tool === "select"}
         onSelect={editing.select}

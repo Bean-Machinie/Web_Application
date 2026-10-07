@@ -17,6 +17,8 @@ import { AssetPictures } from "./AssetPictures"
 
 type Props = {
   assets: PlacedAsset[]
+  // False while the art is hidden to paint under it.
+  visible: boolean
   selected: string[]
   // Whether assets can be picked and moved: only with the select tool.
   editable: boolean
@@ -104,7 +106,7 @@ export function MapAssetsLayer(props: Props) {
 
   return (
     <>
-      <Layer ref={picturesLayer} listening={false}>
+      <Layer ref={picturesLayer} listening={false} visible={props.visible}>
         <AssetPictures overview={pictures.overview} canvas={canvas} sharp={pictures.view} />
       </Layer>
       <Layer listening={editable}>

@@ -19,6 +19,8 @@ for (const [path, url] of Object.entries(FILES)) {
   if ((TILE_KINDS as string[]).includes(name)) URLS.set(name as TileKind, url)
 }
 
+export const tileUrl = (kind: TileKind) => URLS.get(kind)
+
 export type Tiles = Record<TileKind, HTMLImageElement>
 
 let loading: Promise<Tiles> | null = null

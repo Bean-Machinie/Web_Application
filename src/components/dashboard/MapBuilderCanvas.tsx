@@ -23,6 +23,7 @@ type Props = {
   // Shift is held.
   shift: boolean
   editing: AssetEditing
+  showAssets: boolean
   brush: Brush
   viewport: ReturnType<typeof useBuilderViewport>
   stageRef: RefObject<Konva.Stage | null>
@@ -96,6 +97,7 @@ export function MapBuilderCanvas(props: Props) {
           cutting={props.cutting}
           editable={props.editable}
           editing={editing}
+          showAssets={props.showAssets}
           pick={pick}
           snapRotation={props.shift}
           onLasso={props.onLasso}

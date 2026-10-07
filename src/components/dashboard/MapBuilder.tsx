@@ -27,9 +27,9 @@ import { SCENE_LIMIT_BYTES } from "@/lib/world-map-scenes"
 import type { LoadedScene } from "@/lib/world-map-scenes"
 import { MapBuilderCanvas } from "./MapBuilderCanvas"
 import { MapBuilderTopBar } from "./MapBuilderTopBar"
-import { MapOptionsBar } from "./MapOptionsBar"
 import { MapRightPanel } from "./MapRightPanel"
 import { MapSettingsPopover } from "./MapSettingsPopover"
+import { MapToolPanel } from "./MapToolPanel"
 import { MapToolStrip } from "./MapToolStrip"
 
 // How much of the most a map can hold it may take before the builder warns.
@@ -46,8 +46,8 @@ type Props = {
 }
 
 // The full-screen map builder, laid out like a design tool: tools down the left,
-// an options bar for the tool in use, the canvas, and the properties and
-// library on the right. Publishing renders the canvas and hands the picture to
+// a panel for the tool in use, the canvas, and the properties and library on
+// the right. Publishing renders the canvas and hands the picture to
 // the same upload an image picked by hand goes through, so the rest of the app
 // cannot tell, and then opens the map.
 export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage }: Props) {
@@ -79,6 +79,9 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const brush = useBrush((tool === "brush" || tool === "blend") && !publishing)
   const { alt, shift } = useHeldModifiers()
   const cutting = (mode === "cut") !== alt
+  const [hideAssets, setHideAssets] = useState(false)
+  // Hiding is for painting under the art; the rendered map always has it.
+  const showAssets = !hideAssets || tool !== "brush" || publishing
 
   const editing = useAssetEditing({
     assets: scene.assets,
@@ -165,13 +168,18 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           <FormAlert tone="error">{error}</FormAlert>
         </div>
       )}
-      <MapOptionsBar tool={tool} mode={mode} altHeld={alt} editing={editing}
-        brush={brush}
-        background={scene.canvas.background}
-        onMode={setMode}
-      />
       <div className="flex min-h-0 flex-1">
         <MapToolStrip tool={tool} disabled={publishing} onTool={changeTool} />
+        <MapToolPanel
+          tool={tool}
+          cutting={cutting}
+          brush={brush}
+          background={scene.canvas.background}
+          showAssets={!hideAssets}
+          disabled={publishing}
+          onMode={setMode}
+          onShowAssets={(show) => setHideAssets(!show)}
+        />
         <MapBuilderCanvas
           scene={landStyle.shown}
           tool={tool}
@@ -179,6 +187,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           editable={!publishing}
           shift={shift}
           editing={editing}
+          showAssets={showAssets}
           brush={brush}
           onPaint={paintBiomes}
           viewport={viewport}

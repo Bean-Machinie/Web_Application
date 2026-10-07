@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import { loadedAssetInfo } from "@/lib/map-assets"
 import type { PlacedAsset } from "@/lib/map-scene"
+import { MapSelectionActions } from "./MapSelectionActions"
 import { PropertyField } from "./PropertyField"
 
 type Props = { assets: PlacedAsset[]; editing: AssetEditing }
@@ -48,6 +49,7 @@ export function MapProperties({ assets, editing }: Props) {
       {chosen.length > 1 && (
         <p className="text-muted-foreground text-[13px]">{chosen.length} selected</p>
       )}
+      {chosen.length > 0 && <MapSelectionActions editing={editing} />}
       {asset && (
         <>
           <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-1.5">
