@@ -67,10 +67,25 @@ const INK_FOLLOWS: Record<string, number> = {
 const FALLBACK_FOLLOWS = 0.6
 export const inkFollows = (category: string) => INK_FOLLOWS[category] ?? FALLBACK_FOLLOWS
 
-// The categories whose painted art changes colour with the biome it stands on.
-// Trees do; buildings do not. Ink art never does.
-const RECOLOURS = new Set(["forests"])
-export const recolours = (category: string) => RECOLOURS.has(category)
+// The categories whose painted art changes colour with the biome it stands on,
+// and, for each, which colours count as what changes when there is no mask. A
+// colour changes from the first value of its hue (in degrees) to fully at the
+// second, and likewise by saturation (0 to 1): below the first it stays. "light"
+// is how bright (0 to 1) a colour may be: fully up to the first, not at all from
+// the second. Trees do, greens and yellow-greens. Mountains change only the
+// olive and green grass on their slopes: hue above ochre rock, and not as bright
+// as sunlit snow, which is cream. Buildings do not. Ink art never does.
+export type Window = { hue: [number, number]; saturation: [number, number]; light: [number, number] }
+// "snow" and "rock" say that the art of the category has those surfaces too,
+// which each biome treats on its own: snow is found by colour, and rock is what
+// is neither snow nor grass.
+export type Recolour = { grass: Window; snow?: boolean; rock?: boolean }
+const RECOLOURS: Record<string, Recolour> = {
+  forests: { grass: { hue: [34, 58], saturation: [0.12, 0.3], light: [1, 1.01] } },
+  mountains: { grass: { hue: [35, 41], saturation: [0.08, 0.16], light: [0.74, 0.86] }, snow: true, rock: true },
+}
+export const recolours = (category: string) => category in RECOLOURS
+export const recolourOf = (category: string): Recolour => RECOLOURS[category] ?? RECOLOURS.forests
 export const defaultWidth = (category: string) => DEFAULT_WIDTH[category] ?? FALLBACK_WIDTH
 
 // A loaded picture, and what was worked out about it once (see map-asset-shape).

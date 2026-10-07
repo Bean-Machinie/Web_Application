@@ -35,9 +35,11 @@ export function drawPainted(
   box: Rect
 ) {
   const { asset, info } = piece
-  const changes = recolours(asset.asset.split("/")[0])
+  const category = asset.asset.split("/")[0]
+  const changes = recolours(category)
   const art = paintedArtFor(
     asset.asset,
+    category,
     info,
     info.trim.width * Math.abs(asset.scaleX) * picture.scale,
     ground.background,

@@ -22,6 +22,10 @@ type Biomes = Record<Biome, { fill: Rgb; ink: Rgb }>
 // stops in order.
 export type Ramp = [number, Rgb][]
 
+// What each surface of a painting becomes in a biome: the grass or foliage, the
+// snow and the rock (where the art has them).
+export type Surfaced = { grass?: Ramp | null; snow?: Ramp | null; rock?: Ramp | null }
+
 // How art painted in colour is drawn.
 export type PaintLook = {
   // One grade over all painted art, so that it sits in the map: saturation and
@@ -37,9 +41,11 @@ export type PaintLook = {
   // The soft shadow at the foot of art: its colour, how dark it is at most, and
   // how far it is blurred, as a share of the art's width.
   shadow: { colour: Rgb; opacity: number; blur: number }
-  // What foliage becomes in each biome: its own lights and darks, in these colours.
-  // Plains keeps the painting as it is, so it has no ramp.
-  recolour: Record<Biome, Ramp>
+  // What the changing parts of painted art become in each biome: their own lights
+  // and darks, in these colours. There is a set for each category that needs its
+  // own; "default" is what the rest use. Plains keeps the painting as it is, so
+  // it has none. A surface left out, or null, stays as painted in that biome.
+  recolour: Record<string, Record<Biome, Surfaced>>
 }
 
 export type MapTheme = {
@@ -89,18 +95,44 @@ function muted(land: { fill: Rgb; ink: Rgb }): MapTheme["biomes"] {
 }
 
 // The same colours on every background: the grade, below, is what makes them sit.
-const RECOLOUR: PaintLook["recolour"] = {
-  ice: [[0, [38, 74, 84]], [0.45, [104, 152, 156]], [0.8, [196, 226, 228]], [1, [255, 255, 255]]],
-  desert: [[0, [52, 50, 26]], [0.5, [122, 116, 56]], [1, [198, 190, 118]]],
-  swamp: [[0, [20, 28, 18]], [0.5, [46, 60, 34]], [1, [96, 112, 58]]],
-  volcanic: [[0, [18, 17, 16]], [0.5, [56, 54, 52]], [1, [116, 112, 108]]],
+const FOLIAGE: Record<Biome, Surfaced> = {
+  ice: { grass: [[0, [38, 74, 84]], [0.45, [104, 152, 156]], [0.8, [196, 226, 228]], [1, [255, 255, 255]]] },
+  desert: { grass: [[0, [52, 50, 26]], [0.5, [122, 116, 56]], [1, [198, 190, 118]]] },
+  swamp: { grass: [[0, [20, 28, 18]], [0.5, [46, 60, 34]], [1, [96, 112, 58]]] },
+  volcanic: { grass: [[0, [18, 17, 16]], [0.5, [56, 54, 52]], [1, [116, 112, 108]]] },
+}
+
+// Mountains: grass on the slopes, snow and rock, each in the biome's terms. Snow
+// stays on ice and is not on desert, swamp or volcanic ground, where it becomes
+// pale rock of that ground; the rock itself takes the ground's colours.
+const MOUNTAINS: Record<Biome, Surfaced> = {
+  ice: {
+    grass: [[0, [118, 138, 160]], [0.5, [198, 212, 226]], [1, [255, 255, 255]]],
+    snow: null,
+    rock: [[0, [28, 38, 52]], [0.5, [84, 100, 120]], [1, [160, 176, 192]]],
+  },
+  desert: {
+    grass: [[0, [118, 90, 52]], [0.5, [194, 162, 100]], [1, [232, 208, 152]]],
+    snow: [[0, [150, 112, 70]], [0.5, [214, 178, 126]], [1, [244, 224, 184]]],
+    rock: [[0, [58, 30, 20]], [0.5, [160, 88, 52]], [1, [222, 150, 96]]],
+  },
+  swamp: {
+    grass: [[0, [24, 34, 24]], [0.5, [52, 66, 40]], [1, [92, 106, 62]]],
+    snow: [[0, [60, 70, 56]], [0.5, [118, 128, 106]], [1, [176, 184, 158]]],
+    rock: [[0, [16, 22, 18]], [0.5, [56, 68, 54]], [1, [108, 122, 96]]],
+  },
+  volcanic: {
+    grass: [[0, [44, 42, 42]], [0.5, [96, 92, 90]], [1, [158, 154, 150]]],
+    snow: [[0, [70, 66, 64]], [0.5, [130, 124, 120]], [1, [196, 190, 184]]],
+    rock: [[0, [12, 10, 10]], [0.5, [52, 46, 44]], [1, [112, 100, 94]]],
+  },
 }
 
 const PAINT = {
   sharpen: 0.3,
   smallContrast: 0.05,
   shadow: { colour: [30, 24, 16] as Rgb, opacity: 0.32, blur: 0.06 },
-  recolour: RECOLOUR,
+  recolour: { default: FOLIAGE, mountains: MOUNTAINS },
 }
 
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }

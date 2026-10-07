@@ -61,40 +61,67 @@ All of these are set in `src/lib/map-theme.ts`, under `paint` (`grade`,
 
 Some painted art changes colour with the biome it stands on, so a forest looks
 right on desert, in swamp and on ice. This is **opt-in per category**, in
-`RECOLOURS` in `src/lib/map-assets.ts`. At the moment only **`forests`** change.
-Buildings, mountains and everything else are drawn as painted. Ink art never
-changes.
+`RECOLOURS` in `src/lib/map-assets.ts`. At the moment **`forests`** and
+**`mountains`** change. Buildings and everything else are drawn as painted. Ink
+art never changes.
 
 **What changes.** By default the greens and yellow-greens of a painting change,
 with a soft edge on the range of colour. Browns and greys, such as trunks, stay,
-and so does anything very dark or hardly coloured.
+and so does anything very dark or hardly coloured. Each category has its own
+range of colour, because what counts as "grass" is different on a tree and on a
+mountain slope.
 
 **How it changes.** The painting's own lights and darks are kept and mapped onto
 a set of colours for the biome, so the brushwork and volume survive. The range is
 taken from the changing parts only, so a pale trunk or dark outline does not make
 foliage too bright or dark. The colour sets are in `src/lib/map-theme.ts`
-(`paint.recolour`): frosty blue-green with white highlights for ice, dry olive for
-desert, murky dark green for swamp, charred grey for volcanic. Plains keeps the
-painting's own colours.
+(`paint.recolour`), one set for each category that needs its own. Foliage becomes
+frosty blue-green with white highlights on ice, dry olive on desert, murky dark
+green in swamp and charred grey on volcanic ground. Plains keeps the painting's
+own colours.
 
 **Which biome.** Each piece looks at the paint at its foot and blends between
 the biomes there, so a forest fades gradually across a border, tree by tree.
 
-### Choosing what changes with a mask
+### Mountains: grass, snow and rock
 
-To say exactly which parts may change, put a mask next to the art with the same
-name and `.mask.png` (or `.mask.webp`):
+A mountain has three kinds of surface, and each biome treats them differently:
+
+- **Grass**, the olive and green on the lower slopes, is picked as above.
+- **Snow** is the very bright, hardly saturated cream and white, and the pale
+  blue of snow in shade. It is found by colour.
+- **Rock** is everything that is neither grass nor snow: ochre, brown and the
+  deep blue shadows.
+
+| Biome      | Grass  | Snow                     | Rock                    |
+| ---------- | ------ | ------------------------ | ----------------------- |
+| Plains     | as painted | as painted           | as painted              |
+| Ice        | snowy  | stays                    | cool slate              |
+| Desert     | sandy  | pale sandstone, no white | warm red-orange         |
+| Swamp      | murky  | pale grey-green          | dark mossy grey-green   |
+| Volcanic   | ash    | pale ash, no white       | black basalt, charcoal  |
+
+So there are no snow caps on desert, swamp or volcanic ground, and the rock takes
+the colours of the ground. For colours to look right, snow should be clearly
+brighter than the rock around it, and the grass should be olive or green rather
+than brown.
+
+### Choosing the grass with a mask
+
+To say exactly which parts are grass (or, for foliage, may change), put a mask
+next to the art with the same name and `.mask.png` (or `.mask.webp`):
 
 ```
-forests/tree.png
-forests/tree.mask.png
+mountains/mountain 2.png
+mountains/mountain 2.mask.png
 ```
 
-White means the part may change, black means it may not, and greys change by
-that much. The mask can be any resolution, but it must have the **same
-proportions** as the art, because it is stretched to fit it. A mask is not art:
-it does not appear in the library. With a mask, the automatic colour pick is not
-used at all. An all-black mask turns recolouring off for that file.
+White means the part is grass, black means it is not, and greys count by that
+much. The mask can be any resolution, but it must have the **same proportions**
+as the art, because it is stretched to fit it. A mask is not art: it does not
+appear in the library. With a mask, the automatic grass pick is not used at all.
+On mountains, snow is still found by colour and rock is what is left, so a mask
+only has to mark the grass. An all-black mask means there is no grass.
 
 ## How big art is when first placed
 

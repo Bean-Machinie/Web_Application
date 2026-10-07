@@ -176,7 +176,7 @@ export function MapAssetsLayer(props: Props) {
               if (!moving.has(asset.id)) return
               const drawn = trim.width * Math.abs(asset.scaleX) * view.scale
               const flat = info.colour
-                ? paintedArtFor(asset.asset, info, drawn, canvas.background, false).base
+                ? paintedArtFor(asset.asset, asset.asset.split("/")[0], info, drawn, canvas.background, false).base
                 : artFor(asset.asset, info, drawn, theme.ink, theme.land.fill).preview
               context.drawImage(flat, 0, 0, trim.width, trim.height)
             }}
