@@ -37,6 +37,9 @@ export function renderWater(
   const rings = makeRings(count, style, sizes, seed)
   const pixel = 1 / region.scale
   const last = rings[count - 1]
+  // Lines grow fainter with distance from land, whatever the spacing, so the
+  // outermost ones are only just there.
+  const farthest = (last ? last.centre : 0) + sizes.first
   const limit = Math.max(sizes.band, last ? last.centre + last.reach : 0) + sizes.band
 
   const sample = (grid: Float32Array, x: number, y: number) => {
@@ -90,7 +93,7 @@ export function renderWater(
             if (room < 0) room = sample(field.open, x, y)
             const needs = Math.max(sizes.channelHalf, ring.centre * 1.1)
             const open = smooth(unit((room - needs) / Math.max(sizes.channelFade, ring.centre * 0.7)))
-            const strength = look.lightAlpha * ring.fade * open * cover * gap
+            const strength = look.lightAlpha * (1 - unit(distance / farthest) ** 0.65) * open * cover * gap
             if (strength > light) light = strength
           }
         }

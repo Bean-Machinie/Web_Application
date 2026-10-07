@@ -44,7 +44,6 @@ export type Ring = {
   // Own share of the wandering.
   amp: number
   half: number
-  fade: number
   // Breaks start where the break noise falls below this; further rings break more.
   cut: number
   // How far from the centre the line can reach, so most pixels skip it early.
@@ -72,7 +71,6 @@ export function makeRings(count: number, style: WaterStyle, sizes: Sizes, seed: 
       centre,
       amp,
       half,
-      fade: 1 - 0.35 * along,
       cut,
       reach: sizes.swing * amp + sizes.tremor + half * SWELL_MAX + 1,
     })
