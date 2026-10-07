@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useRef } from "react"
-import type { BuilderView, useBuilderViewport } from "@/hooks/use-builder-viewport"
+import { useCallback, useEffect, useMemo, useRef } from "react"
+import type { useBuilderViewport } from "@/hooks/use-builder-viewport"
+import { cornersOnCanvas, toCanvas, toScreen } from "@/lib/view-matrix"
+import type { BuilderView } from "@/lib/view-matrix"
 import { useMapOverview } from "@/hooks/use-map-overview"
 import { overviewSize } from "@/lib/map-overview"
 import type { MapScene } from "@/lib/map-scene"
@@ -22,42 +24,24 @@ export function MapNavigatorView({ scene, terrain, viewport }: Props) {
   const { width, height } = overviewSize(scene.canvas)
   const picture = useRef<HTMLCanvasElement>(null)
   const frame = useRef<HTMLDivElement>(null)
-  const box = useRef<HTMLDivElement>(null)
-  // Where the pointer holds the rectangle, from its middle, while it is dragged.
+  const box = useRef<SVGPolygonElement>(null)
+  // Where the pointer holds the view, from the middle of what is seen, while it is dragged.
   const holding = useRef<{ x: number; y: number } | null>(null)
   useMapOverview(picture, scene, terrain)
 
   const { size, inset, subscribe, liveView, centreOn, zoomBy } = viewport
+  const middle = useMemo(() => ({ x: inset + (size.width - inset) / 2, y: size.height / 2 }), [inset, size])
 
-  // What can be seen, on the canvas, from a view.
-  const seenBy = useCallback(
-    (view: BuilderView) => ({
-      left: (inset - view.x) / view.scale,
-      right: (size.width - view.x) / view.scale,
-      top: -view.y / view.scale,
-      bottom: (size.height - view.y) / view.scale,
-    }),
-    [inset, size]
-  )
-
-  // The rectangle is moved by its style, as the view moves, not by state.
+  // The rectangle is of the screen, so on the map it is turned as the view is. It
+  // is moved by its points, as the view moves, not by state.
   const place = useCallback(
     (view: BuilderView) => {
       const element = box.current
       if (!element || size.width === 0) return
-      const seen = seenBy(view)
-      const left = Math.max(0, seen.left)
-      const top = Math.max(0, seen.top)
-      const right = Math.min(canvasWidth, seen.right)
-      const bottom = Math.min(canvasHeight, seen.bottom)
-      const hidden = right <= left || bottom <= top
-      element.style.visibility = hidden ? "hidden" : "visible"
-      element.style.left = `${(left / canvasWidth) * 100}%`
-      element.style.top = `${(top / canvasHeight) * 100}%`
-      element.style.width = `${(Math.max(0, right - left) / canvasWidth) * 100}%`
-      element.style.height = `${(Math.max(0, bottom - top) / canvasHeight) * 100}%`
+      const corners = cornersOnCanvas(view, inset, 0, size.width, size.height)
+      element.setAttribute("points", corners.map((corner) => `${corner.x},${corner.y}`).join(" "))
     },
-    [seenBy, size.width, canvasWidth, canvasHeight]
+    [inset, size]
   )
 
   useEffect(() => {
@@ -89,12 +73,12 @@ export function MapNavigatorView({ scene, terrain, viewport }: Props) {
     if (event.button !== 0) return
     event.currentTarget.setPointerCapture(event.pointerId)
     const at = pointOf(event)
-    const seen = seenBy(liveView())
-    const inside = at.x >= seen.left && at.x <= seen.right && at.y >= seen.top && at.y <= seen.bottom
+    const view = liveView()
+    const on = toScreen(view, at)
+    const inside = on.x >= inset && on.x <= size.width && on.y >= 0 && on.y <= size.height
     // On the rectangle it is held where it was taken; off it, it jumps to the point.
-    holding.current = inside
-      ? { x: at.x - (seen.left + seen.right) / 2, y: at.y - (seen.top + seen.bottom) / 2 }
-      : { x: 0, y: 0 }
+    const centre = toCanvas(view, middle)
+    holding.current = inside ? { x: at.x - centre.x, y: at.y - centre.y } : { x: 0, y: 0 }
     if (!inside) centreOn(at)
   }
 
@@ -120,11 +104,9 @@ export function MapNavigatorView({ scene, terrain, viewport }: Props) {
       className="bg-muted relative shrink-0 cursor-crosshair touch-none overflow-hidden rounded-md border"
     >
       <canvas ref={picture} width={width} height={height} className="size-full" />
-      <div
-        ref={box}
-        className="border-primary bg-primary/10 absolute cursor-grab border-2 active:cursor-grabbing"
-        style={{ visibility: "hidden" }}
-      />
+      <svg viewBox={`0 0 ${canvasWidth} ${canvasHeight}`} preserveAspectRatio="none" className="pointer-events-none absolute inset-0 size-full">
+        <polygon ref={box} className="fill-red-500/10 stroke-red-500" strokeWidth={2} vectorEffect="non-scaling-stroke" />
+      </svg>
     </div>
   )
 }

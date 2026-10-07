@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react"
-import { Minus, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useState } from "react"
+import { FlipVertical2, Minus, Percent, Plus } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
+import { MapControlRow } from "./MapControlRow"
+import { MapNumberField } from "./MapNumberField"
+import { MapStepButton } from "./MapStepButton"
 
 type Props = {
   // The view's scale: 1 is 100%.
@@ -10,7 +11,7 @@ type Props = {
   limits: { min: number; max: number }
   onZoomTo: (scale: number) => void
   onZoomBy: (factor: number) => void
-  onFit: () => void
+  onFlipH: () => void
 }
 
 const STEP = 1.4
@@ -23,28 +24,15 @@ const toPosition = (zoom: number, { min, max }: Props["limits"]) =>
 const fromPosition = (position: number, { min, max }: Props["limits"]) =>
   min * Math.pow(max / min, position / RESOLUTION)
 
-// How far the canvas is zoomed, with a slider, steps, a number to type over, and
-// the two jumps. It is the same zoom as the status bar's.
-export function MapZoomControls({ zoom, limits, onZoomTo, onZoomBy, onFit }: Props) {
+// How far the canvas is zoomed, in one row: a slider, a number to type over, and the
+// steps, the jump to 100% and the mirror. It is the same zoom as the status bar's.
+export function MapZoomControls({ zoom, limits, onZoomTo, onZoomBy, onFlipH }: Props) {
   // While the slider is held it shows where it is, not the view, which catches up after.
   const [held, setHeld] = useState<number | null>(null)
-  const shown = String(Math.round(zoom * 100))
-  const [draft, setDraft] = useState(shown)
-  useEffect(() => setDraft(shown), [shown])
-
-  function finish() {
-    const typed = Number(draft)
-    if (draft.trim() === "" || !Number.isFinite(typed) || typed <= 0) return setDraft(shown)
-    onZoomTo(typed / 100)
-    setDraft(shown)
-  }
 
   return (
-    <div className="grid gap-2">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon-xs" aria-label="Zoom out" onClick={() => onZoomBy(1 / STEP)}>
-          <Minus />
-        </Button>
+    <MapControlRow
+      slider={
         <Slider
           aria-label="Zoom"
           min={0}
@@ -56,36 +44,36 @@ export function MapZoomControls({ zoom, limits, onZoomTo, onZoomBy, onFit }: Pro
             onZoomTo(fromPosition(position, limits))
           }}
           onValueCommit={() => setHeld(null)}
+          className="mr-2.5"
         />
-        <Button variant="ghost" size="icon-xs" aria-label="Zoom in" onClick={() => onZoomBy(STEP)}>
-          <Plus />
-        </Button>
-      </div>
-      <div className="flex items-center gap-2">
-        <div className="relative w-20">
-          <Input
-            inputMode="numeric"
-            aria-label="Zoom percentage"
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            onBlur={finish}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") event.currentTarget.blur()
-              if (event.key === "Escape") setDraft(shown)
-            }}
-            className="h-7 pr-6 text-right text-xs tabular-nums"
-          />
-          <span className="text-muted-foreground pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-[11px]">
-            %
-          </span>
-        </div>
-        <Button variant="outline" size="sm" onClick={onFit}>
-          Fit
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => onZoomTo(1)}>
-          100%
-        </Button>
-      </div>
-    </div>
+      }
+      field={
+        <MapNumberField
+          label="Zoom percentage"
+          unit="%"
+          value={Math.round(zoom * 100)}
+          accepts={(value) => Number.isFinite(value) && value > 0}
+          onCommit={(value) => onZoomTo(value / 100)}
+        />
+      }
+      buttons={
+        <>
+          <MapStepButton label="Zoom out" action="view.zoomOut" onClick={() => onZoomBy(1 / STEP)}>
+            <Minus />
+          </MapStepButton>
+          <MapStepButton label="Zoom in" action="view.zoomIn" onClick={() => onZoomBy(STEP)}>
+            <Plus />
+          </MapStepButton>
+          <MapStepButton label="Zoom to 100%" action="view.zoom100" onClick={() => onZoomTo(1)}>
+            <Percent />
+          </MapStepButton>
+        </>
+      }
+      aside={
+        <MapStepButton label="Flip view horizontally" action="view.flip" onClick={onFlipH}>
+          <FlipVertical2 />
+        </MapStepButton>
+      }
+    />
   )
 }

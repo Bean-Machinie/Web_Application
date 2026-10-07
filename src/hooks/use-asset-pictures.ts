@@ -10,6 +10,7 @@ import { createPictures } from "@/lib/map-asset-pictures"
 import type { Ground } from "@/lib/map-ground"
 import type { MapScene, PlacedAsset } from "@/lib/map-scene"
 import { themeFor } from "@/lib/map-theme"
+import { visibleRect } from "@/lib/view-matrix"
 import { useAssetInfos } from "./use-asset-infos"
 import type { BuilderView } from "./use-builder-viewport"
 
@@ -144,10 +145,7 @@ export function useAssetPictures(input: Input) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const left = Math.max(-view.x / view.scale - (size.width / view.scale) * MARGIN, 0)
-      const top = Math.max(-view.y / view.scale - (size.height / view.scale) * MARGIN, 0)
-      const right = Math.min((size.width - view.x) / view.scale + (size.width / view.scale) * MARGIN, width)
-      const bottom = Math.min((size.height - view.y) / view.scale + (size.height / view.scale) * MARGIN, height)
+      const { left, top, right, bottom } = visibleRect(view, size, { width, height }, MARGIN)
       if (right <= left || bottom <= top) return
       const region = { x: left, y: top, width: right - left, height: bottom - top }
       const wanted = view.scale * window.devicePixelRatio

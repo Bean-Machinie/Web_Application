@@ -5,6 +5,7 @@ import type { MapScene } from "@/lib/map-scene"
 import type { MapStyle } from "@/lib/map-style"
 import { buildField } from "@/lib/map-water-field"
 import { timeSlicer } from "@/lib/time-slice"
+import { visibleRect } from "@/lib/view-matrix"
 import { waterSteps } from "@/lib/map-water-render"
 import type { Region } from "@/lib/map-water-render"
 
@@ -42,16 +43,7 @@ export function useWaterImage(
     if (!field) return
     let current = true
     const timer = setTimeout(async () => {
-      const left = Math.max(-view.x / view.scale - (size.width / view.scale) * MARGIN, 0)
-      const top = Math.max(-view.y / view.scale - (size.height / view.scale) * MARGIN, 0)
-      const right = Math.min(
-        (size.width - view.x) / view.scale + (size.width / view.scale) * MARGIN,
-        width
-      )
-      const bottom = Math.min(
-        (size.height - view.y) / view.scale + (size.height / view.scale) * MARGIN,
-        height
-      )
+      const { left, top, right, bottom } = visibleRect(view, size, { width, height }, MARGIN)
       if (right <= left || bottom <= top) return
       const region = { x: left, y: top, width: right - left, height: bottom - top }
       const wanted = view.scale * window.devicePixelRatio

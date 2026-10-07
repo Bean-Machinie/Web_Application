@@ -18,6 +18,10 @@ type Options = {
     zoomBy: (factor: number) => void
     zoomTo: (scale: number) => void
     fit: () => void
+    rotateLeft: () => void
+    rotateRight: () => void
+    resetTurn: () => void
+    flip: (axis: "h" | "v") => void
   }
   undo: () => void
   redo: () => void
@@ -50,6 +54,10 @@ export function useBuilderShortcuts({ enabled, tools, viewport, undo, redo, togg
     "view.zoomOut": () => viewport.zoomBy(1 / ZOOM_STEP),
     "view.fit": () => viewport.fit(),
     "view.zoom100": () => viewport.zoomTo(1),
+    "view.rotateLeft": () => viewport.rotateLeft(),
+    "view.rotateRight": () => viewport.rotateRight(),
+    "view.resetRotation": () => viewport.resetTurn(),
+    "view.flip": () => viewport.flip("h"),
     "edit.selectAll": () => editing.selectAll(),
     "edit.copy": when(has, editing.copy),
     "edit.cut": when(has, editing.cut),

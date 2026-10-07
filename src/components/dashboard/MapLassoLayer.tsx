@@ -44,7 +44,7 @@ export function MapLassoLayer({ enabled, cutting, onLasso }: Props) {
       if (!points) return
       const next = place(event)
       const last = points[points.length - 1]
-      const reach = STEP / stage.scaleX()
+      const reach = STEP / Math.abs(stage.scaleX())
       if (Math.hypot(next[0] - last[0], next[1] - last[1]) < reach) return
       points.push(next)
       setOutline(points.flat())
@@ -53,7 +53,7 @@ export function MapLassoLayer({ enabled, cutting, onLasso }: Props) {
       window.removeEventListener("pointermove", onMove)
       window.removeEventListener("pointerup", onUp)
       window.removeEventListener("pointercancel", onCancel)
-      if (points && commit) latest.current.onLasso(points, strokeCuts, stage.scaleX())
+      if (points && commit) latest.current.onLasso(points, strokeCuts, Math.abs(stage.scaleX()))
       points = null
       setOutline([])
     }

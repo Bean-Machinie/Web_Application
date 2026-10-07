@@ -28,13 +28,12 @@ export async function exportCanvas(
   const terrain = await exportTerrain(scene)
   const biomes = exportBiomes(scene, terrain)
   const art = await exportAssets(scene, biomes, terrain)
-  const { x, y } = stage.position()
-  const scale = stage.scaleX()
+  // The view, turned and mirrored too, is put back as it was: none of it is the map's.
+  const { x, y, rotation, scaleX, scaleY } = stage.attrs
   const chrome = stage.find<Konva.Node>(".chrome")
 
   chrome.forEach((layer) => layer.hide())
-  stage.scale({ x: 1, y: 1 })
-  stage.position({ x: 0, y: 0 })
+  stage.setAttrs({ x: 0, y: 0, rotation: 0, scaleX: 1, scaleY: 1 })
   let restoreWater = () => {}
   let restoreBiomes = () => {}
   let restoreAssets = () => {}
@@ -57,8 +56,7 @@ export async function exportCanvas(
     restoreBiomes()
     restoreAssets()
     restoreTerrain()
-    stage.scale({ x: scale, y: scale })
-    stage.position({ x, y })
+    stage.setAttrs({ x, y, rotation, scaleX, scaleY })
     chrome.forEach((layer) => layer.show())
   }
 

@@ -132,7 +132,7 @@ export function MapBuilderCanvas(props: Props) {
         />
       )}
       {props.armed && (
-        <MapArmedGhost asset={props.armed} viewScale={viewport.view.scale} area={viewport.container} />
+        <MapArmedGhost asset={props.armed} view={viewport.view} area={viewport.container} />
       )}
       <MapContextMenu spot={spot} editing={editing} onClose={() => setSpot(null)} />
     </div>

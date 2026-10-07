@@ -15,6 +15,10 @@ export type ActionId =
   | "view.zoomOut"
   | "view.fit"
   | "view.zoom100"
+  | "view.rotateLeft"
+  | "view.rotateRight"
+  | "view.resetRotation"
+  | "view.flip"
   | "edit.selectAll"
   | "edit.copy"
   | "edit.cut"
@@ -74,6 +78,10 @@ export const ACTIONS: Action[] = [
   { id: "view.zoomOut", label: "Zoom out", defaults: [{ key: "-", ctrl: true }], guard: GUARD.none },
   { id: "view.fit", label: "Fit canvas to view", defaults: [{ key: "0", ctrl: true }], guard: GUARD.none },
   { id: "view.zoom100", label: "Zoom to 100%", defaults: [{ key: "0", ctrl: true, alt: true }], guard: GUARD.none },
+  { id: "view.rotateLeft", label: "Rotate view left", defaults: [{ key: "[", ctrl: true }], guard: GUARD.none },
+  { id: "view.rotateRight", label: "Rotate view right", defaults: [{ key: "]", ctrl: true }], guard: GUARD.none },
+  { id: "view.resetRotation", label: "Reset view rotation and flip", defaults: [{ key: "r", ctrl: true, alt: true }], guard: GUARD.none },
+  { id: "view.flip", label: "Flip view horizontally", defaults: [{ key: "h", ctrl: true, shift: true }], guard: GUARD.none },
   { id: "edit.selectAll", label: "Select all art", defaults: [{ key: "a", ctrl: true }], guard: GUARD.normal },
   { id: "edit.copy", label: "Copy", defaults: [{ key: "c", ctrl: true }], guard: GUARD.normal },
   { id: "edit.cut", label: "Cut", defaults: [{ key: "x", ctrl: true }], guard: GUARD.normal },
@@ -119,6 +127,10 @@ export const SHORTCUT_GROUPS: { title: string; rows: Row[] }[] = [
       { action: "view.zoomOut" },
       { action: "view.fit" },
       { action: "view.zoom100" },
+      { action: "view.rotateLeft" },
+      { action: "view.rotateRight" },
+      { action: "view.resetRotation" },
+      { action: "view.flip" },
       { label: "Zoom at the pointer", keys: ["Scroll"] },
       { label: "Pan with any tool", keys: ["Middle drag"] },
     ],

@@ -1,8 +1,14 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react"
 import type { RefObject } from "react"
 import type Konva from "konva"
+import { flipped, holdingAt, stageProps, toCanvas, turnedExtent, turnedTo } from "@/lib/view-matrix"
+import type { BuilderView } from "@/lib/view-matrix"
 
-export type BuilderView = { x: number; y: number; scale: number }
+export type { BuilderView }
+
+const UPRIGHT = { rotation: 0, flipH: false, flipV: false }
+// One press of a rotate key.
+const TURN_STEP = 15
 
 // Room around the canvas when it is fitted.
 const MARGIN = 56
@@ -30,7 +36,7 @@ export function useBuilderViewport(
 ) {
   const container = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState<Size>({ width: 0, height: 0 })
-  const [view, setView] = useState<BuilderView>({ x: 0, y: 0, scale: 1 })
+  const [view, setView] = useState<BuilderView>({ x: 0, y: 0, scale: 1, ...UPRIGHT })
   const placed = useRef(false)
   // Where the view really is, ahead of "view" while a gesture goes on.
   const live = useRef(view)
@@ -49,8 +55,7 @@ export function useBuilderViewport(
       watchers.current.forEach((watcher) => watcher(next))
       const target = stage.current
       if (!target) return setView(next)
-      target.position({ x: next.x, y: next.y })
-      target.scale({ x: next.scale, y: next.scale })
+      target.setAttrs(stageProps(next))
       target.batchDraw()
       clearTimeout(settle.current)
       settle.current = setTimeout(() => setView(live.current), SETTLE_MS)
@@ -58,20 +63,16 @@ export function useBuilderViewport(
     [stage]
   )
 
+  // The canvas whole in the part that can be seen, as turned and mirrored as given.
   const fitted = useCallback(
-    (box: Size): BuilderView => {
+    (box: Size, turn: Pick<BuilderView, "rotation" | "flipH" | "flipV">): BuilderView => {
       const seen = box.width - inset
-      const scale = Math.min(
-        (seen - MARGIN * 2) / canvas.width,
-        (box.height - MARGIN * 2) / canvas.height
-      )
-      return {
-        scale,
-        x: inset + (seen - canvas.width * scale) / 2,
-        y: (box.height - canvas.height * scale) / 2,
-      }
+      const extent = turnedExtent(canvas, turn.rotation)
+      const scale = Math.min((seen - MARGIN * 2) / extent.width, (box.height - MARGIN * 2) / extent.height)
+      const middle = { x: inset + seen / 2, y: box.height / 2 }
+      return holdingAt({ x: 0, y: 0, scale, ...turn }, { x: canvas.width / 2, y: canvas.height / 2 }, middle)
     },
-    [canvas.width, canvas.height, inset]
+    [canvas, inset]
   )
 
   useLayoutEffect(() => {
@@ -82,7 +83,7 @@ export function useBuilderViewport(
       setSize(box)
       if (!placed.current && box.width > 0) {
         placed.current = true
-        setView(fitted(box))
+        setView(fitted(box, UPRIGHT))
       }
     })
     observer.observe(element)
@@ -92,10 +93,11 @@ export function useBuilderViewport(
   const zoomAt = useCallback(
     (point: { x: number; y: number }, factor: number) => {
       const old = live.current
-      const min = fitted(size).scale * MIN_OF_FIT
+      const min = fitted(size, UPRIGHT).scale * MIN_OF_FIT
       const scale = Math.min(Math.max(old.scale * factor, min), MAX_SCALE)
       const ratio = scale / old.scale
       moveTo({
+        ...old,
         scale,
         x: point.x - (point.x - old.x) * ratio,
         y: point.y - (point.y - old.y) * ratio,
@@ -149,7 +151,7 @@ export function useBuilderViewport(
   )
 
   // How far in and out the zoom goes.
-  const limits = useMemo(() => ({ min: fitted(size).scale * MIN_OF_FIT, max: MAX_SCALE }), [fitted, size])
+  const limits = useMemo(() => ({ min: fitted(size, UPRIGHT).scale * MIN_OF_FIT, max: MAX_SCALE }), [fitted, size])
 
   const subscribe = useCallback((watcher: (view: BuilderView) => void) => {
     watchers.current.add(watcher)
@@ -160,10 +162,7 @@ export function useBuilderViewport(
 
   // Moves the view to have a point of the canvas in the middle of what can be seen.
   const centreOn = useCallback(
-    (point: { x: number; y: number }) => {
-      const { scale } = live.current
-      moveTo({ scale, x: seenMiddle.x - point.x * scale, y: seenMiddle.y - point.y * scale })
-    },
+    (point: { x: number; y: number }) => moveTo(holdingAt(live.current, point, seenMiddle)),
     [moveTo, seenMiddle]
   )
 
@@ -181,11 +180,17 @@ export function useBuilderViewport(
       // Before the view is measured, the middle of the canvas.
       size.width === 0
         ? { x: canvas.width / 2, y: canvas.height / 2 }
-        : {
-            x: (seenMiddle.x - live.current.x) / live.current.scale,
-            y: (seenMiddle.y - live.current.y) / live.current.scale,
-          },
+        : toCanvas(live.current, seenMiddle),
     [size, seenMiddle, canvas.width, canvas.height]
+  )
+
+  // Turning and mirroring are of the view alone, about the middle of what is seen.
+  const rotateTo = useCallback((degrees: number) => moveTo(turnedTo(live.current, degrees, seenMiddle)), [moveTo, seenMiddle])
+  const rotateBy = useCallback((degrees: number) => rotateTo(live.current.rotation + degrees), [rotateTo])
+  const flip = useCallback((axis: "h" | "v") => moveTo(flipped(live.current, axis, seenMiddle)), [moveTo, seenMiddle])
+  const resetTurn = useCallback(
+    () => moveTo(holdingAt({ ...live.current, ...UPRIGHT }, toCanvas(live.current, seenMiddle), seenMiddle)),
+    [moveTo, seenMiddle]
   )
 
   return {
@@ -200,7 +205,12 @@ export function useBuilderViewport(
     onMiddlePan,
     size,
     view,
-    fit: () => setView(fitted(size)),
+    rotateTo,
+    rotateLeft: () => rotateBy(-TURN_STEP),
+    rotateRight: () => rotateBy(TURN_STEP),
+    flip,
+    resetTurn,
+    fit: () => setView(fitted(size, live.current)),
     zoomBy: (factor: number) => zoomAt(seenMiddle, factor),
     // To a zoom of the canvas's own pixels to screen pixels: 1 is 100%.
     zoomTo: (scale: number) => zoomAt(seenMiddle, scale / live.current.scale),

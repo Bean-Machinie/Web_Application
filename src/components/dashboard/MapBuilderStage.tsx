@@ -14,6 +14,7 @@ import type { Brush } from "@/hooks/use-brush"
 import { landMask } from "@/lib/biomes/land-mask"
 import { gridSize } from "@/lib/biomes/paint-tiles"
 import type { Terrain } from "@/lib/terrain"
+import { stageProps } from "@/lib/view-matrix"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import { MapAssetsLayer } from "./MapAssetsLayer"
 import { MapBiomeLayer } from "./MapBiomeLayer"
@@ -74,10 +75,7 @@ export function MapBuilderStage(props: Props) {
       ref={stageRef}
       width={size.width}
       height={size.height}
-      x={view.x}
-      y={view.y}
-      scaleX={view.scale}
-      scaleY={view.scale}
+      {...stageProps(view)}
       // Only the pan tool drags the canvas; the middle button pans from any
       // tool (see useBuilderViewport).
       draggable={tool === "hand"}

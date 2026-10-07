@@ -157,10 +157,11 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
             />
           </div>
           <MapStatusBar
-            zoom={viewport.view.scale}
+            view={viewport.view}
             onZoomBy={viewport.zoomBy}
             onZoomTo={viewport.zoomTo}
             onFit={viewport.fit}
+            onResetTurn={viewport.resetTurn}
             onHelp={() => setHelpOpen(true)}
           />
         </div>

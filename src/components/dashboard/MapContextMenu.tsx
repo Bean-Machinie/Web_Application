@@ -63,11 +63,11 @@ export function MapContextMenu({ spot, editing, onClose }: Props) {
               <CopyPlus /> Duplicate <DropdownMenuShortcut>{keyOf("edit.duplicate")}</DropdownMenuShortcut>
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => editing.flip("x")}>
-              <FlipHorizontal2 /> Flip horizontally
+              <FlipVertical2 /> Flip horizontally
               <DropdownMenuShortcut>{keyOf("edit.flipH")}</DropdownMenuShortcut>
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => editing.flip("y")}>
-              <FlipVertical2 /> Flip vertically
+              <FlipHorizontal2 /> Flip vertically
               <DropdownMenuShortcut>{keyOf("edit.flipV")}</DropdownMenuShortcut>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

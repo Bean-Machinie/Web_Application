@@ -10,57 +10,58 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useShortcutText } from "@/hooks/use-shortcut-text"
-import type { ActionId } from "@/lib/shortcut-actions"
-import { Shortcut } from "./Shortcut"
+import type { BuilderView } from "@/lib/view-matrix"
+import { MapStepButton } from "./MapStepButton"
 
 const PRESETS = [0.25, 0.5, 1, 2, 4]
 
 type Props = {
-  // The view's scale: 1 is 100%.
-  zoom: number
+  view: BuilderView
   onZoomBy: (factor: number) => void
   onZoomTo: (scale: number) => void
   onFit: () => void
+  onResetTurn: () => void
   onHelp: () => void
 }
 
-function Step(props: { label: string; action: ActionId; onClick: () => void; children: React.ReactNode }) {
-  const keyOf = useShortcutText()
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon-xs" aria-label={props.label} onClick={props.onClick}>
-          {props.children}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        {props.label}
-        <Shortcut>{keyOf(props.action)}</Shortcut>
-      </TooltipContent>
-    </Tooltip>
-  )
-}
-
 // The thin bar under the canvas: how far it is zoomed, as a percentage that
-// opens a list of zooms to jump to, with the buttons to step and to fit.
-export function MapStatusBar({ zoom, onZoomBy, onZoomTo, onFit, onHelp }: Props) {
+// opens a list of zooms to jump to, with the buttons to step and to fit; and, when
+// the view is turned or mirrored, how, which a click puts straight.
+export function MapStatusBar({ view, onZoomBy, onZoomTo, onFit, onResetTurn, onHelp }: Props) {
   const keyOf = useShortcutText()
+  const turned = Math.round(view.rotation) !== 0
+  const flipped = view.flipH || view.flipV
+  const flips = [view.flipH && "horizontally", view.flipV && "vertically"].filter(Boolean).join(" and ")
   return (
     <footer className="bg-background flex h-7 shrink-0 items-center gap-0.5 border-t px-2">
-      <Step label="Keyboard shortcuts" action="help.toggle" onClick={onHelp}>
+      <MapStepButton label="Keyboard shortcuts" action="help.toggle" onClick={onHelp}>
         <Keyboard />
-      </Step>
+      </MapStepButton>
       <span className="flex-1" />
-      <Step label="Fit canvas to view" action="view.fit" onClick={onFit}>
+      {(turned || flipped) && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="xs" onClick={onResetTurn} className="text-muted-foreground tabular-nums">
+              {turned && `${Math.round(view.rotation)}°`}
+              {flipped && "Flipped"}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {[turned && `Turned ${Math.round(view.rotation)}°`, flipped && `Flipped ${flips}`].filter(Boolean).join(", ")}
+            . Click to reset
+          </TooltipContent>
+        </Tooltip>
+      )}
+      <MapStepButton label="Fit canvas to view" action="view.fit" onClick={onFit}>
         <Maximize />
-      </Step>
-      <Step label="Zoom out" action="view.zoomOut" onClick={() => onZoomBy(1 / 1.4)}>
+      </MapStepButton>
+      <MapStepButton label="Zoom out" action="view.zoomOut" onClick={() => onZoomBy(1 / 1.4)}>
         <Minus />
-      </Step>
+      </MapStepButton>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="xs" aria-label="Zoom" className="w-14 tabular-nums">
-            {Math.round(zoom * 100)}%
+            {Math.round(view.scale * 100)}%
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" side="top" className="w-44">
@@ -76,9 +77,9 @@ export function MapStatusBar({ zoom, onZoomBy, onZoomTo, onFit, onHelp }: Props)
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      <Step label="Zoom in" action="view.zoomIn" onClick={() => onZoomBy(1.4)}>
+      <MapStepButton label="Zoom in" action="view.zoomIn" onClick={() => onZoomBy(1.4)}>
         <Plus />
-      </Step>
+      </MapStepButton>
     </footer>
   )
 }

@@ -28,10 +28,10 @@ export function MapSelectionActions({ editing }: { editing: AssetEditing }) {
   return (
     <div className="flex gap-1">
       <Action label="Flip horizontally" action="edit.flipH" onClick={() => editing.flip("x")}>
-        <FlipHorizontal2 />
+        <FlipVertical2 />
       </Action>
       <Action label="Flip vertically" action="edit.flipV" onClick={() => editing.flip("y")}>
-        <FlipVertical2 />
+        <FlipHorizontal2 />
       </Action>
       <Action label="Duplicate" action="edit.duplicate" onClick={editing.duplicate}>
         <Copy />

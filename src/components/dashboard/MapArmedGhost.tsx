@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react"
 import type { RefObject } from "react"
 import { assetById, defaultWidth, loadAssetInfo } from "@/lib/map-assets"
 import type { AssetInfo } from "@/lib/map-assets"
+import type { BuilderView } from "@/lib/view-matrix"
 
 type Props = {
   asset: string
-  // How many screen pixels one canvas pixel is right now.
-  viewScale: number
+  // The view: its scale is how many screen pixels one canvas pixel is right now.
+  view: BuilderView
   // The canvas area, which the ghost follows the pointer over.
   area: RefObject<HTMLElement | null>
 }
@@ -14,7 +15,8 @@ type Props = {
 // The picked art, following the pointer over the canvas at the size and place a
 // stamp would have, held by the middle of what is painted. It moves by its style,
 // not by state, so following the pointer redraws nothing else.
-export function MapArmedGhost({ asset, viewScale, area }: Props) {
+export function MapArmedGhost({ asset, view, area }: Props) {
+  const { scale: viewScale, rotation, flipH, flipV } = view
   const picture = useRef<HTMLImageElement>(null)
   const [info, setInfo] = useState<AssetInfo | null>(null)
   const category = assetById(asset)?.category
@@ -36,10 +38,13 @@ export function MapArmedGhost({ asset, viewScale, area }: Props) {
     ghost.style.width = `${image.naturalWidth * factor}px`
     ghost.style.height = `${image.naturalHeight * factor}px`
     const middle = { x: (trim.x + trim.width / 2) * factor, y: (trim.y + trim.height / 2) * factor }
+    // Shown turned and mirrored as the view is, as the stamp will be.
+    ghost.style.transformOrigin = "0 0"
+    const turn = `rotate(${rotation}deg) scale(${flipH ? -1 : 1}, ${flipV ? -1 : 1}) translate(${-middle.x}px, ${-middle.y}px)`
 
     const move = (event: PointerEvent) => {
       const box = element.getBoundingClientRect()
-      ghost.style.transform = `translate(${event.clientX - box.left - middle.x}px, ${event.clientY - box.top - middle.y}px)`
+      ghost.style.transform = `translate(${event.clientX - box.left}px, ${event.clientY - box.top}px) ${turn}`
       ghost.style.visibility = "visible"
     }
     const hide = () => {
@@ -51,7 +56,7 @@ export function MapArmedGhost({ asset, viewScale, area }: Props) {
       element.removeEventListener("pointermove", move)
       element.removeEventListener("pointerleave", hide)
     }
-  }, [info, category, viewScale, area])
+  }, [info, category, viewScale, rotation, flipH, flipV, area])
 
   const url = assetById(asset)?.url
   if (!url) return null
