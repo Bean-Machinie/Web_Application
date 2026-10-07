@@ -8,14 +8,15 @@ import type { Rgb } from "./palette"
 // ground beside it, so the ink changes smoothly where biomes meet.
 const PIECE = 8
 
-// Strokes the coast of the land, in the colour "inkAt" gives for each place,
+// Strokes the coast of the land, in the colour "inkAt" gives for each place
+// (where it is, and which way the coast faces there, as a unit vector),
 // all into the context of one shape. Where the land meets the edge of the
 // canvas there is no shore, so no line is drawn.
 export function strokeCoast(
   context: Konva.Context,
   land: MultiPolygon,
   canvas: { width: number; height: number },
-  inkAt: (x: number, y: number) => Rgb
+  inkAt: (x: number, y: number, nx: number, ny: number) => Rgb
 ) {
   let colour = ""
   let reach: [number, number] | null = null
@@ -33,13 +34,16 @@ export function strokeCoast(
           flush()
           continue
         }
-        const pieces = Math.max(Math.ceil(Math.hypot(bx - ax, by - ay) / PIECE), 1)
+        const length = Math.hypot(bx - ax, by - ay)
+        const pieces = Math.max(Math.ceil(length / PIECE), 1)
+        const nx = length > 0 ? -(by - ay) / length : 0
+        const ny = length > 0 ? (bx - ax) / length : 0
         for (let p = 0; p < pieces; p++) {
           const x0 = ax + ((bx - ax) * p) / pieces
           const y0 = ay + ((by - ay) * p) / pieces
           const x1 = ax + ((bx - ax) * (p + 1)) / pieces
           const y1 = ay + ((by - ay) * (p + 1)) / pieces
-          const next = css(inkAt((x0 + x1) / 2, (y0 + y1) / 2))
+          const next = css(inkAt((x0 + x1) / 2, (y0 + y1) / 2, nx, ny))
           const joined = reach !== null && reach[0] === x0 && reach[1] === y0
           if (!joined || next !== colour) {
             flush()

@@ -7,6 +7,9 @@ import type { Surface } from "@/lib/biomes/surface"
 import { LAND_COLOURS } from "@/lib/map-land-colours"
 import type { SceneBackground } from "@/lib/map-scene"
 
+// How far either side of the coast the ground is read, in canvas pixels.
+const REACH = 6
+
 type Props = {
   land: MultiPolygon
   canvas: { width: number; height: number }
@@ -21,8 +24,25 @@ export function MapCoastShape({ land, canvas, background, outline, surface }: Pr
   const plains = hexToRgb(LAND_COLOURS[background].ink)
   const inks = biomeInks(background)
 
-  const inkAt = (x: number, y: number): Rgb => {
-    const weights = surface.weightsAt(x, y)
+  // The ground by the coast. The line is drawn on the rounded coast, which can lie
+  // a little off the land that paint is allowed on, so the ground is also read a
+  // little to either side and the side with the most paint is taken.
+  const groundAt = (x: number, y: number, nx: number, ny: number) => {
+    let best: number[] | null = null
+    let most = 0
+    for (const away of [0, REACH, -REACH]) {
+      const weights = surface.weightsAt(x + nx * away, y + ny * away)
+      const sum = weights?.reduce((total, weight) => total + weight, 0) ?? 0
+      if (weights && sum > most) {
+        best = weights
+        most = sum
+      }
+    }
+    return best
+  }
+
+  const inkAt = (x: number, y: number, nx: number, ny: number): Rgb => {
+    const weights = groundAt(x, y, nx, ny)
     if (!weights) return plains
     // What no biome covers is plains.
     let used = Math.max(1 - weights.reduce((sum, weight) => sum + weight, 0), 0)

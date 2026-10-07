@@ -50,11 +50,9 @@ export function MapBuilderStage(props: Props) {
   const background = useMemo(() => renderBackground(canvas), [canvas])
   const land = useShownLand(scene.land, scene.style.roundness, canvas)
   const surface = useBiomeSurface(canvas)
-  // Paint sticks only where the land is as it is drawn, not as it is rounded.
-  const mask = useMemo(
-    () => ({ mask: landMask(scene.land, canvas), ...gridSize(canvas) }),
-    [scene.land, canvas]
-  )
+  // Paint sticks where the land is as it is shown, rounded corners and all, so
+  // that none of the land you see is out of its reach.
+  const mask = useMemo(() => ({ mask: landMask(land, canvas), ...gridSize(canvas) }), [land, canvas])
 
   return (
     <Stage
