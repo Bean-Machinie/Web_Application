@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import "leaflet/dist/leaflet.css"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useLeafletMap } from "@/hooks/use-leaflet-map"
 import { useMapMarkerLayer } from "@/hooks/use-map-marker-layer"
+import { useMapPlacing } from "@/hooks/use-map-placing"
 import { useMapMarkerSelection } from "@/hooks/use-map-marker-selection"
 import { useMapMarkers } from "@/hooks/use-map-markers"
 import type { MapImageUpload } from "@/hooks/use-map-image-upload"
-import { toLatLng, toPercent } from "@/lib/map-geometry"
-import type { Percent } from "@/lib/map-geometry"
+import { toLatLng } from "@/lib/map-geometry"
 import { pinPoint } from "@/lib/map-marker-card"
 import { cn } from "@/lib/utils"
 import { MapControls } from "./MapControls"
@@ -15,6 +15,7 @@ import { MapEditBar } from "./MapEditBar"
 import { MapEditHint } from "./MapEditHint"
 import { MapMarkerCard } from "./MapMarkerCard"
 import { MapMarkerMenu } from "./MapMarkerMenu"
+import { MapPlacingCursor } from "./MapPlacingCursor"
 import { MarkerLinkDialog } from "./MarkerLinkDialog"
 
 type Props = {
@@ -38,9 +39,8 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
   const { markers, error, add, move, relink, remove } = useMapMarkers(mapId)
   const selection = useMapMarkerSelection(map)
   const { selectedId, clear } = selection
+  const { placing, setPlacing, pending, setPending } = useMapPlacing(map, size, clear)
   const editing = canManage && selection.editing
-  const [placing, setPlacing] = useState(false)
-  const [pending, setPending] = useState<Percent | null>(null)
   const [relinkId, setRelinkId] = useState<string | null>(null)
 
   const list = useMemo(() => markers ?? [], [markers])
@@ -66,31 +66,6 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
     onMove: move,
   })
 
-  // A click on the map either places the marker or closes the open one.
-  useEffect(() => {
-    if (!map) return
-    const onClick = (event: L.LeafletMouseEvent) => {
-      if (placing) {
-        setPending(toPercent(event.latlng, size))
-        setPlacing(false)
-      } else {
-        clear()
-      }
-    }
-    map.on("click", onClick)
-    return () => {
-      map.off("click", onClick)
-    }
-  }, [map, size, placing, clear])
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setPlacing(false)
-    }
-    window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
-  }, [])
-
   const removeSelected = () => {
     if (!selected) return
     clear()
@@ -102,7 +77,8 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
       <div
         className={cn(
           "bg-muted relative isolate w-full overflow-hidden rounded-lg border",
-          placing && "[&_.leaflet-grab]:cursor-crosshair"
+          // The pin that follows the pointer stands in for the cursor.
+          placing && "map-placing"
         )}
         style={{ aspectRatio: `${size.width} / ${size.height}`, maxHeight: "75svh" }}
       >
@@ -122,6 +98,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
             onToggleEditing={selection.toggleEditing}
           />
         )}
+        {map && placing && <MapPlacingCursor map={map} />}
         {editing && <MapEditHint />}
         {map && selected && point && !editing && (
           <MapMarkerCard
