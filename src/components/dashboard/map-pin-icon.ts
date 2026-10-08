@@ -38,5 +38,5 @@ export const pendingIcon = () =>
     className: "",
     iconSize: SIZE,
     iconAnchor: ANCHOR,
-    html: renderToStaticMarkup(createElement(MapPendingPin)),
+    html: renderToStaticMarkup(createElement(MapPendingPin, { drop: true })),
   })

@@ -39,7 +39,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
   const { markers, error, add, move, relink, remove } = useMapMarkers(mapId)
   const selection = useMapMarkerSelection(map)
   const { selectedId, clear } = selection
-  const { placing, setPlacing, pending, setPending } = useMapPlacing(map, size, clear)
+  const { placing, setPlacing, pending, setPending, landed } = useMapPlacing(map, size, clear)
   const editing = canManage && selection.editing
   const [relinkId, setRelinkId] = useState<string | null>(null)
 
@@ -125,7 +125,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
       </div>
       {message && <FormAlert tone="error">{message}</FormAlert>}
       <MarkerLinkDialog
-        open={pending !== null || relinkId !== null}
+        open={landed || relinkId !== null}
         campaignId={campaignId}
         mapId={mapId}
         onClose={() => {

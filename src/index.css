@@ -167,6 +167,31 @@
     transform: scale(1);
   }
 }
+/* A marker put down after being held at the cursor: it falls from where it
+   hovered, lands squashed flat, and rebounds. */
+@keyframes pin-drop {
+  0% {
+    transform: translateY(-10px) scale(1.12);
+  }
+  30% {
+    transform: translateY(1px) scale(1.25, 0.65);
+  }
+  52% {
+    transform: translateY(-2px) scale(0.92, 1.12);
+  }
+  74% {
+    transform: translateY(0) scale(1.04, 0.96);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+/* The slow bob of the pin held at the cursor. */
+@keyframes pin-float {
+  50% {
+    transform: translateY(-3px);
+  }
+}
 /* The ring that spreads from the spot where it landed. Only `scale` moves, so
    the element's own centring is kept. */
 @keyframes pin-ripple {
