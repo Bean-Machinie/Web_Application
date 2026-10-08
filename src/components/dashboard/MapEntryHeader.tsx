@@ -58,6 +58,7 @@ export function MapEntryHeader({
           key={image.url}
           campaignId={campaignId}
           mapId={entryId}
+          mapName={name}
           image={{ url: image.url, width: image.width, height: image.height }}
           canManage={canManage}
           upload={upload}

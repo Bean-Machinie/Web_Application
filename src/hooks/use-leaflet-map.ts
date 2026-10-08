@@ -5,7 +5,9 @@ import type { MapSize } from "@/lib/map-geometry"
 
 // A flat, non-geographic Leaflet map showing one image. The image fits the
 // container at first, and cannot be zoomed out further than that. Render the
-// returned ref on an empty element with an explicit size.
+// returned ref on an empty element with an explicit size, and never change
+// that element's className: Leaflet keeps its own classes on it, and React
+// would overwrite them.
 export function useLeafletMap(url: string, size: MapSize) {
   const container = useRef<HTMLDivElement>(null)
   const [map, setMap] = useState<L.Map | null>(null)
@@ -23,6 +25,9 @@ export function useLeafletMap(url: string, size: MapSize) {
       zoomSnap: 0,
       zoomDelta: 0.5,
       wheelPxPerZoomLevel: 100,
+      // Leaflet clamps "fit the image" to this, so it must be low enough for
+      // any map; the real limit is set below once the image is measured.
+      minZoom: -20,
       maxZoom: 2,
       maxBoundsViscosity: 0.9,
     })

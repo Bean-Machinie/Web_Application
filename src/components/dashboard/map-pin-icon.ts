@@ -9,18 +9,22 @@ import { MapPin } from "./MapPin"
 // The pin is 40 px wide; its tip is at the bottom centre.
 const SIZE: L.PointExpression = [40, 46]
 const ANCHOR: L.PointExpression = [20, 46]
+// Lets the pin react to hover; see MapPin.
+const CLASS = "group/pin"
 
-export const pinIcon = (marker: MapMarker, selected: boolean) =>
+export const pinIcon = (marker: MapMarker, selected: boolean, pop: boolean) =>
   L.divIcon({
-    className: "",
+    className: CLASS,
     iconSize: SIZE,
     iconAnchor: ANCHOR,
     html: renderToStaticMarkup(
       createElement(MapPin, {
         imageUrl: marker.imageUrl,
         Icon: WORLD_KINDS[marker.kind].icon,
+        tint: WORLD_KINDS[marker.kind].tint,
         revealed: marker.revealed,
         selected,
+        pop,
       })
     ),
   })

@@ -133,3 +133,17 @@
     user-select: none;
     }
 }
+/* A marker dropping onto the map. */
+@keyframes pin-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(-1.5rem) scale(0.3);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(0) scale(1.12);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}

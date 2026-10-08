@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { ChevronLeft } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useWorldEntry } from "@/hooks/use-world-entry"
 import { useWorldFields } from "@/hooks/use-world-fields"
+import { readBackTo } from "@/lib/back-link"
 import { errorMessage } from "@/lib/campaigns"
 import { deleteWorldEntry, renameWorldEntry } from "@/lib/world-entries"
 import { deleteWorldImage, toWorldImage } from "@/lib/world-images"
@@ -22,6 +23,8 @@ import { WorldFields } from "./WorldFields"
 // Render with key={entryId} so moving between entries starts from scratch.
 export function WorldEntryView({ entryId }: { entryId: string }) {
   const navigate = useNavigate()
+  // Set when this entry was opened from somewhere other than the World list.
+  const backTo = readBackTo(useLocation().state)
   const { can, current } = useCampaign()
   const campaignId = current!.id
   const canManage = can("manage_world")
@@ -53,11 +56,11 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col">
       <Link
-        to={worldListPath()}
+        to={backTo?.path ?? worldListPath()}
         className="text-muted-foreground hover:text-foreground mb-4 flex w-fit items-center gap-1 text-sm transition-colors"
       >
         <ChevronLeft className="size-4" />
-        World
+        {backTo ? `Back to ${backTo.label}` : "World"}
       </Link>
 
       {error && <FormAlert tone="error">{error}</FormAlert>}

@@ -17,6 +17,7 @@ import { MarkerLinkDialog } from "./MarkerLinkDialog"
 type Props = {
   campaignId: string
   mapId: string
+  mapName: string
   image: { url: string; width: number; height: number }
   canManage: boolean
   upload: MapImageUpload
@@ -24,7 +25,7 @@ type Props = {
 
 // The map at full width with smooth pan and zoom, mouse or touch. A GM adds,
 // drags and removes markers; everyone can click one for a preview.
-export function MapViewer({ campaignId, mapId, image, canManage, upload }: Props) {
+export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload }: Props) {
   const size = useMemo(
     () => ({ width: image.width, height: image.height }),
     [image.width, image.height]
@@ -32,12 +33,14 @@ export function MapViewer({ campaignId, mapId, image, canManage, upload }: Props
   const { container, map } = useLeafletMap(image.url, size)
   const { markers, error, add, move, remove } = useMapMarkers(mapId)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [hoverId, setHoverId] = useState<string | null>(null)
   const [placing, setPlacing] = useState(false)
   const [pending, setPending] = useState<Percent | null>(null)
 
   const list = useMemo(() => markers ?? [], [markers])
-  const selected = list.find((marker) => marker.id === selectedId) ?? null
-  const position = useMemo(() => (selected ? toLatLng(selected, size) : null), [selected, size])
+  // A hovered marker shows its preview; otherwise the clicked one stays open.
+  const shown = list.find((marker) => marker.id === (hoverId ?? selectedId)) ?? null
+  const position = useMemo(() => (shown ? toLatLng(shown, size) : null), [shown, size])
   const point = useMapPoint(map, position)
   const message = error ?? upload.error
 
@@ -45,10 +48,12 @@ export function MapViewer({ campaignId, mapId, image, canManage, upload }: Props
     map,
     size,
     markers: list,
+    loaded: markers !== null,
     pending,
     selectedId,
     canManage,
     onSelect: setSelectedId,
+    onHover: setHoverId,
     onDragStart: () => setSelectedId(null),
     onMove: move,
   })
@@ -83,13 +88,14 @@ export function MapViewer({ campaignId, mapId, image, canManage, upload }: Props
   return (
     <div className="flex flex-col gap-3">
       <div
-        className="bg-muted relative isolate w-full overflow-hidden rounded-lg border"
+        className={cn(
+          "bg-muted relative isolate w-full overflow-hidden rounded-lg border",
+          placing && "[&_.leaflet-grab]:cursor-crosshair"
+        )}
         style={{ aspectRatio: `${size.width} / ${size.height}`, maxHeight: "75svh" }}
       >
-        <div
-          ref={container}
-          className={cn("bg-muted! size-full", placing && "[&_.leaflet-grab]:cursor-crosshair")}
-        />
+        {/* Leaflet adds its own classes here, so this className must never change. */}
+        <div ref={container} className="bg-muted! size-full" />
         <MapControls map={map} size={size} />
         {canManage && (
           <MapEditBar
@@ -102,15 +108,17 @@ export function MapViewer({ campaignId, mapId, image, canManage, upload }: Props
             onCancel={() => setPlacing(false)}
           />
         )}
-        {selected && point && (
+        {shown && point && (
           <MapMarkerCard
-            marker={selected}
+            marker={shown}
             point={point}
             canManage={canManage}
+            backTo={{ path: `/app/world/${mapId}`, label: mapName }}
+            pinned={shown.id === selectedId}
             onClose={() => setSelectedId(null)}
             onRemove={() => {
               setSelectedId(null)
-              remove(selected.id)
+              remove(shown.id)
             }}
           />
         )}

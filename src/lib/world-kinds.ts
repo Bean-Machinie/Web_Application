@@ -37,6 +37,10 @@ type KindDef = {
   icon: LucideIcon
   // Example in the name box of the create dialog.
   namePlaceholder: string
+  // The ring around its marker on a map.
+  tint: string
+  // The few fields shown in a marker's hover preview, in order.
+  previewFacts: string[]
   fields: FieldDef[]
 }
 
@@ -110,6 +114,8 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
     plural: "Characters",
     icon: User,
     namePlaceholder: "e.g. Bram the innkeeper",
+    tint: "oklch(0.72 0.15 55)",
+    previewFacts: ["role", "attitude"],
     fields: [
       image(),
       shortText("role", "Role", "e.g. Innkeeper", { summary: true }),
@@ -141,6 +147,8 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
     plural: "Creatures",
     icon: PawPrint,
     namePlaceholder: "e.g. Mossback troll",
+    tint: "oklch(0.65 0.2 25)",
+    previewFacts: ["type", "threat"],
     fields: [
       image(),
       shortText("type", "Type", "e.g. Beast", { summary: true }),
@@ -157,6 +165,8 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
     plural: "Locations",
     icon: MapPin,
     namePlaceholder: "e.g. The Gilded Stag",
+    tint: "oklch(0.7 0.15 150)",
+    previewFacts: ["type"],
     fields: [
       image(),
       shortText("type", "Type", "e.g. Village", { summary: true }),
@@ -171,6 +181,8 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
     plural: "Items",
     icon: Package,
     namePlaceholder: "e.g. Sword of Dawn",
+    tint: "oklch(0.65 0.18 300)",
+    previewFacts: ["type", "value"],
     fields: [
       image(),
       shortText("type", "Type", "e.g. Weapon", { summary: true }),
@@ -186,6 +198,8 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
     plural: "Lore",
     icon: BookOpen,
     namePlaceholder: "e.g. The Sundering",
+    tint: "oklch(0.68 0.13 245)",
+    previewFacts: ["category"],
     fields: [
       image(),
       shortText("category", "Category", "e.g. History", { summary: true }),
@@ -200,6 +214,8 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
     plural: "Maps",
     icon: MapIcon,
     namePlaceholder: "e.g. The Northern Marches",
+    tint: "oklch(0.7 0.11 195)",
+    previewFacts: [],
     // The picture is the map itself, uploaded in the map viewer.
     fields: [image(), description("What does this map show, and what is worth finding on it?")],
   },
