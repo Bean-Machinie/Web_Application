@@ -76,12 +76,17 @@ export function MapAssetsLayer(props: Props) {
   }, [version, pictures])
   const theme = themeFor(canvas.background)
 
+  // The timer that ends a movement. A piece taken up again before it runs must
+  // not have its new movement ended by it.
+  const ending = useRef<number | undefined>(undefined)
   const start = (event: Konva.KonvaEventObject<Event>) => {
+    window.clearTimeout(ending.current)
     const dragged = event.target.id()
     setMovement({ ids: new Set(selected.includes(dragged) ? selected : [dragged]), from: assets })
   }
   const letGo = () => {
-    window.setTimeout(() => setMovement(null), LETTING_GO_MS)
+    window.clearTimeout(ending.current)
+    ending.current = window.setTimeout(() => setMovement(null), LETTING_GO_MS)
   }
 
   // The Transformer carries the whole selection along with the piece that is
