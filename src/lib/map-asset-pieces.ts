@@ -1,4 +1,3 @@
-import { bottomEdge } from "./map-asset-edit"
 import type { AssetInfo } from "./map-assets"
 import type { PlacedAsset } from "./map-scene"
 
@@ -28,7 +27,8 @@ export function boxOf(
 const overlaps = (a: Rect, b: Rect) =>
   a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
 
-// The pieces to draw, back to front: lowest on the map is in front, and equal
+// The pieces to draw, back to front: the one whose middle is lower on the map is
+// in front, as the middle of a piece is where it is placed, and equal
 // ones keep the order they were placed in. Art that has not loaded, and the
 // pieces named in "hidden" (those being moved, which draw themselves), are left
 // out.
@@ -42,8 +42,7 @@ export function makePieces(
     const info = infoOf(asset.asset)
     if (info && !hidden.has(asset.id)) pieces.push({ asset, info, box: boxOf(asset, info.trim, info.colour) })
   }
-  const bottom = (piece: Piece) => bottomEdge(piece.asset, piece.info.trim.width, piece.info.trim.height)
-  return pieces.sort((a, b) => bottom(a) - bottom(b))
+  return pieces.sort((a, b) => a.asset.y - b.asset.y)
 }
 
 // Pieces are found by place through a grid, so asking what is in a corner of a

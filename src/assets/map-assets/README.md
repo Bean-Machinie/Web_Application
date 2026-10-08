@@ -229,5 +229,6 @@ file looks like is fine, and so is adding a mask.
 
 ## Drawing order
 
-You never order art by hand. Art is drawn in order of its bottom edge: what is
-lower on the map is in front.
+You never order art by hand. Art is drawn in order of the middle of each piece,
+which is where it is placed: the piece whose middle is lower on the map is in
+front. Scaling or turning a piece does not change its place in the order.

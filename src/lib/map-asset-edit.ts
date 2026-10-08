@@ -48,16 +48,6 @@ export function duplicateAssets(assets: PlacedAsset[], ids: string[], offset: nu
   return { assets: [...assets, ...copies], ids: copies.map((copy) => copy.id) }
 }
 
-// Where the lowest point of an asset is, as it stands: the asset is "width" by
-// "height" before scaling, turned about its middle. Art is drawn in order of
-// this, so what is lower on the map is in front, as it would be on the ground.
-export function bottomEdge(asset: PlacedAsset, width: number, height: number) {
-  const turn = (asset.rotation * Math.PI) / 180
-  const w = Math.abs(asset.scaleX) * width
-  const h = Math.abs(asset.scaleY) * height
-  return asset.y + (Math.abs(Math.sin(turn)) * w + Math.abs(Math.cos(turn)) * h) / 2
-}
-
 // Copies of art, with its middle moved to a point, each with a new id.
 export function pasteAssets(copied: PlacedAsset[], at: { x: number; y: number }) {
   if (copied.length === 0) return []
