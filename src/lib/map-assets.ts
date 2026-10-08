@@ -101,7 +101,9 @@ export type Window = {
 // plains) and in that biome itself, so the painting as it was made is only the
 // start of that look.
 // "keep" says that lava, its glow and smoke stay as painted in every biome.
-export type Recolour = { grass: Window; snow?: boolean; rock?: boolean; keep?: boolean; base?: Biome | "plains" }
+// "group" says that the mask marks a group of ground parts, told apart by colour:
+// "grass" is the green (the window picks it), "snow" the sunlit sand, "rock" the rest.
+export type Recolour = { grass: Window; snow?: boolean; rock?: boolean; keep?: boolean; group?: boolean; base?: Biome | "plains" }
 // Towns and towers: the moss, bushes, trees and ivy change. The stone, roofs,
 // wood and rocks are ochre and orange, below this hue, so they stay. Plains has
 // its own, calmer green, which is the look they rest in.
@@ -112,6 +114,11 @@ const TREE: Recolour = { grass: { hue: [34, 58], saturation: [0.12, 0.3], light:
 const RECOLOURS: Record<string, Recolour> = {
   towns: SETTLEMENT,
   buildings: SETTLEMENT,
+  camp: SETTLEMENT,
+  floating: SETTLEMENT,
+  // The mask marks the ground: sand, scrub and rocks, which change on their own by
+  // colour. Everything outside it stays as painted.
+  desert: { grass: { hue: [38, 44], saturation: [0.2, 0.3], light: [1, 1.01] }, group: true, base: "desert" },
   "oak-trees": TREE,
   "pine-trees": TREE,
   // Golden leaves and olive leaf shadows change; the orange trunk is the rock.

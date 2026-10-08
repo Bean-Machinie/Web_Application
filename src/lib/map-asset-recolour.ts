@@ -7,10 +7,10 @@ import type { Ramp } from "./map-theme"
 
 const clamp = (value: number) => Math.min(Math.max(value, 0), 1)
 const smooth = (t: number) => t * t * (3 - 2 * t)
-const between = (value: number, from: number, to: number) => smooth(clamp((value - from) / (to - from)))
+export const between = (value: number, from: number, to: number) => smooth(clamp((value - from) / (to - from)))
 
 // Hue (degrees), saturation and value of a colour, 0 to 255 in.
-function hsv(r: number, g: number, b: number) {
+export function hsv(r: number, g: number, b: number) {
   const high = Math.max(r, g, b)
   const low = Math.min(r, g, b)
   const span = high - low

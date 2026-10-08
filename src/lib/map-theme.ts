@@ -232,11 +232,34 @@ const SETTLEMENTS: Record<Biome, Surfaced> & { plains: Surfaced } = {
   volcanic: { grass: [[0, [24, 20, 18]], [0.5, [70, 60, 52]], [1, [128, 112, 98]]] },
 }
 
+// Desert props: the ground marked by each piece's mask, in three parts. On desert
+// ground (and plains) only the sand is toned to the ground and the rest stays as
+// painted; elsewhere the scrub, the sand and the rocks each take that ground's
+// foliage, ground and rock colours.
+const DESERT_PROPS: Record<Biome, Surfaced> = {
+  desert: { snow: [[0, [168, 122, 80]], [0.5, [194, 142, 92]], [1, [212, 160, 108]]] },
+  ice: {
+    grass: FOLIAGE.ice.grass,
+    snow: [[0, [150, 172, 190]], [0.5, [196, 212, 226]], [1, [232, 241, 247]]],
+    rock: MOUNTAINS.ice.rock,
+  },
+  swamp: {
+    grass: FOLIAGE.swamp.grass,
+    snow: [[0, [58, 56, 28]], [0.5, [93, 89, 45]], [1, [126, 120, 66]]],
+    rock: MOUNTAINS.swamp.rock,
+  },
+  volcanic: {
+    grass: FOLIAGE.volcanic.grass,
+    snow: [[0, [62, 52, 46]], [0.5, [89, 76, 67]], [1, [120, 104, 92]]],
+    rock: MOUNTAINS.volcanic.rock,
+  },
+}
+
 const PAINT = {
   sharpen: 0.3,
   smallContrast: 0.05,
   shadow: { colour: [30, 24, 16] as Rgb, opacity: 0.32, blur: 0.06 },
-  recolour: { default: FOLIAGE, "oak-trees": OAKS, "pine-trees": PINES, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES, nature: NATURE, volcanos: VOLCANOES, towns: SETTLEMENTS, buildings: SETTLEMENTS },
+  recolour: { default: FOLIAGE, "oak-trees": OAKS, "pine-trees": PINES, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES, nature: NATURE, volcanos: VOLCANOES, towns: SETTLEMENTS, buildings: SETTLEMENTS, camp: SETTLEMENTS, floating: SETTLEMENTS, desert: DESERT_PROPS },
 }
 
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }

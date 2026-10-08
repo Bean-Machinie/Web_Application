@@ -63,7 +63,7 @@ Some painted art changes colour with the biome it stands on, so a forest looks
 right on desert, in swamp and on ice. This is **opt-in per category**, in
 `RECOLOURS` in `src/lib/map-assets.ts`. At the moment **`oak-trees`**, **`pine-trees`**,
 **`mountains`**, **`hills`**, **`nature`**, **`volcanos`**, **`desert-trees`**,
-**`towns`** and **`buildings`** change. Everything else is drawn as painted. Ink art never changes. A folder's name is its category, with
+**`towns`**, **`buildings`**, **`camp`**, **`floating`** and **`desert`** change. Everything else is drawn as painted. Ink art never changes. A folder's name is its category, with
 spaces and dashes counting the same (`desert trees` and `desert-trees` are one).
 
 **What changes.** By default the greens and yellow-greens of a painting change,
@@ -166,6 +166,25 @@ roofs, wood, flags and rocks keep their painted colours on every ground, since
 they are ochre and orange, below the green hue range in `RECOLOURS`. The
 painting's yellow-olive moss is only the start of the look: plains has its own
 calmer meadow green (`base: "plains"` in `RECOLOURS`).
+
+### Camp, floating and desert
+
+`camp/` and `floating/` are treated like towns: only the living green changes.
+The floating city's blue-grey cliffs stay as painted.
+
+`desert/` (ruins, bones, cacti, desert cities) has a mask next to each piece
+(`Abandoned wagon.mask.png`) that marks the ground in it: the sand, the scrub on it
+and the rocks in it. White is the ground, black stays as painted. Inside the mask
+the three are told apart by colour and each changes on its own:
+
+| Part                          | Desert and plains           | Other biomes               |
+| ----------------------------- | --------------------------- | -------------------------- |
+| Sunlit sand (bright yellow)   | toned to the ground         | the ground's colours       |
+| Scrub (green)                 | as painted                  | the ground's foliage       |
+| Rocks and shaded sand (rest)  | as painted                  | the ground's rock colours  |
+
+Cloth, wood, bones and sandstone outside the mask never change. A piece with no
+mask does not change at all.
 
 ### Choosing the grass with a mask
 

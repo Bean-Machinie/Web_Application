@@ -1,4 +1,5 @@
 import type { Biome } from "./biomes/biomes"
+import { groupSurfaces } from "./map-asset-group"
 import { lightRange, recolour, rampTable, surfaces } from "./map-asset-recolour"
 import type { Surfaces } from "./map-asset-recolour"
 import { categoryKey, recolourOf, recolours } from "./map-assets"
@@ -124,7 +125,9 @@ export function paintedArtFor(
   // The painting taken to a biome's colours, or null if nothing in it changes there.
   const recoloured = (biome: Biome | "plains") => {
     if (!found) {
-      const parts = surfaces(source, maskPixels(info, w, h), recolourOf(category))
+      const config = recolourOf(category)
+      const mask = maskPixels(info, w, h)
+      const parts = config.group ? groupSurfaces(source, mask, config.grass) : surfaces(source, mask, config)
       const rangeOf = (amount: Float32Array | null) => (amount ? lightRange(source, amount) : { low: 0, high: 1 })
       found = {
         surfaces: parts,
