@@ -100,7 +100,13 @@ export type Window = {
 // start of that look.
 // "keep" says that lava, its glow and smoke stay as painted in every biome.
 export type Recolour = { grass: Window; snow?: boolean; rock?: boolean; keep?: boolean; base?: Biome | "plains" }
+// Towns and towers: the moss, bushes, trees and ivy change. The stone, roofs,
+// wood and rocks are ochre and orange, below this hue, so they stay. Plains has
+// its own, calmer green, which is the look they rest in.
+const SETTLEMENT: Recolour = { grass: { hue: [39, 44], saturation: [0.08, 0.16], light: [1, 1.01] }, base: "plains" }
 const RECOLOURS: Record<string, Recolour> = {
+  towns: SETTLEMENT,
+  buildings: SETTLEMENT,
   forests: { grass: { hue: [34, 58], saturation: [0.12, 0.3], light: [1, 1.01] } },
   // Golden leaves and olive leaf shadows change; the orange trunk is the rock.
   // Golden meadow and orange-brown ridges: the meadow changes, and so do the ridges

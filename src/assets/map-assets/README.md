@@ -62,8 +62,8 @@ All of these are set in `src/lib/map-theme.ts`, under `paint` (`grade`,
 Some painted art changes colour with the biome it stands on, so a forest looks
 right on desert, in swamp and on ice. This is **opt-in per category**, in
 `RECOLOURS` in `src/lib/map-assets.ts`. At the moment **`forests`**,
-**`mountains`**, **`hills`**, **`nature`**, **`volcanos`** and **`desert-trees`** change. Buildings and everything else are
-drawn as painted. Ink art never changes. A folder's name is its category, with
+**`mountains`**, **`hills`**, **`nature`**, **`volcanos`**, **`desert-trees`**,
+**`towns`** and **`buildings`** change. Everything else is drawn as painted. Ink art never changes. A folder's name is its category, with
 spaces and dashes counting the same (`desert trees` and `desert-trees` are one).
 
 **What changes.** By default the greens and yellow-greens of a painting change,
@@ -147,6 +147,15 @@ colour, so they sit in it. They cast no shadow and are placed small (90 px).
 In flowers (`flowers.png`) the same range picks the olive stems and leaves, which
 blend into the ground; the petals are too vivid to be picked and keep their
 painted colours on every ground.
+
+### Towns and towers
+
+Only the living green changes: the ground around the buildings, bushes, trees
+and ivy. They take the ground's colour, with the bushes darker than it. Stone,
+roofs, wood, flags and rocks keep their painted colours on every ground, since
+they are ochre and orange, below the green hue range in `RECOLOURS`. The
+painting's yellow-olive moss is only the start of the look: plains has its own
+calmer meadow green (`base: "plains"` in `RECOLOURS`).
 
 ### Choosing the grass with a mask
 

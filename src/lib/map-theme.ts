@@ -197,11 +197,21 @@ const NATURE: Record<Biome, Surfaced> & { plains: Surfaced } = {
   volcanic: { grass: [[0, [56, 46, 40]], [0.5, [86, 74, 64]], [1, [124, 108, 94]]] },
 }
 
+// Towns and towers: the ground, bushes and ivy take the biome's ground, with the
+// bushes darker than it so they still read. Stone and roofs are not in this.
+const SETTLEMENTS: Record<Biome, Surfaced> & { plains: Surfaced } = {
+  plains: { grass: [[0, [42, 44, 22]], [0.5, [104, 96, 54]], [1, [140, 124, 78]]] },
+  ice: { grass: [[0, [70, 100, 116]], [0.5, [150, 176, 192]], [1, [225, 235, 243]]] },
+  desert: { grass: [[0, [96, 64, 38]], [0.5, [176, 128, 80]], [1, [226, 184, 128]]] },
+  swamp: { grass: [[0, [22, 26, 12]], [0.5, [56, 60, 30]], [1, [104, 108, 56]]] },
+  volcanic: { grass: [[0, [24, 20, 18]], [0.5, [70, 60, 52]], [1, [128, 112, 98]]] },
+}
+
 const PAINT = {
   sharpen: 0.3,
   smallContrast: 0.05,
   shadow: { colour: [30, 24, 16] as Rgb, opacity: 0.32, blur: 0.06 },
-  recolour: { default: FOLIAGE, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES, nature: NATURE, volcanos: VOLCANOES },
+  recolour: { default: FOLIAGE, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES, nature: NATURE, volcanos: VOLCANOES, towns: SETTLEMENTS, buildings: SETTLEMENTS },
 }
 
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }
