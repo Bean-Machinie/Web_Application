@@ -47,11 +47,14 @@ export function sharpAssets(stage: Konva.Stage, picture: Picture | null) {
   const overview = stage.findOne<Konva.Image>(".assets-overview")
   const sharp = stage.findOne<Konva.Image>(".assets-view")
   if (!overview || !picture) return () => {}
-  const before = { image: overview.image(), visible: overview.visible(), sharp: sharp?.visible() ?? false }
+  // The screen's sharp picture and the rectangle that erases the overview under
+  // it are put away.
+  const hidden = [sharp, ...stage.find(".assets-erase")].filter((node) => node !== undefined)
+  const before = { image: overview.image(), visible: overview.visible(), shown: hidden.map((node) => node.visible()) }
   overview.setAttrs({ image: picture.canvas, visible: true })
-  sharp?.visible(false)
+  hidden.forEach((node) => node.visible(false))
   return () => {
     overview.setAttrs({ image: before.image, visible: before.visible })
-    sharp?.visible(before.sharp)
+    hidden.forEach((node, index) => node.visible(before.shown[index]))
   }
 }

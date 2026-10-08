@@ -1,7 +1,7 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type Konva from "konva"
 import type { MultiPolygon } from "polygon-clipping"
-import { Image as KonvaImage, Layer, Rect, Shape } from "react-konva"
+import { Layer, Rect, Shape } from "react-konva"
 import { useAssetInfos } from "@/hooks/use-asset-infos"
 import { useAssetPictures } from "@/hooks/use-asset-pictures"
 import type { BuilderView } from "@/hooks/use-builder-viewport"
@@ -13,6 +13,7 @@ import { paintedArtFor } from "@/lib/map-asset-paint"
 import type { AssetPatch } from "@/lib/map-asset-edit"
 import type { MapScene, PlacedAsset } from "@/lib/map-scene"
 import { themeFor } from "@/lib/map-theme"
+import { AssetPictures } from "./AssetPictures"
 
 type Props = {
   assets: PlacedAsset[]
@@ -59,14 +60,20 @@ const setCursor = (event: Konva.KonvaEventObject<MouseEvent>, cursor: string) =>
 // selected pieces are shapes, which draw nothing and are there to be moved and
 // scaled: a shape for every piece makes the layer slow to redraw. The rest are
 // picked by place (see useAssetPick). A piece that is being moved draws itself,
-// in flat colour, until it is let go.
+// in flat colour, until it is let go. The shapes are a layer of their own, so that
+// moving one redraws only that, and not the big pictures under it.
 export function MapAssetsLayer(props: Props) {
-  const { assets, selected, editable, onSelect, onChange, canvas, view, size } = props
+  const { assets, selected, editable, onSelect, onChange, canvas, view } = props
   const infoOf = useAssetInfos(assets.map((asset) => asset.asset))
   // The pieces being moved, as long as the assets are the ones they were moved from.
   const [movement, setMovement] = useState<{ ids: ReadonlySet<string>; from: PlacedAsset[] } | null>(null)
   const moving = movement && movement.from === assets ? movement.ids : NONE
-  const { pictures } = useAssetPictures({ ...props, hidden: moving })
+  const { pictures, version } = useAssetPictures({ ...props, hidden: moving })
+  // The pictures are redrawn in place, which no prop says, so the layer is told.
+  const picturesLayer = useRef<Konva.Layer>(null)
+  useEffect(() => {
+    picturesLayer.current?.batchDraw()
+  }, [version, pictures])
   const theme = themeFor(canvas.background)
 
   const start = (event: Konva.KonvaEventObject<Event>) => {
@@ -90,107 +97,78 @@ export function MapAssetsLayer(props: Props) {
     letGo()
   }
 
-  // The sharp picture stands in for the overview where it covers what is in
-  // sight; otherwise the overview shows, so there is never an empty edge.
-  const sharp = pictures.view
-  const left = Math.max(-view.x / view.scale, 0)
-  const top = Math.max(-view.y / view.scale, 0)
-  const right = Math.min((size.width - view.x) / view.scale, canvas.width)
-  const bottom = Math.min((size.height - view.y) / view.scale, canvas.height)
-  const covered =
-    sharp !== null &&
-    sharp.x <= left + 1 &&
-    sharp.y <= top + 1 &&
-    sharp.x + sharp.canvas.width / sharp.scale >= right - 1 &&
-    sharp.y + sharp.canvas.height / sharp.scale >= bottom - 1
-  const whole = pictures.overview
-
   return (
-    <Layer listening={editable}>
-      <KonvaImage
-        name="assets-overview"
-        image={whole.canvas}
-        width={canvas.width}
-        height={canvas.height}
-        visible={!covered}
-        listening={false}
-      />
-      {sharp && (
-        <KonvaImage
-          name="assets-view"
-          image={sharp.canvas}
-          x={sharp.x}
-          y={sharp.y}
-          width={sharp.canvas.width / sharp.scale}
-          height={sharp.canvas.height / sharp.scale}
-          listening={false}
-        />
-      )}
-      {assets.filter((asset) => selected.includes(asset.id)).map((asset) => {
-        const info = infoOf(asset.asset)
-        const common = {
-          id: asset.id,
-          name: "asset",
-          // The middle of the painted art is the piece's origin, so it turns and
-          // flips about what can be seen.
-          x: asset.x,
-          y: asset.y,
-          scaleX: asset.scaleX,
-          scaleY: asset.scaleY,
-          rotation: asset.rotation,
-          draggable: editable,
-          onPointerDown: (event: Konva.KonvaEventObject<PointerEvent>) => {
-            if (event.evt.button === 0) onSelect(asset.id, event.evt.shiftKey)
-          },
-          onMouseEnter: (event: Konva.KonvaEventObject<MouseEvent>) => setCursor(event, "move"),
-          onMouseLeave: (event: Konva.KonvaEventObject<MouseEvent>) => setCursor(event, ""),
-          onDragStart: start,
-          onDragEnd: finish,
-          onTransformStart: start,
-          onTransformEnd: letGo,
-        }
-        // Art that is not there (the file was removed) stays as a box, so it
-        // can still be found and deleted.
-        if (!info) {
+    <>
+      <Layer ref={picturesLayer} listening={false}>
+        <AssetPictures overview={pictures.overview} canvas={canvas} sharp={pictures.view} />
+      </Layer>
+      <Layer listening={editable}>
+        {assets.filter((asset) => selected.includes(asset.id)).map((asset) => {
+          const info = infoOf(asset.asset)
+          const common = {
+            id: asset.id,
+            name: "asset",
+            // The middle of the painted art is the piece's origin, so it turns and
+            // flips about what can be seen.
+            x: asset.x,
+            y: asset.y,
+            scaleX: asset.scaleX,
+            scaleY: asset.scaleY,
+            rotation: asset.rotation,
+            draggable: editable,
+            onPointerDown: (event: Konva.KonvaEventObject<PointerEvent>) => {
+              if (event.evt.button === 0) onSelect(asset.id, event.evt.shiftKey)
+            },
+            onMouseEnter: (event: Konva.KonvaEventObject<MouseEvent>) => setCursor(event, "move"),
+            onMouseLeave: (event: Konva.KonvaEventObject<MouseEvent>) => setCursor(event, ""),
+            onDragStart: start,
+            onDragEnd: finish,
+            onTransformStart: start,
+            onTransformEnd: letGo,
+          }
+          // Art that is not there (the file was removed) stays as a box, so it
+          // can still be found and deleted.
+          if (!info) {
+            return (
+              <Rect
+                key={asset.id}
+                {...common}
+                width={100}
+                height={100}
+                offsetX={50}
+                offsetY={50}
+                stroke="#888"
+                dash={[8, 6]}
+                strokeWidth={2}
+              />
+            )
+          }
+          const { trim, hit } = info
           return (
-            <Rect
+            <Shape
               key={asset.id}
               {...common}
-              width={100}
-              height={100}
-              offsetX={50}
-              offsetY={50}
-              stroke="#888"
-              dash={[8, 6]}
-              strokeWidth={2}
+              width={trim.width}
+              height={trim.height}
+              offsetX={trim.width / 2}
+              offsetY={trim.height / 2}
+              sceneFunc={(context) => {
+                if (!moving.has(asset.id)) return
+                const drawn = trim.width * Math.abs(asset.scaleX) * view.scale
+                const flat = info.colour
+                  ? paintedArtFor(asset.asset, asset.asset.split("/")[0], info, drawn, canvas.background, false).base
+                  : artFor(asset.asset, info, drawn, theme.ink, theme.land.fill).preview
+                context.drawImage(flat, 0, 0, trim.width, trim.height)
+              }}
+              // Only the painted pixels can be picked.
+              hitFunc={(context, shape) => {
+                context.setAttr("fillStyle", shape.colorKey)
+                context.fill(hit)
+              }}
             />
           )
-        }
-        const { trim, hit } = info
-        return (
-          <Shape
-            key={asset.id}
-            {...common}
-            width={trim.width}
-            height={trim.height}
-            offsetX={trim.width / 2}
-            offsetY={trim.height / 2}
-            sceneFunc={(context) => {
-              if (!moving.has(asset.id)) return
-              const drawn = trim.width * Math.abs(asset.scaleX) * view.scale
-              const flat = info.colour
-                ? paintedArtFor(asset.asset, asset.asset.split("/")[0], info, drawn, canvas.background, false).base
-                : artFor(asset.asset, info, drawn, theme.ink, theme.land.fill).preview
-              context.drawImage(flat, 0, 0, trim.width, trim.height)
-            }}
-            // Only the painted pixels can be picked.
-            hitFunc={(context, shape) => {
-              context.setAttr("fillStyle", shape.colorKey)
-              context.fill(hit)
-            }}
-          />
-        )
-      })}
-    </Layer>
+        })}
+      </Layer>
+    </>
   )
 }
