@@ -107,7 +107,9 @@ const SETTLEMENT: Recolour = { grass: { hue: [39, 44], saturation: [0.08, 0.16],
 const RECOLOURS: Record<string, Recolour> = {
   towns: SETTLEMENT,
   buildings: SETTLEMENT,
-  forests: { grass: { hue: [34, 58], saturation: [0.12, 0.3], light: [1, 1.01] } },
+  // Leaves change in every biome. On plains the trunks do too, so the whole tree
+  // sits in the ground; elsewhere they stay as painted.
+  forests: { grass: { hue: [34, 58], saturation: [0.12, 0.3], light: [1, 1.01] }, rock: true, base: "plains" },
   // Golden leaves and olive leaf shadows change; the orange trunk is the rock.
   // Golden meadow and orange-brown ridges: the meadow changes, and so do the ridges
   // and teal shadows, which are the rock. Plains has its own look, green.

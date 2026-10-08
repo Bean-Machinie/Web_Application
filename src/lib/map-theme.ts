@@ -197,6 +197,18 @@ const NATURE: Record<Biome, Surfaced> & { plains: Surfaced } = {
   volcanic: { grass: [[0, [56, 46, 40]], [0.5, [86, 74, 64]], [1, [124, 108, 94]]] },
 }
 
+// Trees: on plains the painted bright green is taken to a calm olive, and the
+// orange trunk to bark, so they sit in the ground instead of standing out. The
+// other biomes are the foliage's own, with the trunk as painted.
+const FORESTS: Record<Biome, Surfaced> & { plains: Surfaced } = {
+  ...FOLIAGE,
+  plains: {
+    // Warm olive, with red kept at or above green so it does not turn minty.
+    grass: [[0, [68, 65, 36]], [0.5, [133, 120, 70]], [1, [172, 154, 98]]],
+    rock: [[0, [60, 44, 26]], [0.5, [124, 93, 58]], [1, [168, 134, 94]]],
+  },
+}
+
 // Towns and towers: the ground, bushes and ivy take the biome's ground, with the
 // bushes darker than it so they still read. Stone and roofs are not in this.
 const SETTLEMENTS: Record<Biome, Surfaced> & { plains: Surfaced } = {
@@ -211,7 +223,7 @@ const PAINT = {
   sharpen: 0.3,
   smallContrast: 0.05,
   shadow: { colour: [30, 24, 16] as Rgb, opacity: 0.32, blur: 0.06 },
-  recolour: { default: FOLIAGE, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES, nature: NATURE, volcanos: VOLCANOES, towns: SETTLEMENTS, buildings: SETTLEMENTS },
+  recolour: { default: FOLIAGE, forests: FORESTS, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES, nature: NATURE, volcanos: VOLCANOES, towns: SETTLEMENTS, buildings: SETTLEMENTS },
 }
 
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }

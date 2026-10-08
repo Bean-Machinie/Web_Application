@@ -119,6 +119,13 @@ on desert ground itself: it is the tree's resting look, set by `base` in
 highlights on the trunk are told apart from the leaves by being less saturated,
 so keep the trunk's lights paler than the leaves.
 
+### Forests
+
+Trees change in every biome as described above. On plains they are also taken
+out of the painting's bright green: the leaves become a calm olive and the orange
+trunk a muted bark, so the trees sit in the ground (`base: "plains"` in
+`RECOLOURS`). On the other biomes the trunk keeps its painted colour.
+
 ### Hills
 
 Hills are golden meadow with orange-brown ridges and teal shadows. The sunlit
