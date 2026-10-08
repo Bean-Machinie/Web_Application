@@ -5,6 +5,7 @@ import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
 import { useWorldEntries } from "@/hooks/use-world-entries"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { useWorldListMemory } from "@/hooks/use-world-list-memory"
 import { useWorldSearchText } from "@/hooks/use-world-search-text"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
 import { errorMessage } from "@/lib/campaigns"
@@ -36,7 +37,6 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
   const [chosenMode, setMode] = useWorldViewMode()
   // Phones only get the grid; the saved choice is kept for larger screens.
   const mode = useIsMobile() ? "grid" : chosenMode
-  const [query, setQuery] = useState("")
   const [visibility, setVisibility] = useState<VisibilityFilter>("all")
   const [sort, setSort] = useState<Sort>(null)
   const [creating, setCreating] = useState<WorldEntryKind | null>(null)
@@ -47,6 +47,7 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
 
   // An unknown ?kind= falls back to All.
   const kind = worldKinds.find((option) => option === params.get("kind")) ?? null
+  const { query, setQuery, wrapper } = useWorldListMemory(campaign.id, kind, mode, entries !== null)
   useEffect(() => rememberWorldKind(kind), [kind])
   usePageTrail(
     kind ? [{ label: "World", to: "/app/world" }, { label: WORLD_KINDS[kind].plural }] : null
@@ -107,7 +108,10 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 md:gap-4">
       <WorldTabs entries={entries} active={kind} />
-      <div className="bg-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-lg border border-b-0 shadow-xs">
+      <div
+        ref={wrapper}
+        className="bg-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-lg border border-b-0 shadow-xs"
+      >
         <WorldToolbar
           query={query}
           onQuery={setQuery}

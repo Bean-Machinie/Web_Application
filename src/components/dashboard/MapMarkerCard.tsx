@@ -20,6 +20,8 @@ type Props = {
   canManage: boolean
   // The map to lead back to from the entry.
   backTo: BackTo
+  // The entry is being opened, so the map can point the marker out on return.
+  onOpen: () => void
   onClose: () => void
   onRemove: () => void
 }
@@ -27,7 +29,7 @@ type Props = {
 // The card of a marker: name, kind, a few key facts and the first line of the
 // description. It sits above the pin with a caret pointing at it, or below
 // near the top edge, and scales up from the pin's position.
-export function MapMarkerCard({ marker, point, mapWidth, canManage, backTo, onClose, onRemove }: Props) {
+export function MapMarkerCard({ marker, point, mapWidth, canManage, backTo, onOpen, onClose, onRemove }: Props) {
   const { icon: KindIcon, tint } = WORLD_KINDS[marker.kind]
   const fields = useEntryPreview(marker.entryId)
   const { left, below } = placeCard(point, mapWidth)
@@ -82,7 +84,7 @@ export function MapMarkerCard({ marker, point, mapWidth, canManage, backTo, onCl
             </CardContent>
             <CardFooter className="gap-2 px-3">
               <Button asChild size="sm" className="flex-1">
-                <Link to={`/app/world/${marker.entryId}`} state={{ backTo }}>
+                <Link to={`/app/world/${marker.entryId}`} state={{ backTo }} onClick={onOpen}>
                   Open entry
                   <ArrowRight />
                 </Link>

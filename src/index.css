@@ -207,6 +207,17 @@
     transform: translateY(-3px);
   }
 }
+/* A marker pointed out: a ring that grows from it and fades, twice. */
+@keyframes pin-find {
+  0% {
+    opacity: 0.9;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 2.8;
+  }
+}
 /* The ring that spreads from the spot where it landed. Only `scale` moves, so
    the element's own centring is kept. */
 @keyframes pin-ripple {

@@ -63,6 +63,12 @@ export function MapPin({ imageUrl, Icon, tint, revealed, pop, editing }: Props) 
             : "h-1.5 w-4 bg-black/25 blur-[2px]"
         )}
       />
+      {/* The ring that points a marker out on coming back to the map. */}
+      <div
+        aria-hidden
+        style={{ borderColor: color }}
+        className="pointer-events-none absolute top-0 left-1/2 size-10 -translate-x-1/2 rounded-full border-2 opacity-0 group-[.pin-find]/pin:motion-safe:animate-[pin-find_1.3s_ease-out_2]"
+      />
       {/* The ripple a pin sends out across the map when it is put down. */}
       {editing && (
         <div

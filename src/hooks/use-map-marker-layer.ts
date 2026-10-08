@@ -17,6 +17,8 @@ type Options = {
   selectedId: string | null
   // A GM moving markers: they can be dragged and carry no name label.
   editing: boolean
+  // A marker to point out, pulsing once when the map opens.
+  pulseId: string | null
   onSelect: (id: string) => void
   onDragStart: () => void
   onMove: (id: string, x: number, y: number) => void
@@ -50,13 +52,14 @@ function setLifted(layer: L.Marker, lifted: boolean) {
 // removed as it changes. While editing they can be dragged; otherwise they
 // show their name on hover. The map and its image are never touched here.
 export function useMapMarkerLayer(options: Options) {
-  const { map, size, markers, loaded, pending, selectedId, editing } = options
+  const { map, size, markers, loaded, pending, selectedId, editing, pulseId } = options
   const layers = useRef(new Map<string, L.Marker>())
   const known = useRef<Set<string> | null>(null)
   // How each icon was last drawn. An icon is only rebuilt when that changes, so
   // a pin let go of keeps its element, and its planting animation, when its new
   // place comes back from the list.
   const looks = useRef(new Map<string, string>())
+  const pulsed = useRef<string | null>(null)
   const latest = useRef(options)
   useEffect(() => {
     latest.current = options
@@ -144,6 +147,17 @@ export function useMapMarkerLayer(options: Options) {
       }
     }
   }, [map, size, markers, loaded, selectedId, editing])
+
+  // Once, when the marker is there to pulse. The class does the animating; see
+  // MapPin and index.css.
+  useEffect(() => {
+    if (!pulseId || !loaded || pulsed.current === pulseId) return
+    const icon = layers.current.get(pulseId)?.getElement()
+    if (!icon) return
+    pulsed.current = pulseId
+    icon.classList.add("pin-find")
+    setTimeout(() => icon.classList.remove("pin-find"), 3000)
+  }, [pulseId, loaded, markers])
 
   useEffect(() => {
     if (!map || !pending) return

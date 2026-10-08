@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
@@ -11,6 +11,7 @@ import { errorMessage } from "@/lib/campaigns"
 import { deleteWorldEntry, renameWorldEntry } from "@/lib/world-entries"
 import { deleteWorldImage, toWorldImage } from "@/lib/world-images"
 import { COVER_FIELD } from "@/lib/world-kinds"
+import { markWorldListReturn } from "@/lib/world-list-memory"
 import { worldListPath } from "@/lib/world-tab"
 import { ConfirmDialog } from "./ConfirmDialog"
 import { MapEntryScreen } from "./MapEntryScreen"
@@ -30,6 +31,8 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
   const { entry, error, reload, setRevealed } = useWorldEntry(entryId)
   const fieldsState = useWorldFields(entryId, entry?.kind)
   usePageTrail(entry ? entryTrail(entry, from) : null)
+  // The World list then opens as it was left.
+  useEffect(() => markWorldListReturn(), [])
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)

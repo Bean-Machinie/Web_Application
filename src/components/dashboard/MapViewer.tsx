@@ -6,8 +6,11 @@ import { useMapMarkerLayer } from "@/hooks/use-map-marker-layer"
 import { useMapPlacing } from "@/hooks/use-map-placing"
 import { useMapMarkerSelection } from "@/hooks/use-map-marker-selection"
 import { useMapMarkers } from "@/hooks/use-map-markers"
+import { useMapView } from "@/hooks/use-map-view"
+import { useReturnPulse } from "@/hooks/use-return-pulse"
 import { toLatLng } from "@/lib/map-geometry"
 import { pinPoint } from "@/lib/map-marker-card"
+import { rememberReturn } from "@/lib/map-view"
 import { cn } from "@/lib/utils"
 import { MapControls } from "./MapControls"
 import { MapEditBar } from "./MapEditBar"
@@ -35,6 +38,8 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Prop
   )
   const { container, map } = useLeafletMap(image.url, size)
   const { markers, error, add, move, relink, remove } = useMapMarkers(mapId)
+  useMapView(map, size, mapId)
+  const pulseId = useReturnPulse(mapId)
   const selection = useMapMarkerSelection(map)
   const { selectedId, clear } = selection
   const { placing, setPlacing, pending, setPending, landed } = useMapPlacing(map, size, clear)
@@ -58,6 +63,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Prop
     pending,
     selectedId,
     editing,
+    pulseId,
     onSelect: selection.select,
     onDragStart: clear,
     onMove: move,
@@ -103,6 +109,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Prop
           mapWidth={map.getSize().x}
           canManage={canManage}
           backTo={{ path: `/app/world/${mapId}`, label: mapName }}
+          onOpen={() => rememberReturn(mapId, selected.id)}
           onClose={clear}
           onRemove={removeSelected}
         />

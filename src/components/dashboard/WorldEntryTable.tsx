@@ -56,7 +56,7 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
           <WorldTableHeader withVisibility={manage !== null} sort={sort} onSort={onSort} />
         </Table>
       </div>
-      <div className={`${scrollClass} [scrollbar-gutter:stable]`}>
+      <div data-world-scroll className={`${scrollClass} [scrollbar-gutter:stable]`}>
         <Table className="table-fixed">
           {columns}
           <TableBody>
