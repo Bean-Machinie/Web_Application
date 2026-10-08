@@ -62,7 +62,7 @@ All of these are set in `src/lib/map-theme.ts`, under `paint` (`grade`,
 Some painted art changes colour with the biome it stands on, so a forest looks
 right on desert, in swamp and on ice. This is **opt-in per category**, in
 `RECOLOURS` in `src/lib/map-assets.ts`. At the moment **`forests`**,
-**`mountains`**, **`hills`** and **`desert-trees`** change. Buildings and everything else are
+**`mountains`**, **`hills`**, **`volcanos`** and **`desert-trees`** change. Buildings and everything else are
 drawn as painted. Ink art never changes. A folder's name is its category, with
 spaces and dashes counting the same (`desert trees` and `desert-trees` are one).
 
@@ -127,6 +127,17 @@ both change. Their colours on ice, swamp and volcanic ground are the same as the
 mountains', so hills and mountains match on every ground; on desert they are
 sandy dunes. Their resting look, on plains, is a green meadow (`base: "plains"`
 in `RECOLOURS`), so the painting's golden colours are only the start of it.
+
+### Volcanoes
+
+Volcanoes have green and golden slopes around a dark cone. The slopes are the
+grass; the cone, its cooled rust-coloured lava and its tan ash are the rock. Both
+take the ground's colours, with the rock kept darker so the cone still reads on
+every ground: frosted slopes and slate cone on ice, sand and dark brown on
+desert, murky green and mossy black in swamp, ash and basalt on volcanic ground.
+**Lava, its white-hot glow and smoke never change** (`keep` in `RECOLOURS`):
+they are found by being bright orange-red, near white-hot, or pale and hardly
+coloured. Plains keeps the painting as it is.
 
 ### Choosing the grass with a mask
 

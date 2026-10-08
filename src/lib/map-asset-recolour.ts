@@ -111,6 +111,20 @@ export function snowAmount(r: number, g: number, b: number) {
   return Math.max(bright, pale)
 }
 
+// What a volcano keeps in every biome: lava (bright orange and red, which wraps
+// round the hue circle), the near-white of its hottest glow, and its smoke, the
+// pale hardly saturated tan that is lighter than any rock. Cooled, darker lava
+// is not kept: it is rock.
+export function keptAmount(r: number, g: number, b: number) {
+  const { hue: raw, saturation, value } = hsv(r, g, b)
+  const hue = raw > 300 ? raw - 360 : raw
+  const lava =
+    (1 - between(hue, 26, 34)) * between(saturation, 0.6, 0.72) * between(value, 0.55, 0.68)
+  const glow = between(value, 0.9, 0.95) * between(saturation, 0.3, 0.4)
+  const smoke = between(value, 0.62, 0.72) * (1 - between(saturation, 0.3, 0.4))
+  return Math.max(lava, glow, smoke)
+}
+
 // What a painting is made of, as an amount from 0 to 1 at each pixel for each of
 // its surfaces. Grass is picked by its colour, or by the mask; snow by its
 // colour; and rock is everything else.
@@ -119,14 +133,16 @@ export type Surfaces = { grass: Float32Array; snow: Float32Array | null; rock: F
 export function surfaces(
   pixels: Uint8ClampedArray,
   mask: Uint8ClampedArray | null,
-  config: { grass: Window; snow?: boolean; rock?: boolean }
+  config: { grass: Window; snow?: boolean; rock?: boolean; keep?: boolean }
 ): Surfaces {
   const grass = amounts(pixels, mask, config.grass)
   const snow = config.snow ? new Float32Array(grass.length) : null
   const rock = config.rock ? new Float32Array(grass.length) : null
   for (let i = 0; i < grass.length; i++) {
     const alpha = pixels[i * 4 + 3] / 255
-    const free = 1 - grass[i]
+    const kept = config.keep ? keptAmount(pixels[i * 4], pixels[i * 4 + 1], pixels[i * 4 + 2]) : 0
+    grass[i] *= 1 - kept
+    const free = 1 - grass[i] - kept
     if (snow) snow[i] = snowAmount(pixels[i * 4], pixels[i * 4 + 1], pixels[i * 4 + 2]) * free * alpha
     if (rock) rock[i] = Math.max(free - (snow ? snow[i] : 0), 0) * alpha
   }

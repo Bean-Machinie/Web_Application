@@ -163,11 +163,34 @@ const HILLS: Record<Biome, Surfaced> & { plains: Surfaced } = {
   volcanic: { grass: MOUNTAINS.volcanic.grass, rock: MOUNTAINS.volcanic.rock },
 }
 
+// Volcanoes: slopes of grass and golden scrub around a dark cone with lava. The
+// slopes take the ground's colours (frosted, sandy, murky, ashen) and the cone
+// stays darker than them in every biome, so the volcano still reads as one; lava
+// and smoke are not here because they stay as painted.
+const VOLCANOES: Record<Biome, Surfaced> = {
+  ice: {
+    grass: [[0, [110, 134, 156]], [0.5, [196, 212, 226]], [1, [250, 252, 255]]],
+    rock: [[0, [26, 32, 42]], [0.5, [72, 84, 100]], [1, [140, 154, 170]]],
+  },
+  desert: {
+    grass: [[0, [120, 84, 50]], [0.5, [190, 142, 88]], [1, [230, 192, 134]]],
+    rock: [[0, [44, 30, 24]], [0.5, [110, 74, 52]], [1, [178, 128, 88]]],
+  },
+  swamp: {
+    grass: [[0, [20, 24, 12]], [0.5, [52, 60, 28]], [1, [100, 108, 52]]],
+    rock: [[0, [12, 14, 9]], [0.5, [46, 50, 34]], [1, [96, 100, 70]]],
+  },
+  volcanic: {
+    grass: [[0, [30, 24, 20]], [0.5, [78, 64, 54]], [1, [138, 118, 100]]],
+    rock: [[0, [10, 8, 8]], [0.5, [40, 34, 32]], [1, [96, 84, 78]]],
+  },
+}
+
 const PAINT = {
   sharpen: 0.3,
   smallContrast: 0.05,
   shadow: { colour: [30, 24, 16] as Rgb, opacity: 0.32, blur: 0.06 },
-  recolour: { default: FOLIAGE, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES },
+  recolour: { default: FOLIAGE, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES, volcanos: VOLCANOES },
 }
 
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }

@@ -2,6 +2,7 @@ import { random, smooth, valueNoise } from "./map-noise"
 import { grade, tint } from "./map-asset-pixels"
 import type { SceneBackground } from "./map-scene"
 import { themeFor } from "./map-theme"
+import { mendSeams } from "./terrain-seam"
 
 // How many canvas pixels one tile covers. A tile is made at two to four pixels
 // to each of those, so that it stays sharp in the published picture.
@@ -36,8 +37,8 @@ const canvasOf = (w: number, h: number) => {
 
 const graded = new WeakMap<HTMLImageElement, Map<SceneBackground, HTMLCanvasElement>>()
 
-// The tile as it is used: the map's colour grade over it, and a light tint, and
-// nothing else, so that it looks as it was painted.
+// The tile as it is used: its edges joined, the map's colour grade over it, and a
+// light tint, so that it looks as it was painted.
 function gradedTile(image: HTMLImageElement, background: SceneBackground) {
   const known = graded.get(image)?.get(background)
   if (known) return known
@@ -48,6 +49,7 @@ function gradedTile(image: HTMLImageElement, background: SceneBackground) {
   context.drawImage(image, 0, 0)
   const data = context.getImageData(0, 0, w, h)
   const look = themeFor(background).paint
+  mendSeams(data.data, w, h)
   grade(data.data, look.grade, 0)
   tint(data.data, look.terrainTint.tint, look.terrainTint.amount)
   context.putImageData(data, 0, 0)

@@ -59,6 +59,7 @@ const DEFAULT_WIDTH: Record<string, number> = {
   forests: 180,
   "desert-trees": 180,
   hills: 300,
+  volcanos: 280,
   towns: 170,
 }
 const FALLBACK_WIDTH = 160
@@ -89,7 +90,8 @@ export type Window = { hue: [number, number]; saturation: [number, number]; ligh
 // "base" is a biome whose colours the art has where no biome is painted (on
 // plains) and in that biome itself, so the painting as it was made is only the
 // start of that look.
-export type Recolour = { grass: Window; snow?: boolean; rock?: boolean; base?: Biome | "plains" }
+// "keep" says that lava, its glow and smoke stay as painted in every biome.
+export type Recolour = { grass: Window; snow?: boolean; rock?: boolean; keep?: boolean; base?: Biome | "plains" }
 const RECOLOURS: Record<string, Recolour> = {
   forests: { grass: { hue: [34, 58], saturation: [0.12, 0.3], light: [1, 1.01] } },
   // Golden leaves and olive leaf shadows change; the orange trunk is the rock.
@@ -97,6 +99,9 @@ const RECOLOURS: Record<string, Recolour> = {
   // and teal shadows, which are the rock. Plains has its own look, green.
   hills: { grass: { hue: [36, 46], saturation: [0.25, 0.4], light: [1, 1.01] }, rock: true, base: "plains" },
   "desert-trees": { grass: { hue: [34, 40], saturation: [0.5, 0.62], light: [1, 1.01] }, rock: true, base: "desert" },
+  // Olive, green and golden slopes change, and so do the dark cone and its cooled
+  // lava, which are the rock. Lava and smoke stay. Plains keeps the painting.
+  volcanos: { grass: { hue: [31, 36], saturation: [0.15, 0.25], light: [1, 1.01] }, rock: true, keep: true },
   mountains: { grass: { hue: [35, 41], saturation: [0.08, 0.16], light: [0.74, 0.86] }, snow: true, rock: true },
 }
 export const recolours = (category: string) => categoryKey(category) in RECOLOURS
