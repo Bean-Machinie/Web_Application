@@ -186,11 +186,22 @@ const VOLCANOES: Record<Biome, Surfaced> = {
   },
 }
 
+// Grass tufts: the whole plant is taken to a narrow range around the ground's
+// own colour, so it sits in the ground instead of standing out. In flowers
+// only the stems and leaves change; the petals keep their colours.
+const NATURE: Record<Biome, Surfaced> & { plains: Surfaced } = {
+  plains: { grass: [[0, [96, 88, 56]], [0.5, [138, 128, 84]], [1, [176, 164, 108]]] },
+  ice: { grass: [[0, [150, 172, 190]], [0.5, [190, 206, 220]], [1, [226, 236, 244]]] },
+  desert: { grass: [[0, [160, 112, 70]], [0.5, [198, 148, 98]], [1, [232, 188, 134]]] },
+  swamp: { grass: [[0, [56, 56, 28]], [0.5, [88, 86, 42]], [1, [124, 122, 66]]] },
+  volcanic: { grass: [[0, [56, 46, 40]], [0.5, [86, 74, 64]], [1, [124, 108, 94]]] },
+}
+
 const PAINT = {
   sharpen: 0.3,
   smallContrast: 0.05,
   shadow: { colour: [30, 24, 16] as Rgb, opacity: 0.32, blur: 0.06 },
-  recolour: { default: FOLIAGE, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES, volcanos: VOLCANOES },
+  recolour: { default: FOLIAGE, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES, nature: NATURE, volcanos: VOLCANOES },
 }
 
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }

@@ -29,13 +29,14 @@ function hsv(r: number, g: number, b: number) {
 // does what is near black or hardly coloured at all.
 export function automaticAmount(r: number, g: number, b: number, window: Window) {
   const colour = hsv(r, g, b)
-  const { hue, saturation, light } = window
+  const { hue, saturation, light, cap } = window
   return (
     between(colour.hue, hue[0], hue[1]) *
     between(175 - colour.hue, 0, 25) *
     between(colour.saturation, saturation[0], saturation[1]) *
     between(colour.value, 0.1, 0.25) *
-    (1 - between(colour.value, light[0], light[1]))
+    (1 - between(colour.value, light[0], light[1])) *
+    (cap ? 1 - between(colour.saturation, cap[0], cap[1]) : 1)
   )
 }
 

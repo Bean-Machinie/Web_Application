@@ -4,7 +4,7 @@ import type { Picture } from "./map-asset-bake"
 import { paintedArtFor } from "./map-asset-paint"
 import { place } from "./map-asset-place"
 import type { Piece, Rect } from "./map-asset-pieces"
-import { recolours } from "./map-assets"
+import { castsShadow, recolours } from "./map-assets"
 import type { Ground } from "./map-ground"
 
 // How much of each biome is at the foot of a piece, from three points along it.
@@ -54,7 +54,8 @@ export function drawPainted(
   context.translate(asset.x - picture.x, asset.y - picture.y)
   context.scale(Math.abs(asset.scaleX), Math.abs(asset.scaleY))
   context.translate(-info.trim.width / 2, -info.trim.height / 2)
-  context.drawImage(shadow.canvas, shadow.left * k, shadow.top * k, shadow.canvas.width * k, shadow.canvas.height * k)
+  if (castsShadow(category))
+    context.drawImage(shadow.canvas, shadow.left * k, shadow.top * k, shadow.canvas.width * k, shadow.canvas.height * k)
 
   const layers: [HTMLCanvasElement, number][] = []
   if (changes) {

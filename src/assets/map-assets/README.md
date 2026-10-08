@@ -62,7 +62,7 @@ All of these are set in `src/lib/map-theme.ts`, under `paint` (`grade`,
 Some painted art changes colour with the biome it stands on, so a forest looks
 right on desert, in swamp and on ice. This is **opt-in per category**, in
 `RECOLOURS` in `src/lib/map-assets.ts`. At the moment **`forests`**,
-**`mountains`**, **`hills`**, **`volcanos`** and **`desert-trees`** change. Buildings and everything else are
+**`mountains`**, **`hills`**, **`nature`**, **`volcanos`** and **`desert-trees`** change. Buildings and everything else are
 drawn as painted. Ink art never changes. A folder's name is its category, with
 spaces and dashes counting the same (`desert trees` and `desert-trees` are one).
 
@@ -138,6 +138,15 @@ desert, murky green and mossy black in swamp, ash and basalt on volcanic ground.
 **Lava, its white-hot glow and smoke never change** (`keep` in `RECOLOURS`):
 they are found by being bright orange-red, near white-hot, or pale and hardly
 coloured. Plains keeps the painting as it is.
+
+### Nature (grass tufts)
+
+Grass tufts in `nature/` change as a whole, to a narrow range around the ground's
+colour, so they sit in it. They cast no shadow and are placed small (90 px).
+
+In flowers (`flowers.png`) the same range picks the olive stems and leaves, which
+blend into the ground; the petals are too vivid to be picked and keep their
+painted colours on every ground.
 
 ### Choosing the grass with a mask
 

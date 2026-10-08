@@ -61,6 +61,7 @@ const DEFAULT_WIDTH: Record<string, number> = {
   hills: 300,
   volcanos: 280,
   towns: 170,
+  nature: 90,
 }
 const FALLBACK_WIDTH = 160
 
@@ -83,7 +84,14 @@ export const inkFollows = (category: string) => INK_FOLLOWS[categoryKey(category
 // the second. Trees do, greens and yellow-greens. Mountains change only the
 // olive and green grass on their slopes: hue above ochre rock, and not as bright
 // as sunlit snow, which is cream. Buildings do not. Ink art never does.
-export type Window = { hue: [number, number]; saturation: [number, number]; light: [number, number] }
+// "cap" is the most saturated a colour may be, likewise: fully up to the first,
+// not at all from the second, so vivid petals stay.
+export type Window = {
+  hue: [number, number]
+  saturation: [number, number]
+  light: [number, number]
+  cap?: [number, number]
+}
 // "snow" and "rock" say that the art of the category has those surfaces too,
 // which each biome treats on its own: snow is found by colour, and rock is what
 // is neither snow nor grass.
@@ -102,10 +110,16 @@ const RECOLOURS: Record<string, Recolour> = {
   // Olive, green and golden slopes change, and so do the dark cone and its cooled
   // lava, which are the rock. Lava and smoke stay. Plains keeps the painting.
   volcanos: { grass: { hue: [31, 36], saturation: [0.15, 0.25], light: [1, 1.01] }, rock: true, keep: true },
+  // Grass tufts change as a whole. In flowers the same range picks the olive
+  // stems and leaves; the vivid petals are too saturated or too light to change.
+  nature: { grass: { hue: [20, 28], saturation: [0.12, 0.2], light: [0.9, 0.95], cap: [0.68, 0.78] }, base: "plains" },
   mountains: { grass: { hue: [35, 41], saturation: [0.08, 0.16], light: [0.74, 0.86] }, snow: true, rock: true },
 }
 export const recolours = (category: string) => categoryKey(category) in RECOLOURS
 export const recolourOf = (category: string): Recolour => RECOLOURS[categoryKey(category)] ?? RECOLOURS.forests
+// Art that is part of the ground, like grass tufts, casts no shadow.
+const NO_SHADOW = new Set(["nature"])
+export const castsShadow = (category: string) => !NO_SHADOW.has(categoryKey(category))
 export const defaultWidth = (category: string) => DEFAULT_WIDTH[categoryKey(category)] ?? FALLBACK_WIDTH
 
 // A loaded picture, and what was worked out about it once (see map-asset-shape).
