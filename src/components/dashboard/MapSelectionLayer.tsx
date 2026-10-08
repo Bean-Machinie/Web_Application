@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import Konva from "konva"
 import { Group, Rect, Transformer } from "react-konva"
 import type { AssetPatch } from "@/lib/map-asset-edit"
+import type { AssetPicker } from "@/lib/map-asset-pick"
 import type { PlacedAsset } from "@/lib/map-scene"
 
 const CORNERS = ["top-left", "top-right", "bottom-left", "bottom-right"]
@@ -20,6 +21,10 @@ type Props = {
   // Shift is held: scaling is free, and rotating snaps to 15 degrees.
   snapRotation: boolean
   onSelect: (ids: string[], additive: boolean) => void
+  // Art is found by place, not by a shape each: a press on it picks it and
+  // starts moving it.
+  pick: AssetPicker
+  onPick: (id: string, additive: boolean) => void
   onChange: (patches: AssetPatch[]) => void
 }
 
@@ -38,6 +43,8 @@ export function MapSelectionLayer(props: Props) {
   useEffect(() => {
     latest.current = props
   })
+  // The piece just picked, to be moved once it has a shape.
+  const picked = useRef<string | null>(null)
 
   useEffect(() => {
     const stage = layer.current?.getStage()
@@ -47,6 +54,11 @@ export function MapSelectionLayer(props: Props) {
       : []
     transformer.current.nodes(nodes)
     transformer.current.getLayer()?.batchDraw()
+    const pending = nodes.find((node) => node.id() === picked.current)
+    if (pending) {
+      picked.current = null
+      pending.startDrag()
+    }
   }, [enabled, selected, assets])
 
   useEffect(() => {
@@ -81,15 +93,7 @@ export function MapSelectionLayer(props: Props) {
           width: Math.abs(at.x - start.x),
           height: Math.abs(at.y - start.y),
         }
-        const hit =
-          moved < DRAG_PX
-            ? []
-            : stage
-                .find(".asset")
-                .filter((node) =>
-                  Konva.Util.haveIntersection(area, node.getClientRect({ relativeTo: stage }))
-                )
-                .map((node) => node.id())
+        const hit = moved < DRAG_PX ? [] : latest.current.pick.within(area)
         latest.current.onSelect(hit, event.shiftKey)
       }
       start = null
@@ -102,15 +106,36 @@ export function MapSelectionLayer(props: Props) {
       // Only the bare canvas: art and handles take their own presses.
       if (event.evt.button !== 0 || event.target !== stage || start) return
       const at = place(event.evt)
+      const id = latest.current.pick.at(at.x, at.y)
+      if (id) {
+        const node = stage.findOne(`#${id}`)
+        if (node) node.startDrag()
+        else picked.current = id
+        latest.current.onPick(id, event.evt.shiftKey)
+        return
+      }
       start = { ...at, screen: { x: event.evt.clientX, y: event.evt.clientY } }
       window.addEventListener("pointermove", onMove)
       window.addEventListener("pointerup", onUp)
       window.addEventListener("pointercancel", onCancel)
     }
 
+    // Over art the pointer is a mover; art has no shape of its own to say so.
+    let over = false
+    const onHover = (event: Konva.KonvaEventObject<PointerEvent>) => {
+      if (event.evt.buttons !== 0 || event.target !== stage) return
+      const at = place(event.evt)
+      const now = latest.current.pick.at(at.x, at.y) !== null
+      if (now === over) return
+      over = now
+      stage.container().style.cursor = now ? "move" : ""
+    }
+
     stage.on("pointerdown.marquee", onDown)
+    stage.on("pointermove.hover", onHover)
     return () => {
       stage.off("pointerdown.marquee")
+      stage.off("pointermove.hover")
       if (start) end(null)
     }
   }, [enabled])

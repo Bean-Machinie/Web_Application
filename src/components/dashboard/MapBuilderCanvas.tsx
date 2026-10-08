@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { MutableRefObject, RefObject } from "react"
 import type Konva from "konva"
 import type { Pair } from "polygon-clipping"
+import { useAssetPick } from "@/hooks/use-asset-pick"
 import { useTerrain } from "@/hooks/use-terrain"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import type { Brush } from "@/hooks/use-brush"
@@ -45,6 +46,7 @@ export function MapBuilderCanvas(props: Props) {
   const { scene, tool, editing, viewport, stageRef, pointer } = props
   const [spot, setSpot] = useState<ContextSpot | null>(null)
   const terrain = useTerrain(scene.canvas)
+  const pick = useAssetPick(scene.assets, scene.canvas)
 
   const place = (event: { nativeEvent: MouseEvent | DragEvent }) => {
     const stage = stageRef.current
@@ -76,8 +78,7 @@ export function MapBuilderCanvas(props: Props) {
         const stage = stageRef.current
         const at = place(event)
         if (!stage || !at) return
-        const hit = stage.getIntersection(stage.getPointerPosition()!)
-        const id = hit?.name() === "asset" ? hit.id() : null
+        const id = pick.at(at.x, at.y)
         // Right-clicking art that is not selected selects it first.
         if (id && !editing.selected.includes(id)) editing.select(id, false)
         setSpot({ x: event.clientX, y: event.clientY, at, onAsset: id !== null })
@@ -95,6 +96,7 @@ export function MapBuilderCanvas(props: Props) {
           cutting={props.cutting}
           editable={props.editable}
           editing={editing}
+          pick={pick}
           snapRotation={props.shift}
           onLasso={props.onLasso}
           brush={props.brush}

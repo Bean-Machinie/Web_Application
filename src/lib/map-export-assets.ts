@@ -36,7 +36,8 @@ export async function exportAssets(
   const theme = themeFor(canvas.background)
   const picture = blankPicture({ x: 0, y: 0, width: canvas.width, height: canvas.height }, renderScale(canvas))
   const colours = { ink: theme.ink, fill: theme.land.fill }
-  await bakeAll(picture, { pieces, near: indexPieces(pieces, canvas), ground, colours })
+  const drawing = { pieces, near: indexPieces(pieces, canvas), ground, colours }
+  await bakeAll(picture, () => drawing)
   return picture
 }
 

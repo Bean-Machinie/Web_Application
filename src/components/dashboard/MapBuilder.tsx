@@ -55,8 +55,8 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const { scene, undo, redo } = history
   const landStyle = useMapStyle(scene, history.change)
   const autosave = useSceneAutosave(mapId, scene, loaded)
-  const viewport = useBuilderViewport(scene.canvas)
   const stage = useRef<Konva.Stage>(null)
+  const viewport = useBuilderViewport(scene.canvas, stage)
   const pointer = useRef<{ x: number; y: number } | null>(null)
   const upload = useMapImageUpload({
     campaignId,

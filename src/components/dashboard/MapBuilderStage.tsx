@@ -8,6 +8,7 @@ import type { MapScene } from "@/lib/map-scene"
 import type { Pair } from "polygon-clipping"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
+import type { AssetPicker } from "@/lib/map-asset-pick"
 import { useBiomeSurface } from "@/hooks/use-biome-surface"
 import type { Brush } from "@/hooks/use-brush"
 import { landMask } from "@/lib/biomes/land-mask"
@@ -36,6 +37,7 @@ type Props = {
   editable: boolean
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
   editing: AssetEditing
+  pick: AssetPicker
   brush: Brush
   onPaint: (paint: Paint) => void
   // Shift is held: rotating snaps to 15 degrees.
@@ -133,6 +135,8 @@ export function MapBuilderStage(props: Props) {
           assets={scene.assets}
           snapRotation={props.snapRotation}
           onSelect={editing.selectMany}
+          pick={props.pick}
+          onPick={editing.select}
           onChange={editing.commit}
         />
       </Layer>

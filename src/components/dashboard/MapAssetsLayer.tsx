@@ -55,10 +55,11 @@ const setCursor = (event: Konva.KonvaEventObject<MouseEvent>, cursor: string) =>
 }
 
 // The placed art, above the land, drawn as pictures: the art is ink, and where
-// it is solid the ground shows through it (see useAssetPictures). The pieces
-// themselves are shapes that draw nothing and are only there to be picked,
-// moved and scaled, and a click on a clear pixel goes to whatever is behind.
-// A piece that is being moved draws itself, in flat colour, until it is let go.
+// it is solid the ground shows through it (see useAssetPictures). Only the
+// selected pieces are shapes, which draw nothing and are there to be moved and
+// scaled: a shape for every piece makes the layer slow to redraw. The rest are
+// picked by place (see useAssetPick). A piece that is being moved draws itself,
+// in flat colour, until it is let go.
 export function MapAssetsLayer(props: Props) {
   const { assets, selected, editable, onSelect, onChange, canvas, view, size } = props
   const infoOf = useAssetInfos(assets.map((asset) => asset.asset))
@@ -125,7 +126,7 @@ export function MapAssetsLayer(props: Props) {
           listening={false}
         />
       )}
-      {assets.map((asset) => {
+      {assets.filter((asset) => selected.includes(asset.id)).map((asset) => {
         const info = infoOf(asset.asset)
         const common = {
           id: asset.id,

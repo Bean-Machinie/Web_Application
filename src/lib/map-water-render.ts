@@ -11,21 +11,22 @@ import { themeFor } from "./map-theme"
 // A rectangle of the canvas, drawn at "scale" pixels to each canvas pixel.
 export type Region = { x: number; y: number; width: number; height: number; scale: number }
 
-const STRIP = 128
+const STRIP = 32
 
 const unit = (t: number) => Math.min(Math.max(t, 0), 1)
 
 // The water around the land: a canvas holding the region, transparent where
 // there is no water to draw. Every pixel is shaded from its distance to the
-// land, so edges are as smooth at any scale as the pixels allow.
-export function renderWater(
+// land, so edges are as smooth at any scale as the pixels allow. It is drawn a
+// strip at a time, pausing after each, so that the builder can spread it over time.
+export function* waterSteps(
   field: Field,
   style: Pick<MapStyle, "rings"> & WaterStyle,
   background: SceneBackground,
   seed: number,
   canvas: { width: number; height: number },
   region: Region
-) {
+): Generator<void, HTMLCanvasElement> {
   const look = themeFor(background).water
   const out = document.createElement("canvas")
   out.width = Math.max(1, Math.round(region.width * region.scale))
@@ -111,6 +112,13 @@ export function renderWater(
       }
     }
     context.putImageData(image, 0, top)
+    yield
   }
   return out
+}
+
+// All of it at once, for the published picture.
+export function renderWater(...args: Parameters<typeof waterSteps>) {
+  const steps = waterSteps(...args)
+  for (let step = steps.next(); ; step = steps.next()) if (step.done) return step.value
 }

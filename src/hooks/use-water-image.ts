@@ -4,7 +4,8 @@ import type { BuilderView } from "@/hooks/use-builder-viewport"
 import type { MapScene } from "@/lib/map-scene"
 import type { MapStyle } from "@/lib/map-style"
 import { buildField } from "@/lib/map-water-field"
-import { renderWater } from "@/lib/map-water-render"
+import { timeSlicer } from "@/lib/time-slice"
+import { waterSteps } from "@/lib/map-water-render"
 import type { Region } from "@/lib/map-water-render"
 
 // The picture is drawn for what is on screen, with this much extra around it
@@ -39,7 +40,8 @@ export function useWaterImage(
 
   useEffect(() => {
     if (!field) return
-    const timer = setTimeout(() => {
+    let current = true
+    const timer = setTimeout(async () => {
       const left = Math.max(-view.x / view.scale - (size.width / view.scale) * MARGIN, 0)
       const top = Math.max(-view.y / view.scale - (size.height / view.scale) * MARGIN, 0)
       const right = Math.min(
@@ -54,10 +56,23 @@ export function useWaterImage(
       const region = { x: left, y: top, width: right - left, height: bottom - top }
       const wanted = view.scale * window.devicePixelRatio
       const scale = Math.min(wanted, Math.sqrt(MAX_PIXELS / (region.width * region.height)))
-      const image = renderWater(field, { rings, thickness, spacing, variation }, background, seed, { width, height }, { ...region, scale })
-      setWater({ image, region })
+      // Drawn a strip at a time, giving the page back in between; a newer view
+      // or style ends this one early.
+      const steps = waterSteps(field, { rings, thickness, spacing, variation }, background, seed, { width, height }, { ...region, scale })
+      const tick = timeSlicer()
+      for (let step = steps.next(); ; step = steps.next()) {
+        if (step.done) {
+          if (current) setWater({ image: step.value, region })
+          return
+        }
+        await tick()
+        if (!current) return
+      }
     }, SETTLE_MS)
-    return () => clearTimeout(timer)
+    return () => {
+      current = false
+      clearTimeout(timer)
+    }
   }, [field, rings, thickness, spacing, variation, background, seed, width, height, view, size])
 
   return field ? water : null
