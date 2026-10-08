@@ -1,177 +1,116 @@
-import { useEffect, useMemo, useRef, useState } from "react"
-import type * as L from "leaflet"
-import { motion, useReducedMotion } from "motion/react"
+import { Link } from "react-router-dom"
+import { ArrowRight, Trash2, X } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { useEntryPreview } from "@/hooks/use-entry-preview"
 import type { BackTo } from "@/lib/back-link"
-import { toLatLng } from "@/lib/map-geometry"
-import type { MapSize } from "@/lib/map-geometry"
-import { CARD_WIDTH, PIN_CIRCLE, PIN_HEIGHT, PIN_LIFT, SPRING, pinPoint, placeCard } from "@/lib/map-marker-card"
+import { CARD_ABOVE, CARD_BELOW, CARD_WIDTH, placeCard } from "@/lib/map-marker-card"
 import { cn } from "@/lib/utils"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { MapMarker } from "@/lib/world-map-markers"
-import { MapMarkerCardBody } from "./MapMarkerCardBody"
-import { MapMarkerPortrait } from "./MapMarkerPortrait"
+import { HiddenBadge } from "./HiddenBadge"
+import { MapMarkerFacts } from "./MapMarkerFacts"
 
 type Props = {
   marker: MapMarker
-  map: L.Map
-  size: MapSize
+  // Where the marker's tip is inside the map, and how wide the map is.
+  point: { x: number; y: number }
+  mapWidth: number
   canManage: boolean
+  // The map to lead back to from the entry.
   backTo: BackTo
-  // False while the card folds back into its pin.
-  open: boolean
-  // True once the marker is clicked: the card then has its buttons.
-  pinned: boolean
-  onEnter: () => void
-  onLeave: () => void
-  onSelect: () => void
-  // A press that should become a drag of the pin underneath.
-  onGrab: (clientX: number, clientY: number) => void
   onClose: () => void
   onRemove: () => void
-  // The card has folded into its pin and can go.
-  onDone: () => void
 }
 
-// The card of a marker. It starts as the pin itself, drawn exactly over it,
-// then grows out of the pin's tip into the card and folds back on leaving.
-// People who ask for reduced motion get a plain fade instead.
-export function MapMarkerCard({ marker, map, size, canManage, backTo, open, pinned, ...on }: Props) {
-  const reduced = useReducedMotion()
-  const { tint, icon } = WORLD_KINDS[marker.kind]
-  const position = useMemo(() => toLatLng(marker, size), [marker, size])
-  // Fixed while the card is up, so panning never makes it reshape.
-  const [spot] = useState(() => {
-    const point = pinPoint(map, position)
-    return { point, ...placeCard(point, map.getSize()) }
-  })
-  const anchor = useRef<HTMLDivElement>(null)
-  const [grown, setGrown] = useState(false)
-  const card = reduced || grown
-  const color = marker.revealed ? tint : undefined
-
-  // Follows the pin by hand so the card is not re-laid out while it moves.
-  useEffect(() => {
-    const follow = () => {
-      const { x, y } = pinPoint(map, position)
-      anchor.current?.style.setProperty("left", `${x}px`)
-      anchor.current?.style.setProperty("top", `${y}px`)
-    }
-    map.on("move zoom resize", follow)
-    return () => {
-      map.off("move zoom resize", follow)
-    }
-  }, [map, position])
-
-  // Two frames at rest first, so the pin's handoff is seen before it grows.
-  useEffect(() => {
-    let second = 0
-    const first = requestAnimationFrame(() => {
-      second = requestAnimationFrame(() => setGrown(open))
-    })
-    return () => {
-      cancelAnimationFrame(first)
-      cancelAnimationFrame(second)
-    }
-  }, [open])
-
-  const { onDone } = on
-  useEffect(() => {
-    if (open) return
-    const timer = setTimeout(onDone, reduced ? 180 : 320)
-    return () => clearTimeout(timer)
-  }, [open, reduced, onDone])
-
-  const box = card
-    ? spot.below
-      ? { left: spot.left, top: -PIN_HEIGHT }
-      : { left: spot.left, bottom: PIN_LIFT }
-    : { left: -PIN_CIRCLE / 2, top: -PIN_HEIGHT }
+// The card of a marker: name, kind, a few key facts and the first line of the
+// description. It sits above the pin with a caret pointing at it, or below
+// near the top edge, and scales up from the pin's position.
+export function MapMarkerCard({ marker, point, mapWidth, canManage, backTo, onClose, onRemove }: Props) {
+  const { label, icon: KindIcon, tint } = WORLD_KINDS[marker.kind]
+  const fields = useEntryPreview(marker.entryId)
+  const { left, below } = placeCard(point, mapWidth)
+  // The pin's place along the card, which the caret points at.
+  const pinX = Math.max(20, Math.min(-left, CARD_WIDTH - 20))
 
   return (
-    <div
-      ref={anchor}
-      className="absolute z-[1000] size-0"
-      style={{ left: spot.point.x, top: spot.point.y }}
-    >
-      <motion.div
-        layout={!reduced}
-        initial={reduced ? { opacity: 0 } : false}
-        animate={reduced ? { opacity: open ? 1 : 0 } : undefined}
-        transition={{ layout: SPRING, duration: 0.15 }}
-        onPointerEnter={on.onEnter}
-        onPointerLeave={on.onLeave}
-        onPointerDown={(event) => {
-          if (canManage && !pinned && event.pointerType === "mouse" && event.button === 0) {
-            on.onGrab(event.clientX, event.clientY)
-          }
-        }}
-        onClick={() => {
-          if (!pinned) on.onSelect()
-        }}
-        style={{
-          ...box,
-          width: card ? CARD_WIDTH : PIN_CIRCLE,
-          height: card ? "auto" : PIN_CIRCLE,
-          borderRadius: card ? 8 : PIN_CIRCLE / 2,
-        }}
-        className={cn(
-          "bg-card absolute overflow-hidden text-sm",
-          !pinned && "cursor-pointer",
-          card ? "text-card-foreground ring-foreground/10 shadow-lg ring-1" : "text-foreground shadow-md",
-          !card && pinned && "ring-primary ring-offset-background ring-2 ring-offset-2",
-          !card && !marker.revealed && "opacity-80"
-        )}
-      >
-        <MapMarkerCardBody
-          marker={marker}
-          canManage={canManage}
-          backTo={backTo}
-          pinned={pinned}
-          shown={card}
-          onClose={on.onClose}
-          onRemove={on.onRemove}
-        />
-        <MapMarkerPortrait
-          id={marker.id}
-          imageUrl={marker.imageUrl}
-          Icon={icon}
-          revealed={marker.revealed}
-          card={card}
-        />
-        {/* The kind's ring, drawn over the pin's picture as the pin does. */}
-        <motion.span
-          aria-hidden
-          initial={false}
-          animate={{ opacity: card ? 0 : 1 }}
-          transition={{ duration: 0.12, delay: card ? 0 : 0.13 }}
-          style={{ borderColor: color }}
-          className={cn(
-            "pointer-events-none absolute inset-0 rounded-full border-2",
-            !marker.revealed && "border-muted-foreground border-dashed"
-          )}
-        />
-      </motion.div>
-      {/* The strip of the pin's footprint under its circle, so leaving through
-          the tail does not strand the card open. */}
+    <div className="absolute z-[1000] size-0" style={{ left: point.x, top: point.y }}>
       <div
         className="absolute"
-        style={{ left: -PIN_CIRCLE / 2, top: -PIN_LIFT, width: PIN_CIRCLE, height: PIN_LIFT }}
-        onPointerEnter={on.onEnter}
-        onPointerLeave={on.onLeave}
-      />
-      {!reduced && (
-        <motion.div
-          aria-hidden
-          initial={false}
-          animate={{ opacity: card ? 0 : 1 }}
-          transition={{ duration: 0.1 }}
-          style={{ backgroundColor: color, left: -6, top: -PIN_LIFT * 2 }}
-          className={cn(
-            "pointer-events-none absolute size-3 rotate-45",
-            !marker.revealed && "bg-muted-foreground"
-          )}
-        />
-      )}
+        style={{ left, width: CARD_WIDTH, ...(below ? { top: CARD_BELOW } : { bottom: CARD_ABOVE }) }}
+      >
+        <div
+          // The zoom is dropped, leaving a fade, for people who ask for reduced motion.
+          className="animate-in fade-in-0 zoom-in-50 motion-reduce:zoom-in-100 relative duration-200 ease-out"
+          style={{ transformOrigin: `${pinX}px ${below ? "-10px" : "calc(100% + 10px)"}` }}
+        >
+          <Card className="gap-2.5 py-3 shadow-lg">
+            <CardContent className="flex flex-col gap-2.5 px-3">
+              <div className="flex items-center gap-3">
+                <div
+                  style={{ borderColor: marker.revealed ? tint : undefined }}
+                  className={cn(
+                    "bg-muted text-muted-foreground flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border-2",
+                    !marker.revealed && "border-muted-foreground border-dashed"
+                  )}
+                >
+                  {marker.imageUrl ? (
+                    <img src={marker.imageUrl} alt="" className="size-full object-cover" />
+                  ) : (
+                    <KindIcon className="size-5" />
+                  )}
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <p className="truncate leading-none font-medium">{marker.name}</p>
+                  <div className="flex items-center gap-1.5">
+                    <Badge variant="outline">{label}</Badge>
+                    {canManage && !marker.revealed && <HiddenBadge />}
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="text-muted-foreground self-start"
+                  aria-label="Close preview"
+                  onClick={onClose}
+                >
+                  <X />
+                </Button>
+              </div>
+              <MapMarkerFacts kind={marker.kind} fields={fields} canManage={canManage} />
+            </CardContent>
+            <CardFooter className="gap-2 px-3">
+              <Button asChild size="sm" className="flex-1">
+                <Link to={`/app/world/${marker.entryId}`} state={{ backTo }}>
+                  Open entry
+                  <ArrowRight />
+                </Link>
+              </Button>
+              {canManage && (
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  className="text-muted-foreground hover:text-destructive"
+                  aria-label={`Remove marker for ${marker.name}`}
+                  onClick={onRemove}
+                >
+                  <Trash2 />
+                </Button>
+              )}
+            </CardFooter>
+          </Card>
+          {/* Over the card's edge, so the card's own outline does not cross it. */}
+          <div
+            aria-hidden
+            style={{ left: pinX - 6 }}
+            className={cn(
+              "bg-card border-foreground/10 pointer-events-none absolute size-3 rotate-45",
+              below ? "-top-1.5 border-t border-l" : "-bottom-1.5 border-r border-b"
+            )}
+          />
+        </div>
+      </div>
     </div>
   )
 }

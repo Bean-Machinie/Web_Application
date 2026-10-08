@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import * as L from "leaflet"
 import { pendingIcon, pinIcon } from "@/components/dashboard/map-pin-icon"
 import { toLatLng, toPercent } from "@/lib/map-geometry"
@@ -15,25 +15,25 @@ type Options = {
   // Where a marker is about to be placed, drawn as a ghost.
   pending: Percent | null
   selectedId: string | null
-  // A marker whose card stands in for it; its pin is kept invisible.
-  hiddenId: string | null
-  canManage: boolean
+  // A GM moving markers: they can be dragged and carry no name label.
+  editing: boolean
   onSelect: (id: string) => void
-  onHover: (id: string | null) => void
   onDragStart: () => void
   onMove: (id: string, x: number, y: number) => void
 }
 
-const setHidden = (layer: L.Marker, hidden: boolean) => {
-  const icon = layer.getElement()
-  if (icon) icon.style.visibility = hidden ? "hidden" : ""
+// Leaflet would put the name into the page as markup, so it goes in as text.
+function label(name: string) {
+  const element = document.createElement("span")
+  element.textContent = name
+  return element
 }
 
 // Keeps Leaflet's markers in step with the list: added, moved, restyled and
-// removed as it changes. A GM can drag them. The map and its image are never
-// touched here.
+// removed as it changes. While editing they can be dragged; otherwise they
+// show their name on hover. The map and its image are never touched here.
 export function useMapMarkerLayer(options: Options) {
-  const { map, size, markers, loaded, pending, selectedId, hiddenId, canManage } = options
+  const { map, size, markers, loaded, pending, selectedId, editing } = options
   const layers = useRef(new Map<string, L.Marker>())
   const known = useRef<Set<string> | null>(null)
   const latest = useRef(options)
@@ -70,40 +70,44 @@ export function useMapMarkerLayer(options: Options) {
       const selected = marker.id === selectedId
       if (layer) {
         layer.setLatLng(position)
-        layer.setIcon(pinIcon(marker, selected, false))
+        layer.setIcon(pinIcon(marker, selected, false, editing))
       } else {
         const pop = !seen.has(marker.id)
         seen.add(marker.id)
         const created = L.marker(position, {
-          icon: pinIcon(marker, selected, pop),
-          draggable: canManage,
+          icon: pinIcon(marker, selected, pop, editing),
+          draggable: editing,
           riseOnHover: true,
         }).addTo(map)
-        created.on("click", () => latest.current.onSelect(marker.id))
-        created.on("mouseover", () => latest.current.onHover(marker.id))
-        created.on("mouseout", () => latest.current.onHover(null))
+        // A click can follow the end of a drag; it is not a selection.
+        let dragged = false
+        created.on("click", () => {
+          if (!dragged) latest.current.onSelect(marker.id)
+        })
         created.on("dragstart", () => {
-          latest.current.onHover(null)
+          dragged = true
           latest.current.onDragStart()
         })
         created.on("dragend", () => {
           const { x, y } = toPercent(created.getLatLng(), latest.current.size)
           latest.current.onMove(marker.id, x, y)
+          setTimeout(() => {
+            dragged = false
+          })
         })
         live.set(marker.id, created)
         layer = created
       }
-      // A new icon element starts out visible.
-      setHidden(layer, marker.id === latest.current.hiddenId)
-      if (canManage) layer.dragging?.enable()
+      if (editing) layer.dragging?.enable()
       else layer.dragging?.disable()
-    }
-  }, [map, size, markers, loaded, selectedId, canManage])
 
-  // Before paint, so the pin and its card swap places without a blank frame.
-  useLayoutEffect(() => {
-    for (const [id, layer] of layers.current) setHidden(layer, id === hiddenId)
-  }, [hiddenId])
+      // The label would sit under an open card, and is not wanted when editing.
+      layer.unbindTooltip()
+      if (!editing && !selected) {
+        layer.bindTooltip(label(marker.name), { direction: "top", className: "map-label", opacity: 1 })
+      }
+    }
+  }, [map, size, markers, loaded, selectedId, editing])
 
   useEffect(() => {
     if (!map || !pending) return
@@ -115,11 +119,4 @@ export function useMapMarkerLayer(options: Options) {
       ghost.remove()
     }
   }, [map, size, pending])
-
-  // Hands a press on a card over to the pin beneath it, so a GM can still
-  // drag a marker that is wearing its card.
-  return (id: string, clientX: number, clientY: number) => {
-    const press = new MouseEvent("mousedown", { bubbles: true, cancelable: true, clientX, clientY })
-    layers.current.get(id)?.getElement()?.dispatchEvent(press)
-  }
 }

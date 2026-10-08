@@ -147,3 +147,26 @@
     transform: translateY(0) scale(1);
   }
 }
+
+/* Markers are drawn by MapPin: Leaflet's own square box around an icon, and
+   the browser's focus box, are not wanted. */
+.leaflet-div-icon,
+.map-pin {
+  background: none;
+  border: 0;
+  outline: none;
+}
+/* Pins a GM can drag. */
+.leaflet-marker-icon.map-pin-edit {
+  cursor: grab;
+}
+.leaflet-marker-icon.map-pin-edit:active {
+  cursor: grabbing;
+}
+/* The name over a hovered pin, in the look of a shadcn tooltip. */
+.leaflet-tooltip.map-label {
+  @apply bg-foreground text-background rounded-md border-0 px-2.5 py-1 text-xs font-medium shadow-md;
+}
+.leaflet-tooltip.map-label::before {
+  display: none;
+}

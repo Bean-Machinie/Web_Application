@@ -1,4 +1,4 @@
-import { MapPinPlus, Upload, X } from "lucide-react"
+import { MapPinPlus, Move, Upload, X } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import type { MapImageUpload } from "@/hooks/use-map-image-upload"
 import { cn } from "@/lib/utils"
@@ -6,13 +6,17 @@ import { MapImageInput } from "./MapImageInput"
 
 type Props = {
   placing: boolean
+  // Whether markers are being moved, linked and removed.
+  editing: boolean
   upload: MapImageUpload
   onPlace: () => void
   onCancel: () => void
+  onToggleEditing: () => void
 }
 
-// The GM's tools, top left of the map: add a marker, or replace the image.
-export function MapEditBar({ placing, upload, onPlace, onCancel }: Props) {
+// The GM's tools, top left of the map: add a marker, switch to editing the
+// ones there, or replace the image.
+export function MapEditBar({ placing, editing, upload, onPlace, onCancel, onToggleEditing }: Props) {
   if (placing) {
     return (
       <div className="bg-background/90 absolute top-3 left-3 z-[1000] flex items-center gap-1 rounded-lg border py-1 pr-1 pl-3 text-sm shadow-sm backdrop-blur-sm">
@@ -29,6 +33,19 @@ export function MapEditBar({ placing, upload, onPlace, onCancel }: Props) {
       <Button size="sm" className="shadow-sm" onClick={onPlace}>
         <MapPinPlus />
         Add marker
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        aria-pressed={editing}
+        className={cn(
+          "bg-background/90 shadow-sm backdrop-blur-sm",
+          editing && "bg-accent text-accent-foreground"
+        )}
+        onClick={onToggleEditing}
+      >
+        <Move />
+        Edit markers
       </Button>
       <MapImageInput
         busy={upload.busy}

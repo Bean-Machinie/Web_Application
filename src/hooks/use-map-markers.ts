@@ -47,10 +47,22 @@ export function useMapMarkers(mapId: string) {
     return run(() => moveMapMarker(id, x, y))
   }
 
+  // There is no call to re-point a marker, so the new one is placed where the
+  // old one stood before the old one goes.
+  const relink = (id: string, entryId: string) => {
+    const old = markers?.find((marker) => marker.id === id)
+    if (!old) return Promise.resolve()
+    return run(async () => {
+      await addMapMarker(mapId, entryId, old.x, old.y)
+      await removeMapMarker(id)
+      await reload()
+    })
+  }
+
   const remove = (id: string) => {
     setMarkers((old) => old && old.filter((marker) => marker.id !== id))
     return run(() => removeMapMarker(id))
   }
 
-  return { markers, error, add, move, remove }
+  return { markers, error, add, move, relink, remove }
 }

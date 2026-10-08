@@ -9,13 +9,18 @@ import { MapPin } from "./MapPin"
 // The pin is 40 px wide; its tip is at the bottom centre.
 const SIZE: L.PointExpression = [40, 46]
 const ANCHOR: L.PointExpression = [20, 46]
-const CLASS = ""
+// "group/pin" lets the pin react to hover; "map-pin" strips Leaflet's box (see
+// index.css).
+const CLASS = "group/pin map-pin"
+// Above the lifted pin, where the name label opens.
+const LABEL: L.PointExpression = [0, -56]
 
-export const pinIcon = (marker: MapMarker, selected: boolean, pop: boolean) =>
+export const pinIcon = (marker: MapMarker, selected: boolean, pop: boolean, editing: boolean) =>
   L.divIcon({
-    className: CLASS,
+    className: editing ? `${CLASS} map-pin-edit` : CLASS,
     iconSize: SIZE,
     iconAnchor: ANCHOR,
+    tooltipAnchor: LABEL,
     html: renderToStaticMarkup(
       createElement(MapPin, {
         imageUrl: marker.imageUrl,
@@ -24,6 +29,7 @@ export const pinIcon = (marker: MapMarker, selected: boolean, pop: boolean) =>
         revealed: marker.revealed,
         selected,
         pop,
+        editing,
       })
     ),
   })

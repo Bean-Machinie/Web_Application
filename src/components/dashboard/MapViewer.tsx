@@ -1,18 +1,19 @@
 import { useEffect, useMemo, useState } from "react"
-import { useReducedMotion } from "motion/react"
 import "leaflet/dist/leaflet.css"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useLeafletMap } from "@/hooks/use-leaflet-map"
 import { useMapMarkerLayer } from "@/hooks/use-map-marker-layer"
+import { useMapMarkerSelection } from "@/hooks/use-map-marker-selection"
 import { useMapMarkers } from "@/hooks/use-map-markers"
 import type { MapImageUpload } from "@/hooks/use-map-image-upload"
-import { useMapMarkerCard } from "@/hooks/use-map-marker-card"
-import { toPercent } from "@/lib/map-geometry"
+import { toLatLng, toPercent } from "@/lib/map-geometry"
 import type { Percent } from "@/lib/map-geometry"
+import { pinPoint } from "@/lib/map-marker-card"
 import { cn } from "@/lib/utils"
 import { MapControls } from "./MapControls"
 import { MapEditBar } from "./MapEditBar"
 import { MapMarkerCard } from "./MapMarkerCard"
+import { MapMarkerMenu } from "./MapMarkerMenu"
 import { MarkerLinkDialog } from "./MarkerLinkDialog"
 
 type Props = {
@@ -24,41 +25,47 @@ type Props = {
   upload: MapImageUpload
 }
 
-// The map at full width with smooth pan and zoom, mouse or touch. A GM adds,
-// drags and removes markers; everyone can click one for a preview.
+// The map at full width with smooth pan and zoom, mouse or touch. Everyone can
+// click a marker for a preview. A GM adds markers, and switches to editing
+// mode to drag them, change what they link to, or remove them.
 export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload }: Props) {
   const size = useMemo(
     () => ({ width: image.width, height: image.height }),
     [image.width, image.height]
   )
   const { container, map } = useLeafletMap(image.url, size)
-  const { markers, error, add, move, remove } = useMapMarkers(mapId)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const { markers, error, add, move, relink, remove } = useMapMarkers(mapId)
+  const selection = useMapMarkerSelection(map)
+  const { selectedId, clear } = selection
+  const editing = canManage && selection.editing
   const [placing, setPlacing] = useState(false)
   const [pending, setPending] = useState<Percent | null>(null)
+  const [relinkId, setRelinkId] = useState<string | null>(null)
 
   const list = useMemo(() => markers ?? [], [markers])
-  const card = useMapMarkerCard({ map, markers: list, selectedId, setSelectedId })
-  const reduced = useReducedMotion()
+  const selected = list.find((marker) => marker.id === selectedId) ?? null
+  // Where the open marker's pin is. Any pan or zoom closes it, so it never
+  // needs to follow.
+  const point = useMemo(
+    () => (map && selected ? pinPoint(map, toLatLng(selected, size)) : null),
+    [map, selected, size]
+  )
   const message = error ?? upload.error
 
-  const grab = useMapMarkerLayer({
+  useMapMarkerLayer({
     map,
     size,
     markers: list,
     loaded: markers !== null,
     pending,
     selectedId,
-    // With reduced motion the card fades in over the pin instead of replacing it.
-    hiddenId: reduced ? null : (card.marker?.id ?? null),
-    canManage,
-    onSelect: setSelectedId,
-    onHover: (id) => (id ? card.enter(id) : card.leavePin()),
-    onDragStart: card.dismiss,
+    editing,
+    onSelect: selection.select,
+    onDragStart: clear,
     onMove: move,
   })
 
-  // A click on the map either places the marker or dismisses the preview.
+  // A click on the map either places the marker or closes the open one.
   useEffect(() => {
     if (!map) return
     const onClick = (event: L.LeafletMouseEvent) => {
@@ -66,24 +73,28 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
         setPending(toPercent(event.latlng, size))
         setPlacing(false)
       } else {
-        setSelectedId(null)
+        clear()
       }
     }
     map.on("click", onClick)
     return () => {
       map.off("click", onClick)
     }
-  }, [map, size, placing])
+  }, [map, size, placing, clear])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return
-      setPlacing(false)
-      setSelectedId(null)
+      if (event.key === "Escape") setPlacing(false)
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
   }, [])
+
+  const removeSelected = () => {
+    if (!selected) return
+    clear()
+    remove(selected.id)
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -100,47 +111,53 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
         {canManage && (
           <MapEditBar
             placing={placing}
+            editing={editing}
             upload={upload}
             onPlace={() => {
-              setSelectedId(null)
+              clear()
               setPlacing(true)
             }}
             onCancel={() => setPlacing(false)}
+            onToggleEditing={selection.toggleEditing}
           />
         )}
-        {map && card.marker && (
+        {map && selected && point && !editing && (
           <MapMarkerCard
-            // Each marker's card starts from its own pin.
-            key={card.marker.id}
-            marker={card.marker}
-            map={map}
-            size={size}
+            // Each marker's card opens fresh.
+            key={selected.id}
+            marker={selected}
+            point={point}
+            mapWidth={map.getSize().x}
             canManage={canManage}
             backTo={{ path: `/app/world/${mapId}`, label: mapName }}
-            open={card.open}
-            pinned={card.marker.id === selectedId}
-            onEnter={() => card.enter(card.marker!.id)}
-            onLeave={card.leave}
-            onSelect={() => setSelectedId(card.marker!.id)}
-            onGrab={(x, y) => grab(card.marker!.id, x, y)}
-            onClose={() => setSelectedId(null)}
-            onRemove={() => {
-              setSelectedId(null)
-              remove(card.marker!.id)
-            }}
-            onDone={card.done}
+            onClose={clear}
+            onRemove={removeSelected}
+          />
+        )}
+        {selected && point && editing && (
+          <MapMarkerMenu
+            key={selected.id}
+            point={point}
+            onChangeLink={() => setRelinkId(selected.id)}
+            onRemove={removeSelected}
+            onClose={clear}
           />
         )}
       </div>
       {message && <FormAlert tone="error">{message}</FormAlert>}
       <MarkerLinkDialog
-        open={pending !== null}
+        open={pending !== null || relinkId !== null}
         campaignId={campaignId}
         mapId={mapId}
-        onClose={() => setPending(null)}
-        onLink={async (entryId) => {
-          await add(entryId, pending!.x, pending!.y)
+        onClose={() => {
           setPending(null)
+          setRelinkId(null)
+        }}
+        onLink={async (entryId) => {
+          if (relinkId) await relink(relinkId, entryId)
+          else await add(entryId, pending!.x, pending!.y)
+          setPending(null)
+          setRelinkId(null)
         }}
       />
     </div>
