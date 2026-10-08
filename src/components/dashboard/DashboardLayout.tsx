@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { readSidebarState } from "@/lib/sidebar-state"
 import { AppSidebar } from "./AppSidebar"
+import { BreadcrumbProvider } from "./BreadcrumbProvider"
 import { DashboardHeader } from "./DashboardHeader"
 
 export function DashboardLayout() {
@@ -17,10 +18,12 @@ export function DashboardLayout() {
     >
       <AppSidebar />
       <SidebarInset>
-        <DashboardHeader />
-        <div className="flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
-          <Outlet />
-        </div>
+        <BreadcrumbProvider>
+          <DashboardHeader />
+          <div className="flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
+            <Outlet />
+          </div>
+        </BreadcrumbProvider>
       </SidebarInset>
     </SidebarProvider>
   )

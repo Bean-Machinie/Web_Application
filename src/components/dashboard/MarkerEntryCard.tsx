@@ -1,8 +1,8 @@
-import { Badge } from "@/components/ui/badge"
 import type { WorldEntry } from "@/lib/world-entries"
 import { cn } from "@/lib/utils"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { HiddenBadge } from "./HiddenBadge"
+import { KindLabel } from "./KindLabel"
 
 type Props = {
   entry: WorldEntry
@@ -13,7 +13,7 @@ type Props = {
 // An entry as in the world page's grid, a square picture over its name and kind, and a button: one click links
 // the marker to it.
 export function MarkerEntryCard({ entry, disabled, onPick }: Props) {
-  const { label, icon: KindIcon } = WORLD_KINDS[entry.kind]
+  const { icon: KindIcon } = WORLD_KINDS[entry.kind]
 
   return (
     <button
@@ -42,9 +42,7 @@ export function MarkerEntryCard({ entry, disabled, onPick }: Props) {
       </span>
       <span className="flex flex-col gap-2 p-3">
         <span className="truncate font-medium">{entry.name}</span>
-        <Badge variant="outline" className="w-fit">
-          {label}
-        </Badge>
+        <KindLabel kind={entry.kind} />
       </span>
     </button>
   )

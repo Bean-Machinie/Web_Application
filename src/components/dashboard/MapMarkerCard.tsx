@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom"
 import { ArrowRight, Trash2, X } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { useEntryPreview } from "@/hooks/use-entry-preview"
@@ -10,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { MapMarker } from "@/lib/world-map-markers"
 import { HiddenBadge } from "./HiddenBadge"
+import { KindLabel } from "./KindLabel"
 import { MapMarkerFacts } from "./MapMarkerFacts"
 
 type Props = {
@@ -28,7 +28,7 @@ type Props = {
 // description. It sits above the pin with a caret pointing at it, or below
 // near the top edge, and scales up from the pin's position.
 export function MapMarkerCard({ marker, point, mapWidth, canManage, backTo, onClose, onRemove }: Props) {
-  const { label, icon: KindIcon, tint } = WORLD_KINDS[marker.kind]
+  const { icon: KindIcon, tint } = WORLD_KINDS[marker.kind]
   const fields = useEntryPreview(marker.entryId)
   const { left, below } = placeCard(point, mapWidth)
   // The pin's place along the card, which the caret points at.
@@ -64,7 +64,7 @@ export function MapMarkerCard({ marker, point, mapWidth, canManage, backTo, onCl
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <p className="truncate leading-none font-medium">{marker.name}</p>
                   <div className="flex items-center gap-1.5">
-                    <Badge variant="outline">{label}</Badge>
+                    <KindLabel kind={marker.kind} />
                     {canManage && !marker.revealed && <HiddenBadge />}
                   </div>
                 </div>

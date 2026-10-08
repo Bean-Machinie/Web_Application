@@ -6,7 +6,6 @@ import { useMapMarkerLayer } from "@/hooks/use-map-marker-layer"
 import { useMapPlacing } from "@/hooks/use-map-placing"
 import { useMapMarkerSelection } from "@/hooks/use-map-marker-selection"
 import { useMapMarkers } from "@/hooks/use-map-markers"
-import type { MapImageUpload } from "@/hooks/use-map-image-upload"
 import { toLatLng } from "@/lib/map-geometry"
 import { pinPoint } from "@/lib/map-marker-card"
 import { cn } from "@/lib/utils"
@@ -24,13 +23,12 @@ type Props = {
   mapName: string
   image: { url: string; width: number; height: number }
   canManage: boolean
-  upload: MapImageUpload
 }
 
-// The map at full width with smooth pan and zoom, mouse or touch. Everyone can
+// The map filling its space, with smooth pan and zoom, mouse or touch. Everyone can
 // click a marker for a preview. A GM adds markers, and switches to editing
 // mode to drag them, change what they link to, or remove them.
-export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload }: Props) {
+export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Props) {
   const size = useMemo(
     () => ({ width: image.width, height: image.height }),
     [image.width, image.height]
@@ -51,7 +49,6 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
     () => (map && selected ? pinPoint(map, toLatLng(selected, size)) : null),
     [map, selected, size]
   )
-  const message = error ?? upload.error
 
   useMapMarkerLayer({
     map,
@@ -73,57 +70,57 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div
-        className={cn(
-          "bg-muted relative isolate w-full overflow-hidden rounded-lg border",
-          // The pin that follows the pointer stands in for the cursor.
-          placing && "map-placing"
-        )}
-        style={{ aspectRatio: `${size.width} / ${size.height}`, maxHeight: "75svh" }}
-      >
-        {/* Leaflet adds its own classes here, so this className must never change. */}
-        <div ref={container} className="bg-muted! size-full" />
-        <MapControls map={map} size={size} />
-        {canManage && (
-          <MapEditBar
-            placing={placing}
-            editing={editing}
-            upload={upload}
-            onPlace={() => {
-              clear()
-              setPlacing(true)
-            }}
-            onCancel={() => setPlacing(false)}
-            onToggleEditing={selection.toggleEditing}
-          />
-        )}
-        {map && placing && <MapPlacingCursor map={map} />}
-        {editing && <MapEditHint />}
-        {map && selected && point && !editing && (
-          <MapMarkerCard
-            // Each marker's card opens fresh.
-            key={selected.id}
-            marker={selected}
-            point={point}
-            mapWidth={map.getSize().x}
-            canManage={canManage}
-            backTo={{ path: `/app/world/${mapId}`, label: mapName }}
-            onClose={clear}
-            onRemove={removeSelected}
-          />
-        )}
-        {selected && point && editing && (
-          <MapMarkerMenu
-            key={selected.id}
-            point={point}
-            onChangeLink={() => setRelinkId(selected.id)}
-            onRemove={removeSelected}
-            onClose={clear}
-          />
-        )}
-      </div>
-      {message && <FormAlert tone="error">{message}</FormAlert>}
+    <div
+      className={cn(
+        "bg-muted relative isolate size-full overflow-hidden",
+        // The pin that follows the pointer stands in for the cursor.
+        placing && "map-placing"
+      )}
+    >
+      {/* Leaflet adds its own classes here, so this className must never change. */}
+      <div ref={container} className="bg-muted! size-full" />
+      <MapControls map={map} size={size} />
+      {canManage && (
+        <MapEditBar
+          placing={placing}
+          editing={editing}
+          onPlace={() => {
+            clear()
+            setPlacing(true)
+          }}
+          onCancel={() => setPlacing(false)}
+          onToggleEditing={selection.toggleEditing}
+        />
+      )}
+      {map && placing && <MapPlacingCursor map={map} />}
+      {editing && <MapEditHint />}
+      {map && selected && point && !editing && (
+        <MapMarkerCard
+          // Each marker's card opens fresh.
+          key={selected.id}
+          marker={selected}
+          point={point}
+          mapWidth={map.getSize().x}
+          canManage={canManage}
+          backTo={{ path: `/app/world/${mapId}`, label: mapName }}
+          onClose={clear}
+          onRemove={removeSelected}
+        />
+      )}
+      {selected && point && editing && (
+        <MapMarkerMenu
+          key={selected.id}
+          point={point}
+          onChangeLink={() => setRelinkId(selected.id)}
+          onRemove={removeSelected}
+          onClose={clear}
+        />
+      )}
+      {error && (
+        <div className="absolute top-3 left-1/2 z-[1000] w-[min(28rem,calc(100%-2rem))] -translate-x-1/2">
+          <FormAlert tone="error">{error}</FormAlert>
+        </div>
+      )}
       <MarkerLinkDialog
         open={landed || relinkId !== null}
         campaignId={campaignId}

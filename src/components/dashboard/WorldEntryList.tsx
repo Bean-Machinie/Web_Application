@@ -12,12 +12,13 @@ import type { Campaign } from "@/lib/campaigns"
 import { deleteWorldEntry } from "@/lib/world-entries"
 import type { WorldEntry } from "@/lib/world-entries"
 import { deleteWorldImage } from "@/lib/world-images"
-import { worldKinds } from "@/lib/world-kinds"
+import { WORLD_KINDS, worldKinds } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
 import { rememberWorldKind } from "@/lib/world-tab"
 import type { Sort, VisibilityFilter } from "@/lib/world-list"
 import { useCampaign } from "./useCampaign"
+import { usePageTrail } from "./usePageTrail"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
 import { WorldEntryResults } from "./WorldEntryResults"
 import { WorldGridSkeleton } from "./WorldGridSkeleton"
@@ -47,6 +48,9 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
   // An unknown ?kind= falls back to All.
   const kind = worldKinds.find((option) => option === params.get("kind")) ?? null
   useEffect(() => rememberWorldKind(kind), [kind])
+  usePageTrail(
+    kind ? [{ label: "World", to: "/app/world" }, { label: WORLD_KINDS[kind].plural }] : null
+  )
 
   const searchText = useWorldSearchText(campaign.id, query.trim() !== "")
   const shown = entries && viewEntries(entries, {

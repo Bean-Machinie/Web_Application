@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom"
-import { Badge } from "@/components/ui/badge"
 import {
   Table,
   TableBody,
@@ -11,6 +10,7 @@ import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { Sort } from "@/lib/world-list"
 import { HiddenBadge } from "./HiddenBadge"
+import { KindLabel } from "./KindLabel"
 import { MemberMenu } from "./MemberMenu"
 import { cellClass } from "./members-table-styles"
 import { scrollClass } from "./WorldEntryGrid"
@@ -61,7 +61,7 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
           {columns}
           <TableBody>
             {entries.map((entry, index) => {
-              const { label, icon: KindIcon } = WORLD_KINDS[entry.kind]
+              const { icon: KindIcon } = WORLD_KINDS[entry.kind]
               return (
                 <TableRow
                   key={entry.id}
@@ -114,14 +114,12 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
                             {entry.role}
                           </span>
                         )}
-                        <Badge variant="outline" className="md:hidden">
-                          {label}
-                        </Badge>
+                        <KindLabel kind={entry.kind} className="md:hidden" />
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className={`${cell} hidden md:table-cell`}>
-                    <Badge variant="outline">{label}</Badge>
+                    <KindLabel kind={entry.kind} />
                   </TableCell>
                   {manage && (
                     <TableCell className={cell}>

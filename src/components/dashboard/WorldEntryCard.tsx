@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom"
-import { Badge } from "@/components/ui/badge"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { HiddenBadge } from "./HiddenBadge"
+import { KindLabel } from "./KindLabel"
 import { MemberMenu } from "./MemberMenu"
 import { RevealButton } from "./RevealButton"
 import { StatusMarker } from "./StatusMarker"
@@ -11,7 +11,7 @@ import type { WorldManage } from "./world-manage"
 type Props = { entry: WorldEntry; manage: WorldManage | null }
 
 export function WorldEntryCard({ entry, manage }: Props) {
-  const { label, icon: KindIcon } = WORLD_KINDS[entry.kind]
+  const { icon: KindIcon } = WORLD_KINDS[entry.kind]
 
   const actions = manage && [
     { label: "Rename", onSelect: () => manage.onRename(entry) },
@@ -50,9 +50,7 @@ export function WorldEntryCard({ entry, manage }: Props) {
         >
           {entry.name}
         </Link>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline">{label}</Badge>
-        </div>
+        <KindLabel kind={entry.kind} />
       </div>
       {actions && (
         // Focus only keeps it open for the keyboard; a mouse click leaves

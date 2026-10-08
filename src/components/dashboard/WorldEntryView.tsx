@@ -1,35 +1,36 @@
 import { useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { ChevronLeft } from "lucide-react"
+import { useLocation, useNavigate } from "react-router-dom"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
-import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useWorldEntry } from "@/hooks/use-world-entry"
 import { useWorldFields } from "@/hooks/use-world-fields"
 import { readBackTo } from "@/lib/back-link"
+import { entryTrail } from "@/lib/breadcrumbs"
 import { errorMessage } from "@/lib/campaigns"
 import { deleteWorldEntry, renameWorldEntry } from "@/lib/world-entries"
 import { deleteWorldImage, toWorldImage } from "@/lib/world-images"
-import { COVER_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
+import { COVER_FIELD } from "@/lib/world-kinds"
 import { worldListPath } from "@/lib/world-tab"
 import { ConfirmDialog } from "./ConfirmDialog"
-import { SettingsSection } from "./SettingsSection"
+import { MapEntryScreen } from "./MapEntryScreen"
 import { useCampaign } from "./useCampaign"
-import { VisibilitySwitch } from "./VisibilitySwitch"
-import { WorldEntryHeader } from "./WorldEntryHeader"
-import { WorldFields } from "./WorldFields"
+import { usePageTrail } from "./usePageTrail"
+import { WorldEntryPage } from "./WorldEntryPage"
 
-// Render with key={entryId} so moving between entries starts from scratch.
+// Loads an entry and picks its layout: a map fills the screen, anything else
+// is a page. Render with key={entryId} so moving between entries starts from
+// scratch.
 export function WorldEntryView({ entryId }: { entryId: string }) {
   const navigate = useNavigate()
   // Set when this entry was opened from somewhere other than the World list.
-  const backTo = readBackTo(useLocation().state)
+  const from = readBackTo(useLocation().state)
   const { can, current } = useCampaign()
-  const campaignId = current!.id
   const canManage = can("manage_world")
   const { entry, error, reload, setRevealed } = useWorldEntry(entryId)
   const fieldsState = useWorldFields(entryId, entry?.kind)
+  usePageTrail(entry ? entryTrail(entry, from) : null)
+  const [detailsOpen, setDetailsOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -51,20 +52,16 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
     }
   }
 
-  const kind = entry ? WORLD_KINDS[entry.kind] : null
+  const fail = (failure: unknown) => setActionError(errorMessage(failure))
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col">
-      <Link
-        to={backTo?.path ?? worldListPath()}
-        className="text-muted-foreground hover:text-foreground mb-4 flex w-fit items-center gap-1 text-sm transition-colors"
-      >
-        <ChevronLeft className="size-4" />
-        {backTo ? `Back to ${backTo.label}` : "World"}
-      </Link>
-
-      {error && <FormAlert tone="error">{error}</FormAlert>}
+    <>
+      {(error || actionError) && (
+        <FormAlert tone="error">{(error || actionError)!}</FormAlert>
+      )}
       <LoadingGate
+        // Fills the page, so a map can fill the screen.
+        className="flex min-h-0 flex-1 flex-col"
         loading={entry === undefined && !error}
         skeleton={<Skeleton className="h-8 w-56" />}
       >
@@ -74,64 +71,40 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
               This entry does not exist, or has not been revealed to you.
             </p>
           ) : (
-            entry && kind && (
+            entry && (
               <>
-                <WorldEntryHeader
-                  entryId={entryId}
-                  campaignId={campaignId}
-                  kind={entry.kind}
-                  name={entry.name}
-                  revealed={entry.revealed}
-                  canManage={canManage}
-                  state={fieldsState}
-                  onRename={async (name) => {
-                    try {
+                {(() => {
+                  const props = {
+                    entryId,
+                    campaignId: current!.id,
+                    kind: entry.kind,
+                    name: entry.name,
+                    revealed: entry.revealed,
+                    canManage,
+                    state: fieldsState,
+                    onRename: async (name: string) => {
+                      try {
+                        setActionError(null)
+                        await renameWorldEntry(entryId, name)
+                        await reload()
+                      } catch (failure) {
+                        fail(failure)
+                      }
+                    },
+                    onRevealedChange: (revealed: boolean) => {
                       setActionError(null)
-                      await renameWorldEntry(entryId, name)
-                      await reload()
-                    } catch (failure) {
-                      setActionError(errorMessage(failure))
-                    }
-                  }}
-                />
-
-                <WorldFields
-                  entryId={entryId}
-                  campaignId={campaignId}
-                  kind={entry.kind}
-                  canManage={canManage}
-                  state={fieldsState}
-                />
-
-                {canManage && (
-                  <div className="divide-y border-t">
-                    <SettingsSection
-                      title="Visibility"
-                      description="Hidden entries are only visible to you. Revealed entries are visible to every player."
-                    >
-                      <VisibilitySwitch
-                        revealed={entry.revealed}
-                        name={entry.name}
-                        onChange={(value) => {
-                          setActionError(null)
-                          setRevealed(value).catch((failure) =>
-                            setActionError(errorMessage(failure))
-                          )
-                        }}
-                      />
-                    </SettingsSection>
-                    <SettingsSection
-                      title="Delete entry"
-                      description="Permanently remove this entry. This cannot be undone."
-                    >
-                      <Button variant="destructive" onClick={() => setDeleting(true)}>
-                        Delete entry
-                      </Button>
-                    </SettingsSection>
-                  </div>
-                )}
-                {actionError && <FormAlert tone="error">{actionError}</FormAlert>}
-
+                      setRevealed(revealed).catch(fail)
+                    },
+                    onDelete: () => setDeleting(true),
+                    detailsOpen,
+                    onDetailsOpenChange: setDetailsOpen,
+                  }
+                  return entry.kind === "map" ? (
+                    <MapEntryScreen {...props} />
+                  ) : (
+                    <WorldEntryPage {...props} />
+                  )
+                })()}
                 <ConfirmDialog
                   open={deleting}
                   title={`Delete ${entry.name}?`}
@@ -147,6 +120,6 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
           )
         }
       </LoadingGate>
-    </div>
+    </>
   )
 }
