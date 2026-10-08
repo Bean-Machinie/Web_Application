@@ -37,7 +37,8 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
       await deleteWorldEntry(entryId)
       // The file is no longer referenced; failing to remove it is harmless.
       await deleteWorldImage(
-        toWorldImage(fieldsState.fields?.[COVER_FIELD]?.value)?.path
+        toWorldImage(fieldsState.fields?.[COVER_FIELD]?.value)?.path,
+        entry?.kind
       ).catch(() => {})
       navigate(worldListPath())
     } catch (failure) {

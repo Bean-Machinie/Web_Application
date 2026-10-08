@@ -1,4 +1,4 @@
-import { BookOpen, MapPin, Package, PawPrint, User } from "lucide-react"
+import { BookOpen, Map as MapIcon, MapPin, Package, PawPrint, User } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import type { WorldFieldType } from "./world-fields"
 
@@ -11,6 +11,7 @@ export type WorldEntryKind =
   | "location"
   | "item"
   | "lore"
+  | "map"
 
 // The colour of the dot beside a select option.
 export type Tone = "positive" | "neutral" | "negative" | "warning"
@@ -193,6 +194,14 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
         privateByDefault: true,
       }),
     ],
+  },
+  map: {
+    label: "Map",
+    plural: "Maps",
+    icon: MapIcon,
+    namePlaceholder: "e.g. The Northern Marches",
+    // The picture is the map itself, uploaded in the map viewer.
+    fields: [image(), description("What does this map show, and what is worth finding on it?")],
   },
 }
 

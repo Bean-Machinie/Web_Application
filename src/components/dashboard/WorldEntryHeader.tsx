@@ -3,6 +3,7 @@ import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { EditableName } from "./EditableName"
 import { HiddenBadge } from "./HiddenBadge"
+import { MapEntryHeader } from "./MapEntryHeader"
 import { SaveIndicator } from "./SaveIndicator"
 import { WorldEntryFacts } from "./WorldEntryFacts"
 import { StatTiles } from "./StatTiles"
@@ -22,6 +23,18 @@ type Props = {
 
 // The name and kind on top; below, the image beside the entry's short facts.
 export function WorldEntryHeader({ name, kind, canManage, onRename, revealed, ...rest }: Props) {
+  if (kind === "map") {
+    return (
+      <MapEntryHeader
+        name={name}
+        canManage={canManage}
+        onRename={onRename}
+        revealed={revealed}
+        {...rest}
+      />
+    )
+  }
+
   return (
     <div className="flex flex-col gap-5 pb-6">
       <div className="flex min-w-0 items-start gap-3">
