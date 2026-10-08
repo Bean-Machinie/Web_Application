@@ -110,6 +110,11 @@ export function useBuilderViewport(canvas: Size, stage: RefObject<Konva.Stage | 
     if (event.button !== 1) return
     event.preventDefault()
     let last = { x: event.clientX, y: event.clientY }
+    // The hand holds the canvas for as long as it is dragged. The stage's own
+    // element sets a cursor over art, so it is set too, and both are put back.
+    const held = [container.current, stage.current?.container()].filter((element) => element != null)
+    const before = held.map((element) => element.style.cursor)
+    held.forEach((element) => (element.style.cursor = "grabbing"))
     const move = (next: PointerEvent) => {
       const dx = next.clientX - last.x
       const dy = next.clientY - last.y
@@ -119,10 +124,11 @@ export function useBuilderViewport(canvas: Size, stage: RefObject<Konva.Stage | 
     const end = () => {
       window.removeEventListener("pointermove", move)
       window.removeEventListener("pointerup", end)
+      held.forEach((element, index) => (element.style.cursor = before[index]))
     }
     window.addEventListener("pointermove", move)
     window.addEventListener("pointerup", end)
-  }, [moveTo])
+  }, [moveTo, stage])
 
   // The middle of what is in view, on the canvas.
   const centre = useCallback(
