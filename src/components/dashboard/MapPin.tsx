@@ -16,6 +16,10 @@ type Props = {
 // Lifting is quick; letting go takes longer and overshoots, so the pin sinks a
 // touch into the map and rebounds. These must stay whole strings for Tailwind.
 const DROP = "duration-[520ms] ease-[cubic-bezier(0.3,2.1,0.5,1)]"
+// Hovering is a lighter touch than being picked up: a shorter, gentler drop.
+const DROP_SOFT = "duration-[400ms] ease-[cubic-bezier(0.34,1.6,0.5,1)]"
+const PLANT = "group-[.pin-planted]/pin:motion-safe:animate-[pin-plant_520ms_ease-out]"
+const SETTLE = "group-[.pin-planted]/pin:motion-safe:animate-[pin-settle_400ms_ease-out]"
 // Hovered, or its card open (the layer adds "pin-selected"): straight up.
 const HOVER_LIFT =
   "motion-safe:group-hover/pin:-translate-y-1 motion-safe:group-hover/pin:scale-[1.06] motion-safe:group-hover/pin:duration-150 motion-safe:group-hover/pin:ease-out"
@@ -70,9 +74,7 @@ export function MapPin({ imageUrl, Icon, tint, revealed, pop, editing }: Props) 
       <div
         className={cn(
           "relative h-[46px] w-10 origin-bottom transition-transform",
-          DROP,
-          editing ? PICKUP : cn(HOVER_LIFT, SELECTED_LIFT),
-          "group-[.pin-planted]/pin:motion-safe:animate-[pin-plant_520ms_ease-out]"
+          editing ? [DROP, PICKUP, PLANT] : [DROP_SOFT, HOVER_LIFT, SELECTED_LIFT, SETTLE]
         )}
       >
         {/* Behind the circle, so only the point shows below it. */}

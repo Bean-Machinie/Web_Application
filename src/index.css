@@ -167,6 +167,21 @@
     transform: scale(1);
   }
 }
+/* A hovered marker settling back: the same landing, much gentler. */
+@keyframes pin-settle {
+  0% {
+    transform: scale(1.1, 0.84);
+  }
+  45% {
+    transform: scale(0.97, 1.05);
+  }
+  75% {
+    transform: scale(1.01, 0.99);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 /* A marker put down after being held at the cursor: it falls from where it
    hovered, lands squashed flat, and rebounds. */
 @keyframes pin-drop {

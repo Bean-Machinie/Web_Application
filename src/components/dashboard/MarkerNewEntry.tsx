@@ -15,12 +15,14 @@ import type { WorldEntryKind } from "@/lib/world-kinds"
 
 type Props = {
   busy: boolean
+  // The kind the form starts on, usually the tab the picker was on.
+  initialKind: WorldEntryKind
   onCreate: (kind: WorldEntryKind, name: string) => void
 }
 
 // Create an entry on the spot; it starts hidden like any new entry.
-export function MarkerNewEntry({ busy, onCreate }: Props) {
-  const [kind, setKind] = useState<WorldEntryKind>("location")
+export function MarkerNewEntry({ busy, initialKind, onCreate }: Props) {
+  const [kind, setKind] = useState<WorldEntryKind>(initialKind)
   const [name, setName] = useState("")
 
   return (

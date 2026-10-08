@@ -12,7 +12,7 @@ import {
 import { errorMessage } from "@/lib/campaigns"
 import { createWorldEntry } from "@/lib/world-entries"
 import type { WorldEntryKind } from "@/lib/world-kinds"
-import { MarkerEntryList } from "./MarkerEntryList"
+import { MarkerEntryPicker } from "./MarkerEntryPicker"
 import { MarkerNewEntry } from "./MarkerNewEntry"
 
 type Props = {
@@ -24,11 +24,12 @@ type Props = {
   onLink: (entryId: string) => Promise<void>
 }
 
-type BodyProps = Omit<Props, "open">
+type BodyProps = Omit<Props, "open" | "onClose">
 
 // Only mounted while the dialog is open, so it starts fresh every time.
 function LinkBody({ campaignId, mapId, onLink }: BodyProps) {
-  const [creating, setCreating] = useState(false)
+  // Set while making a new entry instead of picking one; the kind it opens on.
+  const [creating, setCreating] = useState<{ kind: WorldEntryKind } | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -54,7 +55,7 @@ function LinkBody({ campaignId, mapId, onLink }: BodyProps) {
             variant="ghost"
             size="sm"
             className="text-muted-foreground w-fit"
-            onClick={() => setCreating(false)}
+            onClick={() => setCreating(null)}
             disabled={busy}
           >
             <ArrowLeft />
@@ -62,24 +63,20 @@ function LinkBody({ campaignId, mapId, onLink }: BodyProps) {
           </Button>
           <MarkerNewEntry
             busy={busy}
+            initialKind={creating.kind}
             onCreate={(kind: WorldEntryKind, name: string) =>
               link(async () => (await createWorldEntry(campaignId, kind, name)).id)
             }
           />
         </>
       ) : (
-        <>
-          <MarkerEntryList
-            campaignId={campaignId}
-            exceptId={mapId}
-            disabled={busy}
-            onPick={(entry) => link(async () => entry.id)}
-            onError={setError}
-          />
-          <Button variant="outline" onClick={() => setCreating(true)} disabled={busy}>
-            Create a new entry instead
-          </Button>
-        </>
+        <MarkerEntryPicker
+          campaignId={campaignId}
+          exceptId={mapId}
+          disabled={busy}
+          onPick={(entry) => link(async () => entry.id)}
+          onCreate={(kind) => setCreating({ kind: kind ?? "location" })}
+        />
       )}
       {error && <FormAlert tone="error">{error}</FormAlert>}
     </div>
@@ -89,15 +86,15 @@ function LinkBody({ campaignId, mapId, onLink }: BodyProps) {
 export function MarkerLinkDialog({ open, onClose, ...body }: Props) {
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-6xl">
         <DialogHeader>
           <DialogTitle>Link the marker</DialogTitle>
           <DialogDescription>
-            Choose the entry this marker opens. It is only shown to players once that entry is
+            Choose what this marker opens, even another map. Players only see it once that entry is
             revealed.
           </DialogDescription>
         </DialogHeader>
-        {open && <LinkBody {...body} onClose={onClose} />}
+        {open && <LinkBody {...body} />}
       </DialogContent>
     </Dialog>
   )
