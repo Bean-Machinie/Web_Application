@@ -61,7 +61,7 @@ All of these are set in `src/lib/map-theme.ts`, under `paint` (`grade`,
 
 Some painted art changes colour with the biome it stands on, so a forest looks
 right on desert, in swamp and on ice. This is **opt-in per category**, in
-`RECOLOURS` in `src/lib/map-assets.ts`. At the moment **`forests`**,
+`RECOLOURS` in `src/lib/map-assets.ts`. At the moment **`oak-trees`**, **`pine-trees`**,
 **`mountains`**, **`hills`**, **`nature`**, **`volcanos`**, **`desert-trees`**,
 **`towns`** and **`buildings`** change. Everything else is drawn as painted. Ink art never changes. A folder's name is its category, with
 spaces and dashes counting the same (`desert trees` and `desert-trees` are one).
@@ -119,7 +119,7 @@ on desert ground itself: it is the tree's resting look, set by `base` in
 highlights on the trunk are told apart from the leaves by being less saturated,
 so keep the trunk's lights paler than the leaves.
 
-### Forests
+### Oak and pine trees
 
 Trees change in every biome as described above. On plains they are also taken
 out of the painting's bright green: the leaves become a calm olive and the orange
@@ -190,7 +190,7 @@ is 3072 to 3840 px wide). They are set in `src/lib/map-assets.ts`, in
 | Category    | Default width |
 | ----------- | ------------- |
 | `mountains` | 220 px        |
-| `forests`   | 180 px        |
+| `oak-trees`, `pine-trees` | 180 px |
 | `desert-trees` | 180 px     |
 | `towns`     | 170 px        |
 
@@ -201,7 +201,7 @@ category its own.
 ## Do not rename or move files that maps already use
 
 A map stores each piece of art by its path under this folder
-(for example `forests/tree.png`). Renaming or moving a file would leave maps
+(for example `pine-trees/pine 1.png`). Renaming or moving a file would leave maps
 that use it with a dashed placeholder box where the art was. Changing what a
 file looks like is fine, and so is adding a mask.
 

@@ -200,7 +200,7 @@ const NATURE: Record<Biome, Surfaced> & { plains: Surfaced } = {
 // Trees: on plains the painted bright green is taken to a calm olive, and the
 // orange trunk to bark, so they sit in the ground instead of standing out. The
 // other biomes are the foliage's own, with the trunk as painted.
-const FORESTS: Record<Biome, Surfaced> & { plains: Surfaced } = {
+const TREES: Record<Biome, Surfaced> & { plains: Surfaced } = {
   ...FOLIAGE,
   plains: {
     // Warm olive, with red kept at or above green so it does not turn minty.
@@ -223,7 +223,7 @@ const PAINT = {
   sharpen: 0.3,
   smallContrast: 0.05,
   shadow: { colour: [30, 24, 16] as Rgb, opacity: 0.32, blur: 0.06 },
-  recolour: { default: FOLIAGE, forests: FORESTS, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES, nature: NATURE, volcanos: VOLCANOES, towns: SETTLEMENTS, buildings: SETTLEMENTS },
+  recolour: { default: FOLIAGE, "oak-trees": TREES, "pine-trees": TREES, mountains: MOUNTAINS, hills: HILLS, "desert-trees": DESERT_TREES, nature: NATURE, volcanos: VOLCANOES, towns: SETTLEMENTS, buildings: SETTLEMENTS },
 }
 
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }

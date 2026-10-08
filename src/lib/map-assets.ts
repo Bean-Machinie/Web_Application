@@ -56,7 +56,8 @@ export const categoryKey = (category: string) => category.toLowerCase().replace(
 // canvas is a few thousand pixels wide. Categories not listed get the fallback.
 const DEFAULT_WIDTH: Record<string, number> = {
   mountains: 220,
-  forests: 180,
+  "oak-trees": 180,
+  "pine-trees": 180,
   "desert-trees": 180,
   hills: 300,
   volcanos: 280,
@@ -70,7 +71,8 @@ const FALLBACK_WIDTH = 160
 // green in swamp). Nature follows the ground; buildings only lean toward it.
 const INK_FOLLOWS: Record<string, number> = {
   mountains: 1,
-  forests: 1,
+  "oak-trees": 1,
+  "pine-trees": 1,
   towns: 0.25,
 }
 const FALLBACK_FOLLOWS = 0.6
@@ -104,12 +106,14 @@ export type Recolour = { grass: Window; snow?: boolean; rock?: boolean; keep?: b
 // wood and rocks are ochre and orange, below this hue, so they stay. Plains has
 // its own, calmer green, which is the look they rest in.
 const SETTLEMENT: Recolour = { grass: { hue: [39, 44], saturation: [0.08, 0.16], light: [1, 1.01] }, base: "plains" }
+// Leaves change in every biome. On plains the trunks do too, so the whole tree
+// sits in the ground; elsewhere they stay as painted.
+const TREE: Recolour = { grass: { hue: [34, 58], saturation: [0.12, 0.3], light: [1, 1.01] }, rock: true, base: "plains" }
 const RECOLOURS: Record<string, Recolour> = {
   towns: SETTLEMENT,
   buildings: SETTLEMENT,
-  // Leaves change in every biome. On plains the trunks do too, so the whole tree
-  // sits in the ground; elsewhere they stay as painted.
-  forests: { grass: { hue: [34, 58], saturation: [0.12, 0.3], light: [1, 1.01] }, rock: true, base: "plains" },
+  "oak-trees": TREE,
+  "pine-trees": TREE,
   // Golden leaves and olive leaf shadows change; the orange trunk is the rock.
   // Golden meadow and orange-brown ridges: the meadow changes, and so do the ridges
   // and teal shadows, which are the rock. Plains has its own look, green.
@@ -124,7 +128,7 @@ const RECOLOURS: Record<string, Recolour> = {
   mountains: { grass: { hue: [35, 41], saturation: [0.08, 0.16], light: [0.74, 0.86] }, snow: true, rock: true },
 }
 export const recolours = (category: string) => categoryKey(category) in RECOLOURS
-export const recolourOf = (category: string): Recolour => RECOLOURS[categoryKey(category)] ?? RECOLOURS.forests
+export const recolourOf = (category: string): Recolour => RECOLOURS[categoryKey(category)] ?? TREE
 // Art that is part of the ground, like grass tufts, casts no shadow.
 const NO_SHADOW = new Set(["nature"])
 export const castsShadow = (category: string) => !NO_SHADOW.has(categoryKey(category))
