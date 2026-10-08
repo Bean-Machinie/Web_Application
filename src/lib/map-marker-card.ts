@@ -3,7 +3,7 @@ import type * as L from "leaflet"
 export const CARD_WIDTH = 288
 // How far the card's edge sits from the pin's tip. Above, that clears the pin
 // when it is lifted; below, it sits just under the tip.
-export const CARD_ABOVE = 64
+export const CARD_ABOVE = 62
 export const CARD_BELOW = 10
 
 const MARGIN = 8

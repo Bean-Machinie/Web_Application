@@ -148,16 +148,35 @@
   }
 }
 
-/* A marker let go of in the map: squashed flat, then settling. */
+/* A marker let go of in the map: it lands squashed flat, springs up, and
+   settles after a smaller second hit. */
 @keyframes pin-plant {
   0% {
-    transform: scale(1.06, 0.88);
+    transform: scale(1.25, 0.65);
   }
-  55% {
+  28% {
+    transform: scale(0.9, 1.14);
+  }
+  50% {
+    transform: scale(1.08, 0.9);
+  }
+  72% {
     transform: scale(0.98, 1.04);
   }
   100% {
     transform: scale(1);
+  }
+}
+/* The ring that spreads from the spot where it landed. Only `scale` moves, so
+   the element's own centring is kept. */
+@keyframes pin-ripple {
+  0% {
+    opacity: 0.9;
+    scale: 0.6;
+  }
+  100% {
+    opacity: 0;
+    scale: 4;
   }
 }
 /* Markers are drawn by MapPin: Leaflet's own square box around an icon, and

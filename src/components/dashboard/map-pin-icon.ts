@@ -13,9 +13,9 @@ const ANCHOR: L.PointExpression = [20, 46]
 // index.css).
 const CLASS = "group/pin map-pin"
 // Above the lifted pin, where the name label opens.
-const LABEL: L.PointExpression = [0, -56]
+const LABEL: L.PointExpression = [0, -52]
 
-export const pinIcon = (marker: MapMarker, selected: boolean, pop: boolean, editing: boolean) =>
+export const pinIcon = (marker: MapMarker, pop: boolean, editing: boolean) =>
   L.divIcon({
     className: editing ? `${CLASS} map-pin-edit` : CLASS,
     iconSize: SIZE,
@@ -27,7 +27,6 @@ export const pinIcon = (marker: MapMarker, selected: boolean, pop: boolean, edit
         Icon: WORLD_KINDS[marker.kind].icon,
         tint: WORLD_KINDS[marker.kind].tint,
         revealed: marker.revealed,
-        selected,
         pop,
         editing,
       })

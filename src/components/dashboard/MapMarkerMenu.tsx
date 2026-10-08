@@ -15,7 +15,7 @@ type Props = {
 }
 
 // Above the pin's head.
-const RISE = 56
+const RISE = 54
 
 // What a GM can do to a marker while editing, opening over the pin. It is not
 // modal, so the map stays usable and a click elsewhere just closes it.

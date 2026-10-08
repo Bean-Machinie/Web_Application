@@ -29,6 +29,23 @@ function label(name: string) {
   return element
 }
 
+// Squashes the pin into the map and sends a ripple out; see MapPin and index.css.
+function plant(icon: HTMLElement | undefined) {
+  if (!icon) return
+  icon.classList.add("pin-planted")
+  setTimeout(() => icon.classList.remove("pin-planted"), 600)
+}
+
+// A pin with its card open stays lifted, and drops back when it closes. This is
+// a class rather than a new icon, so the drop can animate.
+function setLifted(layer: L.Marker, lifted: boolean) {
+  const icon = layer.getElement()
+  if (!icon) return
+  const was = icon.classList.contains("pin-selected")
+  icon.classList.toggle("pin-selected", lifted)
+  if (was && !lifted) plant(icon)
+}
+
 // Keeps Leaflet's markers in step with the list: added, moved, restyled and
 // removed as it changes. While editing they can be dragged; otherwise they
 // show their name on hover. The map and its image are never touched here.
@@ -76,18 +93,18 @@ export function useMapMarkerLayer(options: Options) {
       const position = toLatLng(marker, size)
       let layer = live.get(marker.id)
       const selected = marker.id === selectedId
-      const look = [marker.imageUrl, marker.kind, marker.revealed, selected, editing].join("|")
+      const look = [marker.imageUrl, marker.kind, marker.revealed, editing].join("|")
       looks.current.set(marker.id, look)
       if (layer) {
         layer.setLatLng(position)
         if (look !== previous.get(marker.id)) {
-          layer.setIcon(pinIcon(marker, selected, false, editing))
+          layer.setIcon(pinIcon(marker, false, editing))
         }
       } else {
         const pop = !seen.has(marker.id)
         seen.add(marker.id)
         const created = L.marker(position, {
-          icon: pinIcon(marker, selected, pop, editing),
+          icon: pinIcon(marker, pop, editing),
           draggable: editing,
           riseOnHover: true,
         }).addTo(map)
@@ -103,17 +120,20 @@ export function useMapMarkerLayer(options: Options) {
         created.on("dragend", () => {
           const { x, y } = toPercent(created.getLatLng(), latest.current.size)
           latest.current.onMove(marker.id, x, y)
-          // Lets go with a squash into the map; see MapPin and index.css.
-          const icon = created.getElement()
-          icon?.classList.add("pin-planted")
+          plant(created.getElement())
           setTimeout(() => {
             dragged = false
-            icon?.classList.remove("pin-planted")
-          }, 400)
+          }, 600)
+        })
+        // Leaving a hovered pin drops it with a bounce, unless it is held up.
+        created.on("mouseout", () => {
+          const icon = created.getElement()
+          if (!latest.current.editing && !icon?.classList.contains("pin-selected")) plant(icon)
         })
         live.set(marker.id, created)
         layer = created
       }
+      setLifted(layer, selected && !editing)
       if (editing) layer.dragging?.enable()
       else layer.dragging?.disable()
 
