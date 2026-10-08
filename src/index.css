@@ -148,6 +148,18 @@
   }
 }
 
+/* A marker let go of in the map: squashed flat, then settling. */
+@keyframes pin-plant {
+  0% {
+    transform: scale(1.06, 0.88);
+  }
+  55% {
+    transform: scale(0.98, 1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 /* Markers are drawn by MapPin: Leaflet's own square box around an icon, and
    the browser's focus box, are not wanted. */
 .leaflet-div-icon,

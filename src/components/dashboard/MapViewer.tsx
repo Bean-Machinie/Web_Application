@@ -12,6 +12,7 @@ import { pinPoint } from "@/lib/map-marker-card"
 import { cn } from "@/lib/utils"
 import { MapControls } from "./MapControls"
 import { MapEditBar } from "./MapEditBar"
+import { MapEditHint } from "./MapEditHint"
 import { MapMarkerCard } from "./MapMarkerCard"
 import { MapMarkerMenu } from "./MapMarkerMenu"
 import { MarkerLinkDialog } from "./MarkerLinkDialog"
@@ -121,6 +122,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
             onToggleEditing={selection.toggleEditing}
           />
         )}
+        {editing && <MapEditHint />}
         {map && selected && point && !editing && (
           <MapMarkerCard
             // Each marker's card opens fresh.

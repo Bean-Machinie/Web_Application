@@ -1,4 +1,4 @@
-import { MapPinPlus, Move, Upload, X } from "lucide-react"
+import { Check, MapPinPlus, Move, Upload, X } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import type { MapImageUpload } from "@/hooks/use-map-image-upload"
 import { cn } from "@/lib/utils"
@@ -35,17 +35,14 @@ export function MapEditBar({ placing, editing, upload, onPlace, onCancel, onTogg
         Add marker
       </Button>
       <Button
-        variant="outline"
+        variant={editing ? "default" : "outline"}
         size="sm"
         aria-pressed={editing}
-        className={cn(
-          "bg-background/90 shadow-sm backdrop-blur-sm",
-          editing && "bg-accent text-accent-foreground"
-        )}
+        className={cn("shadow-sm", !editing && "bg-background/90 backdrop-blur-sm")}
         onClick={onToggleEditing}
       >
-        <Move />
-        Edit markers
+        {editing ? <Check /> : <Move />}
+        {editing ? "Editing markers" : "Edit markers"}
       </Button>
       <MapImageInput
         busy={upload.busy}

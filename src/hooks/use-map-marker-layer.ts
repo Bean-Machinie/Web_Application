@@ -36,6 +36,10 @@ export function useMapMarkerLayer(options: Options) {
   const { map, size, markers, loaded, pending, selectedId, editing } = options
   const layers = useRef(new Map<string, L.Marker>())
   const known = useRef<Set<string> | null>(null)
+  // How each icon was last drawn. An icon is only rebuilt when that changes, so
+  // a pin let go of keeps its element, and its planting animation, when its new
+  // place comes back from the list.
+  const looks = useRef(new Map<string, string>())
   const latest = useRef(options)
   useEffect(() => {
     latest.current = options
@@ -44,8 +48,10 @@ export function useMapMarkerLayer(options: Options) {
   // A new map starts with no markers; the old map took its own down.
   useEffect(() => {
     const live = layers.current
+    const drawn = looks.current
     return () => {
       live.clear()
+      drawn.clear()
       known.current = null
     }
   }, [map])
@@ -61,16 +67,22 @@ export function useMapMarkerLayer(options: Options) {
       if (!present.has(id)) {
         layer.remove()
         live.delete(id)
+        looks.current.delete(id)
       }
     }
 
+    const previous = new Map(looks.current)
     for (const marker of markers) {
       const position = toLatLng(marker, size)
       let layer = live.get(marker.id)
       const selected = marker.id === selectedId
+      const look = [marker.imageUrl, marker.kind, marker.revealed, selected, editing].join("|")
+      looks.current.set(marker.id, look)
       if (layer) {
         layer.setLatLng(position)
-        layer.setIcon(pinIcon(marker, selected, false, editing))
+        if (look !== previous.get(marker.id)) {
+          layer.setIcon(pinIcon(marker, selected, false, editing))
+        }
       } else {
         const pop = !seen.has(marker.id)
         seen.add(marker.id)
@@ -91,9 +103,13 @@ export function useMapMarkerLayer(options: Options) {
         created.on("dragend", () => {
           const { x, y } = toPercent(created.getLatLng(), latest.current.size)
           latest.current.onMove(marker.id, x, y)
+          // Lets go with a squash into the map; see MapPin and index.css.
+          const icon = created.getElement()
+          icon?.classList.add("pin-planted")
           setTimeout(() => {
             dragged = false
-          })
+            icon?.classList.remove("pin-planted")
+          }, 400)
         })
         live.set(marker.id, created)
         layer = created
