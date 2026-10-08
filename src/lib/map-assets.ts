@@ -118,7 +118,7 @@ const RECOLOURS: Record<string, Recolour> = {
   floating: SETTLEMENT,
   // The mask marks the ground: sand, scrub and rocks, which change on their own by
   // colour. Everything outside it stays as painted.
-  desert: { grass: { hue: [38, 44], saturation: [0.2, 0.3], light: [1, 1.01] }, group: true, base: "desert" },
+  desert: { grass: { hue: [38, 44], saturation: [0.2, 0.3], light: [1, 1.01] }, group: true, base: "plains" },
   "oak-trees": TREE,
   "pine-trees": TREE,
   // Golden leaves and olive leaf shadows change; the orange trunk is the rock.

@@ -177,11 +177,13 @@ The floating city's blue-grey cliffs stay as painted.
 and the rocks in it. White is the ground, black stays as painted. Inside the mask
 the three are told apart by colour and each changes on its own:
 
-| Part                          | Desert and plains           | Other biomes               |
-| ----------------------------- | --------------------------- | -------------------------- |
-| Sunlit sand (bright yellow)   | toned to the ground         | the ground's colours       |
-| Scrub (green)                 | as painted                  | the ground's foliage       |
-| Rocks and shaded sand (rest)  | as painted                  | the ground's rock colours  |
+| Part                          | Desert ground         | Plains and the other biomes |
+| ----------------------------- | --------------------- | --------------------------- |
+| Sunlit sand (bright yellow)   | toned to the ground   | the ground's colours        |
+| Scrub (green)                 | as painted            | the ground's foliage        |
+| Rocks and shaded sand (rest)  | as painted            | the ground's rock colours   |
+
+Plains is the look these rest in where no biome is painted (`base: "plains"`).
 
 Cloth, wood, bones and sandstone outside the mask never change. A piece with no
 mask does not change at all.

@@ -9,7 +9,7 @@ import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { Surface } from "@/lib/biomes/surface"
 import type { Terrain } from "@/lib/terrain"
 import { artFor } from "@/lib/map-asset-art"
-import { paintedArtFor } from "@/lib/map-asset-paint"
+import { lookAt } from "@/lib/map-asset-painted"
 import type { AssetPatch } from "@/lib/map-asset-edit"
 import type { MapScene, PlacedAsset } from "@/lib/map-scene"
 import { themeFor } from "@/lib/map-theme"
@@ -157,11 +157,13 @@ export function MapAssetsLayer(props: Props) {
               height={trim.height}
               offsetX={trim.width / 2}
               offsetY={trim.height / 2}
-              sceneFunc={(context) => {
+              sceneFunc={(context, shape) => {
                 if (!moving.has(asset.id)) return
-                const drawn = trim.width * Math.abs(asset.scaleX) * view.scale
+                // Where the piece is now, as it is moved ahead of the saved scene.
+                const now = { ...asset, x: shape.x(), y: shape.y(), scaleX: shape.scaleX(), scaleY: shape.scaleY() }
+                const drawn = trim.width * Math.abs(now.scaleX) * view.scale
                 const flat = info.colour
-                  ? paintedArtFor(asset.asset, asset.asset.split("/")[0], info, drawn, canvas.background, false).base
+                  ? lookAt({ asset: now, info }, props.paint, canvas.background, drawn)
                   : artFor(asset.asset, info, drawn, theme.ink, theme.land.fill).preview
                 context.drawImage(flat, 0, 0, trim.width, trim.height)
               }}

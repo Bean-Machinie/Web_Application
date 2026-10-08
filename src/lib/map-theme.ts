@@ -233,10 +233,16 @@ const SETTLEMENTS: Record<Biome, Surfaced> & { plains: Surfaced } = {
 }
 
 // Desert props: the ground marked by each piece's mask, in three parts. On desert
-// ground (and plains) only the sand is toned to the ground and the rest stays as
-// painted; elsewhere the scrub, the sand and the rocks each take that ground's
-// foliage, ground and rock colours.
-const DESERT_PROPS: Record<Biome, Surfaced> = {
+// ground only the sand is toned to the ground and the rest stays as painted;
+// elsewhere the scrub, the sand and the rocks each take that ground's foliage,
+// ground and rock colours. Plains is the look the art rests in where no biome is
+// painted, with the same calm olive and earth as the trees and hills there.
+const DESERT_PROPS: Record<Biome, Surfaced> & { plains: Surfaced } = {
+  plains: {
+    grass: OAKS.plains.grass,
+    snow: [[0, [104, 96, 62]], [0.5, [130, 120, 80]], [1, [152, 140, 96]]],
+    rock: HILLS.plains.rock,
+  },
   desert: { snow: [[0, [168, 122, 80]], [0.5, [194, 142, 92]], [1, [212, 160, 108]]] },
   ice: {
     grass: FOLIAGE.ice.grass,
