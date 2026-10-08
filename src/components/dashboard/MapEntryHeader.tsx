@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useMapImageUpload } from "@/hooks/use-map-image-upload"
@@ -6,9 +7,12 @@ import { COVER_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
 import { EditableName } from "./EditableName"
 import { HiddenBadge } from "./HiddenBadge"
 import { MapUploadPrompt } from "./MapUploadPrompt"
-import { MapViewer } from "./MapViewer"
 import { SaveIndicator } from "./SaveIndicator"
 import type { WorldFieldsState } from "./WorldFields"
+
+// The map brings Leaflet and the card animations with it, so they load only
+// on a page that shows a map.
+const MapViewer = lazy(() => import("./MapViewer").then((module) => ({ default: module.MapViewer })))
 
 type Props = {
   entryId: string
@@ -53,16 +57,18 @@ export function MapEntryHeader({
       {!state.fields ? (
         <Skeleton className="aspect-video w-full rounded-lg" />
       ) : image?.width && image.height ? (
-        <MapViewer
-          // A new image starts a new map, with its own bounds.
-          key={image.url}
-          campaignId={campaignId}
-          mapId={entryId}
-          mapName={name}
-          image={{ url: image.url, width: image.width, height: image.height }}
-          canManage={canManage}
-          upload={upload}
-        />
+        <Suspense fallback={<Skeleton className="aspect-video w-full rounded-lg" />}>
+          <MapViewer
+            // A new image starts a new map, with its own bounds.
+            key={image.url}
+            campaignId={campaignId}
+            mapId={entryId}
+            mapName={name}
+            image={{ url: image.url, width: image.width, height: image.height }}
+            canManage={canManage}
+            upload={upload}
+          />
+        </Suspense>
       ) : (
         <MapUploadPrompt canManage={canManage} upload={upload} />
       )}

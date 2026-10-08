@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react"
+import { useReducedMotion } from "motion/react"
 import "leaflet/dist/leaflet.css"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useLeafletMap } from "@/hooks/use-leaflet-map"
 import { useMapMarkerLayer } from "@/hooks/use-map-marker-layer"
 import { useMapMarkers } from "@/hooks/use-map-markers"
 import type { MapImageUpload } from "@/hooks/use-map-image-upload"
-import { useMapPoint } from "@/hooks/use-map-point"
-import { toLatLng, toPercent } from "@/lib/map-geometry"
+import { useMapMarkerCard } from "@/hooks/use-map-marker-card"
+import { toPercent } from "@/lib/map-geometry"
 import type { Percent } from "@/lib/map-geometry"
 import { cn } from "@/lib/utils"
 import { MapControls } from "./MapControls"
@@ -33,28 +34,27 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
   const { container, map } = useLeafletMap(image.url, size)
   const { markers, error, add, move, remove } = useMapMarkers(mapId)
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [hoverId, setHoverId] = useState<string | null>(null)
   const [placing, setPlacing] = useState(false)
   const [pending, setPending] = useState<Percent | null>(null)
 
   const list = useMemo(() => markers ?? [], [markers])
-  // A hovered marker shows its preview; otherwise the clicked one stays open.
-  const shown = list.find((marker) => marker.id === (hoverId ?? selectedId)) ?? null
-  const position = useMemo(() => (shown ? toLatLng(shown, size) : null), [shown, size])
-  const point = useMapPoint(map, position)
+  const card = useMapMarkerCard({ map, markers: list, selectedId, setSelectedId })
+  const reduced = useReducedMotion()
   const message = error ?? upload.error
 
-  useMapMarkerLayer({
+  const grab = useMapMarkerLayer({
     map,
     size,
     markers: list,
     loaded: markers !== null,
     pending,
     selectedId,
+    // With reduced motion the card fades in over the pin instead of replacing it.
+    hiddenId: reduced ? null : (card.marker?.id ?? null),
     canManage,
     onSelect: setSelectedId,
-    onHover: setHoverId,
-    onDragStart: () => setSelectedId(null),
+    onHover: (id) => (id ? card.enter(id) : card.leavePin()),
+    onDragStart: card.dismiss,
     onMove: move,
   })
 
@@ -108,18 +108,27 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, upload
             onCancel={() => setPlacing(false)}
           />
         )}
-        {shown && point && (
+        {map && card.marker && (
           <MapMarkerCard
-            marker={shown}
-            point={point}
+            // Each marker's card starts from its own pin.
+            key={card.marker.id}
+            marker={card.marker}
+            map={map}
+            size={size}
             canManage={canManage}
             backTo={{ path: `/app/world/${mapId}`, label: mapName }}
-            pinned={shown.id === selectedId}
+            open={card.open}
+            pinned={card.marker.id === selectedId}
+            onEnter={() => card.enter(card.marker!.id)}
+            onLeave={card.leave}
+            onSelect={() => setSelectedId(card.marker!.id)}
+            onGrab={(x, y) => grab(card.marker!.id, x, y)}
             onClose={() => setSelectedId(null)}
             onRemove={() => {
               setSelectedId(null)
-              remove(shown.id)
+              remove(card.marker!.id)
             }}
+            onDone={card.done}
           />
         )}
       </div>

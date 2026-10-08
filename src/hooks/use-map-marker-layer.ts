@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useLayoutEffect, useRef } from "react"
 import * as L from "leaflet"
 import { pendingIcon, pinIcon } from "@/components/dashboard/map-pin-icon"
 import { toLatLng, toPercent } from "@/lib/map-geometry"
@@ -15,6 +15,8 @@ type Options = {
   // Where a marker is about to be placed, drawn as a ghost.
   pending: Percent | null
   selectedId: string | null
+  // A marker whose card stands in for it; its pin is kept invisible.
+  hiddenId: string | null
   canManage: boolean
   onSelect: (id: string) => void
   onHover: (id: string | null) => void
@@ -22,11 +24,16 @@ type Options = {
   onMove: (id: string, x: number, y: number) => void
 }
 
+const setHidden = (layer: L.Marker, hidden: boolean) => {
+  const icon = layer.getElement()
+  if (icon) icon.style.visibility = hidden ? "hidden" : ""
+}
+
 // Keeps Leaflet's markers in step with the list: added, moved, restyled and
 // removed as it changes. A GM can drag them. The map and its image are never
 // touched here.
 export function useMapMarkerLayer(options: Options) {
-  const { map, size, markers, loaded, pending, selectedId, canManage } = options
+  const { map, size, markers, loaded, pending, selectedId, hiddenId, canManage } = options
   const layers = useRef(new Map<string, L.Marker>())
   const known = useRef<Set<string> | null>(null)
   const latest = useRef(options)
@@ -86,10 +93,17 @@ export function useMapMarkerLayer(options: Options) {
         live.set(marker.id, created)
         layer = created
       }
+      // A new icon element starts out visible.
+      setHidden(layer, marker.id === latest.current.hiddenId)
       if (canManage) layer.dragging?.enable()
       else layer.dragging?.disable()
     }
   }, [map, size, markers, loaded, selectedId, canManage])
+
+  // Before paint, so the pin and its card swap places without a blank frame.
+  useLayoutEffect(() => {
+    for (const [id, layer] of layers.current) setHidden(layer, id === hiddenId)
+  }, [hiddenId])
 
   useEffect(() => {
     if (!map || !pending) return
@@ -101,4 +115,11 @@ export function useMapMarkerLayer(options: Options) {
       ghost.remove()
     }
   }, [map, size, pending])
+
+  // Hands a press on a card over to the pin beneath it, so a GM can still
+  // drag a marker that is wearing its card.
+  return (id: string, clientX: number, clientY: number) => {
+    const press = new MouseEvent("mousedown", { bubbles: true, cancelable: true, clientX, clientY })
+    layers.current.get(id)?.getElement()?.dispatchEvent(press)
+  }
 }

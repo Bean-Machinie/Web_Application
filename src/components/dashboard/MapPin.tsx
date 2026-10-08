@@ -11,14 +11,12 @@ type Props = {
   pop: boolean
 }
 
-const SPRING = "ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-
 // A marker on the map: the entry's picture (or its kind's icon) in a round
-// badge ringed in the kind's colour, with a small tail. On hover it lifts and
-// grows with a little bounce. Hidden entries are dashed and grey, so a GM can
-// tell what players cannot see. Rendered to static markup for Leaflet, whose
-// icon element carries the "group/pin" class. Motion is off for people who
-// ask for reduced motion.
+// badge ringed in the kind's colour, with a small tail. Hover does not move
+// it: MapMarkerCard takes its place and grows out of it, so the pin must look
+// the same as that card's starting shape. Hidden entries are dashed and grey,
+// so a GM can tell what players cannot see. Rendered to static markup for
+// Leaflet. Motion is off for people who ask for reduced motion.
 export function MapPin({ imageUrl, Icon, tint, revealed, selected, pop }: Props) {
   const color = revealed ? tint : undefined
 
@@ -28,12 +26,10 @@ export function MapPin({ imageUrl, Icon, tint, revealed, selected, pop }: Props)
         pop ? `motion-safe:animate-[pin-pop_450ms_both] motion-safe:[animation-timing-function:cubic-bezier(0.34,1.56,0.64,1)]` : ""
       }`}
     >
-      <div
-        className={`flex origin-bottom flex-col items-center transition-transform duration-300 ${SPRING} motion-safe:group-hover/pin:-translate-y-1.5 motion-safe:group-hover/pin:scale-110`}
-      >
+      <div className="flex origin-bottom flex-col items-center">
         <div
           style={{ borderColor: color }}
-          className={`bg-card text-foreground flex size-10 items-center justify-center overflow-hidden rounded-full border-2 shadow-md transition-shadow duration-300 group-hover/pin:shadow-xl ${
+          className={`bg-card text-foreground flex size-10 items-center justify-center overflow-hidden rounded-full border-2 shadow-md ${
             revealed ? "" : "border-muted-foreground border-dashed opacity-80"
           } ${selected ? "ring-primary ring-offset-background ring-2 ring-offset-2" : ""}`}
         >
