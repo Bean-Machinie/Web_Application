@@ -13,8 +13,9 @@ import type { MapSize } from "@/lib/map-geometry"
 // How far in a map zooms unless its image says otherwise: four times its pixels.
 const DEFAULT_MAX_ZOOM = 2
 // Zoom levels the viewer stops short of a map's own maximum, which is stored
-// with each map, so this reaches maps that were already published.
-const ZOOM_IN_TRIM = 1
+// with each map, so this reaches maps that were already published. It was 1;
+// half a level lets the viewer zoom in half a level further, before it blurs.
+const ZOOM_IN_TRIM = 0.5
 
 export function useLeafletMap(url: string, size: MapSize, maxZoom = DEFAULT_MAX_ZOOM) {
   const container = useRef<HTMLDivElement>(null)

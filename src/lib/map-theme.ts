@@ -209,9 +209,13 @@ const OAKS: Record<Biome, Surfaced> & { plains: Surfaced } = {
   },
 }
 
-// Pines are darker and a richer green than oaks, as in life; the bark is shared.
+// Pines are darker and richer than oaks, as in life, in every biome; where the
+// ground is bleak the difference is only slight. The bark is shared.
 const PINES: Record<Biome, Surfaced> & { plains: Surfaced } = {
-  ...OAKS,
+  ice: { grass: [[0, [28, 62, 74]], [0.45, [86, 134, 144]], [0.8, [176, 210, 216]], [1, [240, 248, 250]]] },
+  desert: { grass: [[0, [44, 42, 18]], [0.5, [104, 102, 44]], [1, [178, 170, 92]]] },
+  swamp: { grass: [[0, [12, 18, 10]], [0.5, [34, 48, 24]], [1, [80, 98, 46]]] },
+  volcanic: { grass: [[0, [14, 12, 11]], [0.5, [46, 42, 38]], [1, [100, 90, 82]]] },
   plains: {
     grass: [[0, [32, 42, 22]], [0.5, [86, 98, 50]], [1, [134, 142, 80]]],
     rock: OAKS.plains.rock,

@@ -125,8 +125,9 @@ Oak and pine trees change in every biome as described above. On plains they are 
 out of the painting's bright green: the leaves become a calm olive and the orange
 trunk a muted bark, so the trees sit in the ground (`base: "plains"` in
 `RECOLOURS`). On the other biomes the trunk keeps its painted colour.
-Pines are given a darker, richer green than oaks, as in life (`PINES` and `OAKS`
-in `src/lib/map-theme.ts`).
+Pines are given a darker, richer colour than oaks, as in life, in every biome
+(`PINES` and `OAKS` in `src/lib/map-theme.ts`); on ice, swamp and volcanic ground
+the difference is only slight.
 
 ### Hills
 
