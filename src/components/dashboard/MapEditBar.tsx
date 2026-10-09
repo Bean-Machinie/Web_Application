@@ -1,7 +1,6 @@
 import { Check, MapPinPlus, Move, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { MAP_FLOAT_ROW } from "./map-float"
 
 type Props = {
   placing: boolean
@@ -12,38 +11,36 @@ type Props = {
   onToggleEditing: () => void
 }
 
-const FLOAT = `${MAP_FLOAT_ROW} absolute bottom-4 left-1/2 z-[1000] -translate-x-1/2`
-
-// The GM's marker tools, a compact toolbar floating at the bottom of the map:
-// add a marker, or switch to editing the ones there.
+// The GM's marker tools, for the middle of the status bar under the map: add a
+// marker, or switch to editing the ones there.
 export function MapEditBar({ placing, editing, onPlace, onCancel, onToggleEditing }: Props) {
   if (placing) {
     return (
-      <div className={`${FLOAT} flex items-center gap-1 pr-1 pl-4 text-sm`}>
-        Click the map to place the marker
-        <Button variant="ghost" size="icon-sm" aria-label="Cancel" onClick={onCancel}>
+      <>
+        <span className="text-xs">Click the map to place the marker</span>
+        <Button variant="ghost" size="icon-xs" aria-label="Cancel" onClick={onCancel}>
           <X />
         </Button>
-      </div>
+      </>
     )
   }
 
   return (
-    <div className={`${FLOAT} flex items-center gap-1 px-1`}>
-      <Button variant="ghost" size="sm" onClick={onPlace}>
+    <>
+      <Button variant="ghost" size="xs" onClick={onPlace}>
         <MapPinPlus />
         Add marker
       </Button>
-      <Separator orientation="vertical" className="data-[orientation=vertical]:h-5" />
+      <Separator orientation="vertical" className="data-[orientation=vertical]:h-4" />
       <Button
         variant={editing ? "default" : "ghost"}
-        size="sm"
+        size="xs"
         aria-pressed={editing}
         onClick={onToggleEditing}
       >
         {editing ? <Check /> : <Move />}
         {editing ? "Editing markers" : "Edit markers"}
       </Button>
-    </div>
+    </>
   )
 }

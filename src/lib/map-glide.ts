@@ -181,6 +181,15 @@ export function glideZoomBy(map: L.Map, delta: number, anchor?: L.Point) {
   run(map, glide)
 }
 
+// Zooms to a level, around a point in the view (the middle if none). Called on every
+// step of a slider, it simply moves the goal.
+export function glideZoomTo(map: L.Map, zoom: number, anchor?: L.Point) {
+  const glide = glideOf(map)
+  start(map, glide)
+  glide.goal = { zoom: clampZoom(map, zoom), anchor: anchor ?? map.getSize().divideBy(2) }
+  run(map, glide)
+}
+
 // Sweeps the view to show some bounds.
 export function glideToBounds(map: L.Map, bounds: L.LatLngBounds) {
   const glide = glideOf(map)

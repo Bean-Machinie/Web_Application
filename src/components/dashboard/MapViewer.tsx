@@ -16,13 +16,14 @@ import { toLatLng } from "@/lib/map-geometry"
 import { pinPoint } from "@/lib/map-marker-card"
 import { rememberReturn } from "@/lib/map-view"
 import { cn } from "@/lib/utils"
-import { MapControls } from "./MapControls"
 import { MapEditBar } from "./MapEditBar"
 import { MapEditHint } from "./MapEditHint"
 import { MapMarkerCard } from "./MapMarkerCard"
 import { MapMarkerMenu } from "./MapMarkerMenu"
 import { MapPlacingCursor } from "./MapPlacingCursor"
 import { MarkerLinkDialog } from "./MarkerLinkDialog"
+import { MapViewerNavigator } from "./MapViewerNavigator"
+import { MapViewerStatusBar } from "./MapViewerStatusBar"
 
 type Props = {
   campaignId: string
@@ -30,12 +31,14 @@ type Props = {
   mapName: string
   image: { url: string; width: number; height: number; maxZoom?: number }
   canManage: boolean
+  // Opens the details panel on the right.
+  onDetails: () => void
 }
 
 // The map filling its space, with smooth pan and zoom, mouse or touch. Everyone can
 // click a marker for a preview. A GM adds markers, and switches to editing
 // mode to drag them, change what they link to, or remove them.
-export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Props) {
+export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDetails }: Props) {
   const size = useMemo(
     () => ({ width: image.width, height: image.height }),
     [image.width, image.height]
@@ -85,26 +88,16 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Prop
   return (
     <div
       className={cn(
-        "bg-muted relative isolate size-full overflow-hidden",
+        "bg-muted relative isolate flex size-full flex-col overflow-hidden",
         // The pin that follows the pointer stands in for the cursor.
         placing && "map-placing"
       )}
     >
+      {/* What floats over the map is placed on this, so the status bar is under it. */}
+      <div className="relative min-h-0 flex-1 overflow-hidden">
       {/* Leaflet adds its own classes here, so this className must never change. */}
       <div ref={container} className="map-canvas size-full" />
-      <MapControls map={map} size={size} />
-      {canManage && (
-        <MapEditBar
-          placing={placing}
-          editing={editing}
-          onPlace={() => {
-            clear()
-            setPlacing(true)
-          }}
-          onCancel={() => setPlacing(false)}
-          onToggleEditing={selection.toggleEditing}
-        />
-      )}
+      <MapViewerNavigator map={map} url={image.url} size={size} onDetails={onDetails} />
       {map && placing && <MapPlacingCursor map={map} />}
       {editing && <MapEditHint />}
       {map && selected && point && !editing && (
@@ -150,6 +143,21 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Prop
           setRelinkId(null)
         }}
       />
+      </div>
+      <MapViewerStatusBar map={map} size={size}>
+        {canManage && (
+          <MapEditBar
+            placing={placing}
+            editing={editing}
+            onPlace={() => {
+              clear()
+              setPlacing(true)
+            }}
+            onCancel={() => setPlacing(false)}
+            onToggleEditing={selection.toggleEditing}
+          />
+        )}
+      </MapViewerStatusBar>
     </div>
   )
 }

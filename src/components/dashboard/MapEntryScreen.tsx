@@ -25,7 +25,7 @@ import type { EntryProps } from "./world-entry-props"
 const MapViewer = lazy(() => import("./MapViewer").then((module) => ({ default: module.MapViewer })))
 
 // A map entry fills the whole content area under the app header, with
-// nothing around it: a title card, the zoom buttons and the marker tools float
+// nothing around it: the details button, the navigator, the zoom bar and the marker tools float
 // over it, and everything else, renaming included, is in the details panel. The negative margin
 // takes back the padding the layout puts around pages. It is isolated, so
 // what floats over the map stays beneath the details panel and its overlay.
@@ -39,6 +39,7 @@ export function MapEntryScreen(props: EntryProps) {
     onSave: (value) => state.saveNow(COVER_FIELD, "image", value),
   })
   const { built, upload, confirm } = useMapUploadGuard(entryId, canManage, picker)
+  const hasImage = Boolean(image?.width && image.height)
 
   return (
     <div className="bg-muted relative isolate -m-4 min-h-96 flex-1 overflow-hidden md:-m-6">
@@ -59,6 +60,7 @@ export function MapEntryScreen(props: EntryProps) {
               maxZoom: image.maxZoom,
             }}
             canManage={canManage}
+            onDetails={() => props.onDetailsOpenChange(true)}
           />
         </Suspense>
       ) : (
@@ -73,8 +75,8 @@ export function MapEntryScreen(props: EntryProps) {
           </div>
         </div>
       )}
-      <MapTitlePill name={name} revealed={revealed} />
-      <MapDetailsButton onClick={() => props.onDetailsOpenChange(true)} />
+      <MapTitlePill revealed={revealed} />
+      {!hasImage && <MapDetailsButton onClick={() => props.onDetailsOpenChange(true)} />}
       <WorldEntryDetails
         open={props.detailsOpen}
         onOpenChange={props.onDetailsOpenChange}
