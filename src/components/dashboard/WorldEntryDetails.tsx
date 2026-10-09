@@ -47,7 +47,7 @@ export function WorldEntryDetails(props: Props) {
       <SheetContent
         side={phone ? "bottom" : "right"}
         showCloseButton={!phone}
-        className={phone ? "max-h-[85dvh] w-full gap-0 rounded-t-xl p-0" : "w-full gap-0 p-0 sm:max-w-md"}
+        className={phone ? "w-full gap-0 rounded-none p-0 data-[side=bottom]:h-dvh data-[side=bottom]:border-t-0" : "w-full gap-0 p-0 sm:max-w-md"}
       >
         <SheetHeader className={`flex h-12 flex-row items-center justify-between border-b py-0 pl-5 ${phone ? "pr-1" : "pr-14"}`}>
           <SheetTitle className="text-sm font-semibold">Details</SheetTitle>

@@ -8,13 +8,15 @@ type Props = {
   entries: WorldEntry[] | null
   active: WorldEntryKind | null
   onChange: (kind: WorldEntryKind | null) => void
+  // On a phone: a row of chips to swipe along, whatever the width.
+  compact?: boolean
 }
 
 // The world page's kinds, All and one per kind, that filter in place. A
 // column beside the entries, which leaves the full height to them; on a phone
 // a row above them. Nothing here scrolls on a larger screen, so nothing clips
 // the focus ring.
-export function MarkerKindTabs({ entries, active, onChange }: Props) {
+export function MarkerKindTabs({ entries, active, onChange, compact }: Props) {
   const tabs = [null, ...worldKinds]
 
   return (
@@ -22,7 +24,10 @@ export function MarkerKindTabs({ entries, active, onChange }: Props) {
       role="tablist"
       aria-label="Kind of entry"
       aria-orientation="vertical"
-      className="no-scrollbar -m-1 flex shrink-0 gap-1 overflow-x-auto p-1 sm:w-48 sm:flex-col sm:overflow-visible"
+      className={cn(
+        "no-scrollbar -m-1 flex max-w-full min-w-0 shrink-0 gap-1 overflow-x-auto p-1",
+        !compact && "sm:w-48 sm:flex-col sm:overflow-visible"
+      )}
     >
       {tabs.map((kind) => {
         const Icon = kind ? WORLD_KINDS[kind].icon : LayoutGrid
@@ -35,7 +40,7 @@ export function MarkerKindTabs({ entries, active, onChange }: Props) {
             role="tab"
             aria-selected={selected}
             className={cn(
-              "focus-visible:ring-ring flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap outline-none transition-colors focus-visible:ring-2",
+              "focus-visible:ring-ring flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap outline-none transition-colors focus-visible:ring-2",
               selected
                 ? "bg-accent text-accent-foreground"
                 : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"

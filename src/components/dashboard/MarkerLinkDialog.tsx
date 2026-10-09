@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, X } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,6 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { usePhoneScreen } from "@/hooks/use-phone-screen"
 import { errorMessage } from "@/lib/campaigns"
 import { createWorldEntry } from "@/lib/world-entries"
 import type { WorldEntryKind } from "@/lib/world-kinds"
@@ -24,10 +26,13 @@ type Props = {
   onLink: (entryId: string) => Promise<void>
 }
 
-type BodyProps = Omit<Props, "open" | "onClose">
+type BodyProps = Omit<Props, "open" | "onClose"> & {
+  // On a phone: filling a sheet, and with room for fingers.
+  compact?: boolean
+}
 
 // Only mounted while the dialog is open, so it starts fresh every time.
-function LinkBody({ campaignId, mapId, onLink }: BodyProps) {
+function LinkBody({ campaignId, mapId, onLink, compact }: BodyProps) {
   // Set while making a new entry instead of picking one; the kind it opens on.
   const [creating, setCreating] = useState<{ kind: WorldEntryKind } | null>(null)
   const [busy, setBusy] = useState(false)
@@ -48,13 +53,13 @@ function LinkBody({ campaignId, mapId, onLink }: BodyProps) {
   )
 
   return (
-    <div className="grid gap-4">
+    <div className={compact ? "flex min-h-0 min-w-0 flex-1 flex-col gap-3" : "grid min-w-0 gap-4"}>
       {creating ? (
         <>
           <Button
             variant="ghost"
             size="sm"
-            className="text-muted-foreground w-fit"
+            className="text-muted-foreground pointer-coarse:h-11 w-fit"
             onClick={() => setCreating(null)}
             disabled={busy}
           >
@@ -74,6 +79,7 @@ function LinkBody({ campaignId, mapId, onLink }: BodyProps) {
           campaignId={campaignId}
           exceptId={mapId}
           disabled={busy}
+          compact={compact}
           onPick={(entry) => link(async () => entry.id)}
           onCreate={(kind) => setCreating({ kind: kind ?? "location" })}
         />
@@ -83,16 +89,35 @@ function LinkBody({ campaignId, mapId, onLink }: BodyProps) {
   )
 }
 
+// A dialog on a larger screen; on a phone a sheet over the whole screen, with the entries
+// to scroll with a thumb.
 export function MarkerLinkDialog({ open, onClose, ...body }: Props) {
+  const phone = usePhoneScreen()
+  if (phone) {
+    return (
+      <Sheet open={open} onOpenChange={(next) => !next && onClose()}>
+        <SheetContent side="bottom" showCloseButton={false} className="gap-0 rounded-none p-0 data-[side=bottom]:h-dvh data-[side=bottom]:border-t-0">
+          <SheetHeader className="flex h-12 shrink-0 flex-row items-center justify-between border-b py-0 pr-1 pl-4">
+            <SheetTitle className="text-sm font-semibold">Link the marker</SheetTitle>
+            <SheetClose asChild>
+              <Button variant="ghost" aria-label="Close" className="size-11">
+                <X />
+              </Button>
+            </SheetClose>
+          </SheetHeader>
+          <SheetDescription className="sr-only">Choose what the marker opens</SheetDescription>
+          <div className="flex min-h-0 flex-1 flex-col p-3">{open && <LinkBody {...body} compact />}</div>
+        </SheetContent>
+      </Sheet>
+    )
+  }
+
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="sm:max-w-6xl">
         <DialogHeader>
           <DialogTitle>Link the marker</DialogTitle>
-          <DialogDescription>
-            Choose what this marker opens, even another map. Players only see it once that entry is
-            revealed.
-          </DialogDescription>
+          <DialogDescription className="sr-only">Choose what the marker opens</DialogDescription>
         </DialogHeader>
         {open && <LinkBody {...body} />}
       </DialogContent>
