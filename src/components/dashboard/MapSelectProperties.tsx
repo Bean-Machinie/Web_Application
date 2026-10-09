@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button"
 const GESTURES: [string, string][] = [
   ["Click", "Select art"],
   ["Shift+click", "Add or remove"],
-  ["Drag on empty canvas", "Box select"],
-  ["Shift+drag box", "Add to selection"],
-  ["Alt+drag", "Duplicate"],
+  ["Drag on empty canvas", "Select with the sub tool"],
+  ["Shift+drag", "Add to selection"],
+  ["Alt+drag", "Take out of selection"],
+  ["Shift+Alt+drag", "Keep what is in both"],
+  ["Alt+drag on art", "Duplicate"],
   ["Shift while scaling", "Free scale"],
   ["Shift while turning", "Snap to 15°"],
 ]

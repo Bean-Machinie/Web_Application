@@ -94,16 +94,24 @@ export function MapAssetsLayer(props: Props) {
   }
 
   // The Transformer carries the whole selection along with the piece that is
-  // dragged; once it is let go, what moved is saved as one change.
+  // dragged, and every piece of it ends its drag in turn, each saying so. What moved is
+  // saved once, as one change, so that one undo takes the whole movement back.
+  const saving = useRef(false)
   const finish = (event: Konva.KonvaEventObject<DragEvent>) => {
     const layer = event.target.getLayer()
     const dragged = event.target.id()
     const ids = selected.includes(dragged) ? selected : [dragged]
-    const nodes = ids
-      .map((id) => layer?.findOne(`#${id}`))
-      .filter((node): node is Konva.Node => Boolean(node))
-    onChange(nodes.map(patchOf))
     letGo()
+    if (saving.current) return
+    saving.current = true
+    // After the rest of the selection has ended its drag, which is all in this moment.
+    window.setTimeout(() => {
+      saving.current = false
+      const nodes = ids
+        .map((id) => layer?.findOne(`#${id}`))
+        .filter((node): node is Konva.Node => Boolean(node))
+      onChange(nodes.map(patchOf))
+    }, 0)
   }
 
   return (

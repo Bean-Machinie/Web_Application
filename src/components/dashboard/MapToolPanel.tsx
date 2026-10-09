@@ -4,13 +4,14 @@ import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { Brush } from "@/hooks/use-brush"
 import { BUILDER_TOOLS } from "@/lib/map-builder-tools"
-import type { BuilderTool, LandMode } from "@/lib/map-builder-tools"
+import type { BuilderTool, LandMode, SelectMode } from "@/lib/map-builder-tools"
 import type { SceneBackground } from "@/lib/map-scene"
 import { MapBiomeSubTools } from "./MapBiomeSubTools"
 import { MapBrushProperties } from "./MapBrushProperties"
 import { MapLandSubTools } from "./MapLandSubTools"
 import { MapPanProperties } from "./MapPanProperties"
 import { MapSelectProperties } from "./MapSelectProperties"
+import { MapSelectSubTools } from "./MapSelectSubTools"
 
 type Props = {
   tool: BuilderTool
@@ -24,6 +25,8 @@ type Props = {
   disabled: boolean
   onOpen: (open: boolean) => void
   onMode: (mode: LandMode) => void
+  selectMode: SelectMode
+  onSelectMode: (mode: SelectMode) => void
   onShowAssets: (show: boolean) => void
   onSelectAll: () => void
   onZoom: (scale: number) => void
@@ -41,7 +44,7 @@ const Heading = ({ children }: { children: string }) => (
 export function MapToolPanel(props: Props) {
   const { tool, open, cutting, brush, background, disabled } = props
   const label = BUILDER_TOOLS.find(({ id }) => id === tool)?.label
-  const hasSubTools = tool === "land" || tool === "brush"
+  const hasSubTools = tool === "land" || tool === "brush" || tool === "select"
 
   return (
     <Collapsible
@@ -57,6 +60,7 @@ export function MapToolPanel(props: Props) {
               <Heading>Sub tool</Heading>
               {tool === "land" && <MapLandSubTools cutting={cutting} onMode={props.onMode} />}
               {tool === "brush" && <MapBiomeSubTools brush={brush} background={background} />}
+              {tool === "select" && <MapSelectSubTools mode={props.selectMode} onMode={props.onSelectMode} />}
             </section>
             <Separator />
           </>

@@ -10,6 +10,7 @@ import {
 } from "@/lib/map-asset-edit"
 import type { AssetPatch } from "@/lib/map-asset-edit"
 import { assetById, loadAssetInfo, placedWidth } from "@/lib/map-assets"
+import type { SelectOp } from "@/lib/map-builder-tools"
 import type { MapScene, PlacedAsset } from "@/lib/map-scene"
 
 // How far a duplicate lands from the original, in canvas pixels.
@@ -60,8 +61,13 @@ export function useAssetEditing({ assets, change, centre, pointer, onPlaced }: O
     )
   }, [])
 
-  const selectMany = useCallback((ids: string[], additive: boolean) => {
-    setPicked((old) => (additive ? [...new Set([...old, ...ids])] : ids))
+  const selectMany = useCallback((ids: string[], op: SelectOp) => {
+    setPicked((old) => {
+      if (op === "add") return [...new Set([...old, ...ids])]
+      if (op === "subtract") return old.filter((id) => !ids.includes(id))
+      if (op === "intersect") return old.filter((id) => ids.includes(id))
+      return ids
+    })
   }, [])
 
   // Placed at a point, or at the middle of the view, at the category's usual

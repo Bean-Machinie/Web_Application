@@ -136,6 +136,8 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               disabled={publishing}
               onOpen={setPanelOpen}
               onMode={tools.setMode}
+              selectMode={tools.selectMode}
+              onSelectMode={tools.setSelectMode}
               onShowAssets={(show) => tools.setHideAssets(!show)}
               onSelectAll={editing.selectAll}
               onZoom={viewport.zoomTo}
@@ -146,6 +148,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               terrain={terrain}
               tool={tools.activeTool}
               cutting={cutting}
+              selectMode={tools.selectMode}
               editable={!publishing && !tools.armed}
               shift={shift}
               alt={alt}

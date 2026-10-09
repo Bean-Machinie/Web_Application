@@ -6,7 +6,7 @@ import type { BuilderView } from "@/hooks/use-builder-viewport"
 import { useShownLand } from "@/hooks/use-shown-land"
 import type { MapScene } from "@/lib/map-scene"
 import type { Pair } from "polygon-clipping"
-import type { BuilderTool } from "@/lib/map-builder-tools"
+import type { BuilderTool, SelectMode } from "@/lib/map-builder-tools"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import type { AssetPicker } from "@/lib/map-asset-pick"
 import { useBiomeSurface } from "@/hooks/use-biome-surface"
@@ -34,6 +34,8 @@ type Props = {
   tool: BuilderTool
   // Whether a lasso now cuts land away instead of adding it.
   cutting: boolean
+  // How the select tool picks art on the empty canvas.
+  selectMode: SelectMode
   // False while the scene must not change, as when publishing.
   editable: boolean
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
@@ -144,6 +146,7 @@ export function MapBuilderStage(props: Props) {
           snapRotation={props.snapRotation}
           onSelect={editing.selectMany}
           pick={props.pick}
+          mode={props.selectMode}
           onPick={editing.select}
           onClone={editing.cloneForDrag}
           onChange={editing.commit}

@@ -7,7 +7,7 @@ import type { AssetEditing } from "@/hooks/use-asset-editing"
 import type { Brush } from "@/hooks/use-brush"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { useBuilderViewport } from "@/hooks/use-builder-viewport"
-import type { BuilderTool } from "@/lib/map-builder-tools"
+import type { BuilderTool, SelectMode } from "@/lib/map-builder-tools"
 import type { MapScene } from "@/lib/map-scene"
 import type { Terrain } from "@/lib/terrain"
 import { MapArmedGhost } from "./MapArmedGhost"
@@ -22,6 +22,7 @@ type Props = {
   terrain: Terrain | null
   tool: BuilderTool
   cutting: boolean
+  selectMode: SelectMode
   editable: boolean
   // Shift and Alt are held.
   shift: boolean
@@ -122,6 +123,7 @@ export function MapBuilderCanvas(props: Props) {
           editing={editing}
           showAssets={props.showAssets}
           pick={pick}
+          selectMode={props.selectMode}
           snapRotation={props.shift}
           altHeld={props.alt}
           onLasso={props.onLasso}

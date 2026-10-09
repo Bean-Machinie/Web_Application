@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react"
 import type { MapScene } from "@/lib/map-scene"
-import type { BuilderTool, LandMode } from "@/lib/map-builder-tools"
+import type { BuilderTool, LandMode, SelectMode } from "@/lib/map-builder-tools"
 import { useArmedAsset } from "./use-armed-asset"
 import { useAssetEditing } from "./use-asset-editing"
 import { useBrush } from "./use-brush"
@@ -21,6 +21,7 @@ type Options = {
 export function useBuilderTools({ assets, change, centre, pointer, locked }: Options) {
   const [tool, setTool] = useState<BuilderTool>("land")
   const [mode, setMode] = useState<LandMode>("add")
+  const [selectMode, setSelectMode] = useState<SelectMode>("rectangle")
   const [hideAssets, setHideAssets] = useState(false)
   const brush = useBrush()
   const stamping = useArmedAsset(!locked)
@@ -64,6 +65,8 @@ export function useBuilderTools({ assets, change, centre, pointer, locked }: Opt
     panHold: pan.hold,
     mode,
     setMode,
+    selectMode,
+    setSelectMode,
     brush,
     editing,
     armed: stamping.armed,
