@@ -17,6 +17,7 @@ import { TOOL_PANEL_INSET } from "@/lib/map-builder-tools"
 import type { SceneBackground } from "@/lib/map-scene"
 import type { WorldImage } from "@/lib/world-images"
 import type { LoadedScene } from "@/lib/world-map-scenes"
+import { ConfirmDialog } from "./ConfirmDialog"
 import { MapBuilderBanners } from "./MapBuilderBanners"
 import { MapBuilderCanvas } from "./MapBuilderCanvas"
 import { MapBuilderTopBar } from "./MapBuilderTopBar"
@@ -69,8 +70,13 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   // its view and how it was reached; otherwise it opens the map in place of
   // this page, so Back in the browser does not bounce between the two.
   const fromMap = (useLocation().state as { fromMap?: boolean } | null)?.fromMap
-  const goBack = () =>
-    fromMap ? navigate(-1) : navigate(`/app/world/${mapId}`, { replace: true })
+  const leave = () => (fromMap ? navigate(-1) : navigate(`/app/world/${mapId}`, { replace: true }))
+  // Leaving sends what is waiting first, saying so; only if that fails does it ask.
+  const [leaveAsk, setLeaveAsk] = useState(false)
+  const goBack = async () => {
+    if (await autosave.flushNow()) leave()
+    else setLeaveAsk(true)
+  }
 
   const tools = useBuilderTools({
     assets: scene.assets,
@@ -102,8 +108,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
     <div className="bg-background fixed inset-0 z-50 flex flex-col">
       <MapBuilderTopBar
         name={name}
-        saveState={autosave.state}
-        unpublished={autosave.unpublished}
+        store={autosave.store}
         publishing={publishing}
         canUndo={history.canUndo && !publishing}
         canRedo={history.canRedo && !publishing}
@@ -111,10 +116,10 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
         onRedo={redo}
         onBack={goBack}
         onPublish={async () => {
-          if (await publish()) goBack()
+          if (await publish()) leave()
         }}
       />
-      <MapBuilderBanners autosave={autosave} error={error} />
+      <MapBuilderBanners store={autosave.store} error={error} />
       <div className="flex min-h-0 flex-1">
         <MapToolStrip tool={tools.tool} disabled={publishing} onTool={tools.changeTool} />
         <div className="flex min-w-0 flex-1 flex-col">
@@ -185,6 +190,16 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
         />
       </div>
       <MapShortcutDialog open={helpOpen} onOpenChange={setHelpOpen} />
+      <ConfirmDialog
+        open={leaveAsk}
+        title="The latest changes could not be saved"
+        description="They have not reached the server. Cancel to stay and try again, or leave anyway and they may be lost."
+        confirmLabel="Leave anyway"
+        busy={false}
+        error={null}
+        onCancel={() => setLeaveAsk(false)}
+        onConfirm={leave}
+      />
     </div>
   )
 }

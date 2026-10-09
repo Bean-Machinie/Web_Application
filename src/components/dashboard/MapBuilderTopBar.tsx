@@ -1,14 +1,15 @@
-import { AlertCircle, ArrowLeft, Check, Loader2, Redo2, Undo2, Upload } from "lucide-react"
+import { ArrowLeft, Loader2, Redo2, Undo2, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import type { SceneSaveState } from "@/hooks/use-scene-autosave"
 import { useShortcutText } from "@/hooks/use-shortcut-text"
+import type { SaveStore } from "@/lib/scene-save-store"
+import { MapSaveStatus } from "./MapSaveStatus"
 import { Shortcut } from "./Shortcut"
 
 type Props = {
   name: string
-  saveState: SceneSaveState
-  unpublished: boolean
+  // The draft's saving, which the status shows by itself.
+  store: SaveStore
   publishing: boolean
   canUndo: boolean
   canRedo: boolean
@@ -18,23 +19,10 @@ type Props = {
   onPublish: () => void
 }
 
-function status(state: SceneSaveState, unpublished: boolean) {
-  if (state === "saving") return { Icon: Loader2, text: "Saving draft…", spin: true }
-  if (state === "error" || state === "conflict") {
-    return { Icon: AlertCircle, text: "Couldn't save the draft", spin: false }
-  }
-  return {
-    Icon: Check,
-    text: unpublished ? "Draft saved · not published" : "Published to players",
-    spin: false,
-  }
-}
-
 // Back to the map, undo and redo, the draft's state, and publishing. The draft
 // saves by itself; only Publish changes the map image players see.
 export function MapBuilderTopBar(props: Props) {
   const keyOf = useShortcutText()
-  const { Icon, text, spin } = status(props.saveState, props.unpublished)
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b px-3">
@@ -77,10 +65,7 @@ export function MapBuilderTopBar(props: Props) {
         </Tooltip>
       </div>
       <div className="ml-auto flex items-center gap-4">
-        <span role="status" className="text-muted-foreground flex items-center gap-1.5 text-xs">
-          <Icon className={`size-3.5 ${spin ? "animate-spin" : ""}`} />
-          {text}
-        </span>
+        <MapSaveStatus store={props.store} />
         <Tooltip>
           <TooltipTrigger asChild>
             <Button onClick={props.onPublish} disabled={props.publishing}>

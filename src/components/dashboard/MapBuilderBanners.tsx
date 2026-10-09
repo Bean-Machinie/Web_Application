@@ -1,20 +1,22 @@
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
-import type { useSceneAutosave } from "@/hooks/use-scene-autosave"
+import { useSaveStatus } from "@/hooks/use-save-status"
+import type { SaveStore } from "@/lib/scene-save-store"
 import { SCENE_LIMIT_BYTES } from "@/lib/world-map-scenes"
 
 // How much of the most a map can hold it may take before the builder warns.
 const SIZE_WARNING = 0.7
 
 type Props = {
-  autosave: ReturnType<typeof useSceneAutosave>
+  store: SaveStore
   // What went wrong with publishing, if anything.
   error: string | null
 }
 
 // What the builder has to say under the top bar: a draft that could not be
 // saved, a map near its size limit, a publish that failed.
-export function MapBuilderBanners({ autosave, error }: Props) {
+export function MapBuilderBanners({ store, error }: Props) {
+  const autosave = useSaveStatus(store)
   return (
     <>
       {autosave.state === "conflict" && (

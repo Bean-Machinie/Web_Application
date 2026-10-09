@@ -2,7 +2,6 @@ import { useState } from "react"
 import type { RefObject } from "react"
 import type Konva from "konva"
 import type { MapImageUpload } from "@/hooks/use-map-image-upload"
-import type { SceneSaveState } from "@/hooks/use-scene-autosave"
 import { errorMessage } from "@/lib/campaigns"
 import { exportCanvas } from "@/lib/map-export"
 import { loadAssetInfo } from "@/lib/map-assets"
@@ -11,7 +10,6 @@ import type { MapScene } from "@/lib/map-scene"
 type Autosave = {
   flush: () => Promise<boolean>
   publish: (scene: MapScene) => Promise<boolean>
-  state: SceneSaveState
 }
 
 const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve))
