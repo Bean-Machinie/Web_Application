@@ -5,6 +5,7 @@ import { EditableName } from "./EditableName"
 import { HiddenBadge } from "./HiddenBadge"
 import { SaveIndicator } from "./SaveIndicator"
 import { WorldEntryFacts } from "./WorldEntryFacts"
+import { StatTiles } from "./StatTiles"
 import { WorldEntryImage } from "./WorldEntryImage"
 import type { WorldFieldsState } from "./WorldFields"
 
@@ -38,7 +39,10 @@ export function WorldEntryHeader({ name, kind, canManage, onRename, revealed, ..
           <WorldEntryImage kind={kind} canManage={canManage} {...rest} />
           {!revealed && <HiddenBadge className="pointer-events-none absolute top-2 left-2" />}
         </div>
-        <WorldEntryFacts kind={kind} canManage={canManage} hidden={!revealed} {...rest} />
+        <div className="flex min-w-0 flex-col gap-4 sm:flex-1">
+          <WorldEntryFacts kind={kind} canManage={canManage} hidden={!revealed} {...rest} />
+          <StatTiles kind={kind} canManage={canManage} hidden={!revealed} {...rest} />
+        </div>
       </div>
     </div>
   )

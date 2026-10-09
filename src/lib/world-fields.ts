@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase"
 
 // A new field type is one more value here and in the world_field_type enum,
 // plus an entry in components/dashboard/field-types.tsx.
-export type WorldFieldType = "rich_text" | "image" | "short_text" | "select"
+export type WorldFieldType = "rich_text" | "image" | "short_text" | "select" | "stat_block"
 
 // What the database holds for one field. A field with no row is empty.
 export type StoredField = {

@@ -67,8 +67,35 @@ export function character(
   }
 }
 
-export const entry = (kind: WorldEntryKind, name: string, description: string): TemplateEntry => ({
+export const fact = (key: string, value: string, isPrivate = false): TemplateField => ({
+  key,
+  type: "short_text",
+  value,
+  private: isPrivate,
+})
+
+// A creature's stat block, private like the rest of its hidden detail.
+export const statBlock = (
+  stats: { health: number; defense: number; speed: string },
+  actions: [name: string, text: string][]
+): TemplateField => ({
+  key: "stat_block",
+  type: "stat_block",
+  value: {
+    v: 1,
+    ...stats,
+    actions: actions.map(([name, text], index) => ({ id: `action-${index + 1}`, name, text })),
+  },
+  private: true,
+})
+
+export const entry = (
+  kind: WorldEntryKind,
+  name: string,
+  description: string,
+  fields: TemplateField[] = []
+): TemplateEntry => ({
   kind,
   name,
-  fields: [describe(description)],
+  fields: [describe(description), ...fields],
 })

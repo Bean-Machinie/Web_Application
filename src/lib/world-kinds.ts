@@ -43,6 +43,8 @@ type KindDef = {
 // cover of its card. Every kind has one.
 export const COVER_FIELD = "image"
 
+export const STAT_BLOCK_FIELD = "stat_block"
+
 function image(): FieldDef {
   return {
     key: COVER_FIELD,
@@ -69,6 +71,17 @@ function shortText(
   extra: Partial<FieldDef> = {}
 ): FieldDef {
   return { key, label, type: "short_text", canBePrivate: false, placeholder, ...extra }
+}
+
+// Health, defense and speed show beside the image; the actions below it.
+function statBlock(): FieldDef {
+  return {
+    key: STAT_BLOCK_FIELD,
+    label: "Actions",
+    type: "stat_block",
+    canBePrivate: true,
+    privateByDefault: true,
+  }
 }
 
 function richText(key: string, label: string, placeholder: string, extra: Partial<FieldDef> = {}): FieldDef {
@@ -132,7 +145,7 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
       shortText("type", "Type", "e.g. Beast", { summary: true }),
       shortText("threat", "Threat", "e.g. CR 3 or Tier II", { summary: true, canBePrivate: true }),
       description("What is it, where does it live, how does it behave?"),
-      richText("stats", "Stats", "Hit points, attacks, abilities, in whatever your system uses."),
+      statBlock(),
       richText("weaknesses", "Weaknesses", "What hurts it, scares it or shuts it down?", {
         privateByDefault: true,
       }),

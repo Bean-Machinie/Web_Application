@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from "react"
 import type { WorldFieldType } from "@/lib/world-fields"
+import { isStatBlockEmpty } from "@/lib/stat-block"
 import type { FieldDef } from "@/lib/world-kinds"
 import { ImageFieldEditor } from "./ImageFieldEditor"
 import { ImageFieldView } from "./ImageFieldView"
@@ -7,6 +8,8 @@ import { RichTextEditor } from "./RichTextEditor"
 import { RichTextView } from "./RichTextView"
 import { SelectFieldEditor } from "./SelectFieldEditor"
 import { SelectFieldView } from "./SelectFieldView"
+import { StatActionsEditor } from "./StatActionsEditor"
+import { StatActionsView } from "./StatActionsView"
 import { ShortTextFieldEditor } from "./ShortTextFieldEditor"
 import { ShortTextFieldView } from "./ShortTextFieldView"
 
@@ -61,6 +64,13 @@ export const FIELD_TYPES: Record<
     View: SelectFieldView,
     isEmpty: (value) => value == null,
     saveAtOnce: true,
+  },
+  // Its tiles are drawn beside the image; this is the actions list below.
+  stat_block: {
+    Editor: StatActionsEditor,
+    View: StatActionsView,
+    isEmpty: isStatBlockEmpty,
+    saveAtOnce: false,
   },
   image: {
     Editor: ImageFieldEditor,

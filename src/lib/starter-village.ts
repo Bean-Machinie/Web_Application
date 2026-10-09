@@ -1,4 +1,4 @@
-import { character, entry } from "./campaign-template-types"
+import { character, entry, fact, statBlock } from "./campaign-template-types"
 import type { CampaignTemplate } from "./campaign-template-types"
 
 // Generic and system-agnostic on purpose. Everything starts hidden.
@@ -58,8 +58,22 @@ export const STARTER_VILLAGE: CampaignTemplate = {
         secret: "Is searching for the Old Map.",
       }
     ),
-    entry("creature", "Wolf", "A lean grey wolf, bold when hungry. Stalks the Forest Road at dusk."),
-    entry("creature", "Goblin", "A sly scavenger that raids camps and trades in trinkets."),
+    entry("creature", "Wolf", "A lean grey wolf, bold when hungry. Stalks the Forest Road at dusk.", [
+      fact("type", "Beast"),
+      fact("threat", "Low alone, serious in a pack", true),
+      statBlock({ health: 11, defense: 12, speed: "40 ft" }, [
+        ["Bite", "+4 to hit, 2d4+2 piercing"],
+        ["Pack tactics", "Easier to hit when an ally is adjacent"],
+      ]),
+    ]),
+    entry("creature", "Goblin", "A sly scavenger that raids camps and trades in trinkets.", [
+      fact("type", "Humanoid"),
+      fact("threat", "Low, higher in a raiding band", true),
+      statBlock({ health: 7, defense: 13, speed: "30 ft" }, [
+        ["Dagger", "+4 to hit, 1d4+2 piercing"],
+        ["Nimble escape", "Slips away from a fight as a quick action"],
+      ]),
+    ]),
     entry("location", "Willowbrook", "A small farming village at a crossroads, ringed by old stone walls."),
     entry("location", "The Sleeping Fox", "A cozy inn with a roaring hearth, where the village gathers."),
     entry("location", "Forest Road", "A winding road through dark woods, known for bandits and worse."),

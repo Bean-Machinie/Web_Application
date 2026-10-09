@@ -1,8 +1,7 @@
-import { Lock, LockOpen } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { FieldDef, WorldEntryKind } from "@/lib/world-kinds"
 import { FIELD_TYPES } from "./field-types"
+import { PrivateToggle } from "./PrivateToggle"
 import { Undisclosed } from "./Undisclosed"
 import type { WorldFieldsState } from "./WorldFields"
 
@@ -28,31 +27,6 @@ function Row({ def, children }: { def: FieldDef; children: React.ReactNode }) {
   )
 }
 
-function PrivateToggle({
-  label,
-  isPrivate,
-  onChange,
-}: {
-  label: string
-  isPrivate: boolean
-  onChange: (isPrivate: boolean) => void
-}) {
-  const Icon = isPrivate ? Lock : LockOpen
-  return (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      className={isPrivate ? "text-foreground" : "text-muted-foreground"}
-      aria-pressed={isPrivate}
-      aria-label={`${label} is ${isPrivate ? "private" : "visible to players"}`}
-      title={isPrivate ? "Private: players see “Undisclosed”" : "Visible to players"}
-      onClick={() => onChange(!isPrivate)}
-    >
-      <Icon />
-    </Button>
-  )
-}
-
 // The short facts of an entry as a property list. A GM edits each value in
 // place; a player reads them, private ones as "Undisclosed".
 export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state, hidden }: Props) {
@@ -69,9 +43,9 @@ export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state, h
 
   return (
     <dl
-      className={`bg-card flex min-w-0 flex-col divide-y rounded-lg border shadow-xs max-sm:w-full sm:flex-1 ${
+      className={`bg-card flex min-w-0 flex-col divide-y rounded-lg border shadow-xs ${
         // Few rows would stretch into tall empty bands, so they stay compact.
-        rows.length < STRETCH_FROM ? "sm:self-start" : ""
+        rows.length < STRETCH_FROM ? "" : "sm:flex-1"
       } ${hidden ? "border-dashed" : ""}`}
     >
       {rows.map((def) => {
