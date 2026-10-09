@@ -141,6 +141,13 @@ const NO_SHADOW = new Set(["nature"])
 export const castsShadow = (category: string) => !NO_SHADOW.has(categoryKey(category))
 export const defaultWidth = (category: string) => DEFAULT_WIDTH[categoryKey(category)] ?? FALLBACK_WIDTH
 
+// The zoom the usual widths are for: at it, art is placed at its usual width, and at
+// any other zoom it is placed so that it looks the same size on the screen. Zoomed in
+// it goes down smaller on the map, to fit among what is close; zoomed out, larger.
+const PLACING_ZOOM = 0.4
+export const placedWidth = (category: string, viewScale: number) =>
+  (defaultWidth(category) * PLACING_ZOOM) / viewScale
+
 // A loaded picture, and what was worked out about it once (see map-asset-shape).
 // "mask" is the picture saying what may change colour, where there is one.
 export type AssetInfo = AssetShape & { image: HTMLImageElement; mask: HTMLImageElement | null }

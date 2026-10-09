@@ -55,6 +55,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
     stage,
     panelOpen ? TOOL_PANEL_INSET.open : TOOL_PANEL_INSET.closed
   )
+  const { liveView } = viewport
   const terrain = useTerrain(scene.canvas)
   const pointer = useRef<{ x: number; y: number } | null>(null)
   const upload = useMapImageUpload({
@@ -82,6 +83,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
     assets: scene.assets,
     change: history.change,
     centre: viewport.centre,
+    viewScale: useCallback(() => liveView().scale, [liveView]),
     pointer: useCallback(() => pointer.current, []),
     locked: publishing,
   })

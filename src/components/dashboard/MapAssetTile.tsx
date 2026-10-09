@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAssetThumb } from "@/hooks/use-asset-thumb"
-import { defaultWidth, loadAssetInfo, loadedAssetInfo } from "@/lib/map-assets"
+import { loadAssetInfo, loadedAssetInfo, placedWidth } from "@/lib/map-assets"
 import type { MapAsset } from "@/lib/map-assets"
 import { cn } from "@/lib/utils"
 
@@ -61,7 +61,7 @@ export function MapAssetTile({ asset, armed, viewScale, onArm }: Props) {
     if (!info) return
     const { trim, image } = info
     // Pixels on screen for each pixel of the picture.
-    const factor = (defaultWidth(asset.category) * viewScale) / trim.width
+    const factor = (placedWidth(asset.category, viewScale) * viewScale) / trim.width
     const ghost = image.cloneNode() as HTMLImageElement
     Object.assign(ghost.style, {
       position: "fixed",

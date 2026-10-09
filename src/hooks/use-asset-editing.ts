@@ -9,7 +9,7 @@ import {
   removeAssets,
 } from "@/lib/map-asset-edit"
 import type { AssetPatch } from "@/lib/map-asset-edit"
-import { assetById, defaultWidth, loadAssetInfo } from "@/lib/map-assets"
+import { assetById, loadAssetInfo, placedWidth } from "@/lib/map-assets"
 import type { MapScene, PlacedAsset } from "@/lib/map-scene"
 
 // How far a duplicate lands from the original, in canvas pixels.
@@ -26,6 +26,8 @@ type Options = {
   change: (update: (scene: MapScene) => MapScene) => void
   // Where the middle of the view is on the canvas, for art placed by a click.
   centre: () => Point
+  // How far the view is zoomed now, so art is placed at a size that suits it.
+  viewScale: () => number
   // Where the pointer is on the canvas, or null when it is elsewhere.
   pointer: () => Point | null
   onPlaced: () => void
@@ -33,7 +35,7 @@ type Options = {
 
 // What can be done with the art on a map: placing it, choosing it, copying it,
 // and changing the choice. Every change is one step of undo, and so of autosave.
-export function useAssetEditing({ assets, change, centre, pointer, onPlaced }: Options) {
+export function useAssetEditing({ assets, change, centre, viewScale, pointer, onPlaced }: Options) {
   const [picked, setPicked] = useState<string[]>([])
   const [canPaste, setCanPaste] = useState(clipboard.length > 0)
   // Undo can take a selected piece away, so only what still exists counts.
@@ -65,15 +67,15 @@ export function useAssetEditing({ assets, change, centre, pointer, onPlaced }: O
   }, [])
 
   // Placed at a point, or at the middle of the view, at the category's usual
-  // size, and chosen at once so it can be adjusted. A stamp is left as it is, so
+  // size for the zoom it is placed at, and chosen at once so it can be adjusted. A stamp is left as it is, so
   // the next can follow: it is not chosen, and the tool does not change.
   const place = useCallback(
     async (assetId: string, at?: Point, stamp = false) => {
       const asset = assetById(assetId)
       const info = asset && (await loadAssetInfo(assetId))
       if (!asset || !info) return
-      // The usual width is the width of what is painted, not of the picture.
-      const scale = defaultWidth(asset.category) / info.trim.width
+      // The width is that of what is painted, not of the picture.
+      const scale = placedWidth(asset.category, viewScale()) / info.trim.width
       const spot = at ?? centre()
       const placed: PlacedAsset = {
         id: crypto.randomUUID(),
@@ -89,7 +91,7 @@ export function useAssetEditing({ assets, change, centre, pointer, onPlaced }: O
       setPicked([placed.id])
       onPlaced()
     },
-    [centre, edit, onPlaced]
+    [centre, viewScale, edit, onPlaced]
   )
 
   // Everything on the map, chosen and shown with the select tool.

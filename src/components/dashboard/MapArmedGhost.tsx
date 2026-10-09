@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import type { RefObject } from "react"
-import { assetById, defaultWidth, loadAssetInfo } from "@/lib/map-assets"
+import { assetById, loadAssetInfo, placedWidth } from "@/lib/map-assets"
 import type { AssetInfo } from "@/lib/map-assets"
 import type { BuilderView } from "@/lib/view-matrix"
 
@@ -34,7 +34,7 @@ export function MapArmedGhost({ asset, view, area }: Props) {
     const ghost = picture.current
     if (!element || !ghost || !info || !category) return
     const { trim, image } = info
-    const factor = (defaultWidth(category) * viewScale) / trim.width
+    const factor = (placedWidth(category, viewScale) * viewScale) / trim.width
     ghost.style.width = `${image.naturalWidth * factor}px`
     ghost.style.height = `${image.naturalHeight * factor}px`
     const middle = { x: (trim.x + trim.width / 2) * factor, y: (trim.y + trim.height / 2) * factor }
