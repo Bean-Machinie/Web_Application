@@ -127,28 +127,59 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
     plural: "Creatures",
     icon: PawPrint,
     namePlaceholder: "e.g. Mossback troll",
-    fields: [image(), description("What is it, where does it live, how does it behave?")],
+    fields: [
+      image(),
+      shortText("type", "Type", "e.g. Beast", { summary: true }),
+      shortText("threat", "Threat", "e.g. CR 3 or Tier II", { summary: true, canBePrivate: true }),
+      description("What is it, where does it live, how does it behave?"),
+      richText("stats", "Stats", "Hit points, attacks, abilities, in whatever your system uses."),
+      richText("weaknesses", "Weaknesses", "What hurts it, scares it or shuts it down?", {
+        privateByDefault: true,
+      }),
+    ],
   },
   location: {
     label: "Location",
     plural: "Locations",
     icon: MapPin,
     namePlaceholder: "e.g. The Gilded Stag",
-    fields: [image(), description("What does it look like, and what happens here?")],
+    fields: [
+      image(),
+      shortText("type", "Type", "e.g. Village", { summary: true }),
+      description("What does it look like, and what happens here?"),
+      richText("secrets", "Secrets", "What is hidden here? Only you see this until you reveal it.", {
+        privateByDefault: true,
+      }),
+    ],
   },
   item: {
     label: "Item",
     plural: "Items",
     icon: Package,
     namePlaceholder: "e.g. Sword of Dawn",
-    fields: [image(), description("What is it, what does it do, who has it?")],
+    fields: [
+      image(),
+      shortText("type", "Type", "e.g. Weapon", { summary: true }),
+      shortText("value", "Value", "e.g. 50 gp or 2 coin", { summary: true, canBePrivate: true }),
+      description("What is it, what does it do, who has it?"),
+      richText("hidden_properties", "Hidden properties", "Curses, secret powers or true origin.", {
+        privateByDefault: true,
+      }),
+    ],
   },
   lore: {
     label: "Lore",
     plural: "Lore",
     icon: BookOpen,
     namePlaceholder: "e.g. The Sundering",
-    fields: [image(), description("The history, legend or rule worth remembering.")],
+    fields: [
+      image(),
+      shortText("category", "Category", "e.g. History", { summary: true }),
+      description("The history, legend or rule worth remembering."),
+      richText("truth", "The truth", "What really happened? Only you see this until you reveal it.", {
+        privateByDefault: true,
+      }),
+    ],
   },
 }
 
