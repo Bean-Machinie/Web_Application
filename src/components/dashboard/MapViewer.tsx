@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react"
+import { useLocation } from "react-router-dom"
 import "leaflet/dist/leaflet.css"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useLeafletMap } from "@/hooks/use-leaflet-map"
@@ -8,6 +9,8 @@ import { useMapMarkerSelection } from "@/hooks/use-map-marker-selection"
 import { useMapMarkers } from "@/hooks/use-map-markers"
 import { useMapView } from "@/hooks/use-map-view"
 import { useReturnPulse } from "@/hooks/use-return-pulse"
+import { readBackTo } from "@/lib/back-link"
+import { trailThrough } from "@/lib/breadcrumbs"
 import { toLatLng } from "@/lib/map-geometry"
 import { pinPoint } from "@/lib/map-marker-card"
 import { rememberReturn } from "@/lib/map-view"
@@ -44,6 +47,8 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Prop
   const { selectedId, clear } = selection
   const { placing, setPlacing, pending, setPending, landed } = useMapPlacing(map, size, clear)
   const editing = canManage && selection.editing
+  // Entries opened from this map lead back through however this map was reached.
+  const from = readBackTo(useLocation().state)
   const [relinkId, setRelinkId] = useState<string | null>(null)
 
   const list = useMemo(() => markers ?? [], [markers])
@@ -108,7 +113,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage }: Prop
           point={point}
           mapWidth={map.getSize().x}
           canManage={canManage}
-          backTo={{ path: `/app/world/${mapId}`, label: mapName }}
+          backTo={{ path: `/app/world/${mapId}`, label: mapName, before: trailThrough(from) }}
           onOpen={() => rememberReturn(mapId, selected.id)}
           onClose={clear}
           onRemove={removeSelected}

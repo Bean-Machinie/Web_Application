@@ -42,7 +42,9 @@ function CrumbLink({ crumb }: { crumb: Crumb }) {
   return (
     <BreadcrumbItem className="min-w-0">
       <BreadcrumbLink asChild className="truncate">
-        <Link to={crumb.to!}>{crumb.label}</Link>
+        <Link to={crumb.to!} state={crumb.state}>
+          {crumb.label}
+        </Link>
       </BreadcrumbLink>
     </BreadcrumbItem>
   )
@@ -86,7 +88,9 @@ export function PageBreadcrumbs() {
                 <DropdownMenuContent align="start">
                   {folded.map((crumb) => (
                     <DropdownMenuItem key={crumb.label + crumb.to} asChild>
-                      <Link to={crumb.to!}>{crumb.label}</Link>
+                      <Link to={crumb.to!} state={crumb.state}>
+                        {crumb.label}
+                      </Link>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
