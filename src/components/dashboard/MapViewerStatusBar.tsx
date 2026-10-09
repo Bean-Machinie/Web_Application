@@ -12,9 +12,11 @@ import { useMapZoom } from "@/hooks/use-map-camera"
 import { fitBounds } from "@/lib/map-geometry"
 import type { MapSize } from "@/lib/map-geometry"
 import { glideToBounds, glideZoomBy, glideZoomTo } from "@/lib/map-glide"
+import { percentToZoom, zoomToPercent } from "@/lib/map-zoom-percent"
 import { MapStepButton } from "./MapStepButton"
 
-const PRESETS = [0.25, 0.5, 1, 2, 4]
+// Zooms to jump to, as the viewer names them: 100% is the whole map in view.
+const PRESETS = [150, 200, 300, 400]
 
 type Props = {
   map: L.Map | null
@@ -45,15 +47,18 @@ export function MapViewerStatusBar({ map, size, children }: Props) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="xs" aria-label="Zoom" className="pointer-coarse:h-11 w-14 tabular-nums">
-                  {Math.round(2 ** zoom * 100)}%
+                  {zoomToPercent(zoom, { min: map.getMinZoom(), max: map.getMaxZoom() })}%
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" side="top" className="w-36">
-                <DropdownMenuItem onSelect={() => glideToBounds(map, fitBounds(size))}>Fit</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => glideToBounds(map, fitBounds(size))}>Fit (100%)</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                {PRESETS.map((scale) => (
-                  <DropdownMenuItem key={scale} onSelect={() => glideZoomTo(map, Math.log2(scale))}>
-                    {scale * 100}%
+                {PRESETS.map((percent) => (
+                  <DropdownMenuItem
+                    key={percent}
+                    onSelect={() => glideZoomTo(map, percentToZoom(percent, { min: map.getMinZoom(), max: map.getMaxZoom() }))}
+                  >
+                    {percent}%
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>

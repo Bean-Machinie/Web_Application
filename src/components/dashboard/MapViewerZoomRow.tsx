@@ -1,21 +1,22 @@
 import { useState } from "react"
 import type * as L from "leaflet"
-import { Minus, Percent, Plus } from "lucide-react"
+import { Maximize, Minus, Plus } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { useMapZoom } from "@/hooks/use-map-camera"
-import { glideZoomBy, glideZoomTo } from "@/lib/map-glide"
+import { fitBounds } from "@/lib/map-geometry"
+import type { MapSize } from "@/lib/map-geometry"
+import { glideToBounds, glideZoomBy, glideZoomTo } from "@/lib/map-glide"
+import { percentToZoom, zoomToPercent } from "@/lib/map-zoom-percent"
 import { MapNumberField } from "./MapNumberField"
 import { MapStepButton } from "./MapStepButton"
 
-// One zoom level is a doubling, so the slider is already even in ratios, and 0 is
-// the image's own pixels: 100%.
 // A finger's size, on a touch screen.
 const TOUCH = "pointer-coarse:size-11"
-const percentOf = (zoom: number) => Math.round(2 ** zoom * 100)
 
 // The zoom row of the builder's navigator, for the viewer: a slider, a number to type
-// over, and the steps and the jump to 100%, on the same columns.
-export function MapViewerZoomRow({ map }: { map: L.Map }) {
+// over, and the steps and the fit (100%), on the same columns. The slider is a zoom
+// level, which is already even in ratios; the number is the viewer's 100% to 400%.
+export function MapViewerZoomRow({ map, size }: { map: L.Map; size: MapSize }) {
   const zoom = useMapZoom(map)
   // While the slider is held it shows where it is, not the map, which eases after it.
   const [held, setHeld] = useState<number | null>(null)
@@ -43,9 +44,9 @@ export function MapViewerZoomRow({ map }: { map: L.Map }) {
         className="pointer-coarse:h-11 pointer-coarse:text-base"
         label="Zoom percentage"
         unit="%"
-        value={percentOf(zoom)}
+        value={zoomToPercent(zoom, { min, max })}
         accepts={(value) => Number.isFinite(value) && value > 0}
-        onCommit={(value) => glideZoomTo(map, Math.log2(value / 100))}
+        onCommit={(value) => glideZoomTo(map, percentToZoom(value, { min, max }))}
       />
       <MapStepButton label="Zoom out" className={TOUCH} onClick={() => glideZoomBy(map, -1)}>
         <Minus />
@@ -53,8 +54,8 @@ export function MapViewerZoomRow({ map }: { map: L.Map }) {
       <MapStepButton label="Zoom in" className={TOUCH} onClick={() => glideZoomBy(map, 1)}>
         <Plus />
       </MapStepButton>
-      <MapStepButton label="Zoom to 100%" className={TOUCH} onClick={() => glideZoomTo(map, 0)}>
-        <Percent />
+      <MapStepButton label="Fit map to view (100%)" className={TOUCH} onClick={() => glideToBounds(map, fitBounds(size))}>
+        <Maximize />
       </MapStepButton>
     </div>
   )
