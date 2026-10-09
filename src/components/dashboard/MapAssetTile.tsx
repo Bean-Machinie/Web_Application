@@ -5,6 +5,9 @@ import { loadAssetInfo, loadedAssetInfo, placedWidth } from "@/lib/map-assets"
 import type { MapAsset } from "@/lib/map-assets"
 import { cn } from "@/lib/utils"
 
+// The longest side of the picture dragged, in screen pixels, past which it is drawn smaller.
+const MAX_DRAG_SIDE = 800
+
 type Props = {
   asset: MapAsset
   // Picked to be stamped on the map.
@@ -19,7 +22,8 @@ type Props = {
 // picture is a thumbnail made when the tile first comes into view; the full-size
 // art is only loaded when the pointer reaches the tile. What follows the pointer
 // when dragging is the art itself, at the size it will have where it lands at
-// the current zoom, held by the middle of what is painted.
+// the current zoom, held by the middle of what is painted (the tile's picture, for a
+// drag so quick that the art has not been measured yet).
 export function MapAssetTile({ asset, armed, viewScale, onArm }: Props) {
   const tile = useRef<HTMLButtonElement>(null)
   const [seen, setSeen] = useState(false)
@@ -55,29 +59,33 @@ export function MapAssetTile({ asset, armed, viewScale, onArm }: Props) {
   function startDrag(event: React.DragEvent<HTMLButtonElement>) {
     event.dataTransfer.setData("application/x-map-asset", asset.id)
     event.dataTransfer.effectAllowed = "copy"
-    // Measured on arrival of the pointer, so it is nearly always there by now;
-    // without it the drag shows the tile.
     const info = loadedAssetInfo(asset.id)
-    if (!info) return
+    if (!info) {
+      // Not measured yet (a very quick drag): the tile's own picture is what is
+      // dragged, rather than the browser's stand-in icon, and the art is got ready.
+      void loadAssetInfo(asset.id)
+      const picture = tile.current?.querySelector("img")
+      if (picture) event.dataTransfer.setDragImage(picture, picture.width / 2, picture.height / 2)
+      return
+    }
+    // What is painted, drawn on a canvas at the size it will have where it lands at the
+    // current zoom, held by its middle. A canvas is drawn at once, so it is there when the
+    // browser takes the picture; a copy of the image is not always ready by then, and the
+    // browser then drags its own icon. Very large ones are drawn smaller.
     const { trim, image } = info
-    // Pixels on screen for each pixel of the picture.
-    const factor = (placedWidth(asset.id, trim) * viewScale) / trim.width
-    const ghost = image.cloneNode() as HTMLImageElement
-    Object.assign(ghost.style, {
-      position: "fixed",
-      top: "-10000px",
-      left: "0",
-      width: `${image.naturalWidth * factor}px`,
-      height: `${image.naturalHeight * factor}px`,
-      maxWidth: "none",
-      pointerEvents: "none",
-    })
+    const across = placedWidth(asset.id, trim) * viewScale
+    const longest = Math.max(across, (across * trim.height) / trim.width)
+    const factor = (across / trim.width) * Math.min(1, MAX_DRAG_SIDE / longest)
+    const width = Math.max(1, Math.round(trim.width * factor))
+    const height = Math.max(1, Math.round(trim.height * factor))
+    const ratio = window.devicePixelRatio || 1
+    const ghost = document.createElement("canvas")
+    ghost.width = Math.round(width * ratio)
+    ghost.height = Math.round(height * ratio)
+    Object.assign(ghost.style, { position: "fixed", top: "-10000px", left: "0", width: `${width}px`, height: `${height}px`, pointerEvents: "none" })
+    ghost.getContext("2d")?.drawImage(image, trim.x, trim.y, trim.width, trim.height, 0, 0, ghost.width, ghost.height)
     document.body.appendChild(ghost)
-    event.dataTransfer.setDragImage(
-      ghost,
-      (trim.x + trim.width / 2) * factor,
-      (trim.y + trim.height / 2) * factor
-    )
+    event.dataTransfer.setDragImage(ghost, width / 2, height / 2)
     setTimeout(() => ghost.remove(), 0)
   }
 
@@ -91,6 +99,7 @@ export function MapAssetTile({ asset, armed, viewScale, onArm }: Props) {
           aria-label={asset.name}
           aria-pressed={armed}
           onPointerEnter={() => void loadAssetInfo(asset.id)}
+          onPointerDown={() => void loadAssetInfo(asset.id)}
           onFocus={() => void loadAssetInfo(asset.id)}
           onClick={() => onArm(asset.id)}
           onDragStart={startDrag}
