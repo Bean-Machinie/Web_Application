@@ -252,9 +252,10 @@
 .leaflet-tooltip.map-label::before {
   display: none;
 }
-/* While choosing where a marker goes, MapPlacingCursor draws the cursor. This
-   is plain CSS, and !important, because Leaflet's own stylesheet is not in a
-   layer and so beats Tailwind's utilities, and sets a grab hand while panning. */
+/* Close in, names sit under the pins, so the hover label is not needed. */
+.map-zoom-near .leaflet-tooltip.map-label {
+  opacity: 0 !important;
+}
 .map-placing .leaflet-container,
 .map-placing .leaflet-container .leaflet-interactive,
 .map-placing .leaflet-marker-icon {

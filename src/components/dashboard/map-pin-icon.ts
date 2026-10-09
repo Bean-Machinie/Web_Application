@@ -1,5 +1,6 @@
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
+import { Layers } from "lucide-react"
 import * as L from "leaflet"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { MapMarker } from "@/lib/world-map-markers"
@@ -15,8 +16,10 @@ const CLASS = "group/pin map-pin"
 // Above the lifted pin, where the name label opens.
 const LABEL: L.PointExpression = [0, -52]
 
-export const pinIcon = (marker: MapMarker, pop: boolean, editing: boolean) =>
-  L.divIcon({
+export const pinIcon = (marker: MapMarker, pop: boolean, editing: boolean) => {
+  const kind = WORLD_KINDS[marker.kind]
+  const isMap = marker.kind === "map"
+  return L.divIcon({
     className: editing ? `${CLASS} map-pin-edit` : CLASS,
     iconSize: SIZE,
     iconAnchor: ANCHOR,
@@ -24,14 +27,18 @@ export const pinIcon = (marker: MapMarker, pop: boolean, editing: boolean) =>
     html: renderToStaticMarkup(
       createElement(MapPin, {
         imageUrl: marker.imageUrl,
-        Icon: WORLD_KINDS[marker.kind].icon,
-        tint: WORLD_KINDS[marker.kind].tint,
+        // A stack of layers marks a marker that opens another map.
+        Icon: isMap ? Layers : kind.icon,
+        tint: kind.tint,
+        name: marker.name,
+        isMap,
         revealed: marker.revealed,
         pop,
         editing,
       })
     ),
   })
+}
 
 export const pendingIcon = () =>
   L.divIcon({

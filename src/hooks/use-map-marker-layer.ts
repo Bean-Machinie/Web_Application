@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react"
 import * as L from "leaflet"
 import { pendingIcon, pinIcon } from "@/components/dashboard/map-pin-icon"
+import { useMapZoomLevel } from "@/hooks/use-map-zoom-level"
+import { label, plant, setLifted } from "@/lib/map-pin-effects"
 import { toLatLng, toPercent } from "@/lib/map-geometry"
 import type { MapSize, Percent } from "@/lib/map-geometry"
 import type { MapMarker } from "@/lib/world-map-markers"
@@ -24,30 +26,6 @@ type Options = {
   onMove: (id: string, x: number, y: number) => void
 }
 
-// Leaflet would put the name into the page as markup, so it goes in as text.
-function label(name: string) {
-  const element = document.createElement("span")
-  element.textContent = name
-  return element
-}
-
-// Squashes the pin into the map and sends a ripple out; see MapPin and index.css.
-function plant(icon: HTMLElement | undefined) {
-  if (!icon) return
-  icon.classList.add("pin-planted")
-  setTimeout(() => icon.classList.remove("pin-planted"), 600)
-}
-
-// A pin with its card open stays lifted, and drops back when it closes. This is
-// a class rather than a new icon, so the drop can animate.
-function setLifted(layer: L.Marker, lifted: boolean) {
-  const icon = layer.getElement()
-  if (!icon) return
-  const was = icon.classList.contains("pin-selected")
-  icon.classList.toggle("pin-selected", lifted)
-  if (was && !lifted) plant(icon)
-}
-
 // Keeps Leaflet's markers in step with the list: added, moved, restyled and
 // removed as it changes. While editing they can be dragged; otherwise they
 // show their name on hover. The map and its image are never touched here.
@@ -64,6 +42,8 @@ export function useMapMarkerLayer(options: Options) {
   useEffect(() => {
     latest.current = options
   })
+
+  useMapZoomLevel(map, editing)
 
   // A new map starts with no markers; the old map took its own down.
   useEffect(() => {
@@ -96,7 +76,7 @@ export function useMapMarkerLayer(options: Options) {
       const position = toLatLng(marker, size)
       let layer = live.get(marker.id)
       const selected = marker.id === selectedId
-      const look = [marker.imageUrl, marker.kind, marker.revealed, editing].join("|")
+      const look = [marker.imageUrl, marker.kind, marker.name, marker.revealed, editing].join("|")
       looks.current.set(marker.id, look)
       if (layer) {
         layer.setLatLng(position)
