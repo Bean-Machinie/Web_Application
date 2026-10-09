@@ -61,7 +61,6 @@ export function MapAssetPanel({ armed, onArm, tileSize, viewScale, disabled }: P
             ))}
           </SelectContent>
         </Select>
-        {armed && <p className="text-muted-foreground text-xs">Click the map to stamp · Esc to stop</p>}
       </div>
       <div className="px-3 pb-3">
         {shown.length === 0 ? (

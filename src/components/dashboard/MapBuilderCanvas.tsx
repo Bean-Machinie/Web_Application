@@ -11,6 +11,7 @@ import type { BuilderTool } from "@/lib/map-builder-tools"
 import type { MapScene } from "@/lib/map-scene"
 import type { Terrain } from "@/lib/terrain"
 import { MapArmedGhost } from "./MapArmedGhost"
+import { MapStampHint } from "./MapStampHint"
 import { MapBuilderStage } from "./MapBuilderStage"
 import { MapContextMenu } from "./MapContextMenu"
 import type { ContextSpot } from "./MapContextMenu"
@@ -134,6 +135,7 @@ export function MapBuilderCanvas(props: Props) {
       {props.armed && (
         <MapArmedGhost asset={props.armed} view={viewport.view} area={viewport.container} />
       )}
+      <MapStampHint show={props.armed !== null} inset={viewport.inset} />
       <MapContextMenu spot={spot} editing={editing} onClose={() => setSpot(null)} />
     </div>
   )
