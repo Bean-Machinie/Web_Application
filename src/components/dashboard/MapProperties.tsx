@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import { loadedAssetInfo } from "@/lib/map-assets"
 import type { PlacedAsset } from "@/lib/map-scene"
+import { MapAssetSizeDefault } from "./MapAssetSizeDefault"
 import { MapSelectionActions } from "./MapSelectionActions"
 import { PropertyField } from "./PropertyField"
 
@@ -88,6 +89,7 @@ export function MapProperties({ assets, editing }: Props) {
             value={wrap(asset.rotation)}
             onCommit={(degrees) => editing.commit([{ id: asset.id, rotation: wrap(degrees) }])}
           />
+          {import.meta.env.DEV && <MapAssetSizeDefault asset={asset} trim={natural} />}
         </>
       )}
     </section>

@@ -10,7 +10,6 @@ type Options = {
   assets: MapScene["assets"]
   change: (update: (scene: MapScene) => MapScene) => void
   centre: () => { x: number; y: number }
-  viewScale: () => number
   pointer: () => { x: number; y: number } | null
   // Everything is off while publishing.
   locked: boolean
@@ -19,7 +18,7 @@ type Options = {
 // The tool in use and everything that goes with it: the land mode, the brush,
 // the selection of art, and the art picked up to be stamped. Picking a tool puts
 // down stamping, and the selection only means something with the select tool.
-export function useBuilderTools({ assets, change, centre, viewScale, pointer, locked }: Options) {
+export function useBuilderTools({ assets, change, centre, pointer, locked }: Options) {
   const [tool, setTool] = useState<BuilderTool>("land")
   const [mode, setMode] = useState<LandMode>("add")
   const [hideAssets, setHideAssets] = useState(false)
@@ -31,7 +30,6 @@ export function useBuilderTools({ assets, change, centre, viewScale, pointer, lo
     assets,
     change,
     centre,
-    viewScale,
     pointer,
     // Placed, pasted or selected art is shown with the select tool.
     onPlaced: useCallback(() => {

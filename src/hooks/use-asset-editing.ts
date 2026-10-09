@@ -26,8 +26,6 @@ type Options = {
   change: (update: (scene: MapScene) => MapScene) => void
   // Where the middle of the view is on the canvas, for art placed by a click.
   centre: () => Point
-  // How far the view is zoomed now, so art is placed at a size that suits it.
-  viewScale: () => number
   // Where the pointer is on the canvas, or null when it is elsewhere.
   pointer: () => Point | null
   onPlaced: () => void
@@ -35,7 +33,7 @@ type Options = {
 
 // What can be done with the art on a map: placing it, choosing it, copying it,
 // and changing the choice. Every change is one step of undo, and so of autosave.
-export function useAssetEditing({ assets, change, centre, viewScale, pointer, onPlaced }: Options) {
+export function useAssetEditing({ assets, change, centre, pointer, onPlaced }: Options) {
   const [picked, setPicked] = useState<string[]>([])
   const [canPaste, setCanPaste] = useState(clipboard.length > 0)
   // Undo can take a selected piece away, so only what still exists counts.
@@ -67,7 +65,7 @@ export function useAssetEditing({ assets, change, centre, viewScale, pointer, on
   }, [])
 
   // Placed at a point, or at the middle of the view, at the category's usual
-  // size for the zoom it is placed at, and chosen at once so it can be adjusted. A stamp is left as it is, so
+  // size, and chosen at once so it can be adjusted. A stamp is left as it is, so
   // the next can follow: it is not chosen, and the tool does not change.
   const place = useCallback(
     async (assetId: string, at?: Point, stamp = false) => {
@@ -75,7 +73,7 @@ export function useAssetEditing({ assets, change, centre, viewScale, pointer, on
       const info = asset && (await loadAssetInfo(assetId))
       if (!asset || !info) return
       // The width is that of what is painted, not of the picture.
-      const scale = placedWidth(asset.category, viewScale()) / info.trim.width
+      const scale = placedWidth(assetId, info.trim) / info.trim.width
       const spot = at ?? centre()
       const placed: PlacedAsset = {
         id: crypto.randomUUID(),
@@ -91,7 +89,7 @@ export function useAssetEditing({ assets, change, centre, viewScale, pointer, on
       setPicked([placed.id])
       onPlaced()
     },
-    [centre, viewScale, edit, onPlaced]
+    [centre, edit, onPlaced]
   )
 
   // Everything on the map, chosen and shown with the select tool.

@@ -1,4 +1,5 @@
 import type { Biome } from "./biomes/biomes"
+import { ownSizeOf } from "./map-asset-sizes"
 import { shapeOf } from "./map-asset-shape"
 import type { AssetShape } from "./map-asset-shape"
 
@@ -52,7 +53,8 @@ export const categoryLabel = (category: string) => words(category)
 // counting the same, so "desert trees" and "desert-trees" are one category.
 export const categoryKey = (category: string) => category.toLowerCase().replace(/\s+/g, "-")
 
-// How wide an asset is when first placed, in canvas pixels, by category. The
+// How wide an asset of a category is drawn before its picture has loaded, as a faint
+// blot in the navigator, in canvas pixels. (Placing uses placedWidth, below.) The
 // canvas is a few thousand pixels wide. Categories not listed get the fallback.
 const DEFAULT_WIDTH: Record<string, number> = {
   mountains: 220,
@@ -141,12 +143,60 @@ const NO_SHADOW = new Set(["nature"])
 export const castsShadow = (category: string) => !NO_SHADOW.has(categoryKey(category))
 export const defaultWidth = (category: string) => DEFAULT_WIDTH[categoryKey(category)] ?? FALLBACK_WIDTH
 
-// The zoom the usual widths are for: at it, art is placed at its usual width, and at
-// any other zoom it is placed so that it looks the same size on the screen. Zoomed in
-// it goes down smaller on the map, to fit among what is close; zoomed out, larger.
-const PLACING_ZOOM = 0.4
-export const placedWidth = (category: string, viewScale: number) =>
-  (defaultWidth(category) * PLACING_ZOOM) / viewScale
+// How big a piece of art is when placed. Whatever its picture, the square root of the
+// area its painted part covers, in canvas pixels, is the same for all of a size, so a
+// tall tower and a wide ridge look alike in size; and the size is set by what the art is:
+// mountains are larger than towns, and towns larger than trees. The longest side is held
+// to a bit under twice the size, so a very long piece does not run away.
+const PLACED_SIZE = 150
+const LONGEST_SIDE = 270
+
+// How large a category is next to the largest, which is 1. Looked up by folder name
+// (see categoryKey); both spellings of a few are here, as the folders may be renamed.
+// A category that is not listed gets the one below.
+const CATEGORY_SIZE: Record<string, number> = {
+  mountains: 1,
+  volcanos: 1,
+  volcanoes: 1,
+  cities: 0.8,
+  hills: 0.7,
+  towns: 0.55,
+  camp: 0.5,
+  camps: 0.5,
+  villages: 0.4,
+  buildings: 0.4,
+  landmarks: 0.4,
+  trees: 0.25,
+  "oak-trees": 0.25,
+  "pine-trees": 0.25,
+  "desert-trees": 0.25,
+  nature: 0.18,
+}
+const UNLISTED_SIZE = 0.5
+// A piece of art can have a size of its own, by its id (its path under map-assets, as in
+// "towns/castle.png"), in sizes.json: see map-asset-sizes. It replaces its category's.
+
+// The size a piece of art gets from its category, or the one for categories not listed.
+export const categorySizeOf = (assetId: string) =>
+  CATEGORY_SIZE[categoryKey(assetById(assetId)?.category ?? "")] ?? UNLISTED_SIZE
+
+// The size, relative to the largest, of a piece as it is now: how much the area of its
+// painted part is of the area that size has. A piece stretched out of shape gives a fair
+// size, as it would if it were put back in shape with the same area.
+export const sizeOfPlaced = (trim: { width: number; height: number }, scaleX: number, scaleY: number) =>
+  Math.sqrt(trim.width * Math.abs(scaleX) * trim.height * Math.abs(scaleY)) / PLACED_SIZE
+
+// The width, on the canvas, to place a piece of art whose painted part is this many
+// pixels across and down, whatever the zoom: art is the same size on the map wherever it
+// is placed. A size given to the piece itself is used as it is; the category's is held
+// to the longest side.
+export function placedWidth(assetId: string, trim: { width: number; height: number }) {
+  const own = ownSizeOf(assetId)
+  const size = own ?? categorySizeOf(assetId)
+  const even = PLACED_SIZE * size * Math.sqrt(trim.width / trim.height)
+  const longest = Math.max(trim.width, trim.height)
+  return own === undefined ? Math.min(even, (LONGEST_SIDE * size * trim.width) / longest) : even
+}
 
 // A loaded picture, and what was worked out about it once (see map-asset-shape).
 // "mask" is the picture saying what may change colour, where there is one.

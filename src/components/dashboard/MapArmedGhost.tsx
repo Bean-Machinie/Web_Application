@@ -34,7 +34,7 @@ export function MapArmedGhost({ asset, view, area }: Props) {
     const ghost = picture.current
     if (!element || !ghost || !info || !category) return
     const { trim, image } = info
-    const factor = (placedWidth(category, viewScale) * viewScale) / trim.width
+    const factor = (placedWidth(asset, trim) * viewScale) / trim.width
     ghost.style.width = `${image.naturalWidth * factor}px`
     ghost.style.height = `${image.naturalHeight * factor}px`
     const middle = { x: (trim.x + trim.width / 2) * factor, y: (trim.y + trim.height / 2) * factor }

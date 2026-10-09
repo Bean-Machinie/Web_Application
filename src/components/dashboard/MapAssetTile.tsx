@@ -61,7 +61,7 @@ export function MapAssetTile({ asset, armed, viewScale, onArm }: Props) {
     if (!info) return
     const { trim, image } = info
     // Pixels on screen for each pixel of the picture.
-    const factor = (placedWidth(asset.category, viewScale) * viewScale) / trim.width
+    const factor = (placedWidth(asset.id, trim) * viewScale) / trim.width
     const ghost = image.cloneNode() as HTMLImageElement
     Object.assign(ghost.style, {
       position: "fixed",
