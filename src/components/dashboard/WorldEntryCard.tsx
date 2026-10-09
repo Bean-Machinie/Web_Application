@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom"
-import { Eye, EyeOff } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { HiddenBadge } from "./HiddenBadge"
 import { MemberMenu } from "./MemberMenu"
+import { RevealButton } from "./RevealButton"
 import { StatusMarker } from "./StatusMarker"
 import type { WorldManage } from "./world-manage"
 
@@ -15,11 +15,6 @@ export function WorldEntryCard({ entry, manage }: Props) {
 
   const actions = manage && [
     { label: "Rename", onSelect: () => manage.onRename(entry) },
-    {
-      label: entry.revealed ? "Hide" : "Reveal",
-      icon: entry.revealed ? EyeOff : Eye,
-      onSelect: () => manage.onReveal(entry, !entry.revealed),
-    },
     {
       label: "Delete",
       destructive: true,
@@ -60,7 +55,14 @@ export function WorldEntryCard({ entry, manage }: Props) {
         </div>
       </div>
       {actions && (
-        <div className="bg-background/85 absolute top-2 right-2 z-10 rounded-md backdrop-blur-sm transition-opacity has-[[data-state=open]]:opacity-100 focus-within:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100">
+        // Focus only keeps it open for the keyboard; a mouse click leaves
+        // focus on the button, which would pin it open after the cursor leaves.
+        <div className="bg-background/85 absolute top-2 right-2 z-10 flex rounded-md backdrop-blur-sm transition-opacity has-[:focus-visible]:opacity-100 has-[[data-state=open]]:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100">
+          <RevealButton
+            revealed={entry.revealed}
+            name={entry.name}
+            onChange={(revealed) => manage.onReveal(entry, revealed)}
+          />
           <MemberMenu name={entry.name} actions={actions} />
         </div>
       )}
