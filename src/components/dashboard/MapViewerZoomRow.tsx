@@ -2,7 +2,7 @@ import { useState } from "react"
 import type * as L from "leaflet"
 import { Minus, Percent, Plus } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
-import { useMapCamera } from "@/hooks/use-map-camera"
+import { useMapZoom } from "@/hooks/use-map-camera"
 import { glideZoomBy, glideZoomTo } from "@/lib/map-glide"
 import { MapNumberField } from "./MapNumberField"
 import { MapStepButton } from "./MapStepButton"
@@ -16,10 +16,10 @@ const percentOf = (zoom: number) => Math.round(2 ** zoom * 100)
 // The zoom row of the builder's navigator, for the viewer: a slider, a number to type
 // over, and the steps and the jump to 100%, on the same columns.
 export function MapViewerZoomRow({ map }: { map: L.Map }) {
-  const camera = useMapCamera(map)
+  const zoom = useMapZoom(map)
   // While the slider is held it shows where it is, not the map, which eases after it.
   const [held, setHeld] = useState<number | null>(null)
-  if (!camera) return null
+  if (zoom === null) return null
   const min = map.getMinZoom()
   const max = map.getMaxZoom()
 
@@ -30,7 +30,7 @@ export function MapViewerZoomRow({ map }: { map: L.Map }) {
         min={min}
         max={max}
         step={0.01}
-        value={[held ?? Math.min(Math.max(camera.zoom, min), max)]}
+        value={[held ?? Math.min(Math.max(zoom, min), max)]}
         onValueChange={([zoom]) => {
           setHeld(zoom)
           glideZoomTo(map, zoom)
@@ -43,7 +43,7 @@ export function MapViewerZoomRow({ map }: { map: L.Map }) {
         className="pointer-coarse:h-11 pointer-coarse:text-base"
         label="Zoom percentage"
         unit="%"
-        value={percentOf(camera.zoom)}
+        value={percentOf(zoom)}
         accepts={(value) => Number.isFinite(value) && value > 0}
         onCommit={(value) => glideZoomTo(map, Math.log2(value / 100))}
       />

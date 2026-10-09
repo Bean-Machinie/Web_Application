@@ -270,6 +270,17 @@
     0 2px 4px rgb(0 0 0 / 0.06),
     0 16px 48px -12px rgb(0 0 0 / 0.3);
 }
+/* A soft shadow that large costs a phone's graphics a lot while the sheet moves and
+   scales, so a touch screen keeps only the fine outline. */
+@media (pointer: coarse) {
+  .leaflet-image-layer.map-sheet {
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--foreground) 14%, transparent);
+  }
+  /* The dots are not drawn while the map moves (see use-map-grid). */
+  .map-moving .map-grid {
+    visibility: hidden;
+  }
+}
 .map-grid {
   pointer-events: none;
   position: absolute;

@@ -8,9 +8,11 @@ const UNIT = 1.5
 // invisible at the small one and fully there at the large one.
 const MIN_PITCH = 12
 const MAX_PITCH = 24
-// The grid is this many screens wide on each side of the view, so it still
-// covers the map while a zoom animation scales it.
-const REACH = 2
+// The grid is this many screens wide on each side of the view, so it still covers
+// the map while it is dragged. It is repainted whenever the zoom moves, so on a
+// touch screen, where that costs the most, it is made smaller.
+const REACH_DESKTOP = 2
+const REACH_TOUCH = 1
 
 // A fine dot grid under the map, living in the map's own panes so it pans and
 // zooms with it. As the map zooms, dots between the main ones fade in or out,
@@ -24,6 +26,7 @@ export function useMapGrid(map: L.Map | null) {
     L.DomUtil.create("div", "map-grid-main", grid)
     L.DomUtil.create("div", "map-grid-extra", grid)
 
+    const REACH = window.matchMedia("(pointer: coarse)").matches ? REACH_TOUCH : REACH_DESKTOP
     const update = () => {
       const view = map.getSize()
       const { center, zoom } = viewOf(map)
@@ -51,10 +54,35 @@ export function useMapGrid(map: L.Map | null) {
       )
     }
 
+    // On a touch screen repainting the dots on every frame is more than the graphics
+    // can keep up with, so they are put away while the map moves (see "map-moving" in
+    // index.css) and drawn once, where it stops.
+    const touch = window.matchMedia("(pointer: coarse)").matches
+    const element = map.getContainer()
+    let moving = false
+    const start = () => {
+      if (!touch) return
+      moving = true
+      element.classList.add("map-moving")
+    }
+    const frame = () => {
+      if (!moving) update()
+    }
+    const end = () => {
+      moving = false
+      element.classList.remove("map-moving")
+      update()
+    }
+
     update()
-    map.on("glide zoom moveend zoomend viewreset resize", update)
+    map.on("movestart zoomstart", start)
+    map.on("glide zoom viewreset resize", frame)
+    map.on("moveend zoomend", end)
     return () => {
-      map.off("glide zoom moveend zoomend viewreset resize", update)
+      map.off("movestart zoomstart", start)
+      map.off("glide zoom viewreset resize", frame)
+      map.off("moveend zoomend", end)
+      element.classList.remove("map-moving")
       pane.remove()
     }
   }, [map])
