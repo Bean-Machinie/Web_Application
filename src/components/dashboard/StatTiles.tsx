@@ -1,8 +1,9 @@
-import { Footprints, Heart, Shield } from "lucide-react"
+import { Footprints, Shield } from "lucide-react"
 import { STAT_BLOCK_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { isStatBlockEmpty, readStatBlock, toStoredStatBlock } from "@/lib/stat-block"
 import type { StatBlock } from "@/lib/stat-block"
+import { HealthTile } from "./HealthTile"
 import { PrivateToggle } from "./PrivateToggle"
 import { StatTile } from "./StatTile"
 import type { WorldFieldsState } from "./WorldFields"
@@ -32,11 +33,10 @@ export function StatTiles({ kind, canManage, state, hidden }: Props) {
   if (!canManage && (isPrivate || isStatBlockEmpty(stored?.value))) return null
 
   const block = readStatBlock(stored?.value)
+  const save = (change: Partial<StatBlock>) =>
+    setValue(def.key, def.type, toStoredStatBlock({ ...block, ...change }))
   const edit = (apply: (text: string) => Partial<StatBlock>) =>
-    canManage
-      ? (text: string) =>
-          setValue(def.key, def.type, toStoredStatBlock({ ...block, ...apply(text) }))
-      : null
+    canManage ? (text: string) => save(apply(text)) : null
 
   return (
     <div
@@ -52,14 +52,8 @@ export function StatTiles({ kind, canManage, state, hidden }: Props) {
           />
         )}
       </div>
-      <div className="grid flex-1 grid-cols-3 divide-x">
-        <StatTile
-          icon={Heart}
-          label="Health"
-          numeric
-          value={block.health?.toString() ?? ""}
-          onChange={edit((text) => ({ health: toNumber(text) }))}
-        />
+      <div className="grid flex-1 grid-cols-3 divide-x overflow-hidden rounded-b-lg">
+        <HealthTile block={block} onChange={canManage ? save : null} />
         <StatTile
           icon={Shield}
           label="Defense"
