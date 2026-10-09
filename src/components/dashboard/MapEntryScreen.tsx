@@ -42,7 +42,9 @@ export function MapEntryScreen(props: EntryProps) {
   const hasImage = Boolean(image?.width && image.height)
 
   return (
-    <div className="bg-muted relative isolate -m-4 min-h-96 flex-1 overflow-hidden md:-m-6">
+    // On a phone it is as tall as the visible screen (dvh follows Safari's address bar;
+    // 3rem is the header) and nothing scrolls behind it.
+    <div className="bg-muted relative isolate -m-4 min-h-96 flex-1 overflow-hidden overscroll-none max-md:h-[calc(100dvh-3rem)] max-md:flex-none md:-m-6">
       {!state.fields ? (
         <Skeleton className="size-full rounded-none" />
       ) : image?.width && image.height ? (
@@ -80,6 +82,7 @@ export function MapEntryScreen(props: EntryProps) {
       <WorldEntryDetails
         open={props.detailsOpen}
         onOpenChange={props.onDetailsOpenChange}
+        bottomOnPhone
         name={name}
         revealed={revealed}
         canManage={canManage}

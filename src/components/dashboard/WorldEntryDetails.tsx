@@ -1,7 +1,10 @@
 import type { ReactNode } from "react"
+import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { usePhoneScreen } from "@/hooks/use-phone-screen"
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -17,6 +20,8 @@ type Props = {
   canManage: boolean
   onRevealedChange: (revealed: boolean) => void
   onDelete: () => void
+  // On a phone, rise from the bottom (as a map's does) instead of from the right.
+  bottomOnPhone?: boolean
   // Shown beside the title, such as whether the entry has been saved.
   status?: ReactNode
   // What this kind of entry adds above the visibility, such as a map's
@@ -34,15 +39,30 @@ const SECTION = "flex flex-col gap-3 border-b px-5 py-4"
 // the sections.
 export function WorldEntryDetails(props: Props) {
   const { open, onOpenChange, name, revealed, canManage, onRevealedChange, onDelete } = props
+  const phone = usePhoneScreen() && Boolean(props.bottomOnPhone)
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full gap-0 p-0 sm:max-w-md">
-        <SheetHeader className="flex h-12 flex-row items-center justify-between border-b py-0 pr-14 pl-5">
+      {/* A modal sheet from the bottom on a phone, from the right elsewhere. */}
+      <SheetContent
+        side={phone ? "bottom" : "right"}
+        showCloseButton={!phone}
+        className={phone ? "max-h-[85dvh] w-full gap-0 rounded-t-xl p-0" : "w-full gap-0 p-0 sm:max-w-md"}
+      >
+        <SheetHeader className={`flex h-12 flex-row items-center justify-between border-b py-0 pl-5 ${phone ? "pr-1" : "pr-14"}`}>
           <SheetTitle className="text-sm font-semibold">Details</SheetTitle>
           {/* Read out by screen readers; the panel itself shows the title only. */}
           <SheetDescription className="sr-only">Details of {name}</SheetDescription>
-          {props.status}
+          <div className="flex items-center gap-1">
+            {props.status}
+            {phone && (
+              <SheetClose asChild>
+                <Button variant="ghost" aria-label="Close" className="size-11">
+                  <X />
+                </Button>
+              </SheetClose>
+            )}
+          </div>
         </SheetHeader>
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]">
           {props.children}

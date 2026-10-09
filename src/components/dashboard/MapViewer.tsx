@@ -9,6 +9,7 @@ import { useMapPlacing } from "@/hooks/use-map-placing"
 import { useMapMarkerSelection } from "@/hooks/use-map-marker-selection"
 import { useMapMarkers } from "@/hooks/use-map-markers"
 import { useMapView } from "@/hooks/use-map-view"
+import { usePhoneScreen } from "@/hooks/use-phone-screen"
 import { useReturnPulse } from "@/hooks/use-return-pulse"
 import { readBackTo } from "@/lib/back-link"
 import { mapsAbove } from "@/lib/breadcrumbs"
@@ -22,7 +23,9 @@ import { MapMarkerCard } from "./MapMarkerCard"
 import { MapMarkerMenu } from "./MapMarkerMenu"
 import { MapPlacingCursor } from "./MapPlacingCursor"
 import { MarkerLinkDialog } from "./MarkerLinkDialog"
+import { MapMarkerPeek } from "./MapMarkerPeek"
 import { MapViewerNavigator } from "./MapViewerNavigator"
+import { MapViewerPhoneControls } from "./MapViewerPhoneControls"
 import { MapViewerStatusBar } from "./MapViewerStatusBar"
 
 type Props = {
@@ -48,7 +51,8 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDeta
   useMapGrid(map)
   useMapView(map, size, mapId)
   const pulseId = useReturnPulse(mapId)
-  const selection = useMapMarkerSelection(map)
+  const phone = usePhoneScreen()
+  const selection = useMapMarkerSelection(map, !phone)
   const { selectedId, clear } = selection
   const { placing, setPlacing, pending, setPending, landed } = useMapPlacing(map, size, clear)
   const editing = canManage && selection.editing
@@ -88,7 +92,8 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDeta
   return (
     <div
       className={cn(
-        "bg-muted relative isolate flex size-full flex-col overflow-hidden",
+        // The map takes every touch: the page neither zooms nor scrolls behind it.
+        "bg-muted relative isolate flex size-full touch-none flex-col overflow-hidden overscroll-none",
         // The pin that follows the pointer stands in for the cursor.
         placing && "map-placing"
       )}
@@ -97,10 +102,24 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDeta
       <div className="relative min-h-0 flex-1 overflow-hidden">
       {/* Leaflet adds its own classes here, so this className must never change. */}
       <div ref={container} className="map-canvas size-full" />
-      <MapViewerNavigator map={map} url={image.url} size={size} onDetails={onDetails} />
+      {phone ? (
+        <MapViewerPhoneControls map={map} url={image.url} size={size} onDetails={onDetails} />
+      ) : (
+        <MapViewerNavigator map={map} url={image.url} size={size} onDetails={onDetails} />
+      )}
       {map && placing && <MapPlacingCursor map={map} />}
       {editing && <MapEditHint />}
-      {map && selected && point && !editing && (
+      {phone && selected && !editing && (
+        <MapMarkerPeek
+          marker={selected}
+          canManage={canManage}
+          backTo={{ path: `/app/world/${mapId}`, label: mapName, maps: mapsAbove(mapId, from) }}
+          onOpen={() => rememberReturn(mapId, selected.id)}
+          onClose={clear}
+          onRemove={removeSelected}
+        />
+      )}
+      {!phone && map && selected && point && !editing && (
         <MapMarkerCard
           // Each marker's card opens fresh.
           key={selected.id}

@@ -12,6 +12,8 @@ const TURN_STEP = 15
 
 // Room around the canvas when it is fitted.
 const MARGIN = 56
+// The least a fitted canvas is ever shown at, in a window with no room.
+const MIN_FIT_SCALE = 0.02
 // Close enough to place single pixels of a canvas.
 const MAX_SCALE = 8
 // Far enough out to see the canvas small, never lost.
@@ -68,7 +70,11 @@ export function useBuilderViewport(
     (box: Size, turn: Pick<BuilderView, "rotation" | "flipH" | "flipV">): BuilderView => {
       const seen = box.width - inset
       const extent = turnedExtent(canvas, turn.rotation)
-      const scale = Math.min((seen - MARGIN * 2) / extent.width, (box.height - MARGIN * 2) / extent.height)
+      // A window too small for the margins would fit the canvas at a negative size.
+      const scale = Math.max(
+        Math.min((seen - MARGIN * 2) / extent.width, (box.height - MARGIN * 2) / extent.height),
+        MIN_FIT_SCALE
+      )
       const middle = { x: inset + seen / 2, y: box.height / 2 }
       return holdingAt({ x: 0, y: 0, scale, ...turn }, { x: canvas.width / 2, y: canvas.height / 2 }, middle)
     },

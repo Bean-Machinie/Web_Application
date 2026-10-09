@@ -10,15 +10,16 @@ type Props = {
   action?: ActionId
   onClick: () => void
   children: React.ReactNode
+  className?: string
 }
 
 // A small icon button with a tooltip naming it and its key.
-export function MapStepButton({ label, action, onClick, children }: Props) {
+export function MapStepButton({ label, action, onClick, children, className }: Props) {
   const keyOf = useShortcutText()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon-xs" aria-label={label} onClick={onClick}>
+        <Button variant="ghost" size="icon-xs" aria-label={label} onClick={onClick} className={className}>
           {children}
         </Button>
       </TooltipTrigger>

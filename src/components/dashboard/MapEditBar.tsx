@@ -18,7 +18,7 @@ export function MapEditBar({ placing, editing, onPlace, onCancel, onToggleEditin
     return (
       <>
         <span className="text-xs">Click the map to place the marker</span>
-        <Button variant="ghost" size="icon-xs" aria-label="Cancel" onClick={onCancel}>
+        <Button variant="ghost" size="icon-xs" className="pointer-coarse:size-11" aria-label="Cancel" onClick={onCancel}>
           <X />
         </Button>
       </>
@@ -27,7 +27,7 @@ export function MapEditBar({ placing, editing, onPlace, onCancel, onToggleEditin
 
   return (
     <>
-      <Button variant="ghost" size="xs" onClick={onPlace}>
+      <Button variant="ghost" size="xs" className="pointer-coarse:h-11" onClick={onPlace}>
         <MapPinPlus />
         Add marker
       </Button>
@@ -35,6 +35,7 @@ export function MapEditBar({ placing, editing, onPlace, onCancel, onToggleEditin
       <Button
         variant={editing ? "default" : "ghost"}
         size="xs"
+        className="pointer-coarse:h-11"
         aria-pressed={editing}
         onClick={onToggleEditing}
       >
