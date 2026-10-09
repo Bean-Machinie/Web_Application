@@ -43,7 +43,7 @@ export function HealthTile({ block, onChange }: Props) {
         </>
       )}
       <div className="pointer-events-none relative flex flex-col items-center">
-        <span className="relative h-6 text-xl leading-6 font-semibold tabular-nums">
+        <span className="relative h-5 text-xl leading-5 font-semibold tabular-nums">
           {hasMax ? current : "—"}
           <span
             aria-hidden
