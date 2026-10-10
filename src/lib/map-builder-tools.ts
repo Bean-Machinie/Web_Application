@@ -1,4 +1,4 @@
-import { Blend, Brush, Hand, Lasso, MousePointer2 } from "lucide-react"
+import { Droplets, Hand, Lasso, MousePointer2, Paintbrush } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export type BuilderTool = "select" | "land" | "brush" | "blend" | "hand"
@@ -17,9 +17,9 @@ export const TOOL_PANEL_INSET = { closed: 12, open: 236 }
 
 // The tools in the strip, in order, with the single key that picks each.
 export const BUILDER_TOOLS: { id: BuilderTool; label: string; key: string; Icon: LucideIcon }[] = [
-  { id: "hand", label: "Pan", key: "H", Icon: Hand },
   { id: "select", label: "Select", key: "V", Icon: MousePointer2 },
   { id: "land", label: "Land", key: "L", Icon: Lasso },
-  { id: "brush", label: "Biome brush", key: "B", Icon: Brush },
-  { id: "blend", label: "Blend", key: "J", Icon: Blend },
+  { id: "brush", label: "Biome brush", key: "B", Icon: Paintbrush },
+  { id: "blend", label: "Blend", key: "J", Icon: Droplets },
+  { id: "hand", label: "Pan", key: "H", Icon: Hand },
 ]
