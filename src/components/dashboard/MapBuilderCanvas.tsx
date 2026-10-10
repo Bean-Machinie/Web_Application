@@ -21,6 +21,8 @@ type Props = {
   // The painted ground, null until its tiles have loaded.
   terrain: Terrain | null
   tool: BuilderTool
+  // The pan tool is turning the view instead of moving it.
+  rotating: boolean
   cutting: boolean
   selectMode: SelectMode
   editable: boolean
@@ -73,6 +75,7 @@ export function MapBuilderCanvas(props: Props) {
       ref={viewport.container}
       onPointerDown={(event) => {
         viewport.onMiddlePan(event)
+        if (props.rotating && event.button === 0) viewport.onRotateDrag(event)
         pressed.current = event.button === 0 ? { x: event.clientX, y: event.clientY } : null
       }}
       onPointerUp={(event) => {
@@ -118,6 +121,7 @@ export function MapBuilderCanvas(props: Props) {
           view={viewport.view}
           stageRef={stageRef}
           tool={tool}
+          rotating={props.rotating}
           cutting={props.cutting}
           editable={props.editable}
           editing={editing}

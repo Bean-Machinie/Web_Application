@@ -32,6 +32,8 @@ type Props = {
   view: BuilderView
   stageRef: RefObject<Konva.Stage | null>
   tool: BuilderTool
+  // A drag turns the view, so the stage is not dragged along.
+  rotating: boolean
   // Whether a lasso now cuts land away instead of adding it.
   cutting: boolean
   // How the select tool picks art on the empty canvas.
@@ -80,7 +82,7 @@ export function MapBuilderStage(props: Props) {
       {...stageProps(view)}
       // Only the pan tool drags the canvas; the middle button pans from any
       // tool (see useBuilderViewport).
-      draggable={tool === "hand"}
+      draggable={tool === "hand" && !props.rotating}
       onWheel={onWheel}
       onDragMove={(event) => {
         if (event.target === event.target.getStage()) props.onPanning(event.target.x(), event.target.y())

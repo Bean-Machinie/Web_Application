@@ -1,5 +1,5 @@
-import { MinusSquare, PlusSquare } from "lucide-react"
 import type { LandMode } from "@/lib/map-builder-tools"
+import { MapLandIcon } from "./MapLandIcon"
 import { MapSubToolButton } from "./MapSubToolButton"
 
 type Props = {
@@ -17,7 +17,7 @@ export function MapLandSubTools({ cutting, onMode }: Props) {
         active={!cutting}
         onClick={() => onMode("add")}
       >
-        <PlusSquare />
+        <MapLandIcon />
       </MapSubToolButton>
       <MapSubToolButton
         label="Cut land"
@@ -25,7 +25,7 @@ export function MapLandSubTools({ cutting, onMode }: Props) {
         active={cutting}
         onClick={() => onMode("cut")}
       >
-        <MinusSquare />
+        <MapLandIcon cut />
       </MapSubToolButton>
     </>
   )

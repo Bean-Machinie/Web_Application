@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button"
+import type { PanMode } from "@/lib/map-builder-tools"
 
 const PRESETS = [0.5, 1, 2]
 
 type Props = {
+  mode: PanMode
   // The view's scale: 1 is 100%.
   zoom: number
   onZoom: (scale: number) => void
@@ -10,7 +12,7 @@ type Props = {
 }
 
 // Pan has nothing to set: where the view is, and some zooms to jump to.
-export function MapPanProperties({ zoom, onZoom, onFit }: Props) {
+export function MapPanProperties({ mode, zoom, onZoom, onFit }: Props) {
   return (
     <>
       <p className="text-xs">
@@ -27,7 +29,11 @@ export function MapPanProperties({ zoom, onZoom, onFit }: Props) {
           </Button>
         ))}
       </div>
-      <p className="text-muted-foreground text-xs">Drag the canvas to move around.</p>
+      <p className="text-muted-foreground text-xs">
+        {mode === "rotate"
+          ? "Drag around the middle of the view to turn the canvas. Hold Shift to turn in steps of 15°."
+          : "Drag the canvas to move around."}
+      </p>
     </>
   )
 }

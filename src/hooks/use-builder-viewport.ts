@@ -3,6 +3,7 @@ import type { RefObject } from "react"
 import type Konva from "konva"
 import { flipped, holdingAt, stageProps, toCanvas, turnedExtent, turnedTo } from "@/lib/view-matrix"
 import type { BuilderView } from "@/lib/view-matrix"
+import { useRotateDrag } from "./use-rotate-drag"
 
 export type { BuilderView }
 
@@ -193,6 +194,7 @@ export function useBuilderViewport(
   // Turning and mirroring are of the view alone, about the middle of what is seen.
   const rotateTo = useCallback((degrees: number) => moveTo(turnedTo(live.current, degrees, seenMiddle)), [moveTo, seenMiddle])
   const rotateBy = useCallback((degrees: number) => rotateTo(live.current.rotation + degrees), [rotateTo])
+  const onRotateDrag = useRotateDrag({ container, live, moveTo, about: seenMiddle })
   const flip = useCallback((axis: "h" | "v") => moveTo(flipped(live.current, axis, seenMiddle)), [moveTo, seenMiddle])
   const resetTurn = useCallback(
     () => moveTo(holdingAt({ ...live.current, ...UPRIGHT }, toCanvas(live.current, seenMiddle), seenMiddle)),
@@ -209,6 +211,7 @@ export function useBuilderViewport(
     inset,
     liveView,
     onMiddlePan,
+    onRotateDrag,
     size,
     view,
     rotateTo,

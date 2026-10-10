@@ -121,7 +121,12 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
       />
       <MapBuilderBanners store={autosave.store} error={error} />
       <div className="flex min-h-0 flex-1">
-        <MapToolStrip tool={tools.tool} disabled={publishing} onTool={tools.changeTool} />
+        <MapToolStrip
+          tool={tools.tool}
+          modes={{ land: tools.mode, select: tools.selectMode, hand: tools.panMode }}
+          disabled={publishing}
+          onTool={tools.changeTool}
+        />
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="relative flex min-h-0 flex-1 overflow-hidden">
             <MapToolPanel
@@ -138,6 +143,8 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               onMode={tools.setMode}
               selectMode={tools.selectMode}
               onSelectMode={tools.setSelectMode}
+              panMode={tools.panMode}
+              onPanMode={tools.setPanMode}
               onShowAssets={(show) => tools.setHideAssets(!show)}
               onSelectAll={editing.selectAll}
               onZoom={viewport.zoomTo}
@@ -147,6 +154,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               scene={landStyle.shown}
               terrain={terrain}
               tool={tools.activeTool}
+              rotating={tools.rotating}
               cutting={cutting}
               selectMode={tools.selectMode}
               editable={!publishing && !tools.armed}
