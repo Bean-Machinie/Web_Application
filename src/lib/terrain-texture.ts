@@ -39,7 +39,7 @@ const graded = new WeakMap<HTMLImageElement, Map<SceneBackground, HTMLCanvasElem
 
 // The tile as it is used: its edges joined, the map's colour grade over it, and a
 // light tint, so that it looks as it was painted.
-function gradedTile(image: HTMLImageElement, background: SceneBackground) {
+export function gradedTile(image: HTMLImageElement, background: SceneBackground) {
   const known = graded.get(image)?.get(background)
   if (known) return known
   const w = image.naturalWidth
