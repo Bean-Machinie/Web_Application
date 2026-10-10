@@ -3,7 +3,7 @@ import type { LandMode } from "@/lib/map-builder-tools"
 import { MapSubToolButton } from "./MapSubToolButton"
 
 type Props = {
-  // Whether what is drawn now cuts, which Alt can flip from the mode picked.
+  // Whether what is drawn now cuts.
   cutting: boolean
   onMode: (mode: LandMode) => void
 }

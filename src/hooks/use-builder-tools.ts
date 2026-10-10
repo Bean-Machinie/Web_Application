@@ -1,10 +1,16 @@
 import { useCallback, useState } from "react"
 import type { MapScene } from "@/lib/map-scene"
 import type { BuilderTool, LandMode, PanMode, SelectMode } from "@/lib/map-builder-tools"
+import { BIOMES } from "@/lib/biomes/biomes"
+import type { BrushBiome } from "@/lib/biomes/biomes"
+import { useAltTap } from "./use-alt-tap"
 import { useArmedAsset } from "./use-armed-asset"
 import { useAssetEditing } from "./use-asset-editing"
 import { useBrush } from "./use-brush"
 import { useSpacePan } from "./use-space-pan"
+
+// The biome sub tools in the order the panel lists them.
+const CHOICES: BrushBiome[] = ["plains", ...BIOMES]
 
 type Options = {
   assets: MapScene["assets"]
@@ -55,6 +61,17 @@ export function useBuilderTools({ assets, change, centre, pointer, locked }: Opt
     clear()
     stamping.arm(id)
   }
+
+  // A tap of Alt goes on to the next sub tool of the tool in use, round to the first.
+  useAltTap(() => {
+    if (tool === "select") setSelectMode((now) => (now === "rectangle" ? "lasso" : "rectangle"))
+    if (tool === "land") setMode((now) => (now === "add" ? "cut" : "add"))
+    if (tool === "hand") setPanMode((now) => (now === "hand" ? "rotate" : "hand"))
+    if (tool === "brush") {
+      const next = (CHOICES.indexOf(brush.biome) + 1) % CHOICES.length
+      brush.onBiome(CHOICES[next])
+    }
+  }, !locked)
 
   // The hand is out for as long as its key is held, and the tool is not changed,
   // so the selection is kept.

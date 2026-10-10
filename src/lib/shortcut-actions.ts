@@ -116,7 +116,7 @@ export const SHORTCUT_GROUPS: { title: string; rows: Row[] }[] = [
     rows: [
       ...BUILDER_TOOLS.map(({ id }) => ({ action: `tool.${id}` as const })),
       { action: "view.pan" },
-      { label: "Switch Add land and Cut land", keys: ["Alt"] },
+      { label: "Next sub tool (tap)", keys: ["Alt"] },
     ],
   },
   { title: "Brush", rows: [{ action: "brush.smaller" }, { action: "brush.larger" }] },

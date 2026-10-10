@@ -87,7 +87,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   })
   const { editing } = tools
   const { alt, shift } = useHeldModifiers()
-  const cutting = (tools.mode === "cut") !== alt
+  const cutting = tools.mode === "cut"
   const [helpOpen, setHelpOpen] = useState(false)
   useBuilderShortcuts({
     enabled: !publishing,

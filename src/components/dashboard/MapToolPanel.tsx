@@ -73,7 +73,7 @@ export function MapToolPanel(props: Props) {
           <Heading>Tool properties</Heading>
           {tool === "land" && (
             <p className="text-muted-foreground text-xs">
-              Hold Alt to switch between adding and cutting.
+              Tap Alt to switch between adding and cutting.
             </p>
           )}
           {(tool === "brush" || tool === "blend") && (
