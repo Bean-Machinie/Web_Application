@@ -14,7 +14,6 @@ import { useSceneAutosave } from "@/hooks/use-scene-autosave"
 import { useSceneHistory } from "@/hooks/use-scene-history"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import { TOOL_PANEL_INSET } from "@/lib/map-builder-tools"
-import type { SceneBackground } from "@/lib/map-scene"
 import type { WorldImage } from "@/lib/world-images"
 import type { LoadedScene } from "@/lib/world-map-scenes"
 import { ConfirmDialog } from "./ConfirmDialog"
@@ -97,9 +96,6 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
     redo,
     toggleHelp: () => setHelpOpen((open) => !open),
   })
-
-  const setBackground = (background: SceneBackground) =>
-    history.change((old) => ({ ...old, canvas: { ...old.canvas, background } }))
 
   const drawLand = useLandDrawing(scene, history.change)
   const paintBiomes = (paint: Paint) => history.change((old) => ({ ...old, paint }))
@@ -190,7 +186,6 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
             <MapSettings
               canvas={scene.canvas}
               style={landStyle.style}
-              onBackground={setBackground}
               onPreviewStyle={landStyle.preview}
               onCommitStyle={landStyle.commit}
             />

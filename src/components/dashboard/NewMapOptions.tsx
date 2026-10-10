@@ -1,6 +1,6 @@
 import { Label } from "@/components/ui/label"
-import { BACKGROUNDS, CANVAS_PRESETS } from "@/lib/map-scene"
-import type { CanvasChoice, CanvasPreset, SceneBackground } from "@/lib/map-scene"
+import { CANVAS_PRESETS } from "@/lib/map-scene"
+import type { CanvasChoice, CanvasPreset } from "@/lib/map-scene"
 import { OptionButtons } from "./OptionButtons"
 
 export type NewMapChoice = { source: "upload" | "build" } & CanvasChoice
@@ -8,7 +8,7 @@ export type NewMapChoice = { source: "upload" | "build" } & CanvasChoice
 export const DEFAULT_MAP_CHOICE: NewMapChoice = {
   source: "upload",
   preset: "3:2",
-  background: "parchment",
+  background: "ocean",
 }
 
 type Props = {
@@ -21,7 +21,7 @@ type Props = {
 const keys = <T extends string>(record: Record<T, unknown>) => Object.keys(record) as T[]
 
 // What the creating of a map asks beyond its name: an image to upload later,
-// or a canvas to build on, and for a canvas its shape and background.
+// or a canvas to build on, and for a canvas its shape.
 export function NewMapOptions({ value, onChange, askSource = true }: Props) {
   // Where only the canvas is left to pick, a build is what is being made.
   const building = !askSource || value.source === "build"
@@ -43,32 +43,18 @@ export function NewMapOptions({ value, onChange, askSource = true }: Props) {
         </div>
       )}
       {building && (
-        <>
-          <div className="grid gap-2">
-            <Label>Canvas shape</Label>
-            <OptionButtons<CanvasPreset>
-              label="Canvas shape"
-              value={value.preset}
-              options={keys(CANVAS_PRESETS).map((preset) => ({
-                value: preset,
-                label: CANVAS_PRESETS[preset].label,
-              }))}
-              onChange={(preset) => onChange({ ...value, preset })}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label>Background</Label>
-            <OptionButtons<SceneBackground>
-              label="Background"
-              value={value.background}
-              options={keys(BACKGROUNDS).map((background) => ({
-                value: background,
-                label: BACKGROUNDS[background].label,
-              }))}
-              onChange={(background) => onChange({ ...value, background })}
-            />
-          </div>
-        </>
+        <div className="grid gap-2">
+          <Label>Canvas shape</Label>
+          <OptionButtons<CanvasPreset>
+            label="Canvas shape"
+            value={value.preset}
+            options={keys(CANVAS_PRESETS).map((preset) => ({
+              value: preset,
+              label: CANVAS_PRESETS[preset].label,
+            }))}
+            onChange={(preset) => onChange({ ...value, preset })}
+          />
+        </div>
       )}
     </div>
   )
