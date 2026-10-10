@@ -1,3 +1,4 @@
+import { at } from "./temp-timing" // TEMP-TIMING
 import { css } from "./colour"
 import type { Rgb } from "./colour"
 import { artFor } from "./map-asset-art"
@@ -33,6 +34,7 @@ const shared = makeScratch()
 // is not in the rectangle is left alone, so a change costs only what is near it.
 // It is done a piece at a time: the steps pause after each, so that a long bake
 // can be spread over time (see bakeAll).
+export const TIMING = { ground: 0, ink: 0, pieces: 0, count: 0 } // TEMP-TIMING
 export function* bakeSteps(
   picture: Picture,
   rect: Rect,
@@ -60,12 +62,14 @@ export function* bakeSteps(
   const behindContext = behind.getContext("2d")!
   behindContext.setTransform(1, 0, 0, 1, 0, 0)
   behindContext.clearRect(0, 0, x1 - x0, y1 - y0)
+  const tG = performance.now() // TEMP-TIMING
   drawGround(
     behindContext,
     { x: picture.x + x0 / scale, y: picture.y + y0 / scale, width: (x1 - x0) / scale, height: (y1 - y0) / scale },
     scale,
     ground
   )
+  TIMING.ground += performance.now() - tG // TEMP-TIMING
 
   context.save()
   try {
@@ -78,7 +82,11 @@ export function* bakeSteps(
     const rectOnCanvas = { x: picture.x + x0 / scale, y: picture.y + y0 / scale, width: (x1 - x0) / scale, height: (y1 - y0) / scale }
     const fields = new Map<number, HTMLCanvasElement | null>()
     const fieldFor = (follows: number) => {
-      if (!fields.has(follows)) fields.set(follows, inkField(rectOnCanvas, ground, colours.ink, follows))
+      if (!fields.has(follows)) {
+        const tI = performance.now() // TEMP-TIMING
+        fields.set(follows, inkField(rectOnCanvas, ground, colours.ink, follows))
+        TIMING.ink += performance.now() - tI // TEMP-TIMING
+      }
       return fields.get(follows)!
     }
     const cut = scratch.piece
@@ -149,6 +157,10 @@ export function* bakeSteps(
 
 // All of it at once, for edits that must show at once.
 export function bakeRect(picture: Picture, rect: Rect, pieces: Piece[], ground: Ground, colours: Colours) {
+  const t0 = performance.now() // TEMP-TIMING
+  TIMING.ground = TIMING.ink = 0
   const steps = bakeSteps(picture, rect, pieces, ground, colours)
   while (!steps.next().done);
+  const total = performance.now() - t0 // TEMP-TIMING
+  console.log(`${at()} [bakeRect] total ${total.toFixed(1)}ms | ground ${TIMING.ground.toFixed(1)} | ink ${TIMING.ink.toFixed(1)} | pieces(rest) ${(total - TIMING.ground - TIMING.ink).toFixed(1)} | n=${pieces.length} px=${Math.round(rect.width * picture.scale)}x${Math.round(rect.height * picture.scale)} scale=${picture.scale.toFixed(2)}`) // TEMP-TIMING
 }

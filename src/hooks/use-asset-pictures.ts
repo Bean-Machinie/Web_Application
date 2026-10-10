@@ -143,7 +143,14 @@ export function useAssetPictures(input: Input) {
     bump()
   }, [pictures, drawing, ground, pieces, paint, bump])
 
+  // A piece being moved has the thread: the sharp picture waits until it is let go.
+  const busy = hidden.size > 0
+  useEffect(() => pictures.hold(busy), [pictures, busy])
   useEffect(() => {
+    if (busy) {
+      pictures.cancelView()
+      return
+    }
     const timer = setTimeout(() => {
       const { left, top, right, bottom } = visibleRect(view, size, { width, height }, MARGIN)
       if (right <= left || bottom <= top) return
@@ -153,7 +160,7 @@ export function useAssetPictures(input: Input) {
       void pictures.bakeView(region, scale).then((done) => done && bump())
     }, SETTLE_MS)
     return () => clearTimeout(timer)
-  }, [pictures, ground, view, size, width, height, bump])
+  }, [pictures, ground, view, size, width, height, busy, bump])
 
   return { pictures, version }
 }

@@ -1,17 +1,24 @@
 import { useEffect, useRef, useState } from "react"
+import { flushSync } from "react-dom"
+import { T, profileDrag } from "@/lib/temp-timing" // TEMP-TIMING
 import type Konva from "konva"
 import type { MultiPolygon } from "polygon-clipping"
 import { Layer, Rect, Shape } from "react-konva"
 import { useAssetInfos } from "@/hooks/use-asset-infos"
 import { useAssetPictures } from "@/hooks/use-asset-pictures"
+import { useAssetWarmup } from "@/hooks/use-asset-warmup"
 import type { BuilderView } from "@/hooks/use-builder-viewport"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { Surface } from "@/lib/biomes/surface"
 import type { Terrain } from "@/lib/terrain"
 import { artFor } from "@/lib/map-asset-art"
 import { lookAt } from "@/lib/map-asset-painted"
+import { drawMoving } from "@/lib/map-asset-moving"
+import type { Moving } from "@/lib/map-asset-moving"
+import { visibleRect } from "@/lib/view-matrix"
 import type { AssetPatch } from "@/lib/map-asset-edit"
 import type { MapScene, PlacedAsset } from "@/lib/map-scene"
+import type { AssetInfo } from "@/lib/map-assets"
 import { themeFor } from "@/lib/map-theme"
 import { AssetPictures } from "./AssetPictures"
 
@@ -22,6 +29,8 @@ type Props = {
   // Alt is held, when a press on art drags a copy and the art itself stays put.
   altHeld: boolean
   selected: string[]
+  // Set to say which piece the pointer is over, whose art is made ready before it is pressed.
+  pointRef: { current: (id: string | null) => void }
   // Whether assets can be picked and moved: only with the select tool.
   editable: boolean
   // Plain click replaces the selection; Shift-click adds or removes one.
@@ -38,10 +47,13 @@ type Props = {
   size: { width: number; height: number }
 }
 
+const DRAG = { live: false, frameWorst: 0, slow: 0, frames: 0, draws: 0, cost: 0, worst: 0, moves: 0, last: 0, gap: 0, worstGap: 0 } // TEMP-TIMING
 const NONE: ReadonlySet<string> = new Set()
 // A piece that was let go stops drawing itself after this long, if nothing
 // changed to take over from it.
 const LETTING_GO_MS = 250
+// The moving pieces are drawn for what is in sight and this share of the screen around it.
+const MARGIN = 0.25
 
 const patchOf = (node: Konva.Node): AssetPatch => ({
   id: node.id(),
@@ -79,25 +91,100 @@ export function MapAssetsLayer(props: Props) {
     picturesLayer.current?.batchDraw()
   }, [version, pictures])
   const theme = themeFor(canvas.background)
+  const [pointed, setPointed] = useState<string | null>(null)
+  useEffect(() => {
+    props.pointRef.current = setPointed
+    return () => {
+      props.pointRef.current = () => {}
+    }
+  }, [props.pointRef])
+  const chosen = assets.filter((asset) => selected.includes(asset.id))
+  useAssetWarmup(chosen, assets.filter((asset) => asset.id === pointed && !selected.includes(asset.id)), infoOf, view.scale, canvas.background)
 
   // The timer that ends a movement. A piece taken up again before it runs must
   // not have its new movement ended by it.
   const ending = useRef<number | undefined>(undefined)
+  // The moving pieces drawn as one picture, while they are dragged.
+  const group = useRef<Moving | null>(null)
+  // A piece in flat colour, as it is moved: the art where it stands, in its biome's colours.
+  const flatOf = (now: PlacedAsset, info: AssetInfo) => {
+    const drawn = info.trim.width * Math.abs(now.scaleX) * view.scale
+    return info.colour
+      ? lookAt({ asset: now, info }, props.paint, canvas.background, drawn)
+      : artFor(now.asset, info, drawn, theme.ink, theme.land.fill).preview
+  }
+  const startDrag = (event: Konva.KonvaEventObject<Event>) => {
+    const t0 = performance.now() // TEMP-TIMING
+    T.t0 = t0
+    profileDrag()
+    T.dragging = true
+    const dragged = event.target.id()
+    const ids = new Set(selected.includes(dragged) ? selected : [dragged])
+    const pieces = assets.flatMap((asset) => {
+      const info = infoOf(asset.asset)
+      return ids.has(asset.id) && info ? [{ asset, info }] : []
+    })
+    const { left, top, right, bottom } = visibleRect(view, props.size, canvas, MARGIN)
+    const region = { x: left, y: top, width: right - left, height: bottom - top }
+    const tBuild = performance.now() // TEMP-TIMING
+    group.current = right > left && bottom > top ? drawMoving(pieces, flatOf, region, view.scale * window.devicePixelRatio) : null
+    const built = performance.now() - tBuild // TEMP-TIMING
+    start(event)
+    // TEMP-TIMING: how long the press holds the thread, and when the next frame comes.
+    const sync = performance.now() - t0
+    let lastFrame = performance.now()
+    const frame = (now: number) => {
+      if (!DRAG.live) return
+      DRAG.frames++
+      DRAG.frameWorst = Math.max(DRAG.frameWorst, now - lastFrame)
+      if (now - lastFrame > 24) DRAG.slow++
+      lastFrame = now
+      requestAnimationFrame(frame)
+    }
+    requestAnimationFrame(frame)
+    requestAnimationFrame(() =>
+      console.log(`[startDrag] picture=${built.toFixed(0)}ms | all sync work=${sync.toFixed(0)}ms | next frame after +${(performance.now() - t0).toFixed(0)}ms | pieces=${pieces.length}`)
+    )
+  }
+  const startTransform = (event: Konva.KonvaEventObject<Event>) => {
+    group.current = null
+    start(event)
+  }
   const start = (event: Konva.KonvaEventObject<Event>) => {
     window.clearTimeout(ending.current)
+    Object.assign(DRAG, { live: true, frameWorst: 0, slow: 0, frames: 0, draws: 0, cost: 0, worst: 0, moves: 0, last: 0, gap: 0, worstGap: 0 }) // TEMP-TIMING
     const dragged = event.target.id()
-    setMovement({ ids: new Set(selected.includes(dragged) ? selected : [dragged]), from: assets })
+    const next = { ids: new Set(selected.includes(dragged) ? selected : [dragged]), from: assets }
+    // At once, not a frame later: until the pictures stop showing the piece, it would stay behind
+    // the pointer. A drag begun by code, from a React effect, has no event and cannot be flushed.
+    if (event.evt) flushSync(() => setMovement(next))
+    else setMovement(next)
   }
   const letGo = () => {
     window.clearTimeout(ending.current)
-    ending.current = window.setTimeout(() => setMovement(null), LETTING_GO_MS)
+    ending.current = window.setTimeout(() => {
+      group.current = null
+      setMovement(null)
+    }, LETTING_GO_MS)
   }
 
   // The Transformer carries the whole selection along with the piece that is
   // dragged, and every piece of it ends its drag in turn, each saying so. What moved is
   // saved once, as one change, so that one undo takes the whole movement back.
   const saving = useRef(false)
+  const probe = () => { // TEMP-TIMING
+    const now = performance.now()
+    if (DRAG.last) {
+      DRAG.gap += now - DRAG.last
+      DRAG.worstGap = Math.max(DRAG.worstGap, now - DRAG.last)
+    }
+    DRAG.last = now
+    DRAG.moves++
+  }
   const finish = (event: Konva.KonvaEventObject<DragEvent>) => {
+    if (!saving.current) { DRAG.live = false; T.dragging = false } // TEMP-TIMING
+    if (DRAG.moves > 1 && !saving.current) // TEMP-TIMING
+      console.log(`[drag] moves=${DRAG.moves} avgGap=${(DRAG.gap / (DRAG.moves - 1)).toFixed(1)}ms worstGap=${DRAG.worstGap.toFixed(0)}ms | sceneFunc calls=${DRAG.draws} avg=${(DRAG.cost / Math.max(DRAG.draws, 1)).toFixed(2)}ms worst=${DRAG.worst.toFixed(1)}ms total/move=${(DRAG.cost / DRAG.moves).toFixed(1)}ms selected=${selected.length} | FRAMES=${DRAG.frames} slow(>24ms)=${DRAG.slow} worstFrame=${DRAG.frameWorst.toFixed(0)}ms`)
     const layer = event.target.getLayer()
     const dragged = event.target.id()
     const ids = selected.includes(dragged) ? selected : [dragged]
@@ -120,7 +207,7 @@ export function MapAssetsLayer(props: Props) {
         <AssetPictures overview={pictures.overview} canvas={canvas} sharp={pictures.view} />
       </Layer>
       <Layer listening={editable}>
-        {assets.filter((asset) => selected.includes(asset.id)).map((asset) => {
+        {chosen.map((asset) => {
           const info = infoOf(asset.asset)
           const common = {
             id: asset.id,
@@ -138,9 +225,10 @@ export function MapAssetsLayer(props: Props) {
             },
             onMouseEnter: (event: Konva.KonvaEventObject<MouseEvent>) => setCursor(event, "move"),
             onMouseLeave: (event: Konva.KonvaEventObject<MouseEvent>) => setCursor(event, ""),
-            onDragStart: start,
+            onDragMove: probe, // TEMP-TIMING
+            onDragStart: startDrag,
             onDragEnd: finish,
-            onTransformStart: start,
+            onTransformStart: startTransform,
             onTransformEnd: letGo,
           }
           // Art that is not there (the file was removed) stays as a box, so it
@@ -171,13 +259,31 @@ export function MapAssetsLayer(props: Props) {
               offsetY={trim.height / 2}
               sceneFunc={(context, shape) => {
                 if (!moving.has(asset.id)) return
+                const t0 = performance.now() // TEMP-TIMING
+                const picture = group.current
+                if (picture?.ids.has(asset.id)) {
+                  if (asset.id !== picture.carrier) return
+                  // Drawn in the canvas's own terms, moved by how far the carrier has gone.
+                  const back = shape.getTransform().copy().invert().getMatrix()
+                  context.save()
+                  context.transform(back[0], back[1], back[2], back[3], back[4], back[5])
+                  context.drawImage(
+                    picture.canvas,
+                    picture.x + shape.x() - picture.from.x,
+                    picture.y + shape.y() - picture.from.y,
+                    picture.width,
+                    picture.height
+                  )
+                  context.restore()
+                  return
+                }
                 // Where the piece is now, as it is moved ahead of the saved scene.
                 const now = { ...asset, x: shape.x(), y: shape.y(), scaleX: shape.scaleX(), scaleY: shape.scaleY() }
-                const drawn = trim.width * Math.abs(now.scaleX) * view.scale
-                const flat = info.colour
-                  ? lookAt({ asset: now, info }, props.paint, canvas.background, drawn)
-                  : artFor(asset.asset, info, drawn, theme.ink, theme.land.fill).preview
-                context.drawImage(flat, 0, 0, trim.width, trim.height)
+                context.drawImage(flatOf(now, info), 0, 0, trim.width, trim.height)
+                const took = performance.now() - t0 // TEMP-TIMING
+                DRAG.draws++
+                DRAG.cost += took
+                DRAG.worst = Math.max(DRAG.worst, took)
               }}
               // Only the painted pixels can be picked.
               hitFunc={(context, shape) => {

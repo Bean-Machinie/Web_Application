@@ -4,6 +4,7 @@ import { CHANNELS } from "./biomes/paint-tiles"
 import type { Paint } from "./biomes/paint-tiles"
 import { css } from "./colour"
 import { defaultWidth, loadedAssetInfo, assetById } from "./map-assets"
+import type { AssetInfo } from "./map-assets"
 import type { MapScene } from "./map-scene"
 import { themeFor } from "./map-theme"
 import type { Terrain } from "./terrain"
@@ -59,11 +60,31 @@ function scratch(width: number, height: number) {
   return canvas
 }
 
+// A piece is a few pixels across here, so it is drawn from a small copy of its art, made
+// once. Drawing the full-size picture of every piece, at every redraw, holds the page up
+// for a third of a second on a large map.
+const SMALL_WIDTH = 160
+const smalls = new WeakMap<AssetInfo, HTMLCanvasElement>()
+
+function smallArt(info: AssetInfo) {
+  const known = smalls.get(info)
+  if (known) return known
+  const { trim, image } = info
+  const shrink = Math.min(1, SMALL_WIDTH / trim.width)
+  const made = scratch(Math.max(1, Math.round(trim.width * shrink)), Math.max(1, Math.round(trim.height * shrink)))
+  const context = made.getContext("2d")!
+  context.imageSmoothingQuality = "high"
+  context.drawImage(image, trim.x, trim.y, trim.width, trim.height, 0, 0, made.width, made.height)
+  smalls.set(info, made)
+  return made
+}
+
 // The whole map, small: the sea, the land with its biomes (from the painted ground
 // the editor already has), the coast, and each piece of art as a blot of ink the
 // size it is. It is not the map as it is published, only enough to find a place
 // in it, and cheap enough to be drawn again a moment after an edit.
 export function drawOverview(canvas: HTMLCanvasElement, scene: MapScene, terrain: Terrain) {
+  const t0 = performance.now() // TEMP-TIMING
   const { width, height } = canvas
   const scale = width / scene.canvas.width
   const theme = themeFor(scene.canvas.background)
@@ -71,6 +92,7 @@ export function drawOverview(canvas: HTMLCanvasElement, scene: MapScene, terrain
   context.clearRect(0, 0, width, height)
   context.imageSmoothingQuality = "medium"
   context.drawImage(terrain.sea, 0, 0, width, height)
+  const tSea = performance.now() // TEMP-TIMING
 
   if (scene.land.length > 0) {
     const path = tracePath(scene.land, scale)
@@ -99,16 +121,18 @@ export function drawOverview(canvas: HTMLCanvasElement, scene: MapScene, terrain
     context.globalAlpha = 1
   }
 
+  const tLand = performance.now() // TEMP-TIMING
   context.fillStyle = css(theme.ink)
   for (const piece of scene.assets) {
     const info = loadedAssetInfo(piece.asset)
     if (info) {
-      const { trim, image } = info
+      const { trim } = info
+      const art = smallArt(info)
       context.save()
       context.translate(piece.x * scale, piece.y * scale)
       context.rotate((piece.rotation * Math.PI) / 180)
       context.scale(piece.scaleX * scale, piece.scaleY * scale)
-      context.drawImage(image, trim.x, trim.y, trim.width, trim.height, -trim.width / 2, -trim.height / 2, trim.width, trim.height)
+      context.drawImage(art, 0, 0, art.width, art.height, -trim.width / 2, -trim.height / 2, trim.width, trim.height)
       context.restore()
       continue
     }
@@ -122,4 +146,5 @@ export function drawOverview(canvas: HTMLCanvasElement, scene: MapScene, terrain
     context.fill()
     context.globalAlpha = 1
   }
+  console.log(`[overview] total ${(performance.now() - t0).toFixed(0)}ms | sea ${(tSea - t0).toFixed(0)} | land+biomes ${(tLand - tSea).toFixed(0)} | ${scene.assets.length} pieces ${(performance.now() - tLand).toFixed(0)}`) // TEMP-TIMING
 }

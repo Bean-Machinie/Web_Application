@@ -9,6 +9,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), assetSizes()],
   server: {
     open: true,
+    headers: { 'Document-Policy': 'js-profiling' }, // TEMP-TIMING: lets the page sample its own JavaScript
   },
   resolve: {
     alias: {

@@ -1,3 +1,4 @@
+import { at } from "./temp-timing" // TEMP-TIMING
 import { css } from "./colour"
 import type { Rgb } from "./colour"
 import type { AssetInfo } from "./map-assets"
@@ -44,6 +45,7 @@ export function artFor(id: string, info: AssetInfo, width: number, ink: Rgb, fil
     return known.art
   }
 
+  const tMiss = performance.now() // TEMP-TIMING
   const { trim, image } = info
   const h = Math.max(1, Math.round((w * trim.height) / trim.width))
   const look = canvasOf(w, h).getContext("2d", { willReadFrequently: true })!
@@ -78,6 +80,7 @@ export function artFor(id: string, info: AssetInfo, width: number, ink: Rgb, fil
   const pixels = w * h * 3
   cache.set(key, { art, pixels })
   used += pixels
+  console.log(`${at()} [ink art MISS] ${id} w=${w} ${(performance.now() - tMiss).toFixed(0)}ms | entries=${cache.size}`) // TEMP-TIMING
   for (const [oldest, entry] of cache) {
     if (used <= LIMIT || cache.size <= 1) break
     cache.delete(oldest)

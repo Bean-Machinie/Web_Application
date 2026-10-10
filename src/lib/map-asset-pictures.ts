@@ -17,8 +17,10 @@ export type Drawing = {
 const SLICE = 1024
 // The overview of the whole canvas is never made larger than this many pixels.
 const OVERVIEW_PIXELS = 4_000_000
-// How long the overview waits to catch up with a change.
-const LATE_MS = 150
+// The overview catches up once editing has paused this long, but never waits
+// longer than the maximum, however steadily the edits come.
+const LATE_MS = 600
+const LATE_MAX_MS = 2500
 
 export const blankPicture = (rect: Rect, scale: number): Picture => {
   const canvas = document.createElement("canvas")
@@ -79,6 +81,8 @@ export function createPictures(canvas: { width: number; height: number }) {
   let overviewRun = 0
   const late: Rect[] = []
   let lateTimer: ReturnType<typeof setTimeout> | undefined
+  let lateSince = 0
+  let busy = false
   let onLate: (() => void) | undefined
   let viewRun = 0
 
@@ -105,9 +109,19 @@ export function createPictures(canvas: { width: number; height: number }) {
       if (done) view = next
       return done
     },
+    // Stops making the sharp picture, so that something more urgent has the
+    // thread. Nothing is made again until asked.
+    cancelView() {
+      viewRun++
+      building = null
+    },
+    // While something is being moved the overview does not catch up, whatever its wait.
+    hold(held: boolean) {
+      busy = held
+    },
     // Draws again only the places near these rectangles. The sharp picture is
     // what is on screen, so it is done at once; the overview, which shows only
-    // where the sharp picture does not, is done a moment later, all together.
+    // where the sharp picture does not, is done once editing has paused, all together.
     patch(rects: Rect[]) {
       if (!drawing) return
       const sharp = [view, building].filter((picture) => picture !== null)
@@ -116,14 +130,22 @@ export function createPictures(canvas: { width: number; height: number }) {
       }
       if (!view) return
       late.push(...rects)
-      if (lateTimer === undefined) {
-        lateTimer = setTimeout(() => {
+      const now = performance.now()
+      if (late.length === rects.length) lateSince = now
+      clearTimeout(lateTimer)
+      lateTimer = setTimeout(
+        function flush() {
+          if (busy) {
+            lateTimer = setTimeout(flush, LATE_MS)
+            return
+          }
           lateTimer = undefined
-          const rects = late.splice(0)
-          if (drawing) for (const rect of rects) bakeRect(overview, rect, drawing.near(rect), drawing.ground, drawing.colours)
+          const waiting = late.splice(0)
+          if (drawing) for (const rect of waiting) bakeRect(overview, rect, drawing.near(rect), drawing.ground, drawing.colours)
           onLate?.()
-        }, LATE_MS)
-      }
+        },
+        Math.min(LATE_MS, Math.max(lateSince + LATE_MAX_MS - now, 0))
+      )
     },
     // Called after the overview has caught up.
     onLate(listener: () => void) {
