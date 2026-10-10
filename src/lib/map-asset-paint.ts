@@ -1,4 +1,3 @@
-import { at } from "./temp-timing" // TEMP-TIMING
 import type { Biome } from "./biomes/biomes"
 import { groupSurfaces } from "./map-asset-group"
 import { lightRange, recolour, rampTable, surfaces } from "./map-asset-recolour"
@@ -102,7 +101,6 @@ export function paintedArtFor(
     return known.art
   }
 
-  const tMiss = performance.now() // TEMP-TIMING
   const { trim } = info
   const h = Math.max(1, Math.round((w * trim.height) / trim.width))
   const look = themeFor(background).paint
@@ -163,7 +161,6 @@ export function paintedArtFor(
     variant(biome) {
       if (!changes || biome === resting) return null
       if (variants.has(biome)) return variants.get(biome)!
-      const tV = performance.now() // TEMP-TIMING
       const pixels = recoloured(biome)
       let made: HTMLCanvasElement | null = null
       if (pixels) {
@@ -173,7 +170,6 @@ export function paintedArtFor(
         grown.set(key, (grown.get(key) ?? 0) + added)
       }
       variants.set(biome, made)
-      console.log(`${at()} [paint variant MISS] ${id} ${biome} w=${w} ${(performance.now() - tV).toFixed(0)}ms`) // TEMP-TIMING
       return made
     },
   }
@@ -181,10 +177,8 @@ export function paintedArtFor(
   const pixels = w * h * 2 + shadow.canvas.width * shadow.canvas.height
   cache.set(key, { art, pixels })
   used += pixels
-  console.log(`${at()} [paint art MISS] ${id} w=${w} ${(performance.now() - tMiss).toFixed(0)}ms | cache entries=${cache.size} used=${(used / 1e6).toFixed(1)}M of ${LIMIT / 1e6}M`) // TEMP-TIMING
   for (const [oldest, entry] of cache) {
     if (used <= LIMIT || cache.size <= 1) break
-    console.log(`${at()} [paint EVICT] ${oldest}`) // TEMP-TIMING
     cache.delete(oldest)
     used -= entry.pixels + (grown.get(oldest) ?? 0)
     grown.delete(oldest)

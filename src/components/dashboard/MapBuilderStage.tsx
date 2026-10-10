@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react"
+import { useMemo } from "react"
 import type { RefObject } from "react"
 import type Konva from "konva"
 import { Group, Image as KonvaImage, Layer, Rect, Stage } from "react-konva"
@@ -66,8 +66,6 @@ type Props = {
 export function MapBuilderStage(props: Props) {
   const { scene, terrain, size, view, stageRef, tool, cutting, editable, editing, onWheel, onPan } = props
   const { canvas } = scene
-  // The art the pointer is over is kept by MapAssetsLayer, so that pointing re-renders only that.
-  const pointRef = useRef<(id: string | null) => void>(() => {})
   const land = useShownLand(scene.land, scene.style.roundness, canvas)
   const surface = useBiomeSurface(canvas, terrain)
   // Paint sticks where the land is as it is shown, rounded corners and all, so
@@ -122,7 +120,6 @@ export function MapBuilderStage(props: Props) {
         visible={props.showAssets}
         altHeld={props.altHeld}
         selected={editing.selected}
-        pointRef={pointRef}
         editable={editable && tool === "select"}
         onSelect={editing.select}
         onChange={editing.commit}
@@ -151,7 +148,6 @@ export function MapBuilderStage(props: Props) {
           pick={props.pick}
           mode={props.selectMode}
           onPick={editing.select}
-          onPoint={(id) => pointRef.current(id)}
           onClone={editing.cloneForDrag}
           onChange={editing.commit}
         />

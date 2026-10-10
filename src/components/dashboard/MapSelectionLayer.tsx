@@ -36,8 +36,6 @@ type Props = {
   // starts moving it.
   pick: AssetPicker
   onPick: (id: string, additive: boolean) => void
-  // The art the pointer is over, or null.
-  onPoint: (id: string | null) => void
   // Alt-drag: copies of the chosen art (or of the pressed piece) take its place
   // and are dragged on; gives the copy of the piece pressed.
   onClone: (ids: string[], pressed: string) => string | null
@@ -210,14 +208,13 @@ export function MapSelectionLayer(props: Props) {
     }
 
     // Over art the pointer is a mover; art has no shape of its own to say so.
-    let over: string | null = null
+    let over = false
     const onHover = (event: Konva.KonvaEventObject<PointerEvent>) => {
       if (event.evt.buttons !== 0 || event.target !== stage) return
       const at = place(event.evt)
-      const now = latest.current.pick.at(at.x, at.y)
+      const now = latest.current.pick.at(at.x, at.y) !== null
       if (now === over) return
       over = now
-      latest.current.onPoint(now)
       stage.container().style.cursor = now ? "move" : ""
     }
 
