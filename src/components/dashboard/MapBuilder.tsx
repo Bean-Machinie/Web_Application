@@ -119,6 +119,8 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
       <div className="flex min-h-0 flex-1">
         <MapToolStrip
           tool={tools.tool}
+          biome={tools.brush.biome}
+          background={scene.canvas.background}
           modes={{ land: cutting ? "cut" : "add", select: tools.selectMode, hand: tools.panMode }}
           disabled={publishing}
           onTool={tools.changeTool}
