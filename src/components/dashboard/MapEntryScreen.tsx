@@ -2,7 +2,6 @@ import { lazy, Suspense } from "react"
 import { Upload } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { buttonVariants } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
 import { useMapImageUpload } from "@/hooks/use-map-image-upload"
 import { useMapUploadGuard } from "@/hooks/use-map-upload-guard"
 import { cn } from "@/lib/utils"
@@ -11,6 +10,7 @@ import { COVER_FIELD } from "@/lib/world-kinds"
 import { ConfirmDialog } from "./ConfirmDialog"
 import { MapBuildAction } from "./MapBuildAction"
 import { MapBuilderLink } from "./MapBuilderLink"
+import { MapLoader } from "./MapLoader"
 import { MapImageInput } from "./MapImageInput"
 import { MapDetailsButton } from "./MapDetailsButton"
 import { MapTitlePill } from "./MapTitlePill"
@@ -46,9 +46,9 @@ export function MapEntryScreen(props: EntryProps) {
     // 3rem is the header) and nothing scrolls behind it.
     <div className="bg-muted relative isolate -m-4 min-h-96 flex-1 overflow-hidden overscroll-none max-md:h-[calc(100dvh-3rem)] max-md:flex-none md:-m-6">
       {!state.fields ? (
-        <Skeleton className="size-full rounded-none" />
+        <MapLoader />
       ) : image?.width && image.height ? (
-        <Suspense fallback={<Skeleton className="size-full rounded-none" />}>
+        <Suspense fallback={<MapLoader />}>
           <MapViewer
             // A new image starts a new map, with its own bounds.
             key={image.url}

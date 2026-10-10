@@ -19,6 +19,7 @@ import { rememberReturn } from "@/lib/map-view"
 import { cn } from "@/lib/utils"
 import { MapEditBar } from "./MapEditBar"
 import { MapEditHint } from "./MapEditHint"
+import { MapLoader } from "./MapLoader"
 import { MapMarkerCard } from "./MapMarkerCard"
 import { MapMarkerMenu } from "./MapMarkerMenu"
 import { MapPlacingCursor } from "./MapPlacingCursor"
@@ -46,7 +47,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDeta
     () => ({ width: image.width, height: image.height }),
     [image.width, image.height]
   )
-  const { container, map } = useLeafletMap(image.url, size, image.maxZoom)
+  const { container, map, ready } = useLeafletMap(image.url, size, image.maxZoom)
   const { markers, error, add, move, relink, remove } = useMapMarkers(mapId)
   useMapGrid(map)
   useMapView(map, size, mapId)
@@ -102,6 +103,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDeta
       <div className="relative min-h-0 flex-1 overflow-hidden">
       {/* Leaflet adds its own classes here, so this className must never change. */}
       <div ref={container} className="map-canvas size-full" />
+      {!ready && <MapLoader />}
       {phone ? (
         <MapViewerPhoneControls map={map} url={image.url} size={size} onDetails={onDetails} />
       ) : (

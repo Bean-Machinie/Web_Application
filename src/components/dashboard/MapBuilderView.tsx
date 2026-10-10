@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Navigate } from "react-router-dom"
 import { FormAlert } from "@/components/auth/FormAlert"
-import { Skeleton } from "@/components/ui/skeleton"
 import { useWideScreen } from "@/hooks/use-wide-screen"
 import { useWorldEntry } from "@/hooks/use-world-entry"
 import { useWorldFields } from "@/hooks/use-world-fields"
@@ -12,6 +11,7 @@ import { fetchMapScene } from "@/lib/world-map-scenes"
 import type { LoadedScene } from "@/lib/world-map-scenes"
 import { MapBuilder } from "./MapBuilder"
 import { MapBuilderTooSmall } from "./MapBuilderTooSmall"
+import { MapLoader } from "./MapLoader"
 import { useCampaign } from "./useCampaign"
 
 // Loads what the builder needs and lets in only a GM, for a map that has a
@@ -40,11 +40,9 @@ export function MapBuilderView({ entryId }: { entryId: string }) {
       </div>
     )
   }
-  if (entry === undefined) return <Skeleton className="fixed inset-0 z-50 rounded-none" />
+  if (entry === undefined) return <MapLoader fullScreen />
   if (!allowed || loaded === null) return <Navigate to={`/app/world/${entryId}`} replace />
-  if (!loaded || !state.fields || !current) {
-    return <Skeleton className="fixed inset-0 z-50 rounded-none" />
-  }
+  if (!loaded || !state.fields || !current) return <MapLoader fullScreen />
 
   // On a small screen the builder is covered, not removed, so what is unsaved, the
   // undo history and the view are all as they were when the screen is turned back.

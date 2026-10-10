@@ -20,6 +20,8 @@ const ZOOM_IN_TRIM = 0.5
 export function useLeafletMap(url: string, size: MapSize, maxZoom = DEFAULT_MAX_ZOOM) {
   const container = useRef<HTMLDivElement>(null)
   const [map, setMap] = useState<L.Map | null>(null)
+  // Whether the image has arrived, or failed to, so a wait can be shown.
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     const element = container.current
@@ -43,7 +45,10 @@ export function useLeafletMap(url: string, size: MapSize, maxZoom = DEFAULT_MAX_
       maxZoom: maxZoom - ZOOM_IN_TRIM,
       maxBoundsViscosity: 0.9,
     })
-    new SmoothImageOverlay(url, bounds, { className: "map-sheet" }).addTo(instance)
+    setReady(false)
+    new SmoothImageOverlay(url, bounds, { className: "map-sheet" })
+      .on("load error", () => setReady(true))
+      .addTo(instance)
     // A generous margin: the map can be pushed aside, but never out of sight.
     instance.setMaxBounds(bounds.pad(0.5))
 
@@ -71,5 +76,5 @@ export function useLeafletMap(url: string, size: MapSize, maxZoom = DEFAULT_MAX_
     }
   }, [url, size, maxZoom])
 
-  return { container, map }
+  return { container, map, ready }
 }

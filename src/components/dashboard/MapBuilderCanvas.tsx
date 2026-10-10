@@ -14,6 +14,7 @@ import { MapArmedGhost } from "./MapArmedGhost"
 import { MapStampHint } from "./MapStampHint"
 import { MapBuilderStage } from "./MapBuilderStage"
 import { MapContextMenu } from "./MapContextMenu"
+import { MapLoader } from "./MapLoader"
 import type { ContextSpot } from "./MapContextMenu"
 
 type Props = {
@@ -113,6 +114,7 @@ export function MapBuilderCanvas(props: Props) {
       }}
       className={`bg-muted relative min-w-0 flex-1 touch-none overflow-hidden ${props.armed ? "cursor-crosshair" : CURSORS[tool]}`}
     >
+      {!(viewport.size.width > 0 && terrain) && <MapLoader inset={viewport.inset} />}
       {viewport.size.width > 0 && terrain && (
         <MapBuilderStage
           scene={scene}
