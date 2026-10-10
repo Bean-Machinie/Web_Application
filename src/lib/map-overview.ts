@@ -84,7 +84,6 @@ function smallArt(info: AssetInfo) {
 // size it is. It is not the map as it is published, only enough to find a place
 // in it, and cheap enough to be drawn again a moment after an edit.
 export function drawOverview(canvas: HTMLCanvasElement, scene: MapScene, terrain: Terrain) {
-  const t0 = performance.now() // TEMP-TIMING
   const { width, height } = canvas
   const scale = width / scene.canvas.width
   const theme = themeFor(scene.canvas.background)
@@ -92,7 +91,6 @@ export function drawOverview(canvas: HTMLCanvasElement, scene: MapScene, terrain
   context.clearRect(0, 0, width, height)
   context.imageSmoothingQuality = "medium"
   context.drawImage(terrain.sea, 0, 0, width, height)
-  const tSea = performance.now() // TEMP-TIMING
 
   if (scene.land.length > 0) {
     const path = tracePath(scene.land, scale)
@@ -121,7 +119,6 @@ export function drawOverview(canvas: HTMLCanvasElement, scene: MapScene, terrain
     context.globalAlpha = 1
   }
 
-  const tLand = performance.now() // TEMP-TIMING
   context.fillStyle = css(theme.ink)
   for (const piece of scene.assets) {
     const info = loadedAssetInfo(piece.asset)
@@ -146,5 +143,4 @@ export function drawOverview(canvas: HTMLCanvasElement, scene: MapScene, terrain
     context.fill()
     context.globalAlpha = 1
   }
-  console.log(`[overview] total ${(performance.now() - t0).toFixed(0)}ms | sea ${(tSea - t0).toFixed(0)} | land+biomes ${(tLand - tSea).toFixed(0)} | ${scene.assets.length} pieces ${(performance.now() - tLand).toFixed(0)}`) // TEMP-TIMING
 }
