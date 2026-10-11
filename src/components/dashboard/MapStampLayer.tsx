@@ -10,6 +10,8 @@ import { clickFrame, dragFrame } from "@/lib/stamps/stamp-frame"
 import type { Frame } from "@/lib/stamps/stamp-frame"
 import { placeStamp } from "@/lib/stamps/stamp-outline"
 import { drawStampPreview } from "@/lib/stamps/stamp-preview"
+import { createTrail } from "@/lib/stamps/stamp-trail"
+import type { Pose } from "@/lib/stamps/stamp-trail"
 import type { Stamp } from "@/lib/stamps/stamps"
 import { LEAST, MapStampHandles } from "./MapStampHandles"
 
@@ -30,8 +32,14 @@ type Props = {
   onApply: (outline: Polygon, cut: boolean) => void
 }
 
-// The Shapes sub tool: drag from corner to corner to fit the shape into that box (with
-// Shift it keeps its proportions), or click to place it at a size; then it stays live,
+// Over the shape the pointer is a mover.
+const setCursor = (event: Konva.KonvaEventObject<MouseEvent>, cursor: string) => {
+  const container = event.target.getStage()?.container()
+  if (container) container.style.cursor = cursor
+}
+
+// The Shapes sub tool: drag from corner to corner to fit the shape into that box (it keeps
+// its own proportions; with Shift it stretches), or click to place it at a size; then it stays live,
 // with handles to move, stretch, scale and turn it, until it is applied or cancelled.
 // It is drawn as it will be: in the land's ground when it adds, in the sea's when it cuts,
 // the corners rounded as the land's are, and the coast's line. Nothing else of the map
@@ -44,6 +52,7 @@ export function MapStampLayer(props: Props) {
   const box = useRef<Konva.Rect>(null)
   const transformer = useRef<Konva.Transformer>(null)
   const phase = useRef<"idle" | "placing" | "live">("idle")
+  const trail = useRef(createTrail())
   const latest = useRef(props)
   useEffect(() => {
     latest.current = props
@@ -65,12 +74,64 @@ export function MapStampLayer(props: Props) {
   const frameTo = ({ x, y, width, height }: Frame) =>
     box.current?.setAttrs({ x, y, width, height, offsetX: width / 2, offsetY: height / 2, scaleX: 1, scaleY: 1, rotation: 0 })
 
-  function reset() {
+  const syncTrail = () => latest.current.placement.setTrail({ canUndo: trail.current.canUndo(), canRedo: trail.current.canRedo() })
+
+  const poseOf = (node: Konva.Rect): Pose => ({
+    x: node.x(),
+    y: node.y(),
+    width: node.width(),
+    height: node.height(),
+    offsetX: node.offsetX(),
+    offsetY: node.offsetY(),
+    scaleX: node.scaleX(),
+    scaleY: node.scaleY(),
+    rotation: node.rotation(),
+  })
+
+  // The shape's steps are kept as it is edited.
+  function edited() {
+    if (phase.current === "live" && box.current && trail.current.push(poseOf(box.current))) syncTrail()
+  }
+
+  // The shape taken away, or put back in a pose.
+  function hide() {
     phase.current = "idle"
     transformer.current?.nodes([])
     box.current?.visible(false).listening(false).draggable(false)
     latest.current.placement.setLive(false)
+    const container = group.current?.getStage()?.container()
+    if (container) container.style.cursor = ""
     redraw()
+  }
+  function show(pose: Pose) {
+    phase.current = "live"
+    box.current?.setAttrs(pose).visible(true).listening(true).draggable(true)
+    transformer.current?.listening(true)
+    transformer.current?.nodes(box.current ? [box.current] : [])
+    transformer.current?.forceUpdate()
+    latest.current.placement.setLive(true)
+    redraw()
+  }
+  // Dropped for good, with its steps.
+  function reset() {
+    hide()
+    trail.current.clear()
+    syncTrail()
+  }
+
+  // Back a step of the shape's own: its last edit, or if none, its creation.
+  function undo() {
+    const pose = trail.current.undo()
+    if (pose === undefined) return
+    if (pose === null) hide()
+    else show(pose)
+    syncTrail()
+  }
+  function redo() {
+    const pose = trail.current.redo()
+    if (!pose) return
+    show(pose)
+    syncTrail()
   }
 
   function apply() {
@@ -90,13 +151,14 @@ export function MapStampLayer(props: Props) {
     else node.scaleY(-node.scaleY())
     transformer.current?.forceUpdate()
     redraw()
+    edited()
   }
 
   useEffect(() => {
     const stage = group.current?.getStage()
     if (!enabled || !stage) return
     const { controls } = latest.current.placement
-    controls.current = { apply, cancel: reset, flip }
+    controls.current = { apply, cancel: reset, flip, undo, redo }
 
     const place = (event: PointerEvent): Pair => {
       stage.setPointersPositions(event)
@@ -111,8 +173,16 @@ export function MapStampLayer(props: Props) {
       const to = place(event)
       if (!dragged && Math.hypot(to[0] - from[0], to[1] - from[1]) * Math.abs(stage.scaleX()) < SLOP) return
       dragged = true
-      frameTo(dragFrame(from, to, event.shiftKey, latest.current.stamp.aspect))
+      // Held to its own proportions, as the handles at its corners hold it; Shift stretches it freely.
+      frameTo(dragFrame(from, to, !event.shiftKey, latest.current.stamp.aspect))
       box.current?.visible(true)
+      // The box and its handles show as the shape is pulled out, but take no presses until it is let go.
+      const handles = transformer.current
+      if (handles && handles.nodes().length === 0 && box.current) {
+        handles.listening(false)
+        handles.nodes([box.current])
+      }
+      handles?.forceUpdate()
       redraw()
     }
     const end = (commit: boolean) => {
@@ -126,11 +196,10 @@ export function MapStampLayer(props: Props) {
       if (!dragged) frameTo(clickFrame(start, stamp.aspect, canvas, placement.lastSize.current))
       // Too small to be a shape.
       if ((box.current?.width() ?? 0) < LEAST || (box.current?.height() ?? 0) < LEAST) return reset()
-      phase.current = "live"
-      box.current?.visible(true).listening(true).draggable(true)
-      transformer.current?.nodes(box.current ? [box.current] : [])
-      placement.setLive(true)
-      redraw()
+      if (!box.current) return
+      trail.current.start(poseOf(box.current))
+      show(poseOf(box.current))
+      syncTrail()
     }
     const onUp = () => end(true)
     const onCancel = () => end(false)
@@ -146,6 +215,9 @@ export function MapStampLayer(props: Props) {
       from = place(event.evt)
       dragged = false
       phase.current = "placing"
+      // A new shape starts new steps; the old ones, if it had been taken away, cannot be had again.
+      trail.current.clear()
+      syncTrail()
       frameTo({ x: from[0], y: from[1], width: 0, height: 0 })
       window.addEventListener("pointermove", onMove)
       window.addEventListener("pointerup", onUp)
@@ -158,7 +230,7 @@ export function MapStampLayer(props: Props) {
       if (from) end(false)
       controls.current = null
       // Changing tool applies the shape (see useBuilderTools); anything else drops it.
-      if (phase.current !== "idle") reset()
+      reset()
     }
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled])
@@ -184,13 +256,16 @@ export function MapStampLayer(props: Props) {
         ref={box}
         visible={false}
         listening={false}
+        onDragEnd={edited}
+        onMouseEnter={(event) => setCursor(event, "move")}
+        onMouseLeave={(event) => setCursor(event, "")}
         // Only the box takes the pointer, to move the shape.
         hitFunc={(context, shape) => {
           context.setAttr("fillStyle", shape.colorKey)
           context.fillRect(0, 0, shape.width(), shape.height())
         }}
       />
-      <MapStampHandles transformer={transformer} snapRotation={snapRotation} />
+      <MapStampHandles transformer={transformer} snapRotation={snapRotation} onEdited={edited} />
     </Group>
   )
 }

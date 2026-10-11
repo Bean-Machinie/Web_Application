@@ -46,7 +46,7 @@ type Props = {
 // cannot tell, and then opens the map.
 export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage }: Props) {
   const history = useSceneHistory(loaded.scene)
-  const { scene, undo, redo } = history
+  const { scene } = history
   const landStyle = useMapStyle(scene, history.change)
   const autosave = useSceneAutosave(mapId, scene, loaded)
   const stage = useRef<Konva.Stage>(null)
@@ -90,12 +90,16 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const { alt, shift } = useHeldModifiers()
   const cutting = tools.mode === "cut"
   const [helpOpen, setHelpOpen] = useState(false)
+  // While a shape is being placed, undo and redo are its own, back to before it was made;
+  // after, the map's.
+  const undoAny = () => (tools.placement.canUndo ? tools.placement.undo() : history.undo())
+  const redoAny = () => (tools.placement.canRedo ? tools.placement.redo() : history.redo())
   useBuilderShortcuts({
     enabled: !publishing,
     tools,
     viewport,
-    undo,
-    redo,
+    undo: undoAny,
+    redo: redoAny,
     toggleHelp: () => setHelpOpen((open) => !open),
   })
 
@@ -113,10 +117,10 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
         name={name}
         store={autosave.store}
         publishing={publishing}
-        canUndo={history.canUndo && !publishing}
-        canRedo={history.canRedo && !publishing}
-        onUndo={undo}
-        onRedo={redo}
+        canUndo={(history.canUndo || tools.placement.canUndo) && !publishing}
+        canRedo={(history.canRedo || tools.placement.canRedo) && !publishing}
+        onUndo={undoAny}
+        onRedo={redoAny}
         onBack={goBack}
         onPublish={async () => {
           if (await publish()) leave()

@@ -88,7 +88,7 @@ export function MapStampLibrary({ stampId, onStamp, placement }: Props) {
         </div>
       ) : (
         <p className="text-muted-foreground text-xs">
-          Drag on the map to fit a shape to a box, or click to place it. Hold Shift to keep its proportions.
+          Drag on the map to fit a shape to a box, or click to place it. Hold Shift to stretch it freely.
         </p>
       )}
       {import.meta.env.DEV && (

@@ -21,11 +21,13 @@ type Props = {
   transformer: RefObject<Konva.Transformer | null>
   // Shift is held: rotating snaps to 15 degrees.
   snapRotation: boolean
+  // A stretch, scale or turn is done.
+  onEdited: () => void
 }
 
 // The handles of the shape being placed: the sides stretch it, the corners scale it
 // with its proportions kept, and the one above turns it.
-export function MapStampHandles({ transformer, snapRotation }: Props) {
+export function MapStampHandles({ transformer, snapRotation, onEdited }: Props) {
   return (
     <Transformer
       ref={transformer}
@@ -44,6 +46,7 @@ export function MapStampHandles({ transformer, snapRotation }: Props) {
       anchorSize={10}
       anchorCornerRadius={2}
       rotateAnchorOffset={26}
+      onTransformEnd={onEdited}
       boundBoxFunc={(before, after) => (Math.abs(after.width) < LEAST || Math.abs(after.height) < LEAST ? before : after)}
     />
   )
