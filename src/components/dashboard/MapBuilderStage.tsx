@@ -25,6 +25,7 @@ import { MapAssetsLayer } from "./MapAssetsLayer"
 import { MapBiomeLayer } from "./MapBiomeLayer"
 import { MapBrushLayer } from "./MapBrushLayer"
 import { MapDetailLayer } from "./MapDetailLayer"
+import { MapBrushResize } from "./MapBrushResize"
 import { MapEraseAssetsLayer } from "./MapEraseAssetsLayer"
 import { MapLandLayer } from "./MapLandLayer"
 import { MapWaterLayer } from "./MapWaterLayer"
@@ -210,6 +211,10 @@ export function MapBuilderStage(props: Props) {
           land={detailMask}
           surface={detailSurface}
           onPaint={props.onPaintDetails}
+        />
+        <MapBrushResize
+          enabled={editable && (tool === "brush" || tool === "eraser" || tool === "blend")}
+          brush={props.brush}
         />
         <MapEraseAssetsLayer
           enabled={editable && eraser === "assets"}

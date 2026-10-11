@@ -3,6 +3,7 @@ import type Konva from "konva"
 import type { Pair } from "polygon-clipping"
 import { Circle, Group } from "react-konva"
 import type { Brush } from "@/hooks/use-brush"
+import { isResizeGesture, resizing } from "@/lib/brush-resize"
 import type { AssetPicker } from "@/lib/map-asset-pick"
 
 const NONE: ReadonlySet<string> = new Set()
@@ -82,7 +83,7 @@ export function MapEraseAssetsLayer({ enabled, brush, pick, onFading, onErase }:
     const onCancel = () => end(false)
 
     const onDown = (event: Konva.KonvaEventObject<PointerEvent>) => {
-      if (event.evt.button !== 0 || touched) return
+      if (event.evt.button !== 0 || touched || isResizeGesture(event.evt)) return
       touched = new Set()
       last = place(event.evt)
       touch(last, last)
@@ -91,6 +92,7 @@ export function MapEraseAssetsLayer({ enabled, brush, pick, onFading, onErase }:
       window.addEventListener("pointercancel", onCancel)
     }
     const onHover = () => {
+      if (resizing.active) return
       const at = stage.getRelativePointerPosition()
       if (!at || !ring.current) return
       ring.current.position(at).visible(true)
@@ -115,7 +117,7 @@ export function MapEraseAssetsLayer({ enabled, brush, pick, onFading, onErase }:
   const radius = brush.size / 2
   return (
     <Group ref={layer} listening={false}>
-      <Group ref={ring} visible={false}>
+      <Group ref={ring} name="brush-ring" visible={false}>
         <Circle radius={radius} stroke="rgba(0, 0, 0, 0.5)" strokeWidth={3.5} strokeScaleEnabled={false} />
         <Circle radius={radius} stroke="#fff" strokeWidth={1.5} strokeScaleEnabled={false} />
       </Group>

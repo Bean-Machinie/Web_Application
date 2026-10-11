@@ -3,6 +3,7 @@ import type Konva from "konva"
 import type { Pair } from "polygon-clipping"
 import { Circle, Group } from "react-konva"
 import type { Brush } from "@/hooks/use-brush"
+import { isResizeGesture, resizing } from "@/lib/brush-resize"
 import type { BrushBiome } from "@/lib/biomes/biomes"
 import { startStroke } from "@/lib/biomes/brush"
 import type { Cells, Stroke } from "@/lib/biomes/brush"
@@ -102,7 +103,7 @@ export function MapBrushLayer({ enabled, target, cell, brush, paint, land, surfa
     const onCancel = () => end(false)
 
     const onDown = (event: Konva.KonvaEventObject<PointerEvent>) => {
-      if (event.evt.button !== 0 || stroke) return
+      if (event.evt.button !== 0 || stroke || isResizeGesture(event.evt)) return
       const { target, cell, brush, paint, land } = latest.current
       stroke = startStroke(
         paint,
@@ -123,6 +124,7 @@ export function MapBrushLayer({ enabled, target, cell, brush, paint, land, surfa
       window.addEventListener("pointercancel", onCancel)
     }
     const onHover = () => {
+      if (resizing.active) return
       const at = stage.getRelativePointerPosition()
       if (!at || !ring.current) return
       ring.current.position(at).visible(true)
@@ -147,7 +149,7 @@ export function MapBrushLayer({ enabled, target, cell, brush, paint, land, surfa
   const radius = brush.size / 2
   return (
     <Group ref={layer} listening={false}>
-      <Group ref={ring} visible={false}>
+      <Group ref={ring} name="brush-ring" visible={false}>
         <Circle radius={radius} stroke="rgba(0, 0, 0, 0.5)" strokeWidth={3.5} strokeScaleEnabled={false} />
         <Circle radius={radius} stroke="#fff" strokeWidth={1.5} strokeScaleEnabled={false} />
       </Group>
