@@ -2,6 +2,7 @@ import type { BrushLayer } from "@/hooks/use-brush"
 import type { Props } from "./MapToolPanel"
 import { MapBiomeSubTools } from "./MapBiomeSubTools"
 import { MapBrushProperties } from "./MapBrushProperties"
+import { MapBlendSubTools } from "./MapBlendSubTools"
 import { MapDetailSubTools } from "./MapDetailSubTools"
 import { MapEraseSubTools } from "./MapEraseSubTools"
 import { MapLandSubTools } from "./MapLandSubTools"
@@ -11,13 +12,14 @@ import { MapSelectProperties } from "./MapSelectProperties"
 import { MapSelectSubTools } from "./MapSelectSubTools"
 import type { ToolSection } from "./MapToolSections"
 
-// What each tool offers, section by section; a tool gets another by adding one here.
+// What each tool offers, section by section; a tool gets another by adding one here. The
+// first is always "main" and the last "properties", for the panel to keep their sizes.
 export function toolSections(props: Props): ToolSection[] {
   const { tool, cutting, brush, background } = props
   const list: ToolSection[] = []
   if (tool === "land")
     list.push({
-      id: "modes",
+      id: "main",
       title: "Land",
       content: (
         <div className="grid gap-1 p-2">
@@ -27,7 +29,7 @@ export function toolSections(props: Props): ToolSection[] {
     })
   if (tool === "brush")
     list.push({
-      id: "brushes",
+      id: "main",
       title: "Brushes",
       tabs: {
         tabs: [
@@ -47,9 +49,19 @@ export function toolSections(props: Props): ToolSection[] {
         </div>
       ),
     })
+  if (tool === "blend")
+    list.push({
+      id: "main",
+      title: "Blend brush",
+      content: (
+        <div className="grid gap-1 p-2">
+          <MapBlendSubTools />
+        </div>
+      ),
+    })
   if (tool === "eraser")
     list.push({
-      id: "erasers",
+      id: "main",
       title: "Eraser",
       content: (
         <div className="grid gap-1 p-2">
@@ -59,7 +71,7 @@ export function toolSections(props: Props): ToolSection[] {
     })
   if (tool === "select")
     list.push({
-      id: "modes",
+      id: "main",
       title: "Selection",
       content: (
         <div className="grid gap-1 p-2">
@@ -69,7 +81,7 @@ export function toolSections(props: Props): ToolSection[] {
     })
   if (tool === "hand")
     list.push({
-      id: "modes",
+      id: "main",
       title: "Navigation",
       content: (
         <div className="grid gap-1 p-2">

@@ -34,7 +34,7 @@ export type Props = {
 // sidebar does, so the canvas is never resized and the map stays where it is;
 // only putting it away by hand closes it, whatever the tool.
 export function MapToolPanel(props: Props) {
-  const { tool, open, disabled } = props
+  const { open, disabled } = props
   const sections = toolSections(props)
 
   return (
@@ -44,7 +44,7 @@ export function MapToolPanel(props: Props) {
       className={`absolute inset-y-0 left-0 z-20 flex transition-transform duration-200 ease-linear motion-reduce:transition-none data-[state=closed]:-translate-x-56 ${disabled ? "pointer-events-none opacity-60" : ""}`}
     >
       <div inert={!open} className="bg-background w-56 border-r">
-        <MapToolSections key={tool} tool={tool} sections={sections} />
+        <MapToolSections sections={sections} />
       </div>
       <Tooltip>
         <TooltipTrigger asChild>

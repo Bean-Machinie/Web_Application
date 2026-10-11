@@ -12,13 +12,15 @@ export type SectionTabs = { tabs: { id: string; title: string }[]; active: strin
 
 export type ToolSection = { id: string; title: string; content: ReactNode; tabs?: SectionTabs }
 
-type Props = { tool: string; sections: ToolSection[] }
+type Props = { sections: ToolSection[] }
 
 // The sections of a tool, stacked like the groups of the right panel: a bar with
 // the section's title, its own scroll, and a gutter between them to drag. A tool
-// gets another section by adding one to the list it gives here.
-export function MapToolSections({ tool, sections }: Props) {
-  const layout = useToolPanelLayout(tool)
+// gets another section by adding one to the list it gives here. The sections' sizes are
+// kept for the panel and not for the tool, by the id of each, so a tool gives the
+// same id to what is in the same place as in another.
+export function MapToolSections({ sections }: Props) {
+  const layout = useToolPanelLayout()
   const size = `${100 / sections.length}%`
 
   return (

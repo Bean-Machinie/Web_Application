@@ -4,6 +4,7 @@ import type { Brush } from "@/hooks/use-brush"
 import type { EraseTarget } from "@/lib/erase"
 import { useShortcutText } from "@/hooks/use-shortcut-text"
 import { BLEND_STRENGTH, BLEND_STRETCH, BRUSH_OPACITY } from "@/lib/biomes/biomes"
+import { MapBrushSize } from "./MapBrushSize"
 import { Shortcut } from "./Shortcut"
 import { SliderField } from "./SliderField"
 
@@ -23,15 +24,7 @@ export function MapBrushProperties({ blending, erasing, brush, showAssets, onSho
   const keyOf = useShortcutText()
   return (
     <>
-      <SliderField
-        label="Size"
-        value={brush.size}
-        min={brush.range.min}
-        max={brush.range.max}
-        step={1}
-        unit="px"
-        onChange={brush.onSize}
-      />
+      <MapBrushSize brush={brush} />
       {blending ? (
         <>
           <SliderField
