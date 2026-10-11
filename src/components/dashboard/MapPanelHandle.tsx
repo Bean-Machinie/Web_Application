@@ -9,7 +9,7 @@ export function MapPanelHandle() {
   return (
     <ResizableHandle className="group/handle -mt-1 bg-transparent aria-[orientation=horizontal]:h-3.5">
       <span className="bg-muted/30 pointer-events-none absolute inset-x-0 bottom-0 h-2.5 border-y" />
-      <span className="bg-muted-foreground pointer-events-none absolute top-0 left-1/2 z-10 h-1.5 w-16 -translate-x-1/2 rounded-full transition-[filter] duration-150 ease-out group-data-[separator=active]/handle:brightness-125 group-data-[separator=hover]/handle:brightness-125" />
+      <span className="bg-muted-foreground pointer-events-none absolute top-[2.5px] left-1/2 z-10 h-1 w-16 -translate-x-1/2 rounded-full brightness-75 transition-[filter] duration-150 ease-out group-data-[separator=active]/handle:brightness-125 group-data-[separator=hover]/handle:brightness-125" />
     </ResizableHandle>
   )
 }
