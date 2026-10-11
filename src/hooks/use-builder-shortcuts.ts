@@ -49,6 +49,15 @@ export function useBuilderShortcuts({ enabled, tools, viewport, undo, redo, togg
     ...Object.fromEntries(BUILDER_TOOLS.map(({ id }) => [`tool.${id}`, () => tools.changeTool(id)])),
     "brush.smaller": when(brushOn, () => brush.stepSize(false)),
     "brush.larger": when(brushOn, () => brush.stepSize(true)),
+    // Only while a shape is being placed, and then before anything else with the key.
+    "shape.apply": () => {
+      if (!tools.placement.live) return false
+      tools.placement.apply()
+    },
+    "shape.cancel": () => {
+      if (!tools.placement.live) return false
+      tools.placement.cancel()
+    },
     "view.pan": tools.panHold,
     "view.zoomIn": () => viewport.zoomBy(ZOOM_STEP),
     "view.zoomOut": () => viewport.zoomBy(1 / ZOOM_STEP),

@@ -1,5 +1,5 @@
 import { difference, union } from "polygon-clipping"
-import type { MultiPolygon, Pair, Ring } from "polygon-clipping"
+import type { MultiPolygon, Pair, Polygon, Ring } from "polygon-clipping"
 import simplify from "@turf/simplify"
 import { clipToCanvas } from "./map-land-clip"
 
@@ -42,6 +42,14 @@ const normalize = (shape: MultiPolygon) => (shape.length === 0 ? shape : union(s
 
 const geometry = (shape: MultiPolygon) => ({ type: "MultiPolygon" as const, coordinates: shape })
 
+// A shape as it is added to or cut from the land: crossings resolved, whatever lies
+// outside the canvas cut off, and slivers smaller than "minArea" dropped. Null if
+// nothing is left.
+function fitToCanvas(shape: MultiPolygon, canvas: { width: number; height: number }, minArea: number) {
+  const fitted = tidy(clipToCanvas(normalize(shape), canvas), minArea)
+  return fitted.length > 0 ? fitted : null
+}
+
 // A dragged outline as clean land, or null when it is too small or too tangled
 // to be a shape. The ends are joined, crossings are resolved, the wobble is
 // evened out, and whatever lies outside the canvas is cut off. The corners are
@@ -57,9 +65,18 @@ export function lassoToShape(
   try {
     const clean = normalize([[[...points, points[0]]]])
     const even = simplify(geometry(clean), { tolerance: TOLERANCE_PX / scale, highQuality: true })
-    const inside = clipToCanvas(normalize(even.coordinates as MultiPolygon), canvas)
-    const shape = tidy(inside, MIN_DRAWN_PX / scale ** 2)
-    return shape.length > 0 ? shape : null
+    return fitToCanvas(even.coordinates as MultiPolygon, canvas, MIN_DRAWN_PX / scale ** 2)
+  } catch {
+    return null
+  }
+}
+
+// A stamped outline, with its holes, as clean land, or null if nothing of it is on the
+// canvas. It is as drawn, not smoothed, as a stamp is already clean; the rest is as
+// for a lasso: the corners are left as they are, to be rounded when the land is shown.
+export function stampToShape(outline: Polygon, canvas: { width: number; height: number }): MultiPolygon | null {
+  try {
+    return fitToCanvas([outline], canvas, MIN_LEFT)
   } catch {
     return null
   }

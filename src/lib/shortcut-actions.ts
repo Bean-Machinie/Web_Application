@@ -7,6 +7,8 @@ import type { Binding } from "./shortcut-keys"
 // useBuilderShortcuts, and one listener (useShortcuts) finds it by key.
 
 export type ActionId =
+  | "shape.apply"
+  | "shape.cancel"
   | `tool.${BuilderTool}`
   | "brush.smaller"
   | "brush.larger"
@@ -65,6 +67,10 @@ export type Action = {
 const arrow = (key: string) => [{ key }, { key, shift: true }]
 
 export const ACTIONS: Action[] = [
+  // First, so that they come before every key that is also theirs while a shape is
+  // being placed: Escape is the selection's too. They leave the key alone when there is none.
+  { id: "shape.apply", label: "Apply the shape being placed", defaults: [{ key: "enter" }], guard: GUARD.normal, fixed: true },
+  { id: "shape.cancel", label: "Cancel the shape being placed", defaults: [{ key: "escape" }], guard: GUARD.normal, fixed: true },
   ...BUILDER_TOOLS.map(({ id, label, key }) => ({
     id: `tool.${id}` as const,
     label,
@@ -120,6 +126,7 @@ export const SHORTCUT_GROUPS: { title: string; rows: Row[] }[] = [
     ],
   },
   { title: "Brush", rows: [{ action: "brush.smaller" }, { action: "brush.larger" }] },
+  { title: "Shapes", rows: [{ action: "shape.apply" }, { action: "shape.cancel" }] },
   {
     title: "View",
     rows: [

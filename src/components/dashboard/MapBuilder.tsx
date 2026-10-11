@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useRef, useState, useSyncExternalStore } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import type Konva from "konva"
 import { useBuilderShortcuts } from "@/hooks/use-builder-shortcuts"
@@ -14,6 +14,7 @@ import { useSceneAutosave } from "@/hooks/use-scene-autosave"
 import { useSceneHistory } from "@/hooks/use-scene-history"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import { removeAssets } from "@/lib/map-asset-edit"
+import { getStamps, subscribeStamps } from "@/lib/stamps/stamp-file"
 import { TOOL_PANEL_INSET } from "@/lib/map-builder-tools"
 import type { WorldImage } from "@/lib/world-images"
 import type { LoadedScene } from "@/lib/world-map-scenes"
@@ -98,7 +99,9 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
     toggleHelp: () => setHelpOpen((open) => !open),
   })
 
-  const drawLand = useLandDrawing(scene, history.change)
+  const { drawLand, drawStamp } = useLandDrawing(scene, history.change)
+  const stamps = useSyncExternalStore(subscribeStamps, getStamps)
+  const stamp = stamps.find(({ id }) => id === tools.stampId) ?? stamps[0]
   const paintBiomes = (paint: Paint) => history.change((old) => ({ ...old, paint }))
   const paintDetails = (details: Paint) => history.change((old) => ({ ...old, details }))
   const eraseAssets = (ids: string[]) =>
@@ -144,6 +147,11 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               disabled={publishing}
               onOpen={setPanelOpen}
               onMode={tools.setMode}
+              landTool={tools.landTool}
+              onLandTool={tools.setLandTool}
+              stampId={stamp.id}
+              onStamp={tools.setStampId}
+              placement={tools.placement}
               selectMode={tools.selectMode}
               onSelectMode={tools.setSelectMode}
               panMode={tools.panMode}
@@ -175,6 +183,10 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               stageRef={stage}
               pointer={pointer}
               onLasso={drawLand}
+              landTool={tools.landTool}
+              stamp={stamp}
+              placement={tools.placement}
+              onShape={drawStamp}
             />
           </div>
           <MapStatusBar

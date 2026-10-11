@@ -5,8 +5,10 @@ import { Group, Image as KonvaImage, Layer, Rect, Stage } from "react-konva"
 import type { BuilderView } from "@/hooks/use-builder-viewport"
 import { useShownLand } from "@/hooks/use-shown-land"
 import type { MapScene } from "@/lib/map-scene"
-import type { Pair } from "polygon-clipping"
-import type { BuilderTool, SelectMode } from "@/lib/map-builder-tools"
+import type { Pair, Polygon } from "polygon-clipping"
+import type { StampPlacement } from "@/hooks/use-stamp-placement"
+import type { BuilderTool, LandTool, SelectMode } from "@/lib/map-builder-tools"
+import type { Stamp } from "@/lib/stamps/stamps"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import type { AssetPicker } from "@/lib/map-asset-pick"
 import { useBiomeSurface } from "@/hooks/use-biome-surface"
@@ -26,7 +28,9 @@ import { MapDetailLayer } from "./MapDetailLayer"
 import { MapEraseAssetsLayer } from "./MapEraseAssetsLayer"
 import { MapLandLayer } from "./MapLandLayer"
 import { MapWaterLayer } from "./MapWaterLayer"
+import { MapLandmassPick } from "./MapLandmassPick"
 import { MapLassoLayer } from "./MapLassoLayer"
+import { MapStampLayer } from "./MapStampLayer"
 import { MapSelectionLayer } from "./MapSelectionLayer"
 
 const NONE: ReadonlySet<string> = new Set()
@@ -48,6 +52,10 @@ type Props = {
   // False while the scene must not change, as when publishing.
   editable: boolean
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
+  landTool: LandTool
+  stamp: Stamp
+  placement: StampPlacement
+  onShape: (outline: Polygon, cut: boolean) => void
   editing: AssetEditing
   showAssets: boolean
   pick: AssetPicker
@@ -154,10 +162,33 @@ export function MapBuilderStage(props: Props) {
       />
       <Layer name="chrome">
         <MapLassoLayer
-          enabled={editable && tool === "land"}
+          enabled={editable && tool === "land" && props.landTool === "lasso"}
           cutting={cutting}
           onLasso={props.onLasso}
         />
+        <MapStampLayer
+          enabled={editable && tool === "land" && props.landTool === "shapes" && !props.placement.saving}
+          stamp={props.stamp}
+          cutting={cutting}
+          placement={props.placement}
+          canvas={canvas}
+          style={scene.style}
+          terrain={terrain}
+          snapRotation={props.snapRotation}
+          onApply={props.onShape}
+        />
+        {import.meta.env.DEV && (
+          <MapLandmassPick
+            enabled={editable && tool === "land" && props.landTool === "shapes" && props.placement.saving}
+            land={scene.land}
+            canvas={canvas}
+            onPick={(picked) => {
+              if (!picked) return
+              props.placement.setSaving(false)
+              props.placement.setPicked(picked)
+            }}
+          />
+        )}
         <MapBrushLayer
           enabled={editable && (tool === "blend" || (tool === "brush" && !paintingDetails) || eraser === "biomes")}
           target={tool === "blend" ? "blend" : eraser ? "plains" : props.brush.biome}

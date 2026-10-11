@@ -5,11 +5,13 @@ import { MapBrushProperties } from "./MapBrushProperties"
 import { MapBlendSubTools } from "./MapBlendSubTools"
 import { MapDetailSubTools } from "./MapDetailSubTools"
 import { MapEraseSubTools } from "./MapEraseSubTools"
+import { MapLandModeToggle } from "./MapLandModeToggle"
 import { MapLandSubTools } from "./MapLandSubTools"
 import { MapPanProperties } from "./MapPanProperties"
 import { MapPanSubTools } from "./MapPanSubTools"
 import { MapSelectProperties } from "./MapSelectProperties"
 import { MapSelectSubTools } from "./MapSelectSubTools"
+import { MapStampLibrary } from "./MapStampLibrary"
 import type { ToolSection } from "./MapToolSections"
 
 // What each tool offers, section by section; a tool gets another by adding one here. The
@@ -23,7 +25,7 @@ export function toolSections(props: Props): ToolSection[] {
       title: "Land",
       content: (
         <div className="grid gap-1 p-2">
-          <MapLandSubTools cutting={cutting} onMode={props.onMode} />
+          <MapLandSubTools landTool={props.landTool} onLandTool={props.onLandTool} />
         </div>
       ),
     })
@@ -95,7 +97,13 @@ export function toolSections(props: Props): ToolSection[] {
     content: (
       <div className="grid gap-4 p-3">
         {tool === "land" && (
-          <p className="text-muted-foreground text-xs">Tap Alt to switch between adding and cutting.</p>
+          <>
+            <MapLandModeToggle cutting={cutting} onMode={props.onMode} />
+            <p className="text-muted-foreground text-xs">Tap Alt to switch between adding and cutting.</p>
+            {props.landTool === "shapes" && (
+              <MapStampLibrary stampId={props.stampId} onStamp={props.onStamp} placement={props.placement} />
+            )}
+          </>
         )}
         {(tool === "brush" || tool === "eraser" || tool === "blend") && (
           <MapBrushProperties

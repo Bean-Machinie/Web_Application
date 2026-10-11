@@ -2,7 +2,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { Brush } from "@/hooks/use-brush"
-import type { BuilderTool, LandMode, PanMode, SelectMode } from "@/lib/map-builder-tools"
+import type { StampPlacement } from "@/hooks/use-stamp-placement"
+import type { BuilderTool, LandMode, LandTool, PanMode, SelectMode } from "@/lib/map-builder-tools"
 import type { SceneBackground } from "@/lib/map-scene"
 import { toolSections } from "./map-tool-sections"
 import { MapToolSections } from "./MapToolSections"
@@ -19,6 +20,11 @@ export type Props = {
   disabled: boolean
   onOpen: (open: boolean) => void
   onMode: (mode: LandMode) => void
+  landTool: LandTool
+  onLandTool: (tool: LandTool) => void
+  stampId: string
+  onStamp: (id: string) => void
+  placement: StampPlacement
   selectMode: SelectMode
   onSelectMode: (mode: SelectMode) => void
   panMode: PanMode

@@ -1,13 +1,15 @@
 import { useRef, useState } from "react"
 import type { MutableRefObject, RefObject } from "react"
 import type Konva from "konva"
-import type { Pair } from "polygon-clipping"
+import type { Pair, Polygon } from "polygon-clipping"
 import { useAssetPick } from "@/hooks/use-asset-pick"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import type { Brush } from "@/hooks/use-brush"
+import type { StampPlacement } from "@/hooks/use-stamp-placement"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { useBuilderViewport } from "@/hooks/use-builder-viewport"
-import type { BuilderTool, SelectMode } from "@/lib/map-builder-tools"
+import type { BuilderTool, LandTool, SelectMode } from "@/lib/map-builder-tools"
+import type { Stamp } from "@/lib/stamps/stamps"
 import type { MapScene } from "@/lib/map-scene"
 import type { Terrain } from "@/lib/terrain"
 import { MapArmedGhost } from "./MapArmedGhost"
@@ -41,6 +43,10 @@ type Props = {
   // Kept up to date with where the pointer is on the canvas, for pasting there.
   pointer: MutableRefObject<{ x: number; y: number } | null>
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
+  landTool: LandTool
+  stamp: Stamp
+  placement: StampPlacement
+  onShape: (outline: Polygon, cut: boolean) => void
   onPaint: (paint: Paint) => void
   onPaintDetails: (details: Paint) => void
   onEraseAssets: (ids: string[]) => void
@@ -136,6 +142,10 @@ export function MapBuilderCanvas(props: Props) {
           snapRotation={props.shift}
           altHeld={props.alt}
           onLasso={props.onLasso}
+          landTool={props.landTool}
+          stamp={props.stamp}
+          placement={props.placement}
+          onShape={props.onShape}
           brush={props.brush}
           onPaint={props.onPaint}
           onPaintDetails={props.onPaintDetails}

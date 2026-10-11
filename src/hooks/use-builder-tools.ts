@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react"
 import type { MapScene } from "@/lib/map-scene"
-import type { BuilderTool, LandMode, PanMode, SelectMode } from "@/lib/map-builder-tools"
+import type { BuilderTool, LandMode, LandTool, PanMode, SelectMode } from "@/lib/map-builder-tools"
 import { BIOMES } from "@/lib/biomes/biomes"
 import type { BrushBiome } from "@/lib/biomes/biomes"
 import { DETAILS } from "@/lib/details/details"
@@ -10,6 +10,7 @@ import { useArmedAsset } from "./use-armed-asset"
 import { useAssetEditing } from "./use-asset-editing"
 import { useBrush } from "./use-brush"
 import { useSpacePan } from "./use-space-pan"
+import { useStampPlacement } from "./use-stamp-placement"
 
 // The brush's sub tools in the order the panel lists them, for each tab.
 const CHOICES: BrushBiome[] = ["plains", ...BIOMES]
@@ -29,6 +30,9 @@ type Options = {
 export function useBuilderTools({ assets, change, centre, pointer, locked }: Options) {
   const [tool, setTool] = useState<BuilderTool>("land")
   const [mode, setMode] = useState<LandMode>("add")
+  const [landTool, setLandTool] = useState<LandTool>("lasso")
+  const [stampId, setStampId] = useState("circle")
+  const placement = useStampPlacement()
   const [selectMode, setSelectMode] = useState<SelectMode>("rectangle")
   const [panMode, setPanMode] = useState<PanMode>("hand")
   const [hideAssets, setHideAssets] = useState(false)
@@ -48,14 +52,24 @@ export function useBuilderTools({ assets, change, centre, pointer, locked }: Opt
     }, [disarm]),
   })
   const { clear } = editing
+  const { apply } = placement
 
+  // A shape being placed is applied before the tool or the sub tool changes.
   const changeTool = useCallback(
     (next: BuilderTool) => {
+      apply()
       setTool(next)
       disarm()
       if (next !== "select") clear()
     },
-    [clear, disarm]
+    [apply, clear, disarm]
+  )
+  const changeLandTool = useCallback(
+    (next: LandTool) => {
+      apply()
+      setLandTool(next)
+    },
+    [apply]
   )
   // Picking art up lets go of the selection, which would otherwise be out of
   // sight and still there for Delete.
@@ -92,6 +106,11 @@ export function useBuilderTools({ assets, change, centre, pointer, locked }: Opt
     panHold: pan.hold,
     mode,
     setMode,
+    landTool,
+    setLandTool: changeLandTool,
+    stampId,
+    setStampId,
+    placement,
     selectMode,
     setSelectMode,
     brush,
