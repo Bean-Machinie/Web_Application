@@ -7,7 +7,6 @@ export function MapBlendSubTools() {
   return (
     <MapSubToolButton
       label="Blend"
-      hint="Soften where biomes meet. Drag across a border to pull one into the other."
       active
       onClick={() => {}}
     >

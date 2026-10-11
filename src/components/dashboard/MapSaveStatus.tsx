@@ -49,8 +49,8 @@ export function MapSaveStatus({ store }: { store: SaveStore }) {
         </span>
       </TooltipTrigger>
       <TooltipContent align="end">
-        {savedAt ? `Last saved at ${new Date(savedAt).toLocaleTimeString()}.` : "Nothing changed since you opened it."}{" "}
-        {unpublished ? "Not published yet." : "Published to players."}
+        {savedAt ? `Saved at ${new Date(savedAt).toLocaleTimeString()}` : "Nothing changed yet"} ·{" "}
+        {unpublished ? "Not published" : "Published"}
       </TooltipContent>
     </Tooltip>
   )

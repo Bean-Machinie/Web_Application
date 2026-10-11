@@ -11,7 +11,6 @@ export function MapSelectSubTools({ mode, onMode }: Props) {
     <>
       <MapSubToolButton
         label="Rectangle"
-        hint="Drag a box: everything it touches is selected."
         active={mode === "rectangle"}
         onClick={() => onMode("rectangle")}
       >
@@ -19,7 +18,6 @@ export function MapSelectSubTools({ mode, onMode }: Props) {
       </MapSubToolButton>
       <MapSubToolButton
         label="Lasso"
-        hint="Draw an outline by hand: everything it touches is selected."
         active={mode === "lasso"}
         onClick={() => onMode("lasso")}
       >

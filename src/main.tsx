@@ -10,7 +10,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
-      <TooltipProvider delayDuration={300}>
+      <TooltipProvider>
         <BrowserRouter>
           <AuthProvider>
             <App />

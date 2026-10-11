@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { useShortcutText } from "@/hooks/use-shortcut-text"
+import { useShortcutKeys } from "@/hooks/use-shortcut-keys"
 import type { ActionId } from "@/lib/shortcut-actions"
-import { Shortcut } from "./Shortcut"
 
 type Props = {
   label: string
@@ -15,7 +14,7 @@ type Props = {
 
 // A small icon button with a tooltip naming it and its key.
 export function MapStepButton({ label, action, onClick, children, className }: Props) {
-  const keyOf = useShortcutText()
+  const keysOf = useShortcutKeys()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -23,10 +22,7 @@ export function MapStepButton({ label, action, onClick, children, className }: P
           {children}
         </Button>
       </TooltipTrigger>
-      <TooltipContent>
-        {label}
-        {action && <Shortcut>{keyOf(action)}</Shortcut>}
-      </TooltipContent>
+      <TooltipContent keys={action ? keysOf(action) : undefined}>{label}</TooltipContent>
     </Tooltip>
   )
 }

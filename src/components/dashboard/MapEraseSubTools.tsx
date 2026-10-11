@@ -4,9 +4,9 @@ import { ERASE_ICONS } from "./map-erase-icons"
 import { MapSubToolButton } from "./MapSubToolButton"
 
 const ROWS: { target: EraseTarget; label: string; hint: string }[] = [
-  { target: "biomes", label: "Erase biomes", hint: "Paint back to plains" },
-  { target: "details", label: "Erase details", hint: "Rub out paths, roads and water; the biomes stay" },
-  { target: "assets", label: "Erase assets", hint: "Remove any art the brush touches, whole" },
+  { target: "biomes", label: "Erase biomes", hint: "Back to plains" },
+  { target: "details", label: "Erase details", hint: "Keeps the biomes" },
+  { target: "assets", label: "Erase assets", hint: "Removes whole assets" },
 ]
 
 export function MapEraseSubTools({ brush }: { brush: Brush }) {

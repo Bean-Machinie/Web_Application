@@ -54,7 +54,7 @@ export function MapViewerZoomRow({ map, size }: { map: L.Map; size: MapSize }) {
       <MapStepButton label="Zoom in" className={TOUCH} onClick={() => glideZoomBy(map, 1)}>
         <Plus />
       </MapStepButton>
-      <MapStepButton label="Fit map to view (100%)" className={TOUCH} onClick={() => glideToBounds(map, fitBounds(size))}>
+      <MapStepButton label="Fit map" className={TOUCH} onClick={() => glideToBounds(map, fitBounds(size))}>
         <Maximize />
       </MapStepButton>
     </div>

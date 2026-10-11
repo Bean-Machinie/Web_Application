@@ -11,7 +11,7 @@ import { MapPanelHeader, MapPanelTab, PANEL_SCROLL } from "./MapPanelHeader"
 export type SectionTabs = { tabs: { id: string; title: string }[]; active: string; onPick: (id: string) => void }
 
 // With "fillTabs" the tabs share the whole width of the bar between them.
-export type ToolSection = { id: string; title: string; content: ReactNode; tabs?: SectionTabs; fillTabs?: boolean }
+export type ToolSection = { id: string; title: string; content: ReactNode; tabs?: SectionTabs; fillTabs?: boolean; end?: ReactNode }
 
 type Props = { sections: ToolSection[] }
 
@@ -47,7 +47,7 @@ export function MapToolSections({ sections }: Props) {
               onValueChange={section.tabs?.onPick}
               className="min-h-0 flex-1 gap-0"
             >
-              <MapPanelHeader fill={section.fillTabs}>
+              <MapPanelHeader fill={section.fillTabs} end={section.end}>
                 {(section.tabs?.tabs ?? [{ id: section.id, title: section.title }]).map(({ id, title }) => (
                   <MapPanelTab key={id} value={id} className={section.fillTabs ? "flex-1 last:border-r-0" : undefined}>
                     {title}

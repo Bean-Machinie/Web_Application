@@ -2,12 +2,11 @@ import { Copy, FlipHorizontal2, FlipVertical2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
-import { useShortcutText } from "@/hooks/use-shortcut-text"
+import { useShortcutKeys } from "@/hooks/use-shortcut-keys"
 import type { ActionId } from "@/lib/shortcut-actions"
-import { Shortcut } from "./Shortcut"
 
 function Action(props: { label: string; action: ActionId; onClick: () => void; children: React.ReactNode }) {
-  const keyOf = useShortcutText()
+  const keysOf = useShortcutKeys()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -15,10 +14,7 @@ function Action(props: { label: string; action: ActionId; onClick: () => void; c
           {props.children}
         </Button>
       </TooltipTrigger>
-      <TooltipContent>
-        {props.label}
-        <Shortcut>{keyOf(props.action)}</Shortcut>
-      </TooltipContent>
+      <TooltipContent keys={keysOf(props.action)}>{props.label}</TooltipContent>
     </Tooltip>
   )
 }

@@ -4,8 +4,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import type { LandMode } from "@/lib/map-builder-tools"
 
 const MODES = [
-  { mode: "add", label: "Add", hint: "What is drawn becomes land. Overlapping shapes merge.", Icon: SquaresUnite },
-  { mode: "cut", label: "Cut", hint: "What is drawn is cut away from the land: bays, lakes, straits.", Icon: SquaresSubtract },
+  { mode: "add", label: "Add", Icon: SquaresUnite },
+  { mode: "cut", label: "Cut", Icon: SquaresSubtract },
 ] as const
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
 export function MapLandModeToggle({ cutting, onMode }: Props) {
   return (
     <div role="group" aria-label="Mode" className="bg-muted grid grid-cols-2 gap-0.5 rounded-lg p-0.5">
-      {MODES.map(({ mode, label, hint, Icon }) => {
+      {MODES.map(({ mode, label, Icon }) => {
         const active = (mode === "cut") === cutting
         return (
           <Tooltip key={mode}>
@@ -32,7 +32,9 @@ export function MapLandModeToggle({ cutting, onMode }: Props) {
                 <Icon /> {label}
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="right">{hint}</TooltipContent>
+            <TooltipContent side="right" keys={["Alt"]}>
+              Tap to switch
+            </TooltipContent>
           </Tooltip>
         )
       })}

@@ -48,7 +48,7 @@ export function MapStatusBar({ view, onZoomBy, onZoomTo, onFit, onResetTurn, onH
           </TooltipTrigger>
           <TooltipContent>
             {[turned && `Turned ${Math.round(view.rotation)}°`, flipped && `Flipped ${flips}`].filter(Boolean).join(", ")}
-            . Click to reset
+            {" "}· Click to reset
           </TooltipContent>
         </Tooltip>
       )}

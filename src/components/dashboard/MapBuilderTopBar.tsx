@@ -1,10 +1,9 @@
 import { ArrowLeft, Loader2, Redo2, Undo2, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { useShortcutText } from "@/hooks/use-shortcut-text"
+import { useShortcutKeys } from "@/hooks/use-shortcut-keys"
 import type { SaveStore } from "@/lib/scene-save-store"
 import { MapSaveStatus } from "./MapSaveStatus"
-import { Shortcut } from "./Shortcut"
 
 type Props = {
   name: string
@@ -22,7 +21,7 @@ type Props = {
 // Back to the map, undo and redo, the draft's state, and publishing. The draft
 // saves by itself; only Publish changes the map image players see.
 export function MapBuilderTopBar(props: Props) {
-  const keyOf = useShortcutText()
+  const keysOf = useShortcutKeys()
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b px-3">
@@ -43,9 +42,7 @@ export function MapBuilderTopBar(props: Props) {
               <Undo2 />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            Undo<Shortcut>{keyOf("history.undo")}</Shortcut>
-          </TooltipContent>
+          <TooltipContent keys={keysOf("history.undo")}>Undo</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -59,9 +56,7 @@ export function MapBuilderTopBar(props: Props) {
               <Redo2 />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            Redo<Shortcut>{keyOf("history.redo")}</Shortcut>
-          </TooltipContent>
+          <TooltipContent keys={keysOf("history.redo")}>Redo</TooltipContent>
         </Tooltip>
       </div>
       <div className="ml-auto flex items-center gap-4">
@@ -73,10 +68,7 @@ export function MapBuilderTopBar(props: Props) {
               Publish map
             </Button>
           </TooltipTrigger>
-          <TooltipContent align="end">
-            Renders the map and publishes it to players, replacing the image they see. Drafts
-            save on their own.
-          </TooltipContent>
+          <TooltipContent align="end">Replaces the map players see</TooltipContent>
         </Tooltip>
       </div>
     </header>

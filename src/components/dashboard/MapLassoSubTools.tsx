@@ -7,7 +7,6 @@ export function MapLassoSubTools({ cutting }: { cutting: boolean }) {
   return (
     <MapSubToolButton
       label="Lasso"
-      hint="Draw an outline by hand. Overlapping shapes merge."
       active
       onClick={() => {}}
     >

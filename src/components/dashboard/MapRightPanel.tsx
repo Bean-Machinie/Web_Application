@@ -1,6 +1,5 @@
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import { useAssetTileSize } from "@/hooks/use-asset-tile-size"
 import type { useBuilderViewport } from "@/hooks/use-builder-viewport"
@@ -9,7 +8,9 @@ import { useSelectionTab } from "@/hooks/use-selection-tab"
 import type { RightTab } from "@/hooks/use-selection-tab"
 import type { MapScene } from "@/lib/map-scene"
 import type { Terrain } from "@/lib/terrain"
+import { ASSET_HELP } from "@/lib/map-help"
 import { MapAssetPanel } from "./MapAssetPanel"
+import { MapHelpButton } from "./MapHelpButton"
 import { MapNavigator } from "./MapNavigator"
 import { MapPanelHandle } from "./MapPanelHandle"
 import { MapPanelHeader, MapPanelTab, PANEL_SCROLL } from "./MapPanelHeader"
@@ -84,16 +85,15 @@ export function MapRightPanel(props: Props) {
         <MapPanelHandle />
         <ResizablePanel id="library" defaultSize="55%" minSize="20%" className="flex flex-col" style={{ overflow: "hidden" }}>
           <Tabs value="assets" className="min-h-0 flex-1 gap-0">
-            <MapPanelHeader end={<MapTileSize size={tileSize} onSize={setTileSize} />}>
-              <Tooltip>
-                {/* The tooltip has a state of its own, which the tab must not be given. */}
-                <TooltipTrigger asChild>
-                  <span className="flex h-full">
-                    <MapPanelTab value="assets">Assets</MapPanelTab>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>Click to pick, or drag onto the map</TooltipContent>
-              </Tooltip>
+            <MapPanelHeader
+              end={
+                <div className="flex items-center">
+                  <MapHelpButton title="Assets help" rows={ASSET_HELP} />
+                  <MapTileSize size={tileSize} onSize={setTileSize} />
+                </div>
+              }
+            >
+              <MapPanelTab value="assets">Assets</MapPanelTab>
             </MapPanelHeader>
             <TabsContent value="assets" className={PANEL_SCROLL}>
               <MapAssetPanel

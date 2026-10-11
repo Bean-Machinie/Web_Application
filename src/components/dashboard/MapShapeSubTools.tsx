@@ -33,7 +33,6 @@ export function MapShapeSubTools({ group, stampId, onStamp }: Props) {
       <MapSubToolButton
         key={stamp.id}
         label={stamp.name}
-        hint={`Stamp ${group === "islands" ? "the island" : "a"} ${stamp.name.toLowerCase()}`}
         active={stamp.id === stampId}
         onClick={() => onStamp(stamp.id)}
         onContextMenu={

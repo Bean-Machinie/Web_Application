@@ -1,11 +1,14 @@
 import type { BrushLayer } from "@/hooks/use-brush"
+import { BUILDER_TOOLS } from "@/lib/map-builder-tools"
 import type { LandTool } from "@/lib/map-builder-tools"
+import { helpFor } from "@/lib/map-help"
 import type { Props } from "./MapToolPanel"
 import { MapBiomeSubTools } from "./MapBiomeSubTools"
 import { MapBrushProperties } from "./MapBrushProperties"
 import { MapBlendSubTools } from "./MapBlendSubTools"
 import { MapDetailSubTools } from "./MapDetailSubTools"
 import { MapEraseSubTools } from "./MapEraseSubTools"
+import { MapHelpButton } from "./MapHelpButton"
 import { MapLandProperties } from "./MapLandProperties"
 import { MapLassoSubTools } from "./MapLassoSubTools"
 import { MapPanProperties } from "./MapPanProperties"
@@ -14,6 +17,8 @@ import { MapSelectProperties } from "./MapSelectProperties"
 import { MapSelectSubTools } from "./MapSelectSubTools"
 import { MapShapeSubTools } from "./MapShapeSubTools"
 import type { ToolSection } from "./MapToolSections"
+
+const toolLabel = (tool: string) => BUILDER_TOOLS.find(({ id }) => id === tool)?.label ?? "Tool"
 
 // What each tool offers, section by section; a tool gets another by adding one here. The
 // first is always "main" and the last "properties", for the panel to keep their sizes.
@@ -113,6 +118,7 @@ export function toolSections(props: Props): ToolSection[] {
   list.push({
     id: "properties",
     title: "Tool properties",
+    end: <MapHelpButton title={`${toolLabel(tool)} help`} rows={helpFor(tool, props.landTool, props.panMode)} />,
     content: (
       <div className="grid gap-4 p-3">
         {tool === "land" && (
@@ -138,7 +144,6 @@ export function toolSections(props: Props): ToolSection[] {
         )}
         {tool === "hand" && (
           <MapPanProperties
-            mode={props.panMode}
             zoom={props.zoom}
             onZoom={props.onZoom}
             onFit={props.onFit}

@@ -2,10 +2,8 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import type { Brush } from "@/hooks/use-brush"
 import type { EraseTarget } from "@/lib/erase"
-import { useShortcutText } from "@/hooks/use-shortcut-text"
 import { BLEND_STRENGTH, BLEND_STRETCH, BRUSH_OPACITY } from "@/lib/biomes/biomes"
 import { MapBrushSize } from "./MapBrushSize"
-import { Shortcut } from "./Shortcut"
 import { SliderField } from "./SliderField"
 
 type Props = {
@@ -21,7 +19,6 @@ type Props = {
 // the brush and the eraser have an opacity, and the eraser of art has none, as it takes a
 // piece whole; only the brush can hide the art; the blend brush has a strength and a stretch.
 export function MapBrushProperties({ blending, erasing, brush, showAssets, onShowAssets }: Props) {
-  const keyOf = useShortcutText()
   return (
     <>
       <MapBrushSize brush={brush} />
@@ -72,9 +69,6 @@ export function MapBrushProperties({ blending, erasing, brush, showAssets, onSho
           )}
         </>
       )}
-      <p className="text-muted-foreground text-xs">
-        Change the size<Shortcut>{keyOf("brush.smaller")} {keyOf("brush.larger")}</Shortcut>
-      </p>
     </>
   )
 }

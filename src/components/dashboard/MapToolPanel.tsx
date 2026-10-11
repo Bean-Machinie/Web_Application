@@ -62,7 +62,7 @@ export function MapToolPanel(props: Props) {
           </CollapsibleTrigger>
         </TooltipTrigger>
         <TooltipContent side="right">
-          {open ? "Put the tool panel away" : "Show the tool panel"}
+          {open ? "Hide tool panel" : "Show tool panel"}
         </TooltipContent>
       </Tooltip>
     </Collapsible>

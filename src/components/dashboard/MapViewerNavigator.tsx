@@ -23,7 +23,7 @@ export function MapViewerNavigator({ map, url, size, onDetails }: Props) {
         <span className="min-w-0 flex-1 overflow-hidden">
           <span className="block truncate px-3 text-xs leading-8 font-medium">Navigator</span>
         </span>
-        <MapCardButton label={open ? "Collapse the navigator" : "Expand the navigator"} onClick={() => setOpen(!open)}>
+        <MapCardButton label={open ? "Collapse" : "Expand"} onClick={() => setOpen(!open)}>
           {open ? <ChevronUp /> : <ChevronDown />}
         </MapCardButton>
         <MapCardButton label="Details" onClick={onDetails}>

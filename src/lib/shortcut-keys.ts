@@ -28,6 +28,7 @@ const NAMES: Record<string, string> = {
   delete: "Del",
   backspace: "Backspace",
   escape: "Esc",
+  enter: "Enter",
   arrowleft: "←",
   arrowright: "→",
   arrowup: "↑",

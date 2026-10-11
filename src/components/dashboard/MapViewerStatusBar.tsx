@@ -37,7 +37,7 @@ export function MapViewerStatusBar({ map, size, children }: Props) {
       <div className="flex items-center justify-end gap-0.5">
         {map && zoom !== null && (
           <>
-            <MapStepButton label="Fit map to view" className="pointer-coarse:size-11" onClick={() => glideToBounds(map, fitBounds(size))}>
+            <MapStepButton label="Fit map" className="pointer-coarse:size-11" onClick={() => glideToBounds(map, fitBounds(size))}>
               <Maximize />
             </MapStepButton>
             {/* A phone zooms by pinching, and by the navigator's own zoom. */}

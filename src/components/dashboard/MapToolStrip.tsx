@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { useShortcutText } from "@/hooks/use-shortcut-text"
+import { useShortcutKeys } from "@/hooks/use-shortcut-keys"
 import type { BrushBiome } from "@/lib/biomes/biomes"
 import type { Detail } from "@/lib/details/details"
 import type { SceneBackground } from "@/lib/map-scene"
@@ -8,7 +8,6 @@ import { BUILDER_TOOLS } from "@/lib/map-builder-tools"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 import { MapBrushBadge } from "./MapBrushBadge"
 import { MapDetailBadge } from "./MapDetailBadge"
-import { Shortcut } from "./Shortcut"
 import { MapToolIcon } from "./MapToolIcon"
 import type { ToolModes } from "./MapToolIcon"
 
@@ -27,7 +26,7 @@ type Props = {
 // The narrow strip of tools down the left, each picked by clicking it or by
 // its key.
 export function MapToolStrip({ tool, modes, biome, detail, background, disabled, onTool }: Props) {
-  const keyOf = useShortcutText()
+  const keysOf = useShortcutKeys()
   return (
     <nav
       aria-label="Tools"
@@ -49,8 +48,8 @@ export function MapToolStrip({ tool, modes, biome, detail, background, disabled,
                 (detail ? <MapDetailBadge detail={detail} /> : <MapBrushBadge biome={biome} background={background} />)}
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="right">
-            {label} <Shortcut>{keyOf(`tool.${id}`)}</Shortcut>
+          <TooltipContent side="right" keys={keysOf(`tool.${id}`)}>
+            {label}
           </TooltipContent>
         </Tooltip>
       ))}

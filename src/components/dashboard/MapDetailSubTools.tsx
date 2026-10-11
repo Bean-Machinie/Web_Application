@@ -16,7 +16,6 @@ export function MapDetailSubTools({ brush }: { brush: Brush }) {
           key={detail}
           tall
           label={name(detail)}
-          hint={`Paint a ${detail} over the biomes`}
           active={brush.detail === detail}
           onClick={() => brush.onDetail(detail)}
         >

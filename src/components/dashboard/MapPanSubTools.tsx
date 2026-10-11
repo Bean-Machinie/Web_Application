@@ -9,7 +9,6 @@ export function MapPanSubTools({ mode, onMode }: Props) {
     <>
       <MapSubToolButton
         label="Hand"
-        hint="Drag the canvas to move around."
         active={mode === "hand"}
         onClick={() => onMode("hand")}
       >
@@ -17,7 +16,6 @@ export function MapPanSubTools({ mode, onMode }: Props) {
       </MapSubToolButton>
       <MapSubToolButton
         label="Rotate"
-        hint="Drag around the middle of the view to turn the canvas."
         active={mode === "rotate"}
         onClick={() => onMode("rotate")}
       >

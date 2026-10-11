@@ -20,7 +20,7 @@ export function MapBiomeSubTools({ brush, background }: Props) {
           key={biome}
           tall
           label={name(biome)}
-          hint={biome === "plains" ? "Paint plains to clear any biome" : `Paint ${biome}`}
+          detail={biome === "plains" ? "Clears biomes" : undefined}
           active={brush.biome === biome}
           onClick={() => brush.onBiome(biome)}
         >
