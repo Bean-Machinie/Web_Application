@@ -39,6 +39,11 @@ export function useBuilderShortcuts({ enabled, tools, viewport, undo, redo, togg
     if (!condition) return false
     run()
   }
+  const flip = (axis: "x" | "y") => {
+    if (tools.placement.live) return tools.placement.flip(axis)
+    if (!has) return false
+    editing.flip(axis)
+  }
   const nudge = (dx: number, dy: number) => (event: KeyboardEvent) => {
     if (!has) return false
     const step = event.shiftKey ? NUDGE_BIG : NUDGE
@@ -72,8 +77,9 @@ export function useBuilderShortcuts({ enabled, tools, viewport, undo, redo, togg
     "edit.cut": when(has, editing.cut),
     "edit.paste": () => editing.paste(),
     "edit.duplicate": when(has, editing.duplicate),
-    "edit.flipH": when(has, () => editing.flip("x")),
-    "edit.flipV": when(has, () => editing.flip("y")),
+    // Flip what is being placed or what is selected: a shape comes first.
+    "edit.flipH": () => flip("x"),
+    "edit.flipV": () => flip("y"),
     "edit.delete": when(has, editing.remove),
     "history.undo": () => undo(),
     "history.redo": () => redo(),

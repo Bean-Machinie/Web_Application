@@ -133,7 +133,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           biome={tools.brush.biome}
           detail={tools.brush.layer === "details" ? tools.brush.detail : null}
           background={scene.canvas.background}
-          modes={{ land: cutting ? "cut" : "add", select: tools.selectMode, hand: tools.panMode, brush: tools.brush.layer, eraser: tools.brush.erase }}
+          modes={{ land: cutting ? "cut" : "add", landTool: tools.landTool, select: tools.selectMode, hand: tools.panMode, brush: tools.brush.layer, eraser: tools.brush.erase }}
           disabled={publishing}
           onTool={tools.changeTool}
         />

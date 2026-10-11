@@ -9,6 +9,7 @@ type Props = {
   detail?: string
   active: boolean
   onClick: () => void
+  onContextMenu?: (event: React.MouseEvent) => void
   // Rows with a picture in place of an icon are taller.
   tall?: boolean
   // The icon or stroke that stands for the sub tool.
@@ -16,7 +17,7 @@ type Props = {
 }
 
 // One row of the sub tool list: a picture and a name.
-export function MapSubToolButton({ label, hint, detail, active, tall, onClick, children }: Props) {
+export function MapSubToolButton({ label, hint, detail, active, tall, onClick, onContextMenu, children }: Props) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -26,6 +27,7 @@ export function MapSubToolButton({ label, hint, detail, active, tall, onClick, c
           aria-pressed={active}
           className={`justify-start gap-2.5 ${tall ? "h-11 gap-2 px-2" : ""}`}
           onClick={onClick}
+          onContextMenu={onContextMenu}
         >
           {children}
           <span className="grid min-w-0 text-left">

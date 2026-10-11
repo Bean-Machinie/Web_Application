@@ -11,6 +11,7 @@ import type { useBuilderViewport } from "@/hooks/use-builder-viewport"
 import type { BuilderTool, LandTool, SelectMode } from "@/lib/map-builder-tools"
 import type { Stamp } from "@/lib/stamps/stamps"
 import type { MapScene } from "@/lib/map-scene"
+import { lassoCursor } from "@/lib/land-cursor"
 import type { Terrain } from "@/lib/terrain"
 import { MapArmedGhost } from "./MapArmedGhost"
 import { MapStampHint } from "./MapStampHint"
@@ -122,6 +123,8 @@ export function MapBuilderCanvas(props: Props) {
         setSpot({ x: event.clientX, y: event.clientY, at, onAsset: id !== null })
       }}
       className={`bg-muted relative min-w-0 flex-1 touch-none overflow-hidden ${props.armed ? "cursor-crosshair" : CURSORS[tool]}`}
+      // The lasso's shows whether it adds or cuts, and follows Alt's switch.
+      style={tool === "land" && props.landTool === "lasso" && !props.armed ? { cursor: lassoCursor(props.cutting) } : undefined}
     >
       {!(viewport.size.width > 0 && terrain) && <MapLoader inset={viewport.inset} />}
       {viewport.size.width > 0 && terrain && (
