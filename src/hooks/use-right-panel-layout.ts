@@ -1,7 +1,7 @@
 import { useDefaultLayout } from "react-resizable-panels"
 
 // Blocked storage just means the sizes are not remembered.
-const storage = {
+export const storage = {
   getItem: (key: string) => {
     try {
       return localStorage.getItem(key)

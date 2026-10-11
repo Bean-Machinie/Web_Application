@@ -1,4 +1,4 @@
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
+import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
@@ -11,6 +11,7 @@ import type { MapScene } from "@/lib/map-scene"
 import type { Terrain } from "@/lib/terrain"
 import { MapAssetPanel } from "./MapAssetPanel"
 import { MapNavigator } from "./MapNavigator"
+import { MapPanelHandle } from "./MapPanelHandle"
 import { MapPanelHeader, MapPanelTab, PANEL_SCROLL } from "./MapPanelHeader"
 import { MapProperties } from "./MapProperties"
 import { MapTileSize } from "./MapTileSize"
@@ -80,10 +81,7 @@ export function MapRightPanel(props: Props) {
             </TabsContent>
           </Tabs>
         </ResizablePanel>
-        <ResizableHandle
-          withHandle
-          className="bg-black/10 aria-[orientation=horizontal]:h-2 dark:bg-black/40 border-y data-[separator=active]:[&>div]:bg-foreground/80 data-[separator=hover]:[&>div]:bg-foreground/60 [&>div]:bg-muted-foreground/40 [&>div]:transition-colors"
-        />
+        <MapPanelHandle />
         <ResizablePanel id="library" defaultSize="55%" minSize="20%" className="flex flex-col" style={{ overflow: "hidden" }}>
           <Tabs value="assets" className="min-h-0 flex-1 gap-0">
             <MapPanelHeader end={<MapTileSize size={tileSize} onSize={setTileSize} />}>
