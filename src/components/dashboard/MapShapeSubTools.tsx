@@ -1,6 +1,7 @@
 import { useState, useSyncExternalStore } from "react"
 import { getStamps, subscribeStamps } from "@/lib/stamps/stamp-file"
 import type { Stamp } from "@/lib/stamps/stamps"
+import { SHAPE_ICONS } from "./map-shape-icons"
 import { MapStampMenu } from "./MapStampMenu"
 import type { StampSpot } from "./MapStampMenu"
 import { MapStampThumb } from "./MapStampThumb"
@@ -11,6 +12,13 @@ type Props = {
   group: Stamp["group"]
   stampId: string
   onStamp: (id: string) => void
+}
+
+// A basic shape is its lucide icon, with a soft fill inside the outline, the size of any
+// sub tool's; an island is its own outline, drawn small.
+function ShapeIcon({ stamp }: { stamp: Stamp }) {
+  const Icon = SHAPE_ICONS[stamp.id]
+  return Icon && stamp.group === "basic" ? <Icon className="fill-current/15" /> : <MapStampThumb stamp={stamp} />
 }
 
 // The stamps of one group of the library, a row each, with their outline and their whole
@@ -24,7 +32,6 @@ export function MapShapeSubTools({ group, stampId, onStamp }: Props) {
     .map((stamp) => (
       <MapSubToolButton
         key={stamp.id}
-        tall
         label={stamp.name}
         hint={`Stamp ${group === "islands" ? "the island" : "a"} ${stamp.name.toLowerCase()}`}
         active={stamp.id === stampId}
@@ -38,7 +45,7 @@ export function MapShapeSubTools({ group, stampId, onStamp }: Props) {
             : undefined
         }
       >
-        <MapStampThumb stamp={stamp} />
+        <ShapeIcon stamp={stamp} />
       </MapSubToolButton>
     ))
 

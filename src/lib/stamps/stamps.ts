@@ -12,6 +12,8 @@ export type Stamp = {
   // How wide it is for each unit of height as it was made, which Shift keeps.
   aspect: number
   rings: StampRings
+  // Whether it has corners that can be rounded to a radius, and are then kept as they are.
+  corners?: boolean
 }
 
 // What is kept of an island, in stamps.json.

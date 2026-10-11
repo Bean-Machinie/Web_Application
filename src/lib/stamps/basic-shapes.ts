@@ -37,8 +37,9 @@ export const BASIC_STAMPS: Stamp[] = [
     name: "Rectangle",
     group: "basic",
     aspect: 1.5,
+    corners: true,
     rings: [closed([[0, 0], [1, 0], [1, 1], [0, 1]])],
   },
-  { id: "triangle", name: "Triangle", group: "basic", aspect: 2 / Math.sqrt(3), rings: [closed([[0.5, 0], [1, 1], [0, 1]])] },
-  { id: "hexagon", name: "Hexagon", group: "basic", aspect: 2 / Math.sqrt(3), rings: [hexagon] },
+  { id: "triangle", name: "Triangle", group: "basic", aspect: 2 / Math.sqrt(3), corners: true, rings: [closed([[0.5, 0], [1, 1], [0, 1]])] },
+  { id: "hexagon", name: "Hexagon", group: "basic", aspect: 2 / Math.sqrt(3), corners: true, rings: [hexagon] },
 ]

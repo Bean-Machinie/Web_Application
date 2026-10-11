@@ -8,6 +8,7 @@ import type { MapStyle } from "@/lib/map-style"
 import type { Terrain } from "@/lib/terrain"
 import { clickFrame, dragFrame } from "@/lib/stamps/stamp-frame"
 import type { Frame } from "@/lib/stamps/stamp-frame"
+import { shapeOutline } from "@/lib/stamps/stamp-corners"
 import { placeStamp } from "@/lib/stamps/stamp-outline"
 import { drawStampPreview } from "@/lib/stamps/stamp-preview"
 import { createTrail } from "@/lib/stamps/stamp-trail"
@@ -29,7 +30,7 @@ type Props = {
   terrain: Terrain
   // Shift is held: rotating snaps to 15 degrees.
   snapRotation: boolean
-  onApply: (outline: Polygon, cut: boolean) => void
+  onApply: (outline: Polygon, cut: boolean, pins: Pair[]) => void
 }
 
 // Over the shape the pointer is a mover.
@@ -138,10 +139,11 @@ export function MapStampLayer(props: Props) {
     const node = box.current
     if (phase.current !== "live" || !node) return
     const { polygon, width, height } = outline(node)
-    const { placement, cutting, onApply } = latest.current
+    const { stamp, placement, cutting, onApply } = latest.current
+    const shaped = shapeOutline(stamp, polygon, placement.rounding)
     placement.lastSize.current = { width, height }
     reset()
-    onApply(polygon, cutting)
+    onApply(shaped.outline, cutting, shaped.pins)
   }
 
   function flip(axis: "x" | "y") {
@@ -239,7 +241,7 @@ export function MapStampLayer(props: Props) {
   const { stamp, cutting, style, terrain } = props
   useEffect(() => {
     redraw()
-  }, [stamp, cutting, style.roundness, style.outline, terrain])
+  }, [stamp, cutting, style.roundness, style.outline, terrain, props.placement.rounding])
 
   return (
     <Group ref={group} listening={enabled}>
@@ -249,7 +251,9 @@ export function MapStampLayer(props: Props) {
           const node = box.current
           if (!node || phase.current === "idle") return
           const { cutting, canvas, style, terrain } = latest.current
-          drawStampPreview(context, outline(node).polygon, { canvas, style, terrain, cutting })
+          const { stamp, placement } = latest.current
+          const shaped = shapeOutline(stamp, outline(node).polygon, placement.rounding)
+          drawStampPreview(context, shaped.outline, shaped.pins, { canvas, style, terrain, cutting })
         }}
       />
       <Rect

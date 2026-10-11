@@ -1,4 +1,6 @@
 import { useCallback, useRef, useState } from "react"
+import { CORNER_ROUNDING } from "@/lib/stamps/stamp-corners"
+import type { Rounding } from "@/lib/stamps/stamp-corners"
 import type { SavedStamp } from "@/lib/stamps/stamps"
 
 // What the shape being placed can be told to do, set by the layer that holds it.
@@ -23,6 +25,8 @@ export type PickedLandmass = Omit<SavedStamp, "id" | "name"> & { touchesEdge: bo
 export function useStampPlacement() {
   const [live, setLive] = useState(false)
   const [saving, setSaving] = useState(false)
+  // Whether the corners of the stamps that have them are rounded, and by how much: off to start, so they are sharp.
+  const [rounding, setRounding] = useState<Rounding>({ on: false, amount: CORNER_ROUNDING.start })
   // Whether there is a step of the shape's own to go back or forward to.
   const [trail, setTrail] = useState({ canUndo: false, canRedo: false })
   const [picked, setPicked] = useState<PickedLandmass | null>(null)
@@ -35,7 +39,7 @@ export function useStampPlacement() {
   const undo = useCallback(() => controls.current?.undo(), [])
   const redo = useCallback(() => controls.current?.redo(), [])
 
-  return { live, setLive, saving, setSaving, picked, setPicked, controls, lastSize, apply, cancel, flip, ...trail, setTrail, undo, redo }
+  return { live, setLive, saving, setSaving, rounding, setRounding, picked, setPicked, controls, lastSize, apply, cancel, flip, ...trail, setTrail, undo, redo }
 }
 
 export type StampPlacement = ReturnType<typeof useStampPlacement>

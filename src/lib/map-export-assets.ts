@@ -4,6 +4,7 @@ import type { Picture } from "./map-asset-bake"
 import { indexPieces, makePieces } from "./map-asset-pieces"
 import { loadAssetInfo, loadedAssetInfo } from "./map-assets"
 import { smoothLand } from "./map-coast-smooth"
+import { pinSet } from "./map-pins"
 import type { Ground } from "./map-ground"
 import type { Terrain } from "./terrain"
 import { renderScale } from "./map-scene"
@@ -29,7 +30,7 @@ export async function exportAssets(
     background: canvas.background,
     backdrop: terrain.sea,
     landTexture: terrain.land,
-    land: smoothLand(scene.land, scene.style.roundness, canvas),
+    land: smoothLand(scene.land, scene.style.roundness, canvas, pinSet(scene.pinned)),
     paint: { current: scene.paint },
     biomes,
   }

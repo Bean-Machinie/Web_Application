@@ -55,7 +55,7 @@ type Props = {
   landTool: LandTool
   stamp: Stamp | null
   placement: StampPlacement
-  onShape: (outline: Polygon, cut: boolean) => void
+  onShape: (outline: Polygon, cut: boolean, pins: Pair[]) => void
   editing: AssetEditing
   showAssets: boolean
   pick: AssetPicker
@@ -85,7 +85,7 @@ type Props = {
 export function MapBuilderStage(props: Props) {
   const { scene, terrain, size, view, stageRef, tool, cutting, editable, editing, onWheel, onPan } = props
   const { canvas } = scene
-  const land = useShownLand(scene.land, scene.style.roundness, canvas)
+  const land = useShownLand(scene.land, scene.style.roundness, canvas, scene.pinned)
   const surface = useBiomeSurface(canvas, terrain)
   const detailSurface = useDetailSurface(canvas)
   // What the eraser is taking away, if it is the tool; and the art it has touched.

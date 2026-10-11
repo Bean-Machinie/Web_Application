@@ -1,5 +1,6 @@
 import type Konva from "konva"
 import { smoothLand } from "./map-coast-smooth"
+import { pinSet } from "./map-pins"
 import { renderScale } from "./map-scene"
 import type { MapScene } from "./map-scene"
 import { buildField } from "./map-water-field"
@@ -13,7 +14,7 @@ export function sharpWater(stage: Konva.Stage, scene: MapScene) {
   if (!node || scene.land.length === 0) return () => {}
 
   const { canvas, style } = scene
-  const land = smoothLand(scene.land, style.roundness, canvas)
+  const land = smoothLand(scene.land, style.roundness, canvas, pinSet(scene.pinned))
   const image = renderWater(buildField(land, canvas), style, canvas.background, canvas.seed, canvas, {
     x: 0,
     y: 0,

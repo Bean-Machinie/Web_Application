@@ -5,10 +5,11 @@
 // "version" is the format version: when the shape of a scene changes, readScene
 // upgrades older ones. Layers draw in a fixed order: background, land, biomes,
 // details, assets.
-import type { MultiPolygon } from "polygon-clipping"
+import type { MultiPolygon, Pair } from "polygon-clipping"
 import { EMPTY_PAINT } from "./biomes/paint-tiles"
 import type { Paint } from "./biomes/paint-tiles"
 import { clipToCanvas } from "./map-land-clip"
+import { readPins } from "./map-pins"
 import { DEFAULT_STYLE, readStyle } from "./map-style"
 import type { MapStyle } from "./map-style"
 
@@ -46,6 +47,8 @@ export type MapScene = {
   // [x, y] points in canvas pixels, as drawn and never past the canvas's edge.
   // Empty until something is drawn.
   land: MultiPolygon
+  // Points of the land's outline that the coast's rounding leaves as they are: see map-pins.ts.
+  pinned: Pair[]
   style: MapStyle
   // The biomes painted over the land. In the database this is kept as "biomes",
   // squeezed into text, and is read back by fetchMapScene.
@@ -79,6 +82,7 @@ export function createScene({ preset, background }: CanvasChoice): MapScene {
     version: SCENE_VERSION,
     canvas: { preset, width, height, background, seed: Math.floor(Math.random() * 2 ** 31) },
     land: [],
+    pinned: [],
     style: DEFAULT_STYLE,
     paint: EMPTY_PAINT,
     details: EMPTY_PAINT,
@@ -123,6 +127,7 @@ export function readScene(json: unknown): MapScene | null {
     version: SCENE_VERSION,
     canvas: { preset, width, height, background, seed },
     land: readLand(scene.land, { width, height }),
+    pinned: readPins(scene.pinned),
     style: readStyle(scene.style),
     paint: EMPTY_PAINT,
     details: EMPTY_PAINT,

@@ -115,7 +115,13 @@ export function toolSections(props: Props): ToolSection[] {
     content: (
       <div className="grid gap-4 p-3">
         {tool === "land" && (
-          <MapLandProperties landTool={props.landTool} cutting={cutting} onMode={props.onMode} placement={props.placement} />
+          <MapLandProperties
+            landTool={props.landTool}
+            cutting={cutting}
+            onMode={props.onMode}
+            placement={props.placement}
+            stampId={props.stampId}
+          />
         )}
         {(tool === "brush" || tool === "eraser" || tool === "blend") && (
           <MapBrushProperties

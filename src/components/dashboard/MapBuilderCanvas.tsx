@@ -47,7 +47,7 @@ type Props = {
   landTool: LandTool
   stamp: Stamp | null
   placement: StampPlacement
-  onShape: (outline: Polygon, cut: boolean) => void
+  onShape: (outline: Polygon, cut: boolean, pins: Pair[]) => void
   onPaint: (paint: Paint) => void
   onPaintDetails: (details: Paint) => void
   onEraseAssets: (ids: string[]) => void
