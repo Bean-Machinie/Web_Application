@@ -16,8 +16,8 @@ export const EMPTY_PAINT: Paint = new Map()
 
 export const tileKey = (tx: number, ty: number) => `${tx},${ty}`
 
-export function gridSize({ width, height }: { width: number; height: number }) {
-  return { cols: Math.ceil(width / PAINT_CELL), rows: Math.ceil(height / PAINT_CELL) }
+export function gridSize({ width, height }: { width: number; height: number }, cell = PAINT_CELL) {
+  return { cols: Math.ceil(width / cell), rows: Math.ceil(height / cell) }
 }
 
 // How much of each biome is at a point of the canvas, 0 to 1, in biome order;

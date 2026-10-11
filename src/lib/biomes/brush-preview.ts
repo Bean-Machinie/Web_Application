@@ -18,7 +18,7 @@ const TILE_SHOWN = 85
 // Opacity below this counts as empty when trimming the stroke's picture.
 const EMPTY = 8
 
-const canvasOf = (width: number, height: number) =>
+export const canvasOf = (width: number, height: number) =>
   Object.assign(document.createElement("canvas"), { width, height })
 
 // The stroke's shape as opacity, trimmed of the empty space round it. A picture
@@ -96,6 +96,17 @@ function previewOf(tiles: Tiles, shape: HTMLCanvasElement, density: number, biom
   return out.toDataURL()
 }
 
+// The brush stroke's shape fitted into a row, for a screen of this density.
+export async function strokeShape(density: number) {
+  const mask = await loadMask()
+  const fit = Math.min(BOX.width / mask.width, BOX.height / mask.height)
+  return scaledTo(
+    mask,
+    Math.max(1, Math.round(mask.width * fit * density)),
+    Math.max(1, Math.round(mask.height * fit * density))
+  )
+}
+
 const made = new Map<string, BrushPreviews>()
 
 // A picture of each biome's brush, drawn once for each background and screen density.
@@ -104,13 +115,7 @@ export async function brushPreviews(tiles: Tiles, background: SceneBackground): 
   const key = `${background}@${density}`
   const known = made.get(key)
   if (known) return known
-  const mask = await loadMask()
-  const fit = Math.min(BOX.width / mask.width, BOX.height / mask.height)
-  const shape = scaledTo(
-    mask,
-    Math.max(1, Math.round(mask.width * fit * density)),
-    Math.max(1, Math.round(mask.height * fit * density))
-  )
+  const shape = await strokeShape(density)
   const previews = Object.fromEntries(
     (["plains", ...BIOMES] as BrushBiome[]).map((biome) => [biome, previewOf(tiles, shape, density, biome, background)])
   ) as BrushPreviews

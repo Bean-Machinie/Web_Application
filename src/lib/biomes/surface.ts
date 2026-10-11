@@ -10,6 +10,8 @@ export type TileAt = (key: string) => ArrayLike<number> | undefined
 // Cells drawn beyond the ones that changed, because the picture is blended
 // smoothly between cells and so a change reaches a little past its own cells.
 const REACH = 2
+// Cells read beyond those redrawn, for the smoothing to blend with.
+const MARGIN = 2
 
 // The biomes' colour, drawn over the whole canvas, transparent where the land is
 // plains. Each biome has a small image of its weights, one pixel to a cell, that
@@ -84,20 +86,35 @@ export function createSurface(
     }
 
     if (present.some(Boolean)) state.touched = true
+    // The smoothing needs the cells beside the box to blend with, or the box's
+    // edge is blended with nothing and shows as a seam: they are read, and cut off.
+    // The read area is cut on whole pixels inside its cells, and each pixel is read
+    // where it falls on the cells, so that a box is drawn exactly as the whole would be,
+    // and what is near the brush does not shift as it passes.
+    const k = PAINT_CELL * scale
+    const ex0 = Math.max(x0 - MARGIN, 0)
+    const ey0 = Math.max(y0 - MARGIN, 0)
+    const ex1 = Math.min(x1 + MARGIN, cols - 1)
+    const ey1 = Math.min(y1 + MARGIN, rows - 1)
+    const edx = Math.min(Math.ceil(ex0 * k), dx)
+    const edy = Math.min(Math.ceil(ey0 * k), dy)
+    const edw = Math.max(Math.floor((ex1 + 1) * k), dx + dw) - edx
+    const edh = Math.max(Math.floor((ey1 + 1) * k), dy + dh) - edy
+
     context.clearRect(dx, dy, dw, dh)
-    scratch.width = dw
-    scratch.height = dh
+    scratch.width = edw
+    scratch.height = edh
     for (let c = 0; c < CHANNELS; c++) {
       planes[c].getContext("2d")!.putImageData(weights[c], x0, y0)
       if (!present[c]) continue
       // The texture is laid on first, then cut down to the biome's weights.
       scratchContext.globalCompositeOperation = "source-over"
       scratchContext.setTransform(1, 0, 0, 1, 0, 0)
-      scratchContext.drawImage(painted[BIOMES[c]], dx, dy, dw, dh, 0, 0, dw, dh)
+      scratchContext.drawImage(painted[BIOMES[c]], edx, edy, edw, edh, 0, 0, edw, edh)
       scratchContext.globalCompositeOperation = "destination-in"
       scratchContext.imageSmoothingEnabled = true
-      scratchContext.drawImage(planes[c], x0, y0, width, height, 0, 0, dw, dh)
-      context.drawImage(scratch, dx, dy)
+      scratchContext.drawImage(planes[c], edx / k, edy / k, edw / k, edh / k, 0, 0, edw, edh)
+      context.drawImage(scratch, dx - edx, dy - edy, dw, dh, dx, dy, dw, dh)
     }
   }
 

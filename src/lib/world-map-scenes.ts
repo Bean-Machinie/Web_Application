@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase"
 import { readPaint, writePaint } from "./biomes/paint-codec"
+import { DETAIL_CELL } from "./details/details"
 import { readScene } from "./map-scene"
 import type { MapScene } from "./map-scene"
 
@@ -20,8 +21,9 @@ export async function fetchMapScene(mapId: string): Promise<LoadedScene | null> 
 
   const scene = readScene(data.scene)
   if (!scene) throw new Error("This map was made with a newer version of the builder.")
-  const paint = await readPaint((data.scene as { biomes?: unknown } | null)?.biomes)
-  return { scene: { ...scene, paint }, updatedAt: data.updated_at, renderedAt: data.rendered_at }
+  const saved = data.scene as { biomes?: unknown; details?: unknown } | null
+  const [paint, details] = await Promise.all([readPaint(saved?.biomes), readPaint(saved?.details, DETAIL_CELL)])
+  return { scene: { ...scene, paint, details }, updatedAt: data.updated_at, renderedAt: data.rendered_at }
 }
 
 // Whether the map has a scene, without loading it.
@@ -52,8 +54,8 @@ export async function saveMapScene(
   expectedUpdatedAt: string | null,
   markRendered = false
 ) {
-  const { paint, ...rest } = scene
-  const sent = { ...rest, biomes: await writePaint(paint) }
+  const { paint, details, ...rest } = scene
+  const sent = { ...rest, biomes: await writePaint(paint), details: await writePaint(details, DETAIL_CELL) }
   const { data, error } = await supabase.rpc("save_map_scene", {
     target_map: mapId,
     new_scene: sent,

@@ -35,16 +35,16 @@ async function writeTile(tile: Tile) {
   return text
 }
 
-export async function writePaint(paint: Paint): Promise<SavedPaint> {
+export async function writePaint(paint: Paint, cell = PAINT_CELL): Promise<SavedPaint> {
   const entries = await Promise.all([...paint].map(async ([key, tile]) => [key, await writeTile(tile)] as const))
-  return { cell: PAINT_CELL, tile: TILE, tiles: Object.fromEntries(entries) }
+  return { cell, tile: TILE, tiles: Object.fromEntries(entries) }
 }
 
 // Whatever cannot be read is left out: a map loses some paint, not its scene.
-export async function readPaint(saved: unknown): Promise<Paint> {
+export async function readPaint(saved: unknown, cell = PAINT_CELL): Promise<Paint> {
   const source = saved as Partial<SavedPaint> | null
   const paint = new Map<string, Tile>()
-  if (source?.cell !== PAINT_CELL || source.tile !== TILE || typeof source.tiles !== "object" || !source.tiles) {
+  if (source?.cell !== cell || source.tile !== TILE || typeof source.tiles !== "object" || !source.tiles) {
     return paint
   }
   for (const [key, text] of Object.entries(source.tiles)) {

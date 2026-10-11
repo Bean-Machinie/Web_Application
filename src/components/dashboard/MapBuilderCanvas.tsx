@@ -42,6 +42,7 @@ type Props = {
   pointer: MutableRefObject<{ x: number; y: number } | null>
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
   onPaint: (paint: Paint) => void
+  onPaintDetails: (details: Paint) => void
 }
 
 // A press that moves further than this (screen pixels) before it is let go is a
@@ -135,6 +136,7 @@ export function MapBuilderCanvas(props: Props) {
           onLasso={props.onLasso}
           brush={props.brush}
           onPaint={props.onPaint}
+          onPaintDetails={props.onPaintDetails}
           onWheel={viewport.onWheel}
           onPan={viewport.onPan}
           onPanning={viewport.follow}

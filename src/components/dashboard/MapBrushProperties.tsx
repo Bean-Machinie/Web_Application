@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import type { Brush } from "@/hooks/use-brush"
 import { useShortcutText } from "@/hooks/use-shortcut-text"
-import { BLEND_STRENGTH, BLEND_STRETCH, BRUSH_OPACITY, BRUSH_SIZE } from "@/lib/biomes/biomes"
+import { BLEND_STRENGTH, BLEND_STRETCH, BRUSH_OPACITY } from "@/lib/biomes/biomes"
 import { Shortcut } from "./Shortcut"
 import { SliderField } from "./SliderField"
 
@@ -13,7 +13,7 @@ type Props = {
   onShowAssets: (show: boolean) => void
 }
 
-// What the biome brush and the blend brush are set with. Only the biome brush
+// What the brush (biomes or details) and the blend brush are set with. Only the brush
 // has an opacity and can hide the art; the blend brush has a strength and a stretch.
 export function MapBrushProperties({ blending, brush, showAssets, onShowAssets }: Props) {
   const keyOf = useShortcutText()
@@ -22,8 +22,8 @@ export function MapBrushProperties({ blending, brush, showAssets, onShowAssets }
       <SliderField
         label="Size"
         value={brush.size}
-        min={BRUSH_SIZE.min}
-        max={BRUSH_SIZE.max}
+        min={brush.range.min}
+        max={brush.range.max}
         step={1}
         unit="px"
         onChange={brush.onSize}

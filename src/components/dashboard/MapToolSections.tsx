@@ -6,7 +6,11 @@ import { useToolPanelLayout } from "@/hooks/use-tool-panel-layout"
 import { MapPanelHandle } from "./MapPanelHandle"
 import { MapPanelHeader, MapPanelTab, PANEL_SCROLL } from "./MapPanelHeader"
 
-export type ToolSection = { id: string; title: string; content: ReactNode }
+// A section with tabs shows the one that is active in its bar, and the content it is
+// given is that tab's, the caller keeping which is active.
+export type SectionTabs = { tabs: { id: string; title: string }[]; active: string; onPick: (id: string) => void }
+
+export type ToolSection = { id: string; title: string; content: ReactNode; tabs?: SectionTabs }
 
 type Props = { tool: string; sections: ToolSection[] }
 
@@ -35,9 +39,17 @@ export function MapToolSections({ tool, sections }: Props) {
             className="flex flex-col"
             style={{ overflow: "hidden" }}
           >
-            <Tabs value={section.id} className="min-h-0 flex-1 gap-0">
+            <Tabs
+              value={section.tabs?.active ?? section.id}
+              onValueChange={section.tabs?.onPick}
+              className="min-h-0 flex-1 gap-0"
+            >
               <MapPanelHeader>
-                <MapPanelTab value={section.id}>{section.title}</MapPanelTab>
+                {(section.tabs?.tabs ?? [{ id: section.id, title: section.title }]).map(({ id, title }) => (
+                  <MapPanelTab key={id} value={id}>
+                    {title}
+                  </MapPanelTab>
+                ))}
               </MapPanelHeader>
               <div className={PANEL_SCROLL}>{section.content}</div>
             </Tabs>

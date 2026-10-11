@@ -2,10 +2,12 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useShortcutText } from "@/hooks/use-shortcut-text"
 import type { BrushBiome } from "@/lib/biomes/biomes"
+import type { DetailBrush } from "@/lib/details/details"
 import type { SceneBackground } from "@/lib/map-scene"
 import { BUILDER_TOOLS } from "@/lib/map-builder-tools"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 import { MapBrushBadge } from "./MapBrushBadge"
+import { MapDetailBadge } from "./MapDetailBadge"
 import { Shortcut } from "./Shortcut"
 import { MapToolIcon } from "./MapToolIcon"
 import type { ToolModes } from "./MapToolIcon"
@@ -13,8 +15,10 @@ import type { ToolModes } from "./MapToolIcon"
 type Props = {
   tool: BuilderTool
   modes: ToolModes
-  // What the biome brush paints, shown on its icon, and the ground it is painted on.
+  // What the brush paints, shown on its icon: a biome, with the ground it is painted on,
+  // or when it is on the details tab, the detail.
   biome: BrushBiome
+  detail: DetailBrush | null
   background: SceneBackground
   disabled: boolean
   onTool: (tool: BuilderTool) => void
@@ -22,7 +26,7 @@ type Props = {
 
 // The narrow strip of tools down the left, each picked by clicking it or by
 // its key.
-export function MapToolStrip({ tool, modes, biome, background, disabled, onTool }: Props) {
+export function MapToolStrip({ tool, modes, biome, detail, background, disabled, onTool }: Props) {
   const keyOf = useShortcutText()
   return (
     <nav
@@ -41,7 +45,8 @@ export function MapToolStrip({ tool, modes, biome, background, disabled, onTool 
               onClick={() => onTool(id)}
             >
               <MapToolIcon tool={id} modes={modes} />
-              {id === "brush" && <MapBrushBadge biome={biome} background={background} />}
+              {id === "brush" &&
+                (detail ? <MapDetailBadge detail={detail} /> : <MapBrushBadge biome={biome} background={background} />)}
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">

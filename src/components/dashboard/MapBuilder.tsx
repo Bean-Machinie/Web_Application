@@ -99,6 +99,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
 
   const drawLand = useLandDrawing(scene, history.change)
   const paintBiomes = (paint: Paint) => history.change((old) => ({ ...old, paint }))
+  const paintDetails = (details: Paint) => history.change((old) => ({ ...old, details }))
 
   return (
     <div className="bg-background fixed inset-0 z-50 flex flex-col">
@@ -120,8 +121,9 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
         <MapToolStrip
           tool={tools.tool}
           biome={tools.brush.biome}
+          detail={tools.brush.layer === "details" ? tools.brush.detail : null}
           background={scene.canvas.background}
-          modes={{ land: cutting ? "cut" : "add", select: tools.selectMode, hand: tools.panMode }}
+          modes={{ land: cutting ? "cut" : "add", select: tools.selectMode, hand: tools.panMode, brush: tools.brush.layer }}
           disabled={publishing}
           onTool={tools.changeTool}
         />
@@ -164,6 +166,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               onStamp={(asset, at) => void editing.place(asset, at, true)}
               brush={tools.brush}
               onPaint={paintBiomes}
+              onPaintDetails={paintDetails}
               viewport={viewport}
               stageRef={stage}
               pointer={pointer}

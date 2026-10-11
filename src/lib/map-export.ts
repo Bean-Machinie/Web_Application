@@ -4,6 +4,7 @@ import { MAP_MAX_BYTES } from "./resize-map-image"
 import type { PreparedMap } from "./resize-map-image"
 import { exportAssets, sharpAssets } from "./map-export-assets"
 import { exportBiomes, sharpBiomes } from "./map-export-biomes"
+import { exportDetails, sharpDetails } from "./map-export-details"
 import { exportTerrain, sharpTerrain } from "./map-export-terrain"
 import { sharpWater } from "./map-export-water"
 import { BUILT_MAX_ZOOM, renderScale } from "./map-scene"
@@ -27,6 +28,7 @@ export async function exportCanvas(
   // The slow, asynchronous drawing is done before the stage is touched.
   const terrain = await exportTerrain(scene)
   const biomes = exportBiomes(scene, terrain)
+  const details = exportDetails(scene)
   const art = await exportAssets(scene, biomes, terrain)
   // The view, turned and mirrored too, is put back as it was: none of it is the map's.
   const { x, y, rotation, scaleX, scaleY } = stage.attrs
@@ -36,6 +38,7 @@ export async function exportCanvas(
   stage.setAttrs({ x: 0, y: 0, rotation: 0, scaleX: 1, scaleY: 1 })
   let restoreWater = () => {}
   let restoreBiomes = () => {}
+  let restoreDetails = () => {}
   let restoreAssets = () => {}
   let restoreTerrain = () => {}
   let drawn: HTMLCanvasElement
@@ -43,6 +46,7 @@ export async function exportCanvas(
     restoreWater = sharpWater(stage, scene)
     restoreTerrain = sharpTerrain(stage, terrain)
     restoreBiomes = sharpBiomes(stage, biomes)
+    restoreDetails = sharpDetails(stage, details)
     restoreAssets = sharpAssets(stage, art)
     drawn = stage.toCanvas({
       x: 0,
@@ -54,6 +58,7 @@ export async function exportCanvas(
   } finally {
     restoreWater()
     restoreBiomes()
+    restoreDetails()
     restoreAssets()
     restoreTerrain()
     stage.setAttrs({ x, y, rotation, scaleX, scaleY })

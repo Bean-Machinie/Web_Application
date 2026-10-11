@@ -1,6 +1,8 @@
+import type { BrushLayer } from "@/hooks/use-brush"
 import type { Props } from "./MapToolPanel"
 import { MapBiomeSubTools } from "./MapBiomeSubTools"
 import { MapBrushProperties } from "./MapBrushProperties"
+import { MapDetailSubTools } from "./MapDetailSubTools"
 import { MapLandSubTools } from "./MapLandSubTools"
 import { MapPanProperties } from "./MapPanProperties"
 import { MapPanSubTools } from "./MapPanSubTools"
@@ -25,10 +27,22 @@ export function toolSections(props: Props): ToolSection[] {
   if (tool === "brush")
     list.push({
       id: "brushes",
-      title: "Biome brushes",
+      title: "Brushes",
+      tabs: {
+        tabs: [
+          { id: "biomes", title: "Biomes" },
+          { id: "details", title: "Details" },
+        ],
+        active: brush.layer,
+        onPick: (id) => brush.onLayer(id as BrushLayer),
+      },
       content: (
         <div className="grid gap-1 p-2">
-          <MapBiomeSubTools brush={brush} background={background} />
+          {brush.layer === "details" ? (
+            <MapDetailSubTools brush={brush} />
+          ) : (
+            <MapBiomeSubTools brush={brush} background={background} />
+          )}
         </div>
       ),
     })

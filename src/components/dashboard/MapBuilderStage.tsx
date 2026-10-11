@@ -10,15 +10,19 @@ import type { BuilderTool, SelectMode } from "@/lib/map-builder-tools"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import type { AssetPicker } from "@/lib/map-asset-pick"
 import { useBiomeSurface } from "@/hooks/use-biome-surface"
+import { useDetailSurface } from "@/hooks/use-detail-surface"
 import type { Brush } from "@/hooks/use-brush"
 import { landMask } from "@/lib/biomes/land-mask"
+import { PAINT_CELL } from "@/lib/biomes/biomes"
 import { gridSize } from "@/lib/biomes/paint-tiles"
+import { DETAIL_CELL } from "@/lib/details/details"
 import type { Terrain } from "@/lib/terrain"
 import { stageProps } from "@/lib/view-matrix"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import { MapAssetsLayer } from "./MapAssetsLayer"
 import { MapBiomeLayer } from "./MapBiomeLayer"
 import { MapBrushLayer } from "./MapBrushLayer"
+import { MapDetailLayer } from "./MapDetailLayer"
 import { MapLandLayer } from "./MapLandLayer"
 import { MapWaterLayer } from "./MapWaterLayer"
 import { MapLassoLayer } from "./MapLassoLayer"
@@ -46,6 +50,7 @@ type Props = {
   pick: AssetPicker
   brush: Brush
   onPaint: (paint: Paint) => void
+  onPaintDetails: (details: Paint) => void
   // Shift is held: rotating snaps to 15 degrees.
   snapRotation: boolean
   // Alt is held: a press on art drags a copy of it instead (see MapSelectionLayer).
@@ -70,9 +75,19 @@ export function MapBuilderStage(props: Props) {
   const { canvas } = scene
   const land = useShownLand(scene.land, scene.style.roundness, canvas)
   const surface = useBiomeSurface(canvas, terrain)
+  const detailSurface = useDetailSurface(canvas)
+  const painting = editable && tool === "brush" && props.brush.layer === "details"
   // Paint sticks where the land is as it is shown, rounded corners and all, so
   // that none of the land you see is out of its reach.
   const mask = useMemo(() => ({ mask: landMask(land, canvas), ...gridSize(canvas) }), [land, canvas])
+  // The details' mask is a byte for each canvas pixel, so it is only made when they are painted.
+  const detailMask = useMemo(
+    () =>
+      painting
+        ? { mask: landMask(land, canvas, DETAIL_CELL), ...gridSize(canvas, DETAIL_CELL) }
+        : { mask: new Uint8Array(0), cols: 0, rows: 0 },
+    [painting, land, canvas]
+  )
 
   return (
     <Stage
@@ -107,7 +122,9 @@ export function MapBuilderStage(props: Props) {
         <KonvaImage name="sea" image={terrain.sea} width={canvas.width} height={canvas.height} />
         <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} />
         <MapLandLayer land={land} background={canvas.background} texture={terrain.land} textureScale={terrain.scale} />
-        <MapBiomeLayer land={land} canvas={canvas} style={scene.style} paint={scene.paint} surface={surface} />
+        <MapBiomeLayer land={land} canvas={canvas} style={scene.style} paint={scene.paint} surface={surface}>
+          <MapDetailLayer land={land} canvas={canvas} details={scene.details} surface={detailSurface} />
+        </MapBiomeLayer>
       </Layer>
       <MapAssetsLayer
         canvas={canvas}
@@ -133,13 +150,24 @@ export function MapBuilderStage(props: Props) {
           onLasso={props.onLasso}
         />
         <MapBrushLayer
-          enabled={editable && (tool === "brush" || tool === "blend")}
-          blending={tool === "blend"}
+          enabled={editable && (tool === "blend" || (tool === "brush" && !painting))}
+          target={tool === "blend" ? "blend" : props.brush.biome}
+          cell={PAINT_CELL}
           brush={props.brush}
           paint={scene.paint}
           land={mask}
           surface={surface}
           onPaint={props.onPaint}
+        />
+        <MapBrushLayer
+          enabled={painting}
+          target={props.brush.detail}
+          cell={DETAIL_CELL}
+          brush={props.brush}
+          paint={scene.details}
+          land={detailMask}
+          surface={detailSurface}
+          onPaint={props.onPaintDetails}
         />
         <MapSelectionLayer
           enabled={editable && tool === "select"}

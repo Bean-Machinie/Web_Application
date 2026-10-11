@@ -18,15 +18,23 @@ const falloff = (share: number) =>
 // How much of the stamp at (x, y) falls on a cell: the stamp's strength at
 // its centre, or for a small brush the average over the cell, so that the
 // footprint is as true as the cells allow.
-export function coverage(cx: number, cy: number, x: number, y: number, radius: number, fine: boolean) {
-  const left = cx * PAINT_CELL
-  const top = cy * PAINT_CELL
-  if (!fine) return falloff(Math.hypot(left + PAINT_CELL / 2 - x, top + PAINT_CELL / 2 - y) / radius)
+export function coverage(
+  cx: number,
+  cy: number,
+  x: number,
+  y: number,
+  radius: number,
+  fine: boolean,
+  cell = PAINT_CELL
+) {
+  const left = cx * cell
+  const top = cy * cell
+  if (!fine) return falloff(Math.hypot(left + cell / 2 - x, top + cell / 2 - y) / radius)
   let sum = 0
   for (let j = 0; j < SAMPLES; j++) {
     for (let i = 0; i < SAMPLES; i++) {
-      const px = left + ((i + 0.5) / SAMPLES) * PAINT_CELL
-      const py = top + ((j + 0.5) / SAMPLES) * PAINT_CELL
+      const px = left + ((i + 0.5) / SAMPLES) * cell
+      const py = top + ((j + 0.5) / SAMPLES) * cell
       sum += falloff(Math.hypot(px - x, py - y) / radius)
     }
   }

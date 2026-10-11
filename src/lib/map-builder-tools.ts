@@ -20,6 +20,6 @@ export const BUILDER_TOOLS: { id: BuilderTool; label: string; key: string; Icon:
   { id: "hand", label: "Pan", key: "H", Icon: Hand },
   { id: "select", label: "Select", key: "V", Icon: MousePointer2 },
   { id: "land", label: "Land", key: "L", Icon: Lasso },
-  { id: "brush", label: "Biome brush", key: "B", Icon: Paintbrush },
+  { id: "brush", label: "Brush", key: "B", Icon: Paintbrush },
   { id: "blend", label: "Blend", key: "J", Icon: Droplets },
 ]

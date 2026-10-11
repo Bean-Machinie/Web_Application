@@ -1,3 +1,5 @@
+import { DETAILS } from "../details/details"
+import type { DetailBrush } from "../details/details"
 import { BIOMES, PAINT_CELL, TILE } from "./biomes"
 import type { BrushBiome } from "./biomes"
 import { blendStamp } from "./blend"
@@ -13,6 +15,12 @@ type Touched = { base: Tile | undefined; cover: Float32Array; work: Float32Array
 // A rectangle of cells.
 export type Cells = { x0: number; y0: number; x1: number; y1: number }
 
+// What a stroke paints: a biome (plains clears them), or a detail (erase clears them),
+// or the blend brush's softening. The channel of a biome and of a detail are
+// alike, as there are as many of each.
+const channelOf = (target: BrushBiome | DetailBrush | "blend") =>
+  Math.max(BIOMES.indexOf(target as never), DETAILS.indexOf(target as never))
+
 // One brush stroke. Each cell takes the strongest the brush has reached it, not
 // the sum, so the edge looks the same however slowly the brush moves, and each
 // cell's result is worked out afresh from how it was before the stroke. A
@@ -23,15 +31,17 @@ export type Cells = { x0: number; y0: number; x1: number; y1: number }
 // what the last left, so that scrubbing an area blends it more and more.
 export function startStroke(
   paint: Paint,
-  biome: BrushBiome | "blend",
+  biome: BrushBiome | DetailBrush | "blend",
   land: Uint8Array,
   cols: number,
   rows: number,
   strength = 0,
   stretch = 0,
-  opacity = 1
+  opacity = 1,
+  // How many canvas pixels a cell is across.
+  cellSize = PAINT_CELL
 ) {
-  const channel = biome === "plains" || biome === "blend" ? -1 : BIOMES.indexOf(biome)
+  const channel = channelOf(biome)
   const touched = new Map<string, Touched>()
   const carry: Carry = { amounts: null }
 
@@ -67,17 +77,17 @@ export function startStroke(
   }
 
   function dab(x: number, y: number, radius: number): Cells {
-    const reach = radius / PAINT_CELL + 1
-    const fine = radius < FINE_BRUSH * PAINT_CELL
+    const reach = radius / cellSize + 1
+    const fine = radius < FINE_BRUSH * cellSize
     const cells = {
-      x0: Math.max(Math.floor(x / PAINT_CELL - reach), 0),
-      y0: Math.max(Math.floor(y / PAINT_CELL - reach), 0),
-      x1: Math.min(Math.ceil(x / PAINT_CELL + reach), cols - 1),
-      y1: Math.min(Math.ceil(y / PAINT_CELL + reach), rows - 1),
+      x0: Math.max(Math.floor(x / cellSize - reach), 0),
+      y0: Math.max(Math.floor(y / cellSize - reach), 0),
+      x1: Math.min(Math.ceil(x / cellSize + reach), cols - 1),
+      y1: Math.min(Math.ceil(y / cellSize + reach), rows - 1),
     }
     if (biome === "blend") {
       blendStamp(
-        { cells, strength, coverage: (cx, cy) => coverage(cx, cy, x, y, radius, fine), land, cols, tileWork },
+        { cells, strength, coverage: (cx, cy) => coverage(cx, cy, x, y, radius, fine, cellSize), land, cols, tileWork },
         carry,
         stretch
       )
@@ -87,7 +97,7 @@ export function startStroke(
       for (let cx = cells.x0; cx <= cells.x1; cx++) {
         if (!land[cy * cols + cx]) continue
         // Opacity caps what a stroke lays down, however often it passes over a cell.
-        const covered = coverage(cx, cy, x, y, radius, fine) * opacity
+        const covered = coverage(cx, cy, x, y, radius, fine, cellSize) * opacity
         if (covered <= 0) continue
         const tile = tileFor(Math.floor(cx / TILE), Math.floor(cy / TILE))
         const cell = (cy % TILE) * TILE + (cx % TILE)

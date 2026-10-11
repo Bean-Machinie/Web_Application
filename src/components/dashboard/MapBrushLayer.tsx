@@ -3,10 +3,12 @@ import type Konva from "konva"
 import type { Pair } from "polygon-clipping"
 import { Circle, Group } from "react-konva"
 import type { Brush } from "@/hooks/use-brush"
+import type { BrushBiome } from "@/lib/biomes/biomes"
 import { startStroke } from "@/lib/biomes/brush"
 import type { Cells, Stroke } from "@/lib/biomes/brush"
 import type { Paint } from "@/lib/biomes/paint-tiles"
 import type { Surface } from "@/lib/biomes/surface"
+import type { DetailBrush } from "@/lib/details/details"
 
 const union = (a: Cells, b: Cells): Cells => ({
   x0: Math.min(a.x0, b.x0),
@@ -17,28 +19,30 @@ const union = (a: Cells, b: Cells): Cells => ({
 
 type Props = {
   enabled: boolean
-  // The brush blends the biomes already there instead of painting one.
-  blending: boolean
+  // What it paints: a biome or a detail, or with "blend" it softens the biomes already there.
+  target: BrushBiome | DetailBrush | "blend"
+  // How many canvas pixels a cell of this paint is across.
+  cell: number
   brush: Brush
   paint: Paint
   // A 1 for each cell of the paint grid that has land, and the grid's size.
   land: { mask: Uint8Array; cols: number; rows: number }
-  surface: Surface
+  surface: Pick<Surface, "draw" | "drawAll" | "adopt">
   onPaint: (paint: Paint) => void
 }
 
 // The brush: hold the pointer and drag to paint, with a ring showing the size.
-// The stroke is drawn straight onto the biome picture as it goes, and becomes
+// The stroke is drawn straight onto the picture of its layer as it goes, and becomes
 // one change of the paint when the pointer is let go. The ring is only for the
 // editor and is left out of the rendered image, as a group of the editor layer.
 // Painting redraws the surfaces layer, which holds the biomes, and the ring
 // moves in the editor layer: no other layer is touched. The middle button pans.
-export function MapBrushLayer({ enabled, blending, brush, paint, land, surface, onPaint }: Props) {
+export function MapBrushLayer({ enabled, target, cell, brush, paint, land, surface, onPaint }: Props) {
   const layer = useRef<Konva.Group>(null)
   const ring = useRef<Konva.Group>(null)
-  const latest = useRef({ blending, brush, paint, land, onPaint })
+  const latest = useRef({ target, cell, brush, paint, land, onPaint })
   useEffect(() => {
-    latest.current = { blending, brush, paint, land, onPaint }
+    latest.current = { target, cell, brush, paint, land, onPaint }
   })
 
   useEffect(() => {
@@ -99,8 +103,18 @@ export function MapBrushLayer({ enabled, blending, brush, paint, land, surface, 
 
     const onDown = (event: Konva.KonvaEventObject<PointerEvent>) => {
       if (event.evt.button !== 0 || stroke) return
-      const { blending, brush, paint, land } = latest.current
-      stroke = startStroke(paint, blending ? "blend" : brush.biome, land.mask, land.cols, land.rows, brush.strength, brush.stretch, brush.opacity)
+      const { target, cell, brush, paint, land } = latest.current
+      stroke = startStroke(
+        paint,
+        target,
+        land.mask,
+        land.cols,
+        land.rows,
+        brush.strength,
+        brush.stretch,
+        brush.opacity,
+        cell
+      )
       base = paint
       last = place(event.evt)
       show(stroke.dab(last[0], last[1], brush.size / 2))

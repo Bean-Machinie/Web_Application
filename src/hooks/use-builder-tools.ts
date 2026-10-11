@@ -3,14 +3,17 @@ import type { MapScene } from "@/lib/map-scene"
 import type { BuilderTool, LandMode, PanMode, SelectMode } from "@/lib/map-builder-tools"
 import { BIOMES } from "@/lib/biomes/biomes"
 import type { BrushBiome } from "@/lib/biomes/biomes"
+import { DETAILS } from "@/lib/details/details"
+import type { DetailBrush } from "@/lib/details/details"
 import { useAltTap } from "./use-alt-tap"
 import { useArmedAsset } from "./use-armed-asset"
 import { useAssetEditing } from "./use-asset-editing"
 import { useBrush } from "./use-brush"
 import { useSpacePan } from "./use-space-pan"
 
-// The biome sub tools in the order the panel lists them.
+// The brush's sub tools in the order the panel lists them, for each tab.
 const CHOICES: BrushBiome[] = ["plains", ...BIOMES]
+const DETAIL_CHOICES: DetailBrush[] = [...DETAILS, "erase"]
 
 type Options = {
   assets: MapScene["assets"]
@@ -30,7 +33,7 @@ export function useBuilderTools({ assets, change, centre, pointer, locked }: Opt
   const [selectMode, setSelectMode] = useState<SelectMode>("rectangle")
   const [panMode, setPanMode] = useState<PanMode>("hand")
   const [hideAssets, setHideAssets] = useState(false)
-  const brush = useBrush()
+  const brush = useBrush(tool)
   const stamping = useArmedAsset(!locked)
   const { disarm } = stamping
 
@@ -67,9 +70,10 @@ export function useBuilderTools({ assets, change, centre, pointer, locked }: Opt
     if (tool === "select") setSelectMode((now) => (now === "rectangle" ? "lasso" : "rectangle"))
     if (tool === "land") setMode((now) => (now === "add" ? "cut" : "add"))
     if (tool === "hand") setPanMode((now) => (now === "hand" ? "rotate" : "hand"))
-    if (tool === "brush") {
-      const next = (CHOICES.indexOf(brush.biome) + 1) % CHOICES.length
-      brush.onBiome(CHOICES[next])
+    if (tool === "brush" && brush.layer === "details") {
+      brush.onDetail(DETAIL_CHOICES[(DETAIL_CHOICES.indexOf(brush.detail) + 1) % DETAIL_CHOICES.length])
+    } else if (tool === "brush") {
+      brush.onBiome(CHOICES[(CHOICES.indexOf(brush.biome) + 1) % CHOICES.length])
     }
   }, !locked)
 

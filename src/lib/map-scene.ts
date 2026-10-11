@@ -3,8 +3,8 @@
 // rendered image stay percentages of the image, as for any map.
 //
 // "version" is the format version: when the shape of a scene changes, readScene
-// upgrades older ones. Layers draw in a fixed order: background, land, roads,
-// assets.
+// upgrades older ones. Layers draw in a fixed order: background, land, biomes,
+// details, assets.
 import type { MultiPolygon } from "polygon-clipping"
 import { EMPTY_PAINT } from "./biomes/paint-tiles"
 import type { Paint } from "./biomes/paint-tiles"
@@ -50,6 +50,9 @@ export type MapScene = {
   // The biomes painted over the land. In the database this is kept as "biomes",
   // squeezed into text, and is read back by fetchMapScene.
   paint: Paint
+  // The details (paths, roads, rivers) painted over the biomes, on a finer grid. In
+  // the database this is kept as "details".
+  details: Paint
   assets: PlacedAsset[]
 }
 
@@ -78,6 +81,7 @@ export function createScene({ preset, background }: CanvasChoice): MapScene {
     land: [],
     style: DEFAULT_STYLE,
     paint: EMPTY_PAINT,
+    details: EMPTY_PAINT,
     assets: [],
   }
 }
@@ -121,6 +125,7 @@ export function readScene(json: unknown): MapScene | null {
     land: readLand(scene.land, { width, height }),
     style: readStyle(scene.style),
     paint: EMPTY_PAINT,
+    details: EMPTY_PAINT,
     assets: Array.isArray(scene.assets) ? scene.assets.filter(isPlacedAsset) : [],
   }
 }
