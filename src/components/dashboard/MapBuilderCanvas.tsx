@@ -60,9 +60,10 @@ const STAMP_SLOP = 4
 const CURSORS: Record<BuilderTool, string> = {
   hand: "cursor-grab active:cursor-grabbing",
   land: "cursor-crosshair",
-  brush: "cursor-crosshair",
-  eraser: "cursor-crosshair",
-  blend: "cursor-crosshair",
+  // The brushes show their own ring, which is the cursor.
+  brush: "cursor-none",
+  eraser: "cursor-none",
+  blend: "cursor-none",
   select: "cursor-default",
 }
 
@@ -122,7 +123,7 @@ export function MapBuilderCanvas(props: Props) {
         if (id && !editing.selected.includes(id)) editing.select(id, false)
         setSpot({ x: event.clientX, y: event.clientY, at, onAsset: id !== null })
       }}
-      className={`bg-muted relative min-w-0 flex-1 touch-none overflow-hidden ${props.armed ? "cursor-crosshair" : CURSORS[tool]}`}
+      className={`bg-muted relative min-w-0 flex-1 touch-none overflow-hidden ${props.armed ? "cursor-crosshair" : !props.editable && CURSORS[tool] === "cursor-none" ? "cursor-default" : CURSORS[tool]}`}
       // The lasso's shows whether it adds or cuts, and follows Alt's switch.
       style={tool === "land" && props.landTool === "lasso" && !props.armed ? { cursor: lassoCursor(props.cutting) } : undefined}
     >
