@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import type Konva from "konva"
 import type { MultiPolygon } from "polygon-clipping"
 import { Layer } from "react-konva"
@@ -12,6 +12,7 @@ import type { Terrain } from "@/lib/terrain"
 import type { AssetPatch } from "@/lib/map-asset-edit"
 import type { MapScene, PlacedAsset } from "@/lib/map-scene"
 import { AssetPictures } from "./AssetPictures"
+import { MapFadingAssets } from "./MapFadingAssets"
 import { MapSelectedAsset } from "./MapSelectedAsset"
 
 type Props = {
@@ -21,6 +22,8 @@ type Props = {
   // Alt is held, when a press on art drags a copy and the art itself stays put.
   altHeld: boolean
   selected: string[]
+  // The art the eraser has touched, faint until it is removed.
+  fading: ReadonlySet<string>
   // Whether assets can be picked and moved: only with the select tool.
   editable: boolean
   // Plain click replaces the selection; Shift-click adds or removes one.
@@ -49,7 +52,12 @@ export function MapAssetsLayer(props: Props) {
   const { assets, selected, editable, onSelect, canvas } = props
   const infoOf = useAssetInfos(assets.map((asset) => asset.asset))
   const { moving, picture, flatOf, handlers } = useAssetMovement({ ...props, infoOf })
-  const { pictures, version } = useAssetPictures({ ...props, hidden: moving })
+  // The pieces that draw themselves, moving or fading, are left out of the pictures.
+  const hidden = useMemo(
+    () => (props.fading.size === 0 ? moving : new Set([...moving, ...props.fading])),
+    [moving, props.fading]
+  )
+  const { pictures, version } = useAssetPictures({ ...props, hidden })
   // The pictures are redrawn in place, which no prop says, so the layer is told.
   const picturesLayer = useRef<Konva.Layer>(null)
   useEffect(() => {
@@ -60,6 +68,7 @@ export function MapAssetsLayer(props: Props) {
     <>
       <Layer ref={picturesLayer} name="assets-pictures" listening={false} visible={props.visible}>
         <AssetPictures overview={pictures.overview} canvas={canvas} sharp={pictures.view} />
+        <MapFadingAssets assets={assets} fading={props.fading} infoOf={infoOf} flatOf={flatOf} />
       </Layer>
       <Layer listening={editable}>
         {assets

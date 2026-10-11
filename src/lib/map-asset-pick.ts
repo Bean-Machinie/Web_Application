@@ -63,6 +63,26 @@ export function makePicker(pieces: Piece[], canvas: { width: number; height: num
       for (let i = found.length - 1; i >= 0; i--) if (painted(found[i], x, y)) return found[i].asset.id
       return null
     },
+    // The ids of the pieces, but those in "skip", whose painted pixels a round brush
+    // touches, front or back: a grid of points under the brush is tried against each, so
+    // that a piece is found by what is solid, as a click finds it, and not by its box.
+    touching(x: number, y: number, radius: number, skip: ReadonlySet<string>) {
+      const step = Math.min(Math.max(radius / 5, 2), 8)
+      const reach = Math.floor(radius / step)
+      const ids: string[] = []
+      for (const piece of near({ x: x - radius, y: y - radius, width: radius * 2, height: radius * 2 })) {
+        if (skip.has(piece.asset.id)) continue
+        search: for (let j = -reach; j <= reach; j++) {
+          for (let i = -reach; i <= reach; i++) {
+            if (Math.hypot(i * step, j * step) > radius) continue
+            if (!painted(piece, x + i * step, y + j * step)) continue
+            ids.push(piece.asset.id)
+            break search
+          }
+        }
+      }
+      return ids
+    },
     // The ids of the pieces whose boxes touch an outline drawn by hand.
     inside(outline: Pair[]) {
       const xs = outline.map(([x]) => x)

@@ -2,17 +2,31 @@ import { useState } from "react"
 import { BLEND_STRENGTH, BLEND_STRETCH, BRUSH_OPACITY, BRUSH_SIZE } from "@/lib/biomes/biomes"
 import type { BrushBiome } from "@/lib/biomes/biomes"
 import { DETAIL_SIZE } from "@/lib/details/details"
-import type { DetailBrush } from "@/lib/details/details"
+import type { Detail } from "@/lib/details/details"
+import { ERASE_SIZE } from "@/lib/erase"
+import type { EraseTarget } from "@/lib/erase"
 import type { BuilderTool } from "@/lib/map-builder-tools"
 
 // What the brush paints on: the biomes, or the details over them.
 export type BrushLayer = "biomes" | "details"
 
+// Each size that is kept: for the two brush tabs, and for each of the eraser's.
+type SizeKey = BrushLayer | `erase-${EraseTarget}`
+const RANGES: Record<SizeKey, { min: number; max: number; start: number; step: number }> = {
+  biomes: BRUSH_SIZE,
+  details: DETAIL_SIZE,
+  "erase-biomes": ERASE_SIZE.biomes,
+  "erase-details": ERASE_SIZE.details,
+  "erase-assets": ERASE_SIZE.assets,
+}
+
 export type Brush = {
   layer: BrushLayer
   biome: BrushBiome
-  detail: DetailBrush
-  // Across the brush, in canvas pixels. Each layer keeps its own.
+  detail: Detail
+  // What the eraser takes away.
+  erase: EraseTarget
+  // Across the brush, in canvas pixels. Each layer and each eraser keeps its own.
   size: number
   // The least and most it can be, for the layer in use.
   range: { min: number; max: number }
@@ -24,7 +38,8 @@ export type Brush = {
   stretch: number
   onLayer: (layer: BrushLayer) => void
   onBiome: (biome: BrushBiome) => void
-  onDetail: (detail: DetailBrush) => void
+  onDetail: (detail: Detail) => void
+  onErase: (erase: EraseTarget) => void
   onSize: (size: number) => void
   onOpacity: (opacity: number) => void
   onStrength: (strength: number) => void
@@ -42,17 +57,19 @@ const clamp = (size: number, { min, max }: { min: number; max: number }) =>
 export function useBrush(tool: BuilderTool): Brush {
   const [picked, onLayer] = useState<BrushLayer>("biomes")
   const [biome, onBiome] = useState<BrushBiome>("desert")
-  const [detail, onDetail] = useState<DetailBrush>("path")
-  const [biomeSize, setBiomeSize] = useState(BRUSH_SIZE.start)
-  const [detailSize, setDetailSize] = useState(DETAIL_SIZE.start)
+  const [detail, onDetail] = useState<Detail>("path")
+  const [erase, onErase] = useState<EraseTarget>("biomes")
+  const [sizes, setSizes] = useState(
+    () => Object.fromEntries(Object.entries(RANGES).map(([key, { start }]) => [key, start])) as Record<SizeKey, number>
+  )
   const [opacity, onOpacity] = useState(BRUSH_OPACITY.start)
   const [strength, onStrength] = useState(BLEND_STRENGTH.start)
   const [stretch, onStretch] = useState(BLEND_STRETCH.start)
 
   const layer = tool === "blend" ? "biomes" : picked
-  const details = layer === "details"
-  const range = details ? DETAIL_SIZE : BRUSH_SIZE
-  const setSize = details ? setDetailSize : setBiomeSize
+  const key: SizeKey = tool === "eraser" ? `erase-${erase}` : layer
+  const range = RANGES[key]
+  const setSize = (next: (now: number) => number) => setSizes((now) => ({ ...now, [key]: next(now[key]) }))
   // A step is at least one pixel, which a small brush would otherwise never take.
   const step = (now: number, up: boolean) =>
     up ? Math.max(now * range.step, now + 1) : Math.min(now / range.step, now - 1)
@@ -61,7 +78,8 @@ export function useBrush(tool: BuilderTool): Brush {
     layer,
     biome,
     detail,
-    size: details ? detailSize : biomeSize,
+    erase,
+    size: sizes[key],
     range,
     opacity,
     strength,
@@ -69,7 +87,8 @@ export function useBrush(tool: BuilderTool): Brush {
     onLayer,
     onBiome,
     onDetail,
-    onSize: (next) => setSize(clamp(next, range)),
+    onErase,
+    onSize: (next) => setSize(() => clamp(next, range)),
     onOpacity,
     onStrength,
     onStretch,

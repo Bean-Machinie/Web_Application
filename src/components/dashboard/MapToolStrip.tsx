@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useShortcutText } from "@/hooks/use-shortcut-text"
 import type { BrushBiome } from "@/lib/biomes/biomes"
-import type { DetailBrush } from "@/lib/details/details"
+import type { Detail } from "@/lib/details/details"
 import type { SceneBackground } from "@/lib/map-scene"
 import { BUILDER_TOOLS } from "@/lib/map-builder-tools"
 import type { BuilderTool } from "@/lib/map-builder-tools"
@@ -18,7 +18,7 @@ type Props = {
   // What the brush paints, shown on its icon: a biome, with the ground it is painted on,
   // or when it is on the details tab, the detail.
   biome: BrushBiome
-  detail: DetailBrush | null
+  detail: Detail | null
   background: SceneBackground
   disabled: boolean
   onTool: (tool: BuilderTool) => void

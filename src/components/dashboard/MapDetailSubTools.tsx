@@ -1,4 +1,3 @@
-import { Eraser } from "lucide-react"
 import type { Brush } from "@/hooks/use-brush"
 import { useDetailPreviews } from "@/hooks/use-detail-previews"
 import { DETAILS } from "@/lib/details/details"
@@ -27,14 +26,6 @@ export function MapDetailSubTools({ brush }: { brush: Brush }) {
           </span>
         </MapSubToolButton>
       ))}
-      <MapSubToolButton
-        label="Eraser"
-        hint="Rub out paths, roads and water; the biomes stay"
-        active={brush.detail === "erase"}
-        onClick={() => brush.onDetail("erase")}
-      >
-        <Eraser />
-      </MapSubToolButton>
     </>
   )
 }

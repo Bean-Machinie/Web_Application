@@ -43,6 +43,7 @@ type Props = {
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
   onPaint: (paint: Paint) => void
   onPaintDetails: (details: Paint) => void
+  onEraseAssets: (ids: string[]) => void
 }
 
 // A press that moves further than this (screen pixels) before it is let go is a
@@ -53,6 +54,7 @@ const CURSORS: Record<BuilderTool, string> = {
   hand: "cursor-grab active:cursor-grabbing",
   land: "cursor-crosshair",
   brush: "cursor-crosshair",
+  eraser: "cursor-crosshair",
   blend: "cursor-crosshair",
   select: "cursor-default",
 }
@@ -137,6 +139,7 @@ export function MapBuilderCanvas(props: Props) {
           brush={props.brush}
           onPaint={props.onPaint}
           onPaintDetails={props.onPaintDetails}
+          onEraseAssets={props.onEraseAssets}
           onWheel={viewport.onWheel}
           onPan={viewport.onPan}
           onPanning={viewport.follow}

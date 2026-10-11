@@ -4,7 +4,7 @@ import type { BuilderTool, LandMode, PanMode, SelectMode } from "@/lib/map-build
 import { BIOMES } from "@/lib/biomes/biomes"
 import type { BrushBiome } from "@/lib/biomes/biomes"
 import { DETAILS } from "@/lib/details/details"
-import type { DetailBrush } from "@/lib/details/details"
+import { ERASE_TARGETS } from "@/lib/erase"
 import { useAltTap } from "./use-alt-tap"
 import { useArmedAsset } from "./use-armed-asset"
 import { useAssetEditing } from "./use-asset-editing"
@@ -13,7 +13,6 @@ import { useSpacePan } from "./use-space-pan"
 
 // The brush's sub tools in the order the panel lists them, for each tab.
 const CHOICES: BrushBiome[] = ["plains", ...BIOMES]
-const DETAIL_CHOICES: DetailBrush[] = [...DETAILS, "erase"]
 
 type Options = {
   assets: MapScene["assets"]
@@ -70,8 +69,10 @@ export function useBuilderTools({ assets, change, centre, pointer, locked }: Opt
     if (tool === "select") setSelectMode((now) => (now === "rectangle" ? "lasso" : "rectangle"))
     if (tool === "land") setMode((now) => (now === "add" ? "cut" : "add"))
     if (tool === "hand") setPanMode((now) => (now === "hand" ? "rotate" : "hand"))
-    if (tool === "brush" && brush.layer === "details") {
-      brush.onDetail(DETAIL_CHOICES[(DETAIL_CHOICES.indexOf(brush.detail) + 1) % DETAIL_CHOICES.length])
+    if (tool === "eraser") {
+      brush.onErase(ERASE_TARGETS[(ERASE_TARGETS.indexOf(brush.erase) + 1) % ERASE_TARGETS.length])
+    } else if (tool === "brush" && brush.layer === "details") {
+      brush.onDetail(DETAILS[(DETAILS.indexOf(brush.detail) + 1) % DETAILS.length])
     } else if (tool === "brush") {
       brush.onBiome(CHOICES[(CHOICES.indexOf(brush.biome) + 1) % CHOICES.length])
     }

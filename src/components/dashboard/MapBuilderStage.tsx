@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import type { RefObject } from "react"
 import type Konva from "konva"
 import { Group, Image as KonvaImage, Layer, Rect, Stage } from "react-konva"
@@ -23,10 +23,13 @@ import { MapAssetsLayer } from "./MapAssetsLayer"
 import { MapBiomeLayer } from "./MapBiomeLayer"
 import { MapBrushLayer } from "./MapBrushLayer"
 import { MapDetailLayer } from "./MapDetailLayer"
+import { MapEraseAssetsLayer } from "./MapEraseAssetsLayer"
 import { MapLandLayer } from "./MapLandLayer"
 import { MapWaterLayer } from "./MapWaterLayer"
 import { MapLassoLayer } from "./MapLassoLayer"
 import { MapSelectionLayer } from "./MapSelectionLayer"
+
+const NONE: ReadonlySet<string> = new Set()
 
 type Props = {
   scene: MapScene
@@ -51,6 +54,7 @@ type Props = {
   brush: Brush
   onPaint: (paint: Paint) => void
   onPaintDetails: (details: Paint) => void
+  onEraseAssets: (ids: string[]) => void
   // Shift is held: rotating snaps to 15 degrees.
   snapRotation: boolean
   // Alt is held: a press on art drags a copy of it instead (see MapSelectionLayer).
@@ -76,7 +80,11 @@ export function MapBuilderStage(props: Props) {
   const land = useShownLand(scene.land, scene.style.roundness, canvas)
   const surface = useBiomeSurface(canvas, terrain)
   const detailSurface = useDetailSurface(canvas)
-  const painting = editable && tool === "brush" && props.brush.layer === "details"
+  // What the eraser is taking away, if it is the tool; and the art it has touched.
+  const eraser = tool === "eraser" ? props.brush.erase : null
+  const [fading, setFading] = useState<ReadonlySet<string>>(NONE)
+  const paintingDetails = tool === "brush" && props.brush.layer === "details"
+  const painting = editable && (paintingDetails || eraser === "details")
   // Paint sticks where the land is as it is shown, rounded corners and all, so
   // that none of the land you see is out of its reach.
   const mask = useMemo(() => ({ mask: landMask(land, canvas), ...gridSize(canvas) }), [land, canvas])
@@ -139,6 +147,7 @@ export function MapBuilderStage(props: Props) {
         visible={props.showAssets}
         altHeld={props.altHeld}
         selected={editing.selected}
+        fading={fading}
         editable={editable && tool === "select"}
         onSelect={editing.select}
         onChange={editing.commit}
@@ -150,8 +159,8 @@ export function MapBuilderStage(props: Props) {
           onLasso={props.onLasso}
         />
         <MapBrushLayer
-          enabled={editable && (tool === "blend" || (tool === "brush" && !painting))}
-          target={tool === "blend" ? "blend" : props.brush.biome}
+          enabled={editable && (tool === "blend" || (tool === "brush" && !paintingDetails) || eraser === "biomes")}
+          target={tool === "blend" ? "blend" : eraser ? "plains" : props.brush.biome}
           cell={PAINT_CELL}
           brush={props.brush}
           paint={scene.paint}
@@ -161,13 +170,20 @@ export function MapBuilderStage(props: Props) {
         />
         <MapBrushLayer
           enabled={painting}
-          target={props.brush.detail}
+          target={eraser ? "erase" : props.brush.detail}
           cell={DETAIL_CELL}
           brush={props.brush}
           paint={scene.details}
           land={detailMask}
           surface={detailSurface}
           onPaint={props.onPaintDetails}
+        />
+        <MapEraseAssetsLayer
+          enabled={editable && eraser === "assets"}
+          brush={props.brush}
+          pick={props.pick}
+          onFading={setFading}
+          onErase={props.onEraseAssets}
         />
         <MapSelectionLayer
           enabled={editable && tool === "select"}

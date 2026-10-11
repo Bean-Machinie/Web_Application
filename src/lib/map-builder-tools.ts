@@ -1,7 +1,7 @@
-import { Droplets, Hand, Lasso, MousePointer2, Paintbrush } from "lucide-react"
+import { Droplets, Eraser, Hand, Lasso, MousePointer2, Paintbrush } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
-export type BuilderTool = "select" | "land" | "brush" | "blend" | "hand"
+export type BuilderTool = "select" | "land" | "brush" | "eraser" | "blend" | "hand"
 export type LandMode = "add" | "cut"
 // How the select tool picks art: a box dragged out, or an outline drawn by hand.
 export type SelectMode = "rectangle" | "lasso"
@@ -21,5 +21,6 @@ export const BUILDER_TOOLS: { id: BuilderTool; label: string; key: string; Icon:
   { id: "select", label: "Select", key: "V", Icon: MousePointer2 },
   { id: "land", label: "Land", key: "L", Icon: Lasso },
   { id: "brush", label: "Brush", key: "B", Icon: Paintbrush },
+  { id: "eraser", label: "Eraser", key: "E", Icon: Eraser },
   { id: "blend", label: "Blend", key: "J", Icon: Droplets },
 ]

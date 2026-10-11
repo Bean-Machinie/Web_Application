@@ -3,6 +3,7 @@ import type { Props } from "./MapToolPanel"
 import { MapBiomeSubTools } from "./MapBiomeSubTools"
 import { MapBrushProperties } from "./MapBrushProperties"
 import { MapDetailSubTools } from "./MapDetailSubTools"
+import { MapEraseSubTools } from "./MapEraseSubTools"
 import { MapLandSubTools } from "./MapLandSubTools"
 import { MapPanProperties } from "./MapPanProperties"
 import { MapPanSubTools } from "./MapPanSubTools"
@@ -46,6 +47,16 @@ export function toolSections(props: Props): ToolSection[] {
         </div>
       ),
     })
+  if (tool === "eraser")
+    list.push({
+      id: "erasers",
+      title: "Eraser",
+      content: (
+        <div className="grid gap-1 p-2">
+          <MapEraseSubTools brush={brush} />
+        </div>
+      ),
+    })
   if (tool === "select")
     list.push({
       id: "modes",
@@ -74,9 +85,10 @@ export function toolSections(props: Props): ToolSection[] {
         {tool === "land" && (
           <p className="text-muted-foreground text-xs">Tap Alt to switch between adding and cutting.</p>
         )}
-        {(tool === "brush" || tool === "blend") && (
+        {(tool === "brush" || tool === "eraser" || tool === "blend") && (
           <MapBrushProperties
             blending={tool === "blend"}
+            erasing={tool === "eraser" ? brush.erase : null}
             brush={brush}
             showAssets={props.showAssets}
             onShowAssets={props.onShowAssets}

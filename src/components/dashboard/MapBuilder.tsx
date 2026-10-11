@@ -13,6 +13,7 @@ import { useMapPublish } from "@/hooks/use-map-publish"
 import { useSceneAutosave } from "@/hooks/use-scene-autosave"
 import { useSceneHistory } from "@/hooks/use-scene-history"
 import type { Paint } from "@/lib/biomes/paint-tiles"
+import { removeAssets } from "@/lib/map-asset-edit"
 import { TOOL_PANEL_INSET } from "@/lib/map-builder-tools"
 import type { WorldImage } from "@/lib/world-images"
 import type { LoadedScene } from "@/lib/world-map-scenes"
@@ -100,6 +101,8 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const drawLand = useLandDrawing(scene, history.change)
   const paintBiomes = (paint: Paint) => history.change((old) => ({ ...old, paint }))
   const paintDetails = (details: Paint) => history.change((old) => ({ ...old, details }))
+  const eraseAssets = (ids: string[]) =>
+    history.change((old) => ({ ...old, assets: removeAssets(old.assets, ids) }))
 
   return (
     <div className="bg-background fixed inset-0 z-50 flex flex-col">
@@ -123,7 +126,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           biome={tools.brush.biome}
           detail={tools.brush.layer === "details" ? tools.brush.detail : null}
           background={scene.canvas.background}
-          modes={{ land: cutting ? "cut" : "add", select: tools.selectMode, hand: tools.panMode, brush: tools.brush.layer }}
+          modes={{ land: cutting ? "cut" : "add", select: tools.selectMode, hand: tools.panMode, brush: tools.brush.layer, eraser: tools.brush.erase }}
           disabled={publishing}
           onTool={tools.changeTool}
         />
@@ -167,6 +170,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               brush={tools.brush}
               onPaint={paintBiomes}
               onPaintDetails={paintDetails}
+              onEraseAssets={eraseAssets}
               viewport={viewport}
               stageRef={stage}
               pointer={pointer}

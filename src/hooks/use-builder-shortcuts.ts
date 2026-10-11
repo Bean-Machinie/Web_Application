@@ -33,7 +33,7 @@ type Options = {
 export function useBuilderShortcuts({ enabled, tools, viewport, undo, redo, toggleHelp }: Options) {
   const { editing, brush } = tools
   const has = editing.selected.length > 0
-  const brushOn = tools.tool === "brush" || tools.tool === "blend"
+  const brushOn = tools.tool === "brush" || tools.tool === "eraser" || tools.tool === "blend"
 
   const when = (condition: boolean, run: () => void) => () => {
     if (!condition) return false
