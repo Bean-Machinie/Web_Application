@@ -105,7 +105,7 @@ export function MapNavigatorView({ scene, terrain, viewport }: Props) {
     >
       <canvas ref={picture} width={width} height={height} className="size-full" />
       <svg viewBox={`0 0 ${canvasWidth} ${canvasHeight}`} preserveAspectRatio="none" className="pointer-events-none absolute inset-0 size-full">
-        <polygon ref={box} className="fill-red-500/10 stroke-red-500" strokeWidth={2} vectorEffect="non-scaling-stroke" />
+        <polygon ref={box} className="fill-foreground/10 stroke-foreground/70" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
       </svg>
     </div>
   )

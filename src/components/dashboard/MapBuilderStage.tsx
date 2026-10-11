@@ -53,7 +53,7 @@ type Props = {
   editable: boolean
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
   landTool: LandTool
-  stamp: Stamp
+  stamp: Stamp | null
   placement: StampPlacement
   onShape: (outline: Polygon, cut: boolean) => void
   editing: AssetEditing
@@ -166,20 +166,22 @@ export function MapBuilderStage(props: Props) {
           cutting={cutting}
           onLasso={props.onLasso}
         />
-        <MapStampLayer
-          enabled={editable && tool === "land" && props.landTool === "shapes" && !props.placement.saving}
-          stamp={props.stamp}
-          cutting={cutting}
-          placement={props.placement}
-          canvas={canvas}
-          style={scene.style}
-          terrain={terrain}
-          snapRotation={props.snapRotation}
-          onApply={props.onShape}
-        />
+        {props.stamp && (
+          <MapStampLayer
+            enabled={editable && tool === "land" && props.landTool !== "lasso" && !props.placement.saving}
+            stamp={props.stamp}
+            cutting={cutting}
+            placement={props.placement}
+            canvas={canvas}
+            style={scene.style}
+            terrain={terrain}
+            snapRotation={props.snapRotation}
+            onApply={props.onShape}
+          />
+        )}
         {import.meta.env.DEV && (
           <MapLandmassPick
-            enabled={editable && tool === "land" && props.landTool === "shapes" && props.placement.saving}
+            enabled={editable && tool === "land" && props.landTool === "islands" && props.placement.saving}
             land={scene.land}
             canvas={canvas}
             onPick={(picked) => {

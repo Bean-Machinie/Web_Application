@@ -28,16 +28,21 @@ export function toolSections(props: Props): ToolSection[] {
         tabs: [
           { id: "lasso", title: "Lasso" },
           { id: "shapes", title: "Shapes" },
+          { id: "islands", title: "Islands" },
         ],
         active: props.landTool,
         onPick: (id) => props.onLandTool(id as LandTool),
       },
       content: (
         <div className="grid gap-1 p-2">
-          {props.landTool === "shapes" ? (
-            <MapShapeSubTools stampId={props.stampId} onStamp={props.onStamp} />
-          ) : (
+          {props.landTool === "lasso" ? (
             <MapLassoSubTools cutting={cutting} />
+          ) : (
+            <MapShapeSubTools
+              group={props.landTool === "islands" ? "islands" : "basic"}
+              stampId={props.stampId}
+              onStamp={props.onStamp}
+            />
           )}
         </div>
       ),

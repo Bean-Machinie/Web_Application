@@ -5,7 +5,7 @@ import { BUILDER_TOOLS } from "@/lib/map-builder-tools"
 import type { BuilderTool, LandMode, LandTool, PanMode, SelectMode } from "@/lib/map-builder-tools"
 
 import { ERASE_ICONS } from "./map-erase-icons"
-import { LASSO_ICONS } from "./map-land-icons"
+import { LassoIcon } from "./map-land-icons"
 
 export type ToolModes = { land: LandMode; landTool: LandTool; select: SelectMode; hand: PanMode; brush: BrushLayer; eraser: EraseTarget }
 
@@ -13,10 +13,7 @@ export type ToolModes = { land: LandMode; landTool: LandTool; select: SelectMode
 // does. The tools without sub tools keep a fixed one.
 export function MapToolIcon({ tool, modes }: { tool: BuilderTool; modes: ToolModes }) {
   if (tool === "land") {
-    if (modes.landTool === "lasso") {
-      const Icon = LASSO_ICONS[modes.land]
-      return <Icon />
-    }
+    if (modes.landTool === "lasso") return <LassoIcon cutting={modes.land === "cut"} />
     return modes.land === "cut" ? <SquaresSubtract /> : <SquaresUnite />
   }
   if (tool === "select") return modes.select === "lasso" ? <Lasso /> : <SquareDashed />

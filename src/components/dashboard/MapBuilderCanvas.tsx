@@ -45,7 +45,7 @@ type Props = {
   pointer: MutableRefObject<{ x: number; y: number } | null>
   onLasso: (points: Pair[], cut: boolean, scale: number) => void
   landTool: LandTool
-  stamp: Stamp
+  stamp: Stamp | null
   placement: StampPlacement
   onShape: (outline: Polygon, cut: boolean) => void
   onPaint: (paint: Paint) => void

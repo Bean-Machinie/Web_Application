@@ -105,7 +105,9 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
 
   const { drawLand, drawStamp } = useLandDrawing(scene, history.change)
   const stamps = useSyncExternalStore(subscribeStamps, getStamps)
-  const stamp = stamps.find(({ id }) => id === tools.stampId) ?? stamps[0]
+  // The stamp of the open tab: the one picked in it, else its first. An empty tab has none.
+  const inTab = stamps.filter(({ group }) => group === (tools.landTool === "islands" ? "islands" : "basic"))
+  const stamp = inTab.find(({ id }) => id === tools.stampId) ?? inTab[0] ?? null
   const paintBiomes = (paint: Paint) => history.change((old) => ({ ...old, paint }))
   const paintDetails = (details: Paint) => history.change((old) => ({ ...old, details }))
   const eraseAssets = (ids: string[]) =>
@@ -153,7 +155,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
               onMode={tools.setMode}
               landTool={tools.landTool}
               onLandTool={tools.setLandTool}
-              stampId={stamp.id}
+              stampId={stamp?.id ?? ""}
               onStamp={tools.setStampId}
               placement={tools.placement}
               selectMode={tools.selectMode}

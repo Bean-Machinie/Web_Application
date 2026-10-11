@@ -47,7 +47,7 @@ export function MapToolPanel(props: Props) {
     <Collapsible
       open={open}
       onOpenChange={props.onOpen}
-      className={`absolute inset-y-0 left-0 z-20 flex transition-transform duration-200 ease-linear motion-reduce:transition-none data-[state=closed]:-translate-x-56 ${disabled ? "pointer-events-none opacity-60" : ""}`}
+      className={`absolute inset-y-0 left-0 z-20 flex transition-transform duration-200 ease-linear motion-reduce:transition-none data-[state=closed]:-translate-x-56 ${disabled ? "pointer-events-none" : ""}`}
     >
       <div inert={!open} className="bg-background w-56 border-r">
         <MapToolSections sections={sections} />

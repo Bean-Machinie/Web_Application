@@ -9,7 +9,7 @@ type Props = { map: L.Map | null; url: string; size: MapSize }
 // The zoom of one step of the wheel, as for the map itself.
 const WHEEL_RATE = 0.005
 
-// A small picture of the whole map with a red rectangle on what can be seen. Drag the
+// A small picture of the whole map with a rectangle on what can be seen. Drag the
 // rectangle to pan, press anywhere else to jump there and carry on dragging, and
 // scroll over it to zoom, as in the builder's navigator.
 export function MapViewerThumbnail({ map, url, size }: Props) {
@@ -82,7 +82,7 @@ export function MapViewerThumbnail({ map, url, size }: Props) {
       <img src={url} alt="" draggable={false} className="size-full object-fill select-none" />
       {!hidden && (
         <div
-          className="pointer-events-none absolute border-2 border-red-500 bg-red-500/10"
+          className="pointer-events-none absolute border-[1.5px] border-foreground/70 bg-foreground/10"
           style={{
             left: `${(left / size.width) * 100}%`,
             top: `${(top / size.height) * 100}%`,

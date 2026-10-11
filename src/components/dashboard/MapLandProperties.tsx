@@ -25,7 +25,7 @@ export function MapLandProperties({ landTool, cutting, onMode, placement }: Prop
       <MapLandModeToggle cutting={cutting} onMode={onMode} />
       <div className="text-muted-foreground grid gap-1.5 text-xs">
         <p>Tap Alt to switch between adding and cutting.</p>
-        {landTool === "shapes" && (
+        {landTool !== "lasso" && (
           <>
             <p>
               Drag on the map to fit a shape to a box, or click to place it. Its proportions are kept: hold Shift to
@@ -40,7 +40,7 @@ export function MapLandProperties({ landTool, cutting, onMode, placement }: Prop
           </>
         )}
       </div>
-      {import.meta.env.DEV && landTool === "shapes" && (
+      {import.meta.env.DEV && landTool === "islands" && (
         <>
           <Button variant={saving ? "secondary" : "outline"} size="sm" onClick={() => placement.setSaving(!saving)}>
             <MapPinned /> {saving ? "Click a landmass…" : "Save landmass as stamp"}

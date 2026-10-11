@@ -3,8 +3,8 @@ import type { LucideIcon } from "lucide-react"
 
 export type BuilderTool = "select" | "land" | "brush" | "eraser" | "blend" | "hand"
 export type LandMode = "add" | "cut"
-// How the land tool draws: an outline by hand, or a shape from the library stamped.
-export type LandTool = "lasso" | "shapes"
+// How the land tool draws: an outline by hand, or a shape or an island from the library stamped.
+export type LandTool = "lasso" | "shapes" | "islands"
 // How the select tool picks art: a box dragged out, or an outline drawn by hand.
 export type SelectMode = "rectangle" | "lasso"
 // What the pan tool does with a drag: moves the canvas, or turns it.

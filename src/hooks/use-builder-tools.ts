@@ -9,6 +9,8 @@ import { useAltTap } from "./use-alt-tap"
 import { useArmedAsset } from "./use-armed-asset"
 import { useAssetEditing } from "./use-asset-editing"
 import { useBrush } from "./use-brush"
+import { getStamps } from "@/lib/stamps/stamp-file"
+import type { Stamp } from "@/lib/stamps/stamps"
 import { useSpacePan } from "./use-space-pan"
 import { useStampPlacement } from "./use-stamp-placement"
 
@@ -31,7 +33,7 @@ export function useBuilderTools({ assets, change, centre, pointer, locked }: Opt
   const [tool, setTool] = useState<BuilderTool>("land")
   const [mode, setMode] = useState<LandMode>("add")
   const [landTool, setLandTool] = useState<LandTool>("lasso")
-  const [stampId, setStampId] = useState("circle")
+  const [stampIds, setStampIds] = useState<Record<Stamp["group"], string>>({ basic: "circle", islands: "" })
   const placement = useStampPlacement()
   const [selectMode, setSelectMode] = useState<SelectMode>("rectangle")
   const [panMode, setPanMode] = useState<PanMode>("hand")
@@ -108,8 +110,13 @@ export function useBuilderTools({ assets, change, centre, pointer, locked }: Opt
     setMode,
     landTool,
     setLandTool: changeLandTool,
-    stampId,
-    setStampId,
+    // The stamp of the tab that is open: each of the two keeps its own.
+    stampId: stampIds[landTool === "islands" ? "islands" : "basic"],
+    setStampId: (id: string) =>
+      setStampIds((now) => {
+        const group = getStamps().find((stamp) => stamp.id === id)?.group
+        return group ? { ...now, [group]: id } : now
+      }),
     placement,
     selectMode,
     setSelectMode,

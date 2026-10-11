@@ -1,21 +1,19 @@
-// The cursor of the lasso: a thin crosshair with a small plus beside it when it adds
-// land, or a minus when it cuts, as Photoshop's lasso has. Each is drawn twice, in dark
-// and then in light, so that it shows on any ground.
-const ink = (path: string) =>
-  `<g fill="none" stroke-linecap="round"><path d="${path}" stroke="#000" stroke-opacity=".6" stroke-width="3"/><path d="${path}" stroke="#fff" stroke-width="1.2"/></g>`
+// The cursor of the lasso: a thin crosshair with a plus beside it when it adds land, or a
+// minus when it cuts, as Photoshop's lasso has. The badge is heavy, and the lines are
+// drawn twice, in dark and then in light, so that they show on any ground.
+const ink = (path: string, light: number, dark: number) =>
+  `<g fill="none" stroke-linecap="round"><path d="${path}" stroke="#000" stroke-opacity=".6" stroke-width="${dark}"/><path d="${path}" stroke="#fff" stroke-width="${light}"/></g>`
 
-const CROSSHAIR = "M12 3v18M3 12h18"
-const BADGE = { add: "M26 21v8M22 25h8", cut: "M22 25h8" }
-
-const cursors = {
-  add: cursorOf(BADGE.add),
-  cut: cursorOf(BADGE.cut),
-}
+const CROSSHAIR = "M14 3v22M3 14h22"
+const BADGE = { add: "M24 31h14M31 24v14", cut: "M24 31h14" }
+// Where the crosshair's middle is, which is the point the cursor points at.
+const HOT_SPOT = 14
 
 function cursorOf(badge: string) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">${ink(CROSSHAIR)}${ink(badge)}</svg>`
-  // The crosshair's middle is the point the cursor points at.
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 12 12, crosshair`
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">${ink(CROSSHAIR, 1.2, 3)}${ink(badge, 3, 5.5)}</svg>`
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${HOT_SPOT} ${HOT_SPOT}, crosshair`
 }
+
+const cursors = { add: cursorOf(BADGE.add), cut: cursorOf(BADGE.cut) }
 
 export const lassoCursor = (cutting: boolean) => (cutting ? cursors.cut : cursors.add)
