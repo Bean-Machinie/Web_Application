@@ -60,7 +60,6 @@ export function MapToolPanel(props: Props) {
         {hasSubTools && (
           <>
             <section className="grid gap-1 p-2">
-              <Heading>Sub tool</Heading>
               {tool === "land" && <MapLandSubTools cutting={cutting} onMode={props.onMode} />}
               {tool === "brush" && <MapBiomeSubTools brush={brush} background={background} />}
               {tool === "select" && <MapSelectSubTools mode={props.selectMode} onMode={props.onSelectMode} />}
