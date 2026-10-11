@@ -24,6 +24,7 @@ export function toolSections(props: Props): ToolSection[] {
     list.push({
       id: "main",
       title: "Land",
+      fillTabs: true,
       tabs: {
         tabs: [
           { id: "lasso", title: "Lasso" },
