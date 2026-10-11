@@ -31,15 +31,15 @@ const hexagon = closed(
 )
 
 export const BASIC_STAMPS: Stamp[] = [
-  { id: "circle", name: "Circle", group: "basic", aspect: 1, rings: (width, height) => [ovalRing(width, height)] },
+  { id: "circle", name: "Circle", group: "basic", aspect: 1, polygons: (width, height) => [[ovalRing(width, height)]] },
   {
     id: "rectangle",
     name: "Rectangle",
     group: "basic",
     aspect: 1.5,
     corners: true,
-    rings: [closed([[0, 0], [1, 0], [1, 1], [0, 1]])],
+    polygons: [[closed([[0, 0], [1, 0], [1, 1], [0, 1]])]],
   },
-  { id: "triangle", name: "Triangle", group: "basic", aspect: 2 / Math.sqrt(3), corners: true, rings: [closed([[0.5, 0], [1, 1], [0, 1]])] },
-  { id: "hexagon", name: "Hexagon", group: "basic", aspect: 2 / Math.sqrt(3), corners: true, rings: [hexagon] },
+  { id: "triangle", name: "Triangle", group: "basic", aspect: 2 / Math.sqrt(3), corners: true, polygons: [[closed([[0.5, 0], [1, 1], [0, 1]])]] },
+  { id: "hexagon", name: "Hexagon", group: "basic", aspect: 2 / Math.sqrt(3), corners: true, polygons: [[hexagon]] },
 ]

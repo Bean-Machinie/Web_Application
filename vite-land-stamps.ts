@@ -4,12 +4,15 @@ import type { Plugin } from "vite"
 import { fromThisMachine } from "./vite-local-only.ts"
 
 const FILE = path.resolve(import.meta.dirname, "src/assets/map-stamps/stamps.json")
-const MAX_BODY = 512 * 1024
+const MAX_BODY = 2 * 1024 * 1024
 const MAX_NAME = 40
+const MAX_POLYGONS = 200
 const MAX_RINGS = 24
-const MAX_POINTS = 6000
+const MAX_POINTS = 30000
 
-type Stamp = { id: string; name: string; aspect: number; rings: [number, number][][] }
+type Polygon = [number, number][][]
+// A stamp saved before there could be several landmasses has "rings", one polygon's, for "polygons".
+type Stamp = { id: string; name: string; aspect: number; polygons?: Polygon[]; rings?: Polygon }
 
 function readStamps(): Stamp[] {
   try {
@@ -27,16 +30,19 @@ const slug = (name: string) =>
 
 const isNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value)
 
-// An outline is rings of points in a box of 0 to 1 each way, each ring closed.
-function validRings(rings: unknown): rings is [number, number][][] {
-  if (!Array.isArray(rings) || rings.length === 0 || rings.length > MAX_RINGS) return false
+// An outline is polygons, each rings of points in a box of 0 to 1 each way, each ring closed.
+function validPolygons(polygons: unknown): polygons is Polygon[] {
+  if (!Array.isArray(polygons) || polygons.length === 0 || polygons.length > MAX_POLYGONS) return false
   let points = 0
-  for (const ring of rings) {
-    if (!Array.isArray(ring) || ring.length < 4) return false
-    points += ring.length
-    for (const point of ring) {
-      if (!Array.isArray(point) || point.length !== 2 || !point.every((value) => isNumber(value) && value >= -0.001 && value <= 1.001)) {
-        return false
+  for (const rings of polygons) {
+    if (!Array.isArray(rings) || rings.length === 0 || rings.length > MAX_RINGS) return false
+    for (const ring of rings) {
+      if (!Array.isArray(ring) || ring.length < 4) return false
+      points += ring.length
+      for (const point of ring) {
+        if (!Array.isArray(point) || point.length !== 2 || !point.every((value) => isNumber(value) && value >= -0.001 && value <= 1.001)) {
+          return false
+        }
       }
     }
   }
@@ -48,7 +54,7 @@ const validName = (name: unknown): name is string =>
 
 // Development only. Lets the builder keep the islands of its shape library in
 // src/assets/map-stamps/stamps.json (POST /__dev/land-stamp with { action: "add", name,
-// aspect, rings }, { action: "rename", id, name } or { action: "delete", id }), and
+// aspect, polygons }, { action: "rename", id, name } or { action: "delete", id }), and
 // answers with the whole list. Changes to the file do not reload the page.
 export function landStamps(): Plugin {
   return {
@@ -72,7 +78,7 @@ export function landStamps(): Plugin {
           if (text.length > MAX_BODY) request.destroy()
         })
         request.on("end", () => {
-          let body: { action?: unknown; id?: unknown; name?: unknown; aspect?: unknown; rings?: unknown }
+          let body: { action?: unknown; id?: unknown; name?: unknown; aspect?: unknown; polygons?: unknown }
           try {
             body = JSON.parse(text)
           } catch {
@@ -84,11 +90,11 @@ export function landStamps(): Plugin {
           if (body.action === "add") {
             if (!validName(body.name)) return reply(400, { error: `A name is 1 to ${MAX_NAME} characters.` })
             if (!isNumber(body.aspect) || !(body.aspect >= 0.05 && body.aspect <= 20)) return reply(400, { error: "That proportion is not right." })
-            if (!validRings(body.rings)) return reply(400, { error: "That outline is not right." })
+            if (!validPolygons(body.polygons)) return reply(400, { error: "That outline is not right." })
             const base = slug(body.name)
             let id = base
             for (let n = 2; stamps.some((stamp) => stamp.id === id); n++) id = `${base}-${n}`
-            stamps.push({ id, name: body.name.trim(), aspect: body.aspect, rings: body.rings })
+            stamps.push({ id, name: body.name.trim(), aspect: body.aspect, polygons: body.polygons })
           } else if (body.action === "rename") {
             if (at < 0) return reply(400, { error: "There is no such stamp." })
             if (!validName(body.name)) return reply(400, { error: `A name is 1 to ${MAX_NAME} characters.` })

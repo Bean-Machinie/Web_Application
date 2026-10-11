@@ -1,4 +1,4 @@
-import type { Pair, Polygon, Ring } from "polygon-clipping"
+import type { MultiPolygon, Pair, Ring } from "polygon-clipping"
 import type { Stamp } from "./stamps"
 
 // How a stamp with corners is rounded: whether it is, and by how much, as a share of the
@@ -63,8 +63,8 @@ export function roundRing(ring: Ring, amount: number): Ring {
 // coast's rounding does to the rest of the land: every point of its outline is pinned.
 // A stamp without corners (a circle, an island) has none pinned, and is rounded as the
 // land is.
-export function shapeOutline(stamp: Stamp, outline: Polygon, rounding: Rounding): { outline: Polygon; pins: Pair[] } {
+export function shapeOutline(stamp: Stamp, outline: MultiPolygon, rounding: Rounding): { outline: MultiPolygon; pins: Pair[] } {
   if (!stamp.corners) return { outline, pins: [] }
-  const shaped = rounding.on ? outline.map((ring) => roundRing(ring, rounding.amount)) : outline
-  return { outline: shaped, pins: shaped.flatMap((ring) => ring.slice(0, -1)) }
+  const shaped = rounding.on ? outline.map((polygon) => polygon.map((ring) => roundRing(ring, rounding.amount))) : outline
+  return { outline: shaped, pins: shaped.flatMap((polygon) => polygon.flatMap((ring) => ring.slice(0, -1))) }
 }

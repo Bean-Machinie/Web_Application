@@ -1,5 +1,5 @@
 import { difference, union } from "polygon-clipping"
-import type { MultiPolygon, Pair, Polygon, Ring } from "polygon-clipping"
+import type { MultiPolygon, Pair, Ring } from "polygon-clipping"
 import simplify from "@turf/simplify"
 import { clipToCanvas } from "./map-land-clip"
 
@@ -71,12 +71,12 @@ export function lassoToShape(
   }
 }
 
-// A stamped outline, with its holes, as clean land, or null if nothing of it is on the
+// A stamped outline, with its holes and every polygon of it, as clean land, or null if nothing of it is on the
 // canvas. It is as drawn, not smoothed, as a stamp is already clean; the rest is as
 // for a lasso: the corners are left as they are, to be rounded when the land is shown.
-export function stampToShape(outline: Polygon, canvas: { width: number; height: number }): MultiPolygon | null {
+export function stampToShape(outline: MultiPolygon, canvas: { width: number; height: number }): MultiPolygon | null {
   try {
-    return fitToCanvas([outline], canvas, MIN_LEFT)
+    return fitToCanvas(outline, canvas, MIN_LEFT)
   } catch {
     return null
   }

@@ -1,5 +1,5 @@
 import type Konva from "konva"
-import type { Pair, Polygon } from "polygon-clipping"
+import type { MultiPolygon, Pair } from "polygon-clipping"
 import { css } from "../colour"
 import { smoothLand } from "../map-coast-smooth"
 import { traceLand } from "../map-land-trace"
@@ -22,8 +22,8 @@ type Look = {
 // with the land's ground when it adds and the sea's when it cuts, and the coast's line
 // round it, all inside the canvas. The shore's water is left out: drawing that anew
 // for every move of the pointer would be too much.
-export function drawStampPreview(context: Konva.Context, outline: Polygon, pins: Pair[], { canvas, style, terrain, cutting }: Look) {
-  const shown = smoothLand([outline], style.roundness, canvas, pinSet(pins))
+export function drawStampPreview(context: Konva.Context, outline: MultiPolygon, pins: Pair[], { canvas, style, terrain, cutting }: Look) {
+  const shown = smoothLand(outline, style.roundness, canvas, pinSet(pins))
   context.save()
   context.beginPath()
   context.rect(0, 0, canvas.width, canvas.height)

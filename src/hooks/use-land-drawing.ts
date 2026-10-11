@@ -1,4 +1,4 @@
-import type { MultiPolygon, Pair, Polygon } from "polygon-clipping"
+import type { MultiPolygon, Pair } from "polygon-clipping"
 import { landMask } from "@/lib/biomes/land-mask"
 import { eraseOutside, gridSize } from "@/lib/biomes/paint-tiles"
 import { DETAIL_CELL } from "@/lib/details/details"
@@ -31,6 +31,6 @@ export function useLandDrawing(scene: MapScene, change: ReturnType<typeof useSce
 
   return {
     drawLand: (points: Pair[], cut: boolean, scale: number) => applyShape(lassoToShape(points, scale, scene.canvas), cut),
-    drawStamp: (outline: Polygon, cut: boolean, pins: Pair[]) => applyShape(stampToShape(outline, scene.canvas), cut, pins),
+    drawStamp: (outline: MultiPolygon, cut: boolean, pins: Pair[]) => applyShape(stampToShape(outline, scene.canvas), cut, pins),
   }
 }

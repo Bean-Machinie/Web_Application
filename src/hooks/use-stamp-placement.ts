@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react"
 import { CORNER_ROUNDING } from "@/lib/stamps/stamp-corners"
 import type { Rounding } from "@/lib/stamps/stamp-corners"
-import type { SavedStamp } from "@/lib/stamps/stamps"
+import type { LandmassStamp } from "@/lib/stamps/stamp-save"
 
 // What the shape being placed can be told to do, set by the layer that holds it.
 export type StampControls = {
@@ -12,16 +12,15 @@ export type StampControls = {
   redo: () => void
 }
 
-// A landmass picked to be kept as a stamp, waiting for its name. "touchesEdge" is
-// whether its outline runs along the map's edge, where it was cut straight.
-export type PickedLandmass = Omit<SavedStamp, "id" | "name"> & { touchesEdge: boolean }
+// Landmasses picked to be kept as one stamp, waiting for its name (see LandmassStamp).
+export type PickedLandmass = LandmassStamp
 
 // The shape being placed with the Shapes sub tool, between its being drawn and being
 // applied: whether there is one (for the keys and the buttons), what it can be told to
 // do, and how big the last one was, for the next click. The shape itself, and its
 // handles, live in the layer (see MapStampLayer), which also keeps its steps: undo and redo are
 // the shape's own while it has some, and the map's after. With it, in development, the picking
-// of a landmass to be kept as a stamp: "saving" while the next click picks one.
+// of landmasses to be kept as a stamp: "saving" while the clicks pick them.
 export function useStampPlacement() {
   const [live, setLive] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -29,9 +28,20 @@ export function useStampPlacement() {
   const [rounding, setRounding] = useState<Rounding>({ on: false, amount: CORNER_ROUNDING.start })
   // Whether there is a step of the shape's own to go back or forward to.
   const [trail, setTrail] = useState({ canUndo: false, canRedo: false })
+  // The landmasses being picked, by the place of each in the land, and what they make; and
+  // what is being named, once they are picked.
+  const [selection, setSelection] = useState<number[]>([])
+  const [candidate, setCandidate] = useState<PickedLandmass | null>(null)
   const [picked, setPicked] = useState<PickedLandmass | null>(null)
   const controls = useRef<StampControls | null>(null)
   const lastSize = useRef<{ width: number; height: number } | null>(null)
+
+  // Done with picking: whether it was saved, or let go of.
+  const endPick = useCallback(() => {
+    setSaving(false)
+    setSelection([])
+    setCandidate(null)
+  }, [])
 
   const apply = useCallback(() => controls.current?.apply(), [])
   const cancel = useCallback(() => controls.current?.cancel(), [])
@@ -39,7 +49,7 @@ export function useStampPlacement() {
   const undo = useCallback(() => controls.current?.undo(), [])
   const redo = useCallback(() => controls.current?.redo(), [])
 
-  return { live, setLive, saving, setSaving, rounding, setRounding, picked, setPicked, controls, lastSize, apply, cancel, flip, ...trail, setTrail, undo, redo }
+  return { live, setLive, saving, setSaving, selection, setSelection, candidate, setCandidate, endPick, rounding, setRounding, picked, setPicked, controls, lastSize, apply, cancel, flip, ...trail, setTrail, undo, redo }
 }
 
 export type StampPlacement = ReturnType<typeof useStampPlacement>

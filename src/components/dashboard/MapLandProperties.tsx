@@ -58,10 +58,28 @@ export function MapLandProperties({ landTool, cutting, onMode, placement, stampI
       )}
       {import.meta.env.DEV && landTool === "islands" && (
         <>
-          <Button variant={saving ? "secondary" : "outline"} size="sm" onClick={() => placement.setSaving(!saving)}>
-            <MapPinned /> {saving ? "Click a landmass…" : "Save landmass as stamp"}
-          </Button>
-          <MapSaveStampDialog picked={placement.picked} onClose={() => placement.setPicked(null)} />
+          {saving ? (
+            <>
+              <p className="text-muted-foreground text-xs">Click landmasses to pick them.</p>
+              <div className="grid grid-cols-[1fr_auto] gap-1">
+                <Button size="sm" disabled={!placement.candidate} onClick={() => placement.setPicked(placement.candidate)}>
+                  <MapPinned /> Save {placement.selection.length > 0 ? placement.selection.length : ""} as stamp
+                </Button>
+                <Button variant="outline" size="sm" onClick={placement.endPick}>
+                  Cancel
+                </Button>
+              </div>
+            </>
+          ) : (
+            <Button variant="outline" size="sm" onClick={() => placement.setSaving(true)}>
+              <MapPinned /> Save landmasses as stamp
+            </Button>
+          )}
+          <MapSaveStampDialog
+            picked={placement.picked}
+            onClose={() => placement.setPicked(null)}
+            onSaved={placement.endPick}
+          />
         </>
       )}
     </>

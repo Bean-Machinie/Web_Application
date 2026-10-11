@@ -1,4 +1,4 @@
-import type { Pair, Polygon, Ring } from "polygon-clipping"
+import type { MultiPolygon, Pair, Ring } from "polygon-clipping"
 import { outlineOf } from "./stamps"
 import type { Stamp } from "./stamps"
 
@@ -10,8 +10,8 @@ export function placeStamp(
   width: number,
   height: number,
   at: (x: number, y: number) => Pair
-): Polygon {
-  return outlineOf(stamp, width, height).map((ring): Ring => ring.map(([x, y]) => at(x, y)))
+): MultiPolygon {
+  return outlineOf(stamp, width, height).map((polygon) => polygon.map((ring): Ring => ring.map(([x, y]) => at(x, y))))
 }
 
 // The picture of a stamp for the library: an SVG path in a box of 100 by 100, the
@@ -23,6 +23,7 @@ export function thumbPath(stamp: Stamp) {
   const left = (100 - width) / 2
   const top = (100 - height) / 2
   return outlineOf(stamp, width, height)
+    .flatMap((polygon) => polygon)
     .map((ring) =>
       ring.map(([x, y], i) => `${i === 0 ? "M" : "L"}${(left + x * width).toFixed(1)} ${(top + y * height).toFixed(1)}`).join("") + "Z"
     )

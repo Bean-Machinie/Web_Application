@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react"
 import type Konva from "konva"
-import type { Pair, Polygon } from "polygon-clipping"
+import type { MultiPolygon, Pair } from "polygon-clipping"
 import { Group, Rect, Shape } from "react-konva"
 import type { StampPlacement } from "@/hooks/use-stamp-placement"
 import type { MapScene } from "@/lib/map-scene"
@@ -30,7 +30,7 @@ type Props = {
   terrain: Terrain
   // Shift is held: rotating snaps to 15 degrees.
   snapRotation: boolean
-  onApply: (outline: Polygon, cut: boolean, pins: Pair[]) => void
+  onApply: (outline: MultiPolygon, cut: boolean, pins: Pair[]) => void
 }
 
 // Over the shape the pointer is a mover.

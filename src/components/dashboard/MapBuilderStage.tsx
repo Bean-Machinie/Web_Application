@@ -5,7 +5,7 @@ import { Group, Image as KonvaImage, Layer, Rect, Stage } from "react-konva"
 import type { BuilderView } from "@/hooks/use-builder-viewport"
 import { useShownLand } from "@/hooks/use-shown-land"
 import type { MapScene } from "@/lib/map-scene"
-import type { Pair, Polygon } from "polygon-clipping"
+import type { MultiPolygon, Pair } from "polygon-clipping"
 import type { StampPlacement } from "@/hooks/use-stamp-placement"
 import type { BuilderTool, LandTool, SelectMode } from "@/lib/map-builder-tools"
 import type { Stamp } from "@/lib/stamps/stamps"
@@ -56,7 +56,7 @@ type Props = {
   landTool: LandTool
   stamp: Stamp | null
   placement: StampPlacement
-  onShape: (outline: Polygon, cut: boolean, pins: Pair[]) => void
+  onShape: (outline: MultiPolygon, cut: boolean, pins: Pair[]) => void
   editing: AssetEditing
   showAssets: boolean
   pick: AssetPicker
@@ -185,11 +185,9 @@ export function MapBuilderStage(props: Props) {
             enabled={editable && tool === "land" && props.landTool === "islands" && props.placement.saving}
             land={scene.land}
             canvas={canvas}
-            onPick={(picked) => {
-              if (!picked) return
-              props.placement.setSaving(false)
-              props.placement.setPicked(picked)
-            }}
+            selection={props.placement.selection}
+            onSelection={props.placement.setSelection}
+            onCandidate={props.placement.setCandidate}
           />
         )}
         <MapBrushLayer

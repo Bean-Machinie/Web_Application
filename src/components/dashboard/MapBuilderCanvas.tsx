@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import type { MutableRefObject, RefObject } from "react"
 import type Konva from "konva"
-import type { Pair, Polygon } from "polygon-clipping"
+import type { MultiPolygon, Pair } from "polygon-clipping"
 import { useAssetPick } from "@/hooks/use-asset-pick"
 import type { AssetEditing } from "@/hooks/use-asset-editing"
 import type { Brush } from "@/hooks/use-brush"
@@ -47,7 +47,7 @@ type Props = {
   landTool: LandTool
   stamp: Stamp | null
   placement: StampPlacement
-  onShape: (outline: Polygon, cut: boolean, pins: Pair[]) => void
+  onShape: (outline: MultiPolygon, cut: boolean, pins: Pair[]) => void
   onPaint: (paint: Paint) => void
   onPaintDetails: (details: Paint) => void
   onEraseAssets: (ids: string[]) => void
@@ -74,6 +74,8 @@ export function MapBuilderCanvas(props: Props) {
   const [spot, setSpot] = useState<ContextSpot | null>(null)
   const pick = useAssetPick(scene.assets, scene.canvas)
   const pressed = useRef<{ x: number; y: number } | null>(null)
+  // The last press, for telling a right-click from what the browser also takes for one (see onContextMenu).
+  const lastPress = useRef<{ button: number; ctrl: boolean } | null>(null)
 
   const place = (event: { nativeEvent: MouseEvent | DragEvent }) => {
     const stage = stageRef.current
@@ -87,6 +89,7 @@ export function MapBuilderCanvas(props: Props) {
       ref={viewport.container}
       onPointerDown={(event) => {
         viewport.onMiddlePan(event)
+        lastPress.current = { button: event.button, ctrl: event.ctrlKey }
         if (props.rotating && event.button === 0) viewport.onRotateDrag(event)
         pressed.current = event.button === 0 ? { x: event.clientX, y: event.clientY } : null
       }}
@@ -115,6 +118,11 @@ export function MapBuilderCanvas(props: Props) {
       }}
       onContextMenu={(event) => {
         event.preventDefault()
+        // The menu is for a right-click (Ctrl-click on a Mac). A touch or a pen held still, a
+        // small stroke with the lasso that ends in a hold, is also a context menu to the
+        // browser, and is not asked for: the press that brought it was the left one's.
+        const press = lastPress.current
+        if (!press || (press.button === 0 && !press.ctrl)) return
         const stage = stageRef.current
         const at = place(event)
         if (!stage || !at) return

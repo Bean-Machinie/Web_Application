@@ -1,5 +1,6 @@
 import stampsFile from "../../assets/map-stamps/stamps.json"
 import { BASIC_STAMPS } from "./basic-shapes"
+import { polygonsOf } from "./stamps"
 import type { SavedStamp, Stamp } from "./stamps"
 
 // The stamps of the library: the basic shapes, and the islands kept in
@@ -7,7 +8,7 @@ import type { SavedStamp, Stamp } from "./stamps"
 // server says it changes (see the functions below), so that a change shows at once, with no reload.
 const asStamps = (saved: SavedStamp[]): Stamp[] => [
   ...BASIC_STAMPS,
-  ...saved.map(({ id, name, aspect, rings }): Stamp => ({ id, name, group: "islands", aspect, rings })),
+  ...saved.map((stamp): Stamp => ({ id: stamp.id, name: stamp.name, group: "islands", aspect: stamp.aspect, polygons: polygonsOf(stamp) })),
 ]
 
 let list = asStamps(stampsFile as SavedStamp[])
@@ -36,6 +37,6 @@ async function ask(body: object) {
 
 // Development only, through the dev server, which takes the stamp's name and
 // outline and answers with the whole file.
-export const saveStamp = (stamp: Omit<SavedStamp, "id">) => ask({ action: "add", ...stamp })
+export const saveStamp = (stamp: Required<Pick<SavedStamp, "name" | "aspect" | "polygons">>) => ask({ action: "add", ...stamp })
 export const renameStamp = (id: string, name: string) => ask({ action: "rename", id, name })
 export const deleteStamp = (id: string) => ask({ action: "delete", id })
