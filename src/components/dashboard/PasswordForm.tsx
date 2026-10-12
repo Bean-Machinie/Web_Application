@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { supabase } from "@/lib/supabase"
-import { FormFooter } from "./FormFooter"
-import { SettingsSection } from "./SettingsSection"
+import { SettingsCard } from "./SettingsCard"
+import { SettingsRow } from "./SettingsRow"
+import { useSettingsForm } from "./settings-form"
 
 const MIN_LENGTH = 6
 
@@ -15,14 +15,15 @@ export function PasswordForm() {
   const [confirm, setConfirm] = useState("")
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState<Notice | null>(null)
+  const dirty = password.length > 0 || confirm.length > 0
 
   function reset() {
     setPassword("")
     setConfirm("")
+    setNotice(null)
   }
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault()
+  async function save() {
     if (password.length < MIN_LENGTH) {
       return setNotice({
         tone: "error",
@@ -43,47 +44,39 @@ export function PasswordForm() {
     setNotice({ tone: "success", text: "Your password has been updated." })
   }
 
+  useSettingsForm({ dirty, busy, save, discard: reset })
+
   return (
-    <form onSubmit={handleSubmit}>
-      <SettingsSection
-        title="Password"
-        description="Choose a new password for your account."
-      >
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="new-password">New password</Label>
-            <Input
-              id="new-password"
-              type="password"
-              autoComplete="new-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              disabled={busy}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="confirm-password">Confirm new password</Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              autoComplete="new-password"
-              value={confirm}
-              onChange={(event) => setConfirm(event.target.value)}
-              disabled={busy}
-            />
-          </div>
-          {notice && <FormAlert tone={notice.tone}>{notice.text}</FormAlert>}
-        </div>
-      </SettingsSection>
-      <FormFooter
-        submitLabel="Update password"
-        busy={busy}
-        canSubmit={password.length > 0 || confirm.length > 0}
-        onCancel={() => {
-          reset()
-          setNotice(null)
-        }}
-      />
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        if (dirty && !busy) void save()
+      }}
+      className="grid gap-4"
+    >
+      {notice && <FormAlert tone={notice.tone}>{notice.text}</FormAlert>}
+      <SettingsCard>
+        <SettingsRow wide title="New password" description={`At least ${MIN_LENGTH} characters.`}>
+          <Input
+            aria-label="New password"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            disabled={busy}
+          />
+        </SettingsRow>
+        <SettingsRow wide title="Confirm password" description="Type the new password again.">
+          <Input
+            aria-label="Confirm new password"
+            type="password"
+            autoComplete="new-password"
+            value={confirm}
+            onChange={(event) => setConfirm(event.target.value)}
+            disabled={busy}
+          />
+        </SettingsRow>
+      </SettingsCard>
     </form>
   )
 }

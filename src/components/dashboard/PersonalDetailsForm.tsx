@@ -9,9 +9,10 @@ import { getInitials, getProfile } from "@/lib/profile"
 import { saveProfile } from "@/lib/save-profile"
 import { normalizeUsername } from "@/lib/username"
 import { AvatarUpload } from "./AvatarUpload"
-import { FormFooter } from "./FormFooter"
-import { SettingsSection } from "./SettingsSection"
+import { SettingsCard } from "./SettingsCard"
+import { SettingsRow } from "./SettingsRow"
 import { UsernameSection } from "./UsernameSection"
+import { useSettingsForm } from "./settings-form"
 
 type Notice = { tone: "error" | "success"; text: string }
 
@@ -36,10 +37,10 @@ export function PersonalDetailsForm() {
     setUsernameInput(null)
     setDescriptionInput(null)
     setAvatar(NO_AVATAR_CHANGE)
+    setNotice(null)
   }
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault()
+  async function save() {
     setBusy(true)
     setNotice(null)
 
@@ -60,70 +61,53 @@ export function PersonalDetailsForm() {
     setNotice({ tone: "success", text: "Your details have been saved." })
   }
 
+  useSettingsForm({ dirty, busy, save, discard: reset })
+
   return (
-    <form onSubmit={handleSubmit} className="divide-y">
-      <SettingsSection
-        title="Your photo"
-        description="This is shown across the workspace."
-      >
-        <AvatarUpload
-          change={avatar}
-          onChange={setAvatar}
-          disabled={busy}
-          currentUrl={avatarUrl}
-          fallback={getInitials(user)}
-        />
-      </SettingsSection>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        if (dirty && !busy) void save()
+      }}
+      className="grid gap-4"
+    >
+      {notice && <FormAlert tone={notice.tone}>{notice.text}</FormAlert>}
+      <SettingsCard>
+        <SettingsRow wide title="Your photo" description="This is shown across the workspace.">
+          <AvatarUpload
+            change={avatar}
+            onChange={setAvatar}
+            disabled={busy}
+            currentUrl={avatarUrl}
+            fallback={getInitials(user)}
+          />
+        </SettingsRow>
 
-      <UsernameSection
-        value={usernameInput ?? username}
-        onChange={setUsernameInput}
-        disabled={busy}
-      />
-
-      <SettingsSection
-        title="Email address"
-        description="The email you sign in with. It can't be changed."
-      >
-        <Input
-          type="email"
-          aria-label="Email address"
-          value={email}
-          readOnly
-          disabled
-        />
-      </SettingsSection>
-
-      <SettingsSection
-        title="Description"
-        description="A short line about you."
-      >
-        <Textarea
-          aria-label="Description"
-          maxLength={300}
-          rows={4}
-          value={descriptionInput ?? description}
-          onChange={(event) => setDescriptionInput(event.target.value)}
+        <UsernameSection
+          value={usernameInput ?? username}
+          onChange={setUsernameInput}
           disabled={busy}
         />
-      </SettingsSection>
 
-      <div>
-        {notice && (
-          <div className="pt-6">
-            <FormAlert tone={notice.tone}>{notice.text}</FormAlert>
-          </div>
-        )}
-        <FormFooter
-          submitLabel="Save changes"
-          busy={busy}
-          canSubmit={dirty}
-          onCancel={() => {
-            reset()
-            setNotice(null)
-          }}
-        />
-      </div>
+        <SettingsRow
+          wide
+          title="Email address"
+          description="The email you sign in with. It can't be changed."
+        >
+          <Input type="email" aria-label="Email address" value={email} readOnly disabled />
+        </SettingsRow>
+
+        <SettingsRow wide title="Description" description="A short line about you.">
+          <Textarea
+            aria-label="Description"
+            maxLength={300}
+            rows={4}
+            value={descriptionInput ?? description}
+            onChange={(event) => setDescriptionInput(event.target.value)}
+            disabled={busy}
+          />
+        </SettingsRow>
+      </SettingsCard>
     </form>
   )
 }

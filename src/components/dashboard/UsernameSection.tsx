@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input"
 import { USERNAME_HINT } from "@/lib/username"
-import { SettingsSection } from "./SettingsSection"
+import { SettingsRow } from "./SettingsRow"
 
 type Props = {
   value: string
@@ -10,7 +10,8 @@ type Props = {
 
 export function UsernameSection({ value, onChange, disabled }: Props) {
   return (
-    <SettingsSection
+    <SettingsRow
+      wide
       title="Username"
       description="Your name across the app. It's also how people find you to invite you to a campaign."
     >
@@ -26,6 +27,6 @@ export function UsernameSection({ value, onChange, disabled }: Props) {
         />
         <p className="text-muted-foreground text-xs">{USERNAME_HINT}</p>
       </div>
-    </SettingsSection>
+    </SettingsRow>
   )
 }
