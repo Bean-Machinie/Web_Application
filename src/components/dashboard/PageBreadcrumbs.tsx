@@ -22,7 +22,6 @@ import { navItems } from "./nav-items"
 
 // Pages reached from the account menu rather than the sidebar.
 const menuPages = [
-  { title: "Settings", to: "/app/settings" },
   { title: "Support", to: "/app/support" },
   { title: "New campaign", to: "/app/campaigns/new" },
   { title: "Join with invite link", to: "/app/campaigns/join" },

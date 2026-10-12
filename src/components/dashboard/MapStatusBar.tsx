@@ -34,9 +34,6 @@ export function MapStatusBar({ view, onZoomBy, onZoomTo, onFit, onResetTurn, onH
   const flips = [view.flipH && "horizontally", view.flipV && "vertically"].filter(Boolean).join(" and ")
   return (
     <footer className="bg-background flex h-7 shrink-0 items-center gap-0.5 border-t px-2">
-      <MapStepButton label="Keyboard shortcuts" action="help.toggle" onClick={onHelp}>
-        <Keyboard />
-      </MapStepButton>
       <span className="flex-1" />
       {(turned || flipped) && (
         <Tooltip>
@@ -79,6 +76,10 @@ export function MapStatusBar({ view, onZoomBy, onZoomTo, onFit, onResetTurn, onH
       </DropdownMenu>
       <MapStepButton label="Zoom in" action="view.zoomIn" onClick={() => onZoomBy(1.4)}>
         <Plus />
+      </MapStepButton>
+      <span aria-hidden="true" className="bg-border mx-1.5 h-4 w-px" />
+      <MapStepButton label="Keyboard shortcuts" action="help.toggle" onClick={onHelp}>
+        <Keyboard />
       </MapStepButton>
     </footer>
   )

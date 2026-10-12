@@ -29,7 +29,7 @@ export function AppSidebar() {
         {inCampaign && (
           <>
             <NavMain items={campaignNav} className="pt-0" />
-            <SidebarSeparator className="mx-4 w-auto" />
+            <SidebarSeparator className="mx-4 data-horizontal:w-auto" />
           </>
         )}
         <NavMain items={libraryNav} className={inCampaign ? "" : "pt-0"} />

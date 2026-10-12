@@ -18,12 +18,7 @@ import { NewCampaign } from "@/pages/NewCampaign"
 import { Overview } from "@/pages/Overview"
 import { Party } from "@/pages/Party"
 import { Sessions } from "@/pages/Sessions"
-import { Settings } from "@/pages/Settings"
-import { SettingsAppearance } from "@/pages/SettingsAppearance"
-import { SettingsBilling } from "@/pages/SettingsBilling"
-import { SettingsNotifications } from "@/pages/SettingsNotifications"
-import { SettingsPassword } from "@/pages/SettingsPassword"
-import { SettingsProfile } from "@/pages/SettingsProfile"
+import { SettingsRedirect } from "@/pages/SettingsRedirect"
 import { Signup } from "@/pages/Signup"
 import { Support } from "@/pages/Support"
 import { World } from "@/pages/World"
@@ -57,14 +52,8 @@ export default function App() {
           <Route path="campaigns/new" element={<NewCampaign />} />
           <Route path="campaigns/join" element={<JoinCampaign />} />
           <Route path="library" element={<Library />} />
-          <Route path="settings" element={<Settings />}>
-            <Route index element={<Navigate to="profile" replace />} />
-            <Route path="profile" element={<SettingsProfile />} />
-            <Route path="appearance" element={<SettingsAppearance />} />
-            <Route path="password" element={<SettingsPassword />} />
-            <Route path="notifications" element={<SettingsNotifications />} />
-            <Route path="billing" element={<SettingsBilling />} />
-          </Route>
+          <Route path="settings" element={<SettingsRedirect />} />
+          <Route path="settings/:tab" element={<SettingsRedirect />} />
           <Route path="support" element={<Support />} />
         </Route>
       </Route>

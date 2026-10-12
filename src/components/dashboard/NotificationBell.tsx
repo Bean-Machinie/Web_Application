@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useSettingsWindow } from "@/hooks/use-settings-window"
 import bell from "@/assets/icons/bell.svg"
 import { Icon } from "@/components/Icon"
 import { Badge } from "@/components/ui/badge"
@@ -28,13 +28,13 @@ function CaughtUp() {
 }
 
 export function NotificationBell() {
-  const navigate = useNavigate()
+  const settingsWindow = useSettingsWindow()
   const { unreadCount } = useCampaign()
   const [open, setOpen] = useState(false)
 
   function viewAll() {
     setOpen(false)
-    navigate("/app/settings/notifications")
+    settingsWindow.open("notifications")
   }
 
   return (

@@ -28,7 +28,7 @@ export function NavMain({ items, className }: Props) {
   return (
     <SidebarGroup className={cn("px-2", className)}>
       <SidebarGroupContent>
-        <SidebarMenu>
+        <SidebarMenu className="gap-1">
           {items.map((item) => (
             <SidebarMenuItem key={item.to}>
               <SidebarMenuButton

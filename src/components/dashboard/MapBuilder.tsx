@@ -26,6 +26,7 @@ import { MapRightPanel } from "./MapRightPanel"
 import { MapSettings } from "./MapSettings"
 import { MapShortcutDialog } from "./MapShortcutDialog"
 import { MapStatusBar } from "./MapStatusBar"
+import { MapAccount } from "./MapAccount"
 import { MapToolPanel } from "./MapToolPanel"
 import { MapToolStrip } from "./MapToolStrip"
 
@@ -129,7 +130,7 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
         }}
       />
       <MapBuilderBanners store={autosave.store} error={error} />
-      <div className="flex min-h-0 flex-1">
+      <div className="relative flex min-h-0 flex-1">
         <MapToolStrip
           tool={tools.tool}
           biome={tools.brush.biome}
@@ -137,36 +138,37 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
           background={scene.canvas.background}
           modes={{ land: cutting ? "cut" : "add", landTool: tools.landTool, select: tools.selectMode, hand: tools.panMode, brush: tools.brush.layer, eraser: tools.brush.erase }}
           disabled={publishing}
+          account={<MapAccount expanded={panelOpen} beforeLeave={autosave.flushNow} />}
           onTool={tools.changeTool}
+        />
+        <MapToolPanel
+          tool={tools.tool}
+          open={panelOpen}
+          cutting={cutting}
+          brush={tools.brush}
+          background={scene.canvas.background}
+          showAssets={!tools.hideAssets}
+          hasAssets={scene.assets.length > 0}
+          zoom={viewport.view.scale}
+          disabled={publishing}
+          onOpen={setPanelOpen}
+          onMode={tools.setMode}
+          landTool={tools.landTool}
+          onLandTool={tools.setLandTool}
+          stampId={stamp?.id ?? ""}
+          onStamp={tools.setStampId}
+          placement={tools.placement}
+          selectMode={tools.selectMode}
+          onSelectMode={tools.setSelectMode}
+          panMode={tools.panMode}
+          onPanMode={tools.setPanMode}
+          onShowAssets={(show) => tools.setHideAssets(!show)}
+          onSelectAll={editing.selectAll}
+          onZoom={viewport.zoomTo}
+          onFit={viewport.fit}
         />
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="relative flex min-h-0 flex-1 overflow-hidden">
-            <MapToolPanel
-              tool={tools.tool}
-              open={panelOpen}
-              cutting={cutting}
-              brush={tools.brush}
-              background={scene.canvas.background}
-              showAssets={!tools.hideAssets}
-              hasAssets={scene.assets.length > 0}
-              zoom={viewport.view.scale}
-              disabled={publishing}
-              onOpen={setPanelOpen}
-              onMode={tools.setMode}
-              landTool={tools.landTool}
-              onLandTool={tools.setLandTool}
-              stampId={stamp?.id ?? ""}
-              onStamp={tools.setStampId}
-              placement={tools.placement}
-              selectMode={tools.selectMode}
-              onSelectMode={tools.setSelectMode}
-              panMode={tools.panMode}
-              onPanMode={tools.setPanMode}
-              onShowAssets={(show) => tools.setHideAssets(!show)}
-              onSelectAll={editing.selectAll}
-              onZoom={viewport.zoomTo}
-              onFit={viewport.fit}
-            />
             <MapBuilderCanvas
               scene={landStyle.shown}
               terrain={terrain}

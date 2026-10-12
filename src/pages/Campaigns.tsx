@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom"
+import { useSettingsWindow } from "@/hooks/use-settings-window"
 import { Loader2 } from "lucide-react"
 import arrow from "@/assets/icons/arrow.svg"
 import bell from "@/assets/icons/bell.svg"
@@ -23,6 +24,7 @@ import {
 // here only appear while that menu would be the only other place to look.
 export function Campaigns() {
   const navigate = useNavigate()
+  const settingsWindow = useSettingsWindow()
   const { campaigns, loading, error, select, unreadCount } = useCampaign()
   const waiting = unreadCount
 
@@ -49,8 +51,8 @@ export function Campaigns() {
           <p className="flex-1 text-sm">
             You have {waiting === 1 ? "an unread notification" : `${waiting} unread notifications`}.
           </p>
-          <Button asChild size="sm" variant="outline">
-            <Link to="/app/settings/notifications">View</Link>
+          <Button size="sm" variant="outline" onClick={() => settingsWindow.open("notifications")}>
+            View
           </Button>
         </div>
       )}

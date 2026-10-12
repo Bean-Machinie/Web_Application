@@ -8,7 +8,7 @@ export function MapDetailBadge({ detail }: { detail: Detail }) {
   return (
     <span
       style={{ backgroundColor: `rgb(${r} ${g} ${b})` }}
-      className="border-foreground/70 pointer-events-none absolute -right-1 -bottom-1 size-3.5 rounded-full border"
+      className="border-foreground/70 pointer-events-none absolute z-10 -right-1 -bottom-1 size-3.5 rounded-full border"
     />
   )
 }
