@@ -133,6 +133,16 @@
     user-select: none;
     }
 }
+/* The notification bell swinging from its top, like a ring. */
+@keyframes bell-ring {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(16deg); }
+  30% { transform: rotate(-13deg); }
+  45% { transform: rotate(9deg); }
+  60% { transform: rotate(-6deg); }
+  75% { transform: rotate(3deg); }
+}
+
 /* A marker dropping onto the map. */
 @keyframes pin-pop {
   0% {
