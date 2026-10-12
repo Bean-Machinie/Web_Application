@@ -14,6 +14,7 @@ import {
 } from "@/lib/avatar"
 import type { AvatarChange } from "@/lib/avatar"
 import { cn } from "@/lib/utils"
+import { AvatarButtons } from "./AvatarButtons"
 import { AvatarCropDialog } from "./AvatarCropDialog"
 
 type Props = {
@@ -28,6 +29,8 @@ type Props = {
   // Size (and text size for the initials) of the circle.
   className?: string
   fallbackClassName?: string
+  // Upload and Remove as buttons, with the hint small underneath.
+  buttons?: boolean
 }
 
 export function AvatarUpload({
@@ -39,6 +42,7 @@ export function AvatarUpload({
   noun = "photo",
   className = "size-20 text-xl",
   fallbackClassName,
+  buttons,
 }: Props) {
   const [cropSource, setCropSource] = useState<File | null>(null)
 
@@ -64,6 +68,7 @@ export function AvatarUpload({
 
   const pendingUrl = useFileDataUrl(change.file)
   const shownUrl = pendingUrl ?? (change.remove ? "" : currentUrl)
+  const remove = () => onChange(currentUrl ? { file: null, remove: true } : NO_AVATAR_CHANGE)
 
   return (
     <div className="flex flex-col gap-3">
@@ -104,28 +109,33 @@ export function AvatarUpload({
         </button>
         <input {...getInputProps()} className="sr-only" tabIndex={-1} />
 
-        <div className="flex flex-col items-start gap-1">
-          <p className="text-muted-foreground text-sm">
-            Click or drop an image. PNG, JPG, WebP or GIF, up to{" "}
-            {formatBytes(AVATAR_MAX_BYTES, 0)}.
-          </p>
-          {shownUrl && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground -ml-2.5"
-              disabled={disabled}
-              onClick={() =>
-                onChange(
-                  currentUrl ? { file: null, remove: true } : NO_AVATAR_CHANGE
-                )
-              }
-            >
-              Remove {noun}
-            </Button>
-          )}
-        </div>
+        {buttons ? (
+          <AvatarButtons
+            hasImage={!!shownUrl}
+            disabled={disabled}
+            onUpload={openFileDialog}
+            onRemove={remove}
+          />
+        ) : (
+          <div className="flex flex-col items-start gap-1">
+            <p className="text-muted-foreground text-sm">
+              Click or drop an image. PNG, JPG, WebP or GIF, up to{" "}
+              {formatBytes(AVATAR_MAX_BYTES, 0)}.
+            </p>
+            {shownUrl && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground -ml-2.5"
+                disabled={disabled}
+                onClick={remove}
+              >
+                Remove {noun}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
       {errors[0] && <FormAlert tone="error">{errors[0]}</FormAlert>}
       <AvatarCropDialog

@@ -1,4 +1,5 @@
 import { SettingsCard } from "@/components/dashboard/SettingsCard"
+import { SettingsRow } from "@/components/dashboard/SettingsRow"
 import { ThemeOptionCard } from "@/components/dashboard/ThemeOptionCard"
 import { useTheme } from "@/theme/useTheme"
 import type { Theme } from "@/theme/ThemeContext"
@@ -15,12 +16,8 @@ export function SettingsAppearance() {
 
   return (
     <SettingsCard>
-      <div className="p-4 sm:p-5">
-        <h4 className="text-sm font-medium">Interface theme</h4>
-        <p className="text-muted-foreground mt-0.5 mb-4 text-sm">
-          System follows your device and switches with it.
-        </p>
-        <div role="radiogroup" aria-label="Interface theme" className="grid grid-cols-3 gap-3 sm:gap-4">
+      <SettingsRow width="wide" title="Theme" description="System follows your device.">
+        <div role="radiogroup" aria-label="Interface theme" className="grid grid-cols-3 gap-3">
           {options.map((option) => (
             <ThemeOptionCard
               key={option.value}
@@ -31,7 +28,7 @@ export function SettingsAppearance() {
             />
           ))}
         </div>
-      </div>
+      </SettingsRow>
     </SettingsCard>
   )
 }

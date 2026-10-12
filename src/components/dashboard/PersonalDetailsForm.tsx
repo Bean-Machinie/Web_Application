@@ -1,6 +1,5 @@
 import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Lock } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useAuth } from "@/auth/useAuth"
 import { NO_AVATAR_CHANGE, hasAvatarChange } from "@/lib/avatar"
@@ -8,9 +7,10 @@ import { errorMessage } from "@/lib/campaigns"
 import { getInitials, getProfile } from "@/lib/profile"
 import { saveProfile } from "@/lib/save-profile"
 import { normalizeUsername } from "@/lib/username"
+import { AboutField } from "./AboutField"
 import { AvatarUpload } from "./AvatarUpload"
 import { SettingsCard } from "./SettingsCard"
-import { SettingsRow } from "./SettingsRow"
+import { SettingsHelp, SettingsRow } from "./SettingsRow"
 import { UsernameSection } from "./UsernameSection"
 import { useSettingsForm } from "./settings-form"
 
@@ -73,8 +73,10 @@ export function PersonalDetailsForm() {
     >
       {notice && <FormAlert tone={notice.tone}>{notice.text}</FormAlert>}
       <SettingsCard>
-        <SettingsRow wide title="Your photo" description="This is shown across the workspace.">
+        <SettingsRow width="field" title="Photo" description="Shown across the workspace.">
           <AvatarUpload
+            buttons
+            className="size-14 text-base"
             change={avatar}
             onChange={setAvatar}
             disabled={busy}
@@ -89,21 +91,18 @@ export function PersonalDetailsForm() {
           disabled={busy}
         />
 
-        <SettingsRow
-          wide
-          title="Email address"
-          description="The email you sign in with. It can't be changed."
-        >
-          <Input type="email" aria-label="Email address" value={email} readOnly disabled />
+        <SettingsRow width="field" title="Email" description="The email you sign in with.">
+          <p className="flex min-h-9 items-center gap-2 text-sm">
+            <Lock className="text-muted-foreground size-3.5 shrink-0" />
+            <span className="truncate">{email}</span>
+          </p>
+          <SettingsHelp>It can't be changed.</SettingsHelp>
         </SettingsRow>
 
-        <SettingsRow wide title="Description" description="A short line about you.">
-          <Textarea
-            aria-label="Description"
-            maxLength={300}
-            rows={4}
+        <SettingsRow width="field" title="Description" description="A short line about you.">
+          <AboutField
             value={descriptionInput ?? description}
-            onChange={(event) => setDescriptionInput(event.target.value)}
+            onChange={setDescriptionInput}
             disabled={busy}
           />
         </SettingsRow>

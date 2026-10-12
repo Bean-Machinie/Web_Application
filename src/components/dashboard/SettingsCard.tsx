@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 
-// A bordered group of settings rows with hairline dividers.
+// Settings rows on the surface of the window, set apart by hairline dividers.
 export function SettingsCard({ children }: { children: ReactNode }) {
-  return <div className="bg-card divide-y overflow-hidden rounded-xl border">{children}</div>
+  return <div className="divide-y border-y">{children}</div>
 }
