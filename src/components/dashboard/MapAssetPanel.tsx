@@ -1,12 +1,10 @@
 import { useMemo, useState } from "react"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ASSET_CATEGORIES, MAP_ASSETS, categoryLabel } from "@/lib/map-assets"
+import { MAP_ASSETS } from "@/lib/map-assets"
 import { cn } from "@/lib/utils"
+import { ALL_CATEGORIES, MapAssetCategorySelect } from "./MapAssetCategorySelect"
 import { MapAssetTile } from "./MapAssetTile"
-
-const ALL = "all"
 
 type Props = {
   armed: string | null
@@ -20,14 +18,14 @@ type Props = {
 // The library: a search, a list of the categories, and the art as tiles. The
 // categories are the folders of src/assets/map-assets.
 export function MapAssetPanel({ armed, onArm, tileSize, viewScale, disabled }: Props) {
-  const [category, setCategory] = useState(ALL)
+  const [category, setCategory] = useState(ALL_CATEGORIES)
   const [query, setQuery] = useState("")
 
   const shown = useMemo(() => {
     const text = query.trim().toLowerCase()
     return MAP_ASSETS.filter(
       (asset) =>
-        (category === ALL || asset.category === category) &&
+        (category === ALL_CATEGORIES || asset.category === category) &&
         (text === "" || asset.name.toLowerCase().includes(text))
     )
   }, [category, query])
@@ -48,19 +46,7 @@ export function MapAssetPanel({ armed, onArm, tileSize, viewScale, disabled }: P
             className="pl-8"
           />
         </div>
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger size="sm" aria-label="Category" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>All categories</SelectItem>
-            {ASSET_CATEGORIES.map((name) => (
-              <SelectItem key={name} value={name}>
-                {categoryLabel(name)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <MapAssetCategorySelect value={category} onChange={setCategory} />
       </div>
       <div className="px-3 pb-3">
         {shown.length === 0 ? (
