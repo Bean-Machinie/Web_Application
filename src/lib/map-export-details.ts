@@ -1,10 +1,8 @@
 import type Konva from "konva"
 import type { MultiPolygon } from "polygon-clipping"
-import { css } from "./colour"
 import { createDetailSurface } from "./details/detail-surface"
 import { renderScale } from "./map-scene"
 import type { MapScene } from "./map-scene"
-import { themeFor } from "./map-theme"
 import type { Terrain } from "./terrain"
 
 export type DetailPictures = { details: HTMLCanvasElement; river: HTMLCanvasElement }
@@ -15,7 +13,7 @@ export type DetailPictures = { details: HTMLCanvasElement; river: HTMLCanvasElem
 export function exportDetails(scene: MapScene, terrain: Terrain, land: MultiPolygon): DetailPictures | null {
   if (scene.details.size === 0) return null
   const surface = createDetailSurface(scene.canvas, renderScale(scene.canvas), terrain.sea)
-  surface.setLook(land, css(themeFor(scene.canvas.background).ink), scene.style.outline)
+  surface.setLand(land)
   surface.drawAll(scene.details)
   return { details: surface.picture, river: surface.river }
 }

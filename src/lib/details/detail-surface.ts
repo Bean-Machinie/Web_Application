@@ -4,23 +4,25 @@ import type { Cells } from "../biomes/brush"
 import { CHANNELS, gridSize } from "../biomes/paint-tiles"
 import type { Paint } from "../biomes/paint-tiles"
 import type { TileAt } from "../biomes/surface"
+import { castShadow } from "./detail-shadow"
 import { detailTile, grainPixels } from "./detail-texture"
 import { DETAIL_CELL, DETAILS, RIVER } from "./details"
 import { createRiverPainter } from "./river-render"
 
 // A change shows a little past its own cells, because the picture is blended
 // smoothly between cells; and the blending reads some more cells round that, and the
-// river's bank some more.
+// river's shadow some more: wider than the blur of its shadow, or the shadow would show where
+// the part drawn ends.
 const REACH = 1
-const MARGIN = 4
+const MARGIN = 22
 
 // The details, drawn over the whole canvas, transparent where there are none: in two pictures,
 // since the river is drawn by rules of its own and not under the coast's ink with the
-// rest: "picture" holds the path and the road, to be drawn on the land, and "river" the
+// rest: "picture" holds the path and the gravel, to be drawn on the land, and "river" the
 // river, in the sea's ground with its banks, to be drawn over the coast (see river-render.ts).
 // Each material's weights are laid as an image, one pixel to a cell, that is stretched smoothly
 // to the picture's size, so that a path is smooth at any zoom. Only the part that changed is drawn
-// again, and nothing is kept for each of the path and the road but the small tile of its grain.
+// again, and nothing is kept for each of the path and the gravel but its tile.
 export function createDetailSurface(canvas: { width: number; height: number }, scale: number, sea: HTMLCanvasElement) {
   const { cols, rows } = gridSize(canvas, DETAIL_CELL)
   const make = () => {
@@ -130,6 +132,8 @@ export function createDetailSurface(canvas: { width: number; height: number }, s
       scratchContext.globalCompositeOperation = "destination-in"
       scratchContext.imageSmoothingEnabled = true
       scratchContext.drawImage(plane, source.x, source.y, source.width, source.height, 0, 0, edw, edh)
+      // The shadow is cast from the whole read area and kept to the changed part, and under the ground.
+      castShadow(context, scratch, { x: dx, y: dy, width: dw, height: dh }, { x: dx - edx, y: dy - edy }, scale)
       context.drawImage(scratch, dx - edx, dy - edy, dw, dh, dx, dy, dw, dh)
     }
   }
@@ -153,11 +157,11 @@ export function createDetailSurface(canvas: { width: number; height: number }, s
     state.touched = state.touched || paint.size > 0
   }
 
-  // The land as it is shown and the ink of its coast, which the river is drawn against.
-  // True if they are not what they were, when the river is to be drawn again.
-  const setLook = (land: MultiPolygon, ink: string, width: number) => painter.setLook(land, ink, width)
+  // The land as it is shown, which the river is drawn against. True if it is not what it was,
+  // when the river is to be drawn again.
+  const setLand = (land: MultiPolygon) => painter.setLand(land)
 
-  return { picture, river, draw, drawAll, adopt, setLook, state }
+  return { picture, river, draw, drawAll, adopt, setLand, state }
 }
 
 export type DetailSurface = ReturnType<typeof createDetailSurface>

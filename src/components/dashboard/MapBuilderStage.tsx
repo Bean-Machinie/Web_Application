@@ -148,7 +148,7 @@ export function MapBuilderStage(props: Props) {
           surface={surface}
           after={<MapRiverLayer canvas={canvas} surface={detailSurface} />}
         >
-          <MapDetailLayer land={land} canvas={canvas} style={scene.style} details={scene.details} surface={detailSurface} />
+          <MapDetailLayer land={land} canvas={canvas} details={scene.details} surface={detailSurface} />
         </MapBiomeLayer>
       </Layer>
       <MapAssetsLayer

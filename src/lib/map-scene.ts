@@ -53,7 +53,7 @@ export type MapScene = {
   // The biomes painted over the land. In the database this is kept as "biomes",
   // squeezed into text, and is read back by fetchMapScene.
   paint: Paint
-  // The details (paths, roads, rivers) painted over the biomes, on a finer grid. In
+  // The details (paths, gravel, rivers) painted over the biomes, on a finer grid. In
   // the database this is kept as "details".
   details: Paint
   assets: PlacedAsset[]

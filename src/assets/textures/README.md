@@ -14,8 +14,10 @@ folder with the right name, reload the builder, and it is used. That's all.
 | `swamp.png`    | the swamp biome                 |
 | `desert.png`   | the desert biome                |
 | `volcanic.png` | the volcanic biome              |
+| `path.png`     | the detail brush's path         |
+| `gravel.png`   | the detail brush's gravel       |
 
-`.webp` and `.jpg` work too. **All six must be there**: the builder loads them before it shows the map, and says which one is missing if not.
+`.webp` and `.jpg` work too. **All eight must be there**: the builder loads them before it shows the map, and says which one is missing if not.
 
 ## How a tile is used
 

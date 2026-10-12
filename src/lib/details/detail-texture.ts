@@ -1,9 +1,12 @@
 import { random, smooth } from "../map-noise"
+import { detailGrounds } from "../terrain-tiles"
 import { DETAIL_LOOK, DETAILS } from "./details"
 import type { Detail } from "./details"
 
 // How many canvas pixels one tile of grain covers.
 const GRAIN_SPAN = 192
+// A painted tile covers this many canvas pixels, as the ground's do (see textures/README.md).
+const GROUND_SPAN = 512
 // The coarse blotches in it are this many canvas pixels across.
 const BLOTCH = 24
 
@@ -28,12 +31,22 @@ function wrapping(size: number, cell: number, next: () => number) {
 
 const made = new Map<string, HTMLCanvasElement>()
 
-// A repeating tile of a detail's ground: its colour with fine grain and soft
+// A repeating tile of a detail's ground: the painted tile if it has one, else its colour with fine grain and soft
 // blotches over it, "pixels" across. Made once for each size.
 export function detailTile(detail: Detail, pixels: number) {
   const key = `${detail}:${pixels}`
   const known = made.get(key)
   if (known) return known
+  const ground = detailGrounds.get(detail)
+  if (ground) {
+    const side = Math.round((pixels * GROUND_SPAN) / GRAIN_SPAN)
+    const painted = Object.assign(document.createElement("canvas"), { width: side, height: side })
+    const context = painted.getContext("2d")!
+    context.imageSmoothingQuality = "high"
+    context.drawImage(ground, 0, 0, side, side)
+    made.set(key, painted)
+    return painted
+  }
   const { colour, grain } = DETAIL_LOOK[detail]
   const next = random(0x9e3779b1 * (DETAILS.indexOf(detail) + 1))
   const blotch = wrapping(pixels, (BLOTCH * pixels) / GRAIN_SPAN, next)
