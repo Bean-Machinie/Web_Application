@@ -4,7 +4,9 @@ import { MAP_MAX_BYTES } from "./resize-map-image"
 import type { PreparedMap } from "./resize-map-image"
 import { exportAssets, sharpAssets } from "./map-export-assets"
 import { exportBiomes, sharpBiomes } from "./map-export-biomes"
+import { smoothLand } from "./map-coast-smooth"
 import { exportDetails, sharpDetails } from "./map-export-details"
+import { pinSet } from "./map-pins"
 import { exportTerrain, sharpTerrain } from "./map-export-terrain"
 import { sharpWater } from "./map-export-water"
 import { BUILT_MAX_ZOOM, renderScale } from "./map-scene"
@@ -28,7 +30,7 @@ export async function exportCanvas(
   // The slow, asynchronous drawing is done before the stage is touched.
   const terrain = await exportTerrain(scene)
   const biomes = exportBiomes(scene, terrain)
-  const details = exportDetails(scene)
+  const details = exportDetails(scene, terrain, smoothLand(scene.land, scene.style.roundness, canvas, pinSet(scene.pinned)))
   const art = await exportAssets(scene, biomes, terrain)
   // The view, turned and mirrored too, is put back as it was: none of it is the map's.
   const { x, y, rotation, scaleX, scaleY } = stage.attrs

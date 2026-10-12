@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase"
 import { readPaint, writePaint } from "./biomes/paint-codec"
 import { DETAIL_CELL } from "./details/details"
+import { mergeStreams } from "./details/merge-streams"
 import { readScene } from "./map-scene"
 import type { MapScene } from "./map-scene"
 
@@ -23,7 +24,7 @@ export async function fetchMapScene(mapId: string): Promise<LoadedScene | null> 
   if (!scene) throw new Error("This map was made with a newer version of the builder.")
   const saved = data.scene as { biomes?: unknown; details?: unknown } | null
   const [paint, details] = await Promise.all([readPaint(saved?.biomes), readPaint(saved?.details, DETAIL_CELL)])
-  return { scene: { ...scene, paint, details }, updatedAt: data.updated_at, renderedAt: data.rendered_at }
+  return { scene: { ...scene, paint, details: mergeStreams(details) }, updatedAt: data.updated_at, renderedAt: data.rendered_at }
 }
 
 // Whether the map has a scene, without loading it.

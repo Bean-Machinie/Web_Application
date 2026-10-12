@@ -1,35 +1,47 @@
+import type { MultiPolygon } from "polygon-clipping"
 import { TILE } from "../biomes/biomes"
 import type { Cells } from "../biomes/brush"
 import { CHANNELS, gridSize } from "../biomes/paint-tiles"
 import type { Paint } from "../biomes/paint-tiles"
 import type { TileAt } from "../biomes/surface"
 import { detailTile, grainPixels } from "./detail-texture"
-import { DETAIL_CELL, DETAILS } from "./details"
+import { DETAIL_CELL, DETAILS, RIVER } from "./details"
+import { createRiverPainter } from "./river-render"
 
 // A change shows a little past its own cells, because the picture is blended
-// smoothly between cells; and the blending reads some more cells round that.
+// smoothly between cells; and the blending reads some more cells round that, and the
+// river's bank some more.
 const REACH = 1
-const MARGIN = 2
+const MARGIN = 4
 
-// The details' colour, drawn over the whole canvas, transparent where there are
-// none. Each material's weights are laid as an image, one pixel to a cell, that is
-// stretched smoothly to the picture's size, so that a path is smooth at any zoom.
-// Only the part that changed is drawn again, and nothing is kept for each material
-// but the small tile of its grain.
-export function createDetailSurface(canvas: { width: number; height: number }, scale: number) {
+// The details, drawn over the whole canvas, transparent where there are none: in two pictures,
+// since the river is drawn by rules of its own and not under the coast's ink with the
+// rest: "picture" holds the path and the road, to be drawn on the land, and "river" the
+// river, in the sea's ground with its banks, to be drawn over the coast (see river-render.ts).
+// Each material's weights are laid as an image, one pixel to a cell, that is stretched smoothly
+// to the picture's size, so that a path is smooth at any zoom. Only the part that changed is drawn
+// again, and nothing is kept for each of the path and the road but the small tile of its grain.
+export function createDetailSurface(canvas: { width: number; height: number }, scale: number, sea: HTMLCanvasElement) {
   const { cols, rows } = gridSize(canvas, DETAIL_CELL)
-  const picture = document.createElement("canvas")
-  picture.width = Math.round(canvas.width * scale)
-  picture.height = Math.round(canvas.height * scale)
+  const make = () => {
+    const picture = document.createElement("canvas")
+    picture.width = Math.round(canvas.width * scale)
+    picture.height = Math.round(canvas.height * scale)
+    return picture
+  }
+  const picture = make()
   const context = picture.getContext("2d")!
+  const river = make()
+  const riverContext = river.getContext("2d")!
+  const painter = createRiverPainter(scale, sea)
 
   const side = grainPixels(scale)
   const scratch = document.createElement("canvas")
   const scratchContext = scratch.getContext("2d")!
   const plane = document.createElement("canvas")
   const planeContext = plane.getContext("2d")!
-  // The paint the picture was last drawn whole from, so it is not drawn again.
-  const state = { drawn: null as Paint | null, touched: false }
+  // The paint the pictures were last drawn whole from, so it is not drawn again.
+  const state = { drawn: null as Paint | null, touched: false, riverTouched: false }
 
   // Pixels of the picture to a cell.
   const k = DETAIL_CELL * scale
@@ -75,7 +87,7 @@ export function createDetailSurface(canvas: { width: number; height: number }, s
         }
         if (!tile) continue
         const cell = ((cy % TILE) * TILE + (cx % TILE)) * CHANNELS
-        for (let c = 0; c < CHANNELS; c++) {
+        for (let c = 0; c < DETAILS.length; c++) {
           const weight = tile[cell + c]
           if (weight <= 0) continue
           present[c] = true
@@ -86,13 +98,28 @@ export function createDetailSurface(canvas: { width: number; height: number }, s
       }
     }
 
-    if (present.some(Boolean)) state.touched = true
     context.clearRect(dx, dy, dw, dh)
+    riverContext.clearRect(dx, dy, dw, dh)
     plane.width = width
     plane.height = height
-    for (let c = 0; c < CHANNELS; c++) {
+    // The source of the smoothing, in cells of the plane: each pixel of the read area where it falls.
+    const source = { x: edx / k - ex0, y: edy / k - ey0, width: edw / k, height: edh / k }
+    for (let c = 0; c < DETAILS.length; c++) {
       if (!present[c]) continue
       planeContext.putImageData(weights[c], 0, 0)
+      if (c === RIVER) {
+        state.riverTouched = true
+        painter.paint(
+          riverContext,
+          plane,
+          source,
+          { x: edx, y: edy, width: edw, height: edh },
+          { x: dx, y: dy, width: dw, height: dh },
+          picture
+        )
+        continue
+      }
+      state.touched = true
       // The grain is laid on first, then cut down to the weights.
       scratch.width = edw
       scratch.height = edh
@@ -102,13 +129,15 @@ export function createDetailSurface(canvas: { width: number; height: number }, s
       scratchContext.setTransform(1, 0, 0, 1, 0, 0)
       scratchContext.globalCompositeOperation = "destination-in"
       scratchContext.imageSmoothingEnabled = true
-      scratchContext.drawImage(plane, edx / k - ex0, edy / k - ey0, edw / k, edh / k, 0, 0, edw, edh)
+      scratchContext.drawImage(plane, source.x, source.y, source.width, source.height, 0, 0, edw, edh)
       context.drawImage(scratch, dx - edx, dy - edy, dw, dh, dx, dy, dw, dh)
     }
   }
 
   function drawAll(paint: Paint) {
     context.clearRect(0, 0, picture.width, picture.height)
+    riverContext.clearRect(0, 0, river.width, river.height)
+    state.riverTouched = false
     const at: TileAt = (key) => paint.get(key)
     for (const key of paint.keys()) {
       const [tx, ty] = key.split(",").map(Number)
@@ -124,7 +153,11 @@ export function createDetailSurface(canvas: { width: number; height: number }, s
     state.touched = state.touched || paint.size > 0
   }
 
-  return { picture, draw, drawAll, adopt, state }
+  // The land as it is shown and the ink of its coast, which the river is drawn against.
+  // True if they are not what they were, when the river is to be drawn again.
+  const setLook = (land: MultiPolygon, ink: string, width: number) => painter.setLook(land, ink, width)
+
+  return { picture, river, draw, drawAll, adopt, setLook, state }
 }
 
 export type DetailSurface = ReturnType<typeof createDetailSurface>

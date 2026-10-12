@@ -68,7 +68,7 @@ export function toolSections(props: Props): ToolSection[] {
       content: (
         <div className="grid gap-1 p-2">
           {brush.layer === "details" ? (
-            <MapDetailSubTools brush={brush} />
+            <MapDetailSubTools brush={brush} background={background} />
           ) : (
             <MapBiomeSubTools brush={brush} background={background} />
           )}

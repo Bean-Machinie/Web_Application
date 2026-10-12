@@ -1,22 +1,33 @@
 import type Konva from "konva"
+import type { MultiPolygon } from "polygon-clipping"
+import { css } from "./colour"
 import { createDetailSurface } from "./details/detail-surface"
 import { renderScale } from "./map-scene"
 import type { MapScene } from "./map-scene"
+import { themeFor } from "./map-theme"
+import type { Terrain } from "./terrain"
+
+export type DetailPictures = { details: HTMLCanvasElement; river: HTMLCanvasElement }
 
 // The builder draws the details for the screen. The published picture is far
-// larger, so they are drawn again for it, sharp at that size. Null if there are none.
-export function exportDetails(scene: MapScene) {
+// larger, so they are drawn again for it, sharp at that size, from the larger ground of the
+// sea and the land as it is shown ("land", rounded). Null if there are none.
+export function exportDetails(scene: MapScene, terrain: Terrain, land: MultiPolygon): DetailPictures | null {
   if (scene.details.size === 0) return null
-  const surface = createDetailSurface(scene.canvas, renderScale(scene.canvas))
+  const surface = createDetailSurface(scene.canvas, renderScale(scene.canvas), terrain.sea)
+  surface.setLook(land, css(themeFor(scene.canvas.background).ink), scene.style.outline)
   surface.drawAll(scene.details)
-  return surface.picture
+  return { details: surface.picture, river: surface.river }
 }
 
-// Puts that picture in place of the screen's for the instant of drawing. The
+// Puts those pictures in place of the screen's for the instant of drawing. The
 // returned function puts the screen's back.
-export function sharpDetails(stage: Konva.Stage, picture: HTMLCanvasElement | null) {
-  const node = stage.findOne<Konva.Shape>(".detail-paint")
-  if (!node || !picture) return () => {}
-  node.setAttr("picture", picture)
-  return () => node.setAttr("picture", undefined)
+export function sharpDetails(stage: Konva.Stage, pictures: DetailPictures | null) {
+  if (!pictures) return () => {}
+  const nodes = [
+    [stage.findOne<Konva.Shape>(".detail-paint"), pictures.details],
+    [stage.findOne<Konva.Shape>(".river-paint"), pictures.river],
+  ] as const
+  for (const [node, picture] of nodes) node?.setAttr("picture", picture)
+  return () => nodes.forEach(([node]) => node?.setAttr("picture", undefined))
 }

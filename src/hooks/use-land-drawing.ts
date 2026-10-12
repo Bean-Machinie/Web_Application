@@ -1,7 +1,7 @@
 import type { MultiPolygon, Pair } from "polygon-clipping"
 import { landMask } from "@/lib/biomes/land-mask"
 import { eraseOutside, gridSize } from "@/lib/biomes/paint-tiles"
-import { DETAIL_CELL } from "@/lib/details/details"
+import { DETAIL_CELL, DETAIL_REACH } from "@/lib/details/details"
 import { addLand, cutLand, lassoToShape, stampToShape } from "@/lib/map-land"
 import { prunePins } from "@/lib/map-pins"
 import type { MapScene } from "@/lib/map-scene"
@@ -23,7 +23,7 @@ export function useLandDrawing(scene: MapScene, change: ReturnType<typeof useSce
         pinned: pins.length > 0 || old.pinned.length > 0 ? prunePins([...old.pinned, ...pins], land) : old.pinned,
         paint: cut ? eraseOutside(old.paint, landMask(land, old.canvas), cols, rows) : old.paint,
         details: cut
-          ? eraseOutside(old.details, landMask(land, old.canvas, DETAIL_CELL), fine.cols, fine.rows)
+          ? eraseOutside(old.details, landMask(land, old.canvas, DETAIL_CELL, DETAIL_REACH), fine.cols, fine.rows)
           : old.details,
       }))
     }

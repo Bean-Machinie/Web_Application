@@ -2,12 +2,13 @@ import type { Brush } from "@/hooks/use-brush"
 import { useDetailPreviews } from "@/hooks/use-detail-previews"
 import { DETAILS } from "@/lib/details/details"
 import type { Detail } from "@/lib/details/details"
+import type { SceneBackground } from "@/lib/map-scene"
 import { MapSubToolButton } from "./MapSubToolButton"
 
 const name = (detail: Detail) => detail[0].toUpperCase() + detail.slice(1)
 
-export function MapDetailSubTools({ brush }: { brush: Brush }) {
-  const previews = useDetailPreviews()
+export function MapDetailSubTools({ brush, background }: { brush: Brush; background: SceneBackground }) {
+  const previews = useDetailPreviews(background)
 
   return (
     <>

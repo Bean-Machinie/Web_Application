@@ -19,12 +19,14 @@ type Props = {
   surface: Surface
   // What lies over the biomes and under the coast's line.
   children?: ReactNode
+  // What lies over the coast's line too: the river, which opens the coast where it meets it.
+  after?: ReactNode
 }
 
 // The biomes over the land, cut to its edge, and the coast's ink line over
 // them. The group is named so the brush can find the layer it is in, and redraw
 // that, while painting.
-export function MapBiomeLayer({ land, canvas, style, paint, surface, children }: Props) {
+export function MapBiomeLayer({ land, canvas, style, paint, surface, children, after }: Props) {
   const group = useRef<Konva.Group>(null)
 
   // Paint the brush has been drawing is already on the picture.
@@ -57,6 +59,7 @@ export function MapBiomeLayer({ land, canvas, style, paint, surface, children }:
         outline={style.outline}
         surface={surface}
       />
+      {after}
     </Group>
   )
 }

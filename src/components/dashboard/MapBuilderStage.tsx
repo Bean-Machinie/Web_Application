@@ -17,7 +17,7 @@ import type { Brush } from "@/hooks/use-brush"
 import { landMask } from "@/lib/biomes/land-mask"
 import { PAINT_CELL } from "@/lib/biomes/biomes"
 import { gridSize } from "@/lib/biomes/paint-tiles"
-import { DETAIL_CELL } from "@/lib/details/details"
+import { DETAIL_CELL, DETAIL_REACH } from "@/lib/details/details"
 import type { Terrain } from "@/lib/terrain"
 import { stageProps } from "@/lib/view-matrix"
 import type { Paint } from "@/lib/biomes/paint-tiles"
@@ -27,6 +27,7 @@ import { MapBrushLayer } from "./MapBrushLayer"
 import { MapDetailLayer } from "./MapDetailLayer"
 import { MapBrushResize } from "./MapBrushResize"
 import { MapEraseAssetsLayer } from "./MapEraseAssetsLayer"
+import { MapRiverLayer } from "./MapRiverLayer"
 import { MapLandLayer } from "./MapLandLayer"
 import { MapWaterLayer } from "./MapWaterLayer"
 import { MapLandmassPick } from "./MapLandmassPick"
@@ -88,7 +89,7 @@ export function MapBuilderStage(props: Props) {
   const { canvas } = scene
   const land = useShownLand(scene.land, scene.style.roundness, canvas, scene.pinned)
   const surface = useBiomeSurface(canvas, terrain)
-  const detailSurface = useDetailSurface(canvas)
+  const detailSurface = useDetailSurface(canvas, terrain)
   // What the eraser is taking away, if it is the tool; and the art it has touched.
   const eraser = tool === "eraser" ? props.brush.erase : null
   const [fading, setFading] = useState<ReadonlySet<string>>(NONE)
@@ -101,7 +102,7 @@ export function MapBuilderStage(props: Props) {
   const detailMask = useMemo(
     () =>
       painting
-        ? { mask: landMask(land, canvas, DETAIL_CELL), ...gridSize(canvas, DETAIL_CELL) }
+        ? { mask: landMask(land, canvas, DETAIL_CELL, DETAIL_REACH), ...gridSize(canvas, DETAIL_CELL) }
         : { mask: new Uint8Array(0), cols: 0, rows: 0 },
     [painting, land, canvas]
   )
@@ -139,8 +140,15 @@ export function MapBuilderStage(props: Props) {
         <KonvaImage name="sea" image={terrain.sea} width={canvas.width} height={canvas.height} />
         <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} />
         <MapLandLayer land={land} background={canvas.background} texture={terrain.land} textureScale={terrain.scale} />
-        <MapBiomeLayer land={land} canvas={canvas} style={scene.style} paint={scene.paint} surface={surface}>
-          <MapDetailLayer land={land} canvas={canvas} details={scene.details} surface={detailSurface} />
+        <MapBiomeLayer
+          land={land}
+          canvas={canvas}
+          style={scene.style}
+          paint={scene.paint}
+          surface={surface}
+          after={<MapRiverLayer canvas={canvas} surface={detailSurface} />}
+        >
+          <MapDetailLayer land={land} canvas={canvas} style={scene.style} details={scene.details} surface={detailSurface} />
         </MapBiomeLayer>
       </Layer>
       <MapAssetsLayer
