@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useSettingsWindow } from "@/hooks/use-settings-window"
@@ -8,7 +8,7 @@ import { SettingsContent } from "./SettingsContent"
 import { SettingsNav } from "./SettingsNav"
 import { SettingsSaveBar } from "./SettingsSaveBar"
 import { SettingsFormContext } from "./settings-form"
-import type { FormActions, FormStatus } from "./settings-form"
+import type { FormActions, FormStatus, Notice } from "./settings-form"
 import type { SettingsTab } from "./settings-tabs"
 
 // Account settings as a window over the page, shown when the address has "?settings=" (see
@@ -21,10 +21,11 @@ export function SettingsWindow() {
   // On a small screen the list of tabs comes first and a tab slides in over it.
   const [showTab, setShowTab] = useState(false)
   const [status, setStatus] = useState<FormStatus>({ dirty: false, busy: false })
+  const [notice, setNotice] = useState<Notice | null>(null)
   const actions = useRef<FormActions | null>(null)
   const [pending, setPending] = useState<(() => void) | null>(null)
   const registry = useMemo(
-    () => ({ setActions: (next: FormActions | null) => void (actions.current = next), setStatus }),
+    () => ({ setActions: (next: FormActions | null) => void (actions.current = next), setStatus, setNotice }),
     []
   )
 
@@ -33,6 +34,12 @@ export function SettingsWindow() {
     setWasOpen(isOpen)
     if (!isOpen) setShowTab(false)
   }
+
+  useEffect(() => {
+    if (notice?.tone !== "success") return
+    const timer = setTimeout(() => setNotice(null), 4000)
+    return () => clearTimeout(timer)
+  }, [notice])
 
   // Anything that would throw away unsaved changes waits for an answer first.
   function guard(action: () => void) {
@@ -84,8 +91,9 @@ export function SettingsWindow() {
           >
             <SettingsContent tab={active} onBack={() => setShowTab(false)} />
             <SettingsSaveBar
-              visible={status.dirty}
+              dirty={status.dirty}
               busy={status.busy}
+              notice={notice}
               onDiscard={() => actions.current?.discard()}
               onSave={() => void actions.current?.save()}
             />

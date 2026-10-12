@@ -1,5 +1,4 @@
 import { Input } from "@/components/ui/input"
-import { USERNAME_HINT } from "@/lib/username"
 import { SettingsHelp, SettingsRow } from "./SettingsRow"
 
 type Props = {
@@ -10,7 +9,7 @@ type Props = {
 
 export function UsernameSection({ value, onChange, disabled }: Props) {
   return (
-    <SettingsRow width="field" title="Username" description="Used to find and invite you.">
+    <SettingsRow center width="wide" title="Username">
       <Input
         aria-label="Username"
         autoComplete="username"
@@ -20,7 +19,7 @@ export function UsernameSection({ value, onChange, disabled }: Props) {
         onChange={(event) => onChange(event.target.value)}
         disabled={disabled}
       />
-      <SettingsHelp>{USERNAME_HINT}</SettingsHelp>
+      <SettingsHelp>2–50 characters, no @</SettingsHelp>
     </SettingsRow>
   )
 }

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useSettingsWindow } from "@/hooks/use-settings-window"
+import { useNotificationsPanel } from "@/hooks/use-notifications-panel"
 import bell from "@/assets/icons/bell.svg"
 import { Icon } from "@/components/Icon"
 import { Badge } from "@/components/ui/badge"
@@ -28,13 +28,13 @@ function CaughtUp() {
 }
 
 export function NotificationBell() {
-  const settingsWindow = useSettingsWindow()
+  const panel = useNotificationsPanel()
   const { unreadCount } = useCampaign()
   const [open, setOpen] = useState(false)
 
   function viewAll() {
     setOpen(false)
-    settingsWindow.open("notifications")
+    panel.open()
   }
 
   return (
@@ -73,7 +73,7 @@ export function NotificationBell() {
 
         <div className="border-t p-2">
           <Button variant="ghost" className="w-full" onClick={viewAll}>
-            View all notifications
+            View all
           </Button>
         </div>
       </PopoverContent>

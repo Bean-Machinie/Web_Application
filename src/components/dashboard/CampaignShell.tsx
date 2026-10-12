@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom"
 import { RequireAuth } from "@/auth/RequireAuth"
 import { CampaignProvider } from "./CampaignProvider"
+import { NotificationsPanel } from "./NotificationsPanel"
 import { SettingsWindow } from "./SettingsWindow"
 
 // Everything that needs a signed-in user and knowledge of their campaigns.
@@ -10,6 +11,7 @@ export function CampaignShell() {
       <CampaignProvider>
         <Outlet />
         <SettingsWindow />
+        <NotificationsPanel />
       </CampaignProvider>
     </RequireAuth>
   )

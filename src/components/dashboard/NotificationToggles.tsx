@@ -33,7 +33,7 @@ export function NotificationToggles() {
     <div className="grid gap-8">
       {GROUPS.map((group) => (
         <section key={group.label}>
-          <h4 className="text-muted-foreground mb-2 text-xs font-medium">{group.label}</h4>
+          <h4 className="mb-1 text-sm font-semibold">{group.label}</h4>
           <SettingsCard>
             {group.items.map(({ pref, title, description }) => (
               <SettingsRow key={pref} title={title} description={description}>
