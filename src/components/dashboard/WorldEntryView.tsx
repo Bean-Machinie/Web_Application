@@ -15,8 +15,8 @@ import { markWorldListReturn } from "@/lib/world-list-memory"
 import { worldListPath } from "@/lib/world-tab"
 import { ConfirmDialog } from "./ConfirmDialog"
 import { MapEntryScreen } from "./MapEntryScreen"
-import { useCampaign } from "./useCampaign"
 import { usePageTrail } from "./usePageTrail"
+import { useWorldScope } from "./useWorldScope"
 import { WorldEntryPage } from "./WorldEntryPage"
 
 // Loads an entry and picks its layout: a map fills the screen, anything else
@@ -26,16 +26,16 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
   const navigate = useNavigate()
   // Set when this entry was opened from somewhere other than the World list.
   const from = readBackTo(useLocation().state)
-  const { can, current } = useCampaign()
-  const canManage = can("manage_world")
+  const scope = useWorldScope()
+  const { canManage } = scope
   const { entry, error, reload, setRevealed } = useWorldEntry(entryId)
   const fieldsState = useWorldFields(entryId, entry?.kind)
   // While the entry loads, the steps already known stay put and only the name
   // is filled in after, so the trail does not blink away and back.
   const loading = from
-    ? entryTrail({ id: entryId, kind: "map", name: "…" }, from)
-    : [{ label: "World", to: worldListPath() }, { label: "…" }]
-  usePageTrail(entry ? entryTrail(entry, from) : loading)
+    ? entryTrail({ id: entryId, kind: "map", name: "…" }, from, scope)
+    : [{ label: scope.label, to: worldListPath(scope.basePath) }, { label: "…" }]
+  usePageTrail(entry ? entryTrail(entry, from, scope) : loading)
   // The World list then opens as it was left.
   useEffect(() => markWorldListReturn(), [])
   const [detailsOpen, setDetailsOpen] = useState(false)
@@ -52,7 +52,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
         toWorldImage(fieldsState.fields?.[COVER_FIELD]?.value)?.path,
         entry?.kind
       ).catch(() => {})
-      navigate(worldListPath())
+      navigate(worldListPath(scope.basePath))
     } catch (failure) {
       setActionError(errorMessage(failure))
       setDeleting(false)
@@ -84,10 +84,11 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                 {(() => {
                   const props = {
                     entryId,
-                    campaignId: current!.id,
+                    folder: scope.imageFolder,
                     kind: entry.kind,
                     name: entry.name,
-                    revealed: entry.revealed,
+                    // A library has no visibility, so nothing in it is drawn as hidden.
+                    revealed: entry.revealed || !scope.hasVisibility,
                     canManage,
                     state: fieldsState,
                     onRename: async (name: string) => {

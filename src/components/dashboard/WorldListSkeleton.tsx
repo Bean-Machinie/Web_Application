@@ -8,17 +8,21 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cellClass, headClass, headRowClass } from "./members-table-styles"
+import { useWorldScope } from "./useWorldScope"
 
 // Same table, header and cell markup as WorldEntryList, so rows match in
 // height. Keep the two in step.
 export function WorldListSkeleton({ canManage }: { canManage: boolean }) {
+  const { hasVisibility } = useWorldScope()
+  const withVisibility = canManage && hasVisibility
+
   return (
     <Table>
       <TableHeader>
         <TableRow className={headRowClass}>
           <TableHead className={`${headClass} w-[50%]`}>Name</TableHead>
           <TableHead className={headClass}>Type</TableHead>
-          {canManage && <TableHead className={headClass}>Visibility</TableHead>}
+          {withVisibility && <TableHead className={headClass}>Visibility</TableHead>}
           {canManage && <TableHead className={`${headClass} w-16`} />}
         </TableRow>
       </TableHeader>
@@ -34,7 +38,7 @@ export function WorldListSkeleton({ canManage }: { canManage: boolean }) {
             <TableCell className={cellClass}>
               <Skeleton className="h-5 w-12 rounded-full" />
             </TableCell>
-            {canManage && (
+            {withVisibility && (
               <TableCell className={cellClass}>
                 <Skeleton className="h-5 w-24" />
               </TableCell>

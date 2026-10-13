@@ -6,7 +6,7 @@ import type { WorldFieldsState } from "./WorldFields"
 
 type Props = {
   entryId: string
-  campaignId: string
+  folder: string
   kind: WorldEntryKind
   canManage: boolean
   state: WorldFieldsState
@@ -14,7 +14,7 @@ type Props = {
 
 // The entry's picture, top left of its page. A GM can upload, replace or
 // remove it; a player sees it read-only.
-export function WorldEntryImage({ entryId, campaignId, kind, canManage, state }: Props) {
+export function WorldEntryImage({ entryId, folder, kind, canManage, state }: Props) {
   const def = WORLD_KINDS[kind].fields.find((field) => field.key === COVER_FIELD)
   if (!def) return null
   if (!state.fields) return <Skeleton className="size-28 rounded-lg" />
@@ -29,7 +29,7 @@ export function WorldEntryImage({ entryId, campaignId, kind, canManage, state }:
       value={value}
       label={def.label}
       fallback={fallback}
-      context={{ campaignId, entryId }}
+      context={{ folder, entryId }}
       onChange={(next) =>
         saveAtOnce ? state.saveNow(def.key, def.type, next) : state.setValue(def.key, def.type, next)
       }

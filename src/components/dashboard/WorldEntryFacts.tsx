@@ -7,7 +7,7 @@ import type { WorldFieldsState } from "./WorldFields"
 
 type Props = {
   entryId: string
-  campaignId: string
+  folder: string
   kind: WorldEntryKind
   canManage: boolean
   state: WorldFieldsState
@@ -29,7 +29,7 @@ function Row({ def, children }: { def: FieldDef; children: React.ReactNode }) {
 
 // The short facts of an entry as a property list. A GM edits each value in
 // place; a player reads them, private ones as "Undisclosed".
-export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state, hidden }: Props) {
+export function WorldEntryFacts({ entryId, folder, kind, canManage, state, hidden }: Props) {
   const { fields, setValue, saveNow, setPrivate } = state
   const defs = WORLD_KINDS[kind].fields.filter((def) => def.summary)
   if (!fields) return null
@@ -70,7 +70,7 @@ export function WorldEntryFacts({ entryId, campaignId, kind, canManage, state, h
                 placeholder={def.placeholder}
                 options={def.options}
                 quiet
-                context={{ campaignId, entryId }}
+                context={{ folder, entryId }}
                 onChange={(value) =>
                   saveAtOnce ? saveNow(def.key, def.type, value) : setValue(def.key, def.type, value)
                 }

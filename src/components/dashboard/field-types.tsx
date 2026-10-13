@@ -24,7 +24,7 @@ export type FieldEditorProps = {
   // What to show in an empty image tile.
   fallback?: ReactNode
   // Where an upload belongs.
-  context: { campaignId: string; entryId: string }
+  context: { folder: string; entryId: string }
   // Resolves to whether the change was saved, for types that save at once.
   onChange: (value: unknown) => void | Promise<boolean>
 }

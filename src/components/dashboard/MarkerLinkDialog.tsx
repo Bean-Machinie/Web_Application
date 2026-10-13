@@ -76,7 +76,6 @@ function LinkBody({ campaignId, mapId, onLink, compact }: BodyProps) {
         </>
       ) : (
         <MarkerEntryPicker
-          campaignId={campaignId}
           exceptId={mapId}
           disabled={busy}
           compact={compact}

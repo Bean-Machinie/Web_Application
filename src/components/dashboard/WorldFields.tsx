@@ -10,7 +10,7 @@ export type WorldFieldsState = ReturnType<typeof useWorldFields>
 
 type Props = {
   entryId: string
-  campaignId: string
+  folder: string
   kind: WorldEntryKind
   canManage: boolean
   state: WorldFieldsState
@@ -18,7 +18,7 @@ type Props = {
 
 // Render with key={entryId}. Players receive private fields without their
 // value, which show as "Undisclosed"; empty ones are just not shown.
-export function WorldFields({ entryId, campaignId, kind, canManage, state }: Props) {
+export function WorldFields({ entryId, folder, kind, canManage, state }: Props) {
   const { fields, error, setValue, saveNow, setPrivate } = state
   // The cover and the summary facts are shown by the page header.
   const defs = WORLD_KINDS[kind].fields.filter(
@@ -44,7 +44,7 @@ export function WorldFields({ entryId, campaignId, kind, canManage, state }: Pro
           <WorldFieldRow
             key={def.key}
             def={def}
-            context={{ campaignId, entryId }}
+            context={{ folder, entryId }}
             stored={fields[def.key]}
             manage={
               canManage

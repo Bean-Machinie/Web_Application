@@ -30,7 +30,9 @@ const MapViewer = lazy(() => import("./MapViewer").then((module) => ({ default: 
 // takes back the padding the layout puts around pages. It is isolated, so
 // what floats over the map stays beneath the details panel and its overlay.
 export function MapEntryScreen(props: EntryProps) {
-  const { entryId, campaignId, kind, name, revealed, canManage, state } = props
+  const { entryId, folder, kind, name, revealed, canManage, state } = props
+  // A map is always in a campaign, whose files are in a folder named by its id.
+  const campaignId = folder
   const image = toWorldImage(state.fields?.[COVER_FIELD]?.value)
   const picker = useMapImageUpload({
     campaignId,
@@ -100,7 +102,7 @@ export function MapEntryScreen(props: EntryProps) {
         <div className="border-b px-5 [&>div]:border-t-0 [&_section]:py-4">
           <WorldFields
             entryId={entryId}
-            campaignId={campaignId}
+            folder={folder}
             kind={kind}
             canManage={canManage}
             state={state}

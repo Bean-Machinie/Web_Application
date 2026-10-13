@@ -10,22 +10,22 @@ import { Switch } from "@/components/ui/switch"
 import { useCreateMore } from "@/hooks/use-create-more"
 import { errorMessage } from "@/lib/campaigns"
 import { createScene } from "@/lib/map-scene"
-import { createWorldEntry } from "@/lib/world-entries"
 import { saveMapScene } from "@/lib/world-map-scenes"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { DEFAULT_MAP_CHOICE, NewMapOptions } from "./NewMapOptions"
+import { useWorldScope } from "./useWorldScope"
 
 type Props = {
-  campaignId: string
   kind: WorldEntryKind
   reload: () => Promise<unknown>
   onClose: () => void
 }
 
 // Only mounted while the dialog is open, so it starts fresh every time.
-export function NewEntryForm({ campaignId, kind, reload, onClose }: Props) {
+export function NewEntryForm({ kind, reload, onClose }: Props) {
   const navigate = useNavigate()
+  const scope = useWorldScope()
   const input = useRef<HTMLInputElement>(null)
   const [name, setName] = useState("")
   const [map, setMap] = useState(DEFAULT_MAP_CHOICE)
@@ -38,11 +38,11 @@ export function NewEntryForm({ campaignId, kind, reload, onClose }: Props) {
     setBusy(true)
     setError(null)
     try {
-      const entry = await createWorldEntry(campaignId, kind, name.trim())
+      const entry = await scope.createEntry(kind, name.trim())
       if (kind === "map" && map.source === "build") {
         await saveMapScene(entry.id, createScene(map), null)
         onClose()
-        navigate(`/app/world/${entry.id}/build`)
+        navigate(`${scope.basePath}/${entry.id}/build`)
         return
       }
       if (more) {
@@ -53,7 +53,7 @@ export function NewEntryForm({ campaignId, kind, reload, onClose }: Props) {
         return
       }
       onClose()
-      navigate(`/app/world/${entry.id}`)
+      navigate(`${scope.basePath}/${entry.id}`)
     } catch (failure) {
       setError(errorMessage(failure))
       setBusy(false)
@@ -76,9 +76,11 @@ export function NewEntryForm({ campaignId, kind, reload, onClose }: Props) {
           onChange={(event) => setName(event.target.value)}
           disabled={busy}
         />
-        <p className="text-muted-foreground text-xs">
-          New entries start hidden. Reveal them to your players when you are ready.
-        </p>
+        {scope.hasVisibility && (
+          <p className="text-muted-foreground text-xs">
+            New entries start hidden. Reveal them to your players when you are ready.
+          </p>
+        )}
       </div>
       {kind === "map" && <NewMapOptions value={map} onChange={setMap} />}
       {error && <FormAlert tone="error">{error}</FormAlert>}

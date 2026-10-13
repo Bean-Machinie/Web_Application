@@ -42,14 +42,14 @@ const MAP_CACHE_SECONDS = 365 * 24 * 60 * 60
 // The folder carries the entry id, so a hidden entry's image URL cannot be
 // guessed by someone who has never been shown the entry.
 export const uploadWorldImage = (
-  campaignId: string,
+  folder: string,
   entryId: string,
   file: File,
   kind?: WorldEntryKind
 ) =>
   uploadImage(
     bucketFor(kind),
-    `${campaignId}/${entryId}`,
+    `${folder}/${entryId}`,
     file,
     kind === "map" ? MAP_CACHE_SECONDS : undefined
   )

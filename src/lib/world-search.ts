@@ -21,14 +21,24 @@ function plainText(value: unknown): string {
   return `${own} ${inner}`
 }
 
+const searchQuery = () =>
+  supabase
+    .from("world_entry_fields")
+    .select("entry_id, key, value, world_entries!inner(campaign_id)")
+    .in("type", ["rich_text", "short_text", "select"])
+
 // Every text field, so a search can look past the name. Players only receive
 // the fields they may read: the database leaves private ones out.
 export async function fetchSearchText(campaignId: string): Promise<SearchText> {
-  const { data, error } = await supabase
-    .from("world_entry_fields")
-    .select("entry_id, key, value, world_entries!inner(campaign_id)")
-    .eq("world_entries.campaign_id", campaignId)
-    .in("type", ["rich_text", "short_text", "select"])
+  return toSearchText(await searchQuery().eq("world_entries.campaign_id", campaignId))
+}
+
+// The same for the signed-in person's library.
+export async function fetchLibrarySearchText(): Promise<SearchText> {
+  return toSearchText(await searchQuery().is("world_entries.campaign_id", null))
+}
+
+function toSearchText({ data, error }: { data: unknown; error: unknown }): SearchText {
   if (error) throw error
 
   const text: SearchText = {}

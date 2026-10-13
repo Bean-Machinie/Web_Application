@@ -52,14 +52,28 @@ function toEntry(row: Record<string, unknown>): WorldEntry {
   }
 }
 
-export async function fetchWorldEntries(campaignId: string) {
-  const { data, error } = await supabase
+const listQuery = () =>
+  supabase
     .from("world_entries")
     .select(`${COLUMNS}, world_entry_fields(key, value)`)
-    .eq("campaign_id", campaignId)
     // Filters the embedded rows, not the entries; row level security still
     // decides which fields each person gets.
     .in("world_entry_fields.key", LIST_FIELDS)
+
+export async function fetchWorldEntries(campaignId: string) {
+  const { data, error } = await listQuery()
+    .eq("campaign_id", campaignId)
+    .order("sort_order", { ascending: true })
+  if (error) throw error
+
+  return (data as Record<string, unknown>[]).map(toEntry)
+}
+
+// The signed-in person's own entries: security only lets a person read their
+// own rows that have no campaign.
+export async function fetchLibraryEntries() {
+  const { data, error } = await listQuery()
+    .is("campaign_id", null)
     .order("sort_order", { ascending: true })
   if (error) throw error
 
@@ -85,6 +99,16 @@ export async function createWorldEntry(
 ) {
   const { data, error } = await supabase.rpc("create_world_entry", {
     target_campaign: campaignId,
+    entry_kind: kind,
+    entry_name: name,
+  })
+  if (error) throw error
+
+  return toEntry(data as Record<string, unknown>)
+}
+
+export async function createLibraryEntry(kind: WorldEntryKind, name: string) {
+  const { data, error } = await supabase.rpc("create_library_entry", {
     entry_kind: kind,
     entry_name: name,
   })
@@ -120,6 +144,13 @@ export async function deleteWorldEntry(id: string) {
 export async function reorderWorldEntries(campaignId: string, orderedIds: string[]) {
   const { error } = await supabase.rpc("reorder_world_entries", {
     target_campaign: campaignId,
+    ordered_ids: orderedIds,
+  })
+  if (error) throw error
+}
+
+export async function reorderLibraryEntries(orderedIds: string[]) {
+  const { error } = await supabase.rpc("reorder_library_entries", {
     ordered_ids: orderedIds,
   })
   if (error) throw error

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import { Pencil, Trash2 } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
 import { useWorldEntries } from "@/hooks/use-world-entries"
@@ -9,30 +8,29 @@ import { useWorldListMemory } from "@/hooks/use-world-list-memory"
 import { useWorldSearchText } from "@/hooks/use-world-search-text"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
 import { errorMessage } from "@/lib/campaigns"
-import type { Campaign } from "@/lib/campaigns"
 import { deleteWorldEntry } from "@/lib/world-entries"
 import type { WorldEntry } from "@/lib/world-entries"
 import { deleteWorldImage } from "@/lib/world-images"
-import { WORLD_KINDS, worldKinds } from "@/lib/world-kinds"
+import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
 import { rememberWorldKind } from "@/lib/world-tab"
 import type { Sort, VisibilityFilter } from "@/lib/world-list"
-import { useCampaign } from "./useCampaign"
 import { usePageTrail } from "./usePageTrail"
+import { useWorldScope } from "./useWorldScope"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
 import { WorldEntryResults } from "./WorldEntryResults"
 import { WorldGridSkeleton } from "./WorldGridSkeleton"
 import { WorldListSkeleton } from "./WorldListSkeleton"
 import { WorldTabs } from "./WorldTabs"
 import { WorldToolbar } from "./WorldToolbar"
-import type { WorldManage } from "./world-manage"
+import { createWorldManage } from "./world-manage"
 
-// Render with key={campaign.id} so switching campaigns starts from scratch.
-export function WorldEntryList({ campaign }: { campaign: Campaign }) {
-  const { can } = useCampaign()
-  const canManage = can("manage_world")
-  const { entries, error, reload, setRevealed, reorder } = useWorldEntries(campaign.id)
+// Render with key={scope.key} so switching scope starts from scratch.
+export function WorldEntryList() {
+  const scope = useWorldScope()
+  const { canManage } = scope
+  const { entries, error, reload, setRevealed, reorder } = useWorldEntries(scope)
   const [params] = useSearchParams()
   const [chosenMode, setMode] = useWorldViewMode()
   // Phones only get the grid; the saved choice is kept for larger screens.
@@ -46,14 +44,14 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
   const [actionError, setActionError] = useState<string | null>(null)
 
   // An unknown ?kind= falls back to All.
-  const kind = worldKinds.find((option) => option === params.get("kind")) ?? null
-  const { query, setQuery, wrapper } = useWorldListMemory(campaign.id, kind, mode, entries !== null)
-  useEffect(() => rememberWorldKind(kind), [kind])
+  const kind = scope.kinds.find((option) => option === params.get("kind")) ?? null
+  const { query, setQuery, wrapper } = useWorldListMemory(scope.key, kind, mode, entries !== null)
+  useEffect(() => rememberWorldKind(scope.basePath, kind), [scope.basePath, kind])
   usePageTrail(
-    kind ? [{ label: "World", to: "/app/world" }, { label: WORLD_KINDS[kind].plural }] : null
+    kind ? [{ label: scope.label, to: scope.basePath }, { label: WORLD_KINDS[kind].plural }] : null
   )
 
-  const searchText = useWorldSearchText(campaign.id, query.trim() !== "")
+  const searchText = useWorldSearchText(scope, query.trim() !== "")
   const shown = entries && viewEntries(entries, {
       kind,
       query,
@@ -79,30 +77,14 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
     }
   }
 
-  const manage: WorldManage | null = canManage
-    ? {
-        onReveal: (entry, revealed) => {
-          setActionError(null)
-          setRevealed(entry.id, revealed).catch((failure) =>
-            setActionError(errorMessage(failure))
-          )
-        },
-        onReorder: (ids) => {
-          setActionError(null)
-          reorder(ids).catch((failure) => setActionError(errorMessage(failure)))
-        },
+  const manage = canManage
+    ? createWorldManage({
+        setRevealed,
+        reorder,
         onRename: setRenaming,
         onDelete: setDeleting,
-        actionsFor: (entry) => [
-          { label: "Rename", icon: Pencil, onSelect: () => setRenaming(entry) },
-          {
-            label: "Delete",
-            icon: Trash2,
-            destructive: true,
-            onSelect: () => setDeleting(entry),
-          },
-        ],
-      }
+        setError: setActionError,
+      })
     : null
 
   return (
@@ -115,7 +97,7 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
         <WorldToolbar
           query={query}
           onQuery={setQuery}
-          visibility={canManage ? visibility : null}
+          visibility={canManage && scope.hasVisibility ? visibility : null}
           onVisibility={setVisibility}
           onCreate={canManage ? setCreating : null}
           mode={mode}
@@ -156,7 +138,6 @@ export function WorldEntryList({ campaign }: { campaign: Campaign }) {
       </div>
 
       <WorldEntryDialogs
-        campaignId={campaign.id}
         creating={creating}
         renaming={renaming}
         deleting={deleting}

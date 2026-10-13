@@ -1,6 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import { CampaignShell } from "@/components/dashboard/CampaignShell"
+import { CampaignWorldScope } from "@/components/dashboard/CampaignWorldScope"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
+import { LibraryWorldScope } from "@/components/dashboard/LibraryWorldScope"
 import { RequireCampaign } from "@/components/dashboard/RequireCampaign"
 import { CampaignSettings } from "@/pages/CampaignSettings"
 import { CampaignSettingsAdvanced } from "@/pages/CampaignSettingsAdvanced"
@@ -35,9 +37,11 @@ export default function App() {
         <Route path="/app" element={<DashboardLayout />}>
           <Route element={<RequireCampaign />}>
             <Route index element={<Overview />} />
-            <Route path="world" element={<World />} />
-            <Route path="world/:entryId" element={<WorldEntry />} />
-            <Route path="world/:entryId/build" element={<MapBuild />} />
+            <Route element={<CampaignWorldScope />}>
+              <Route path="world" element={<World />} />
+              <Route path="world/:entryId" element={<WorldEntry />} />
+              <Route path="world/:entryId/build" element={<MapBuild />} />
+            </Route>
             <Route path="sessions" element={<Sessions />} />
             <Route path="characters" element={<Characters />} />
             <Route path="party" element={<Party />} />
@@ -51,7 +55,10 @@ export default function App() {
           <Route path="campaigns" element={<Campaigns />} />
           <Route path="campaigns/new" element={<NewCampaign />} />
           <Route path="campaigns/join" element={<JoinCampaign />} />
-          <Route path="library" element={<Library />} />
+          <Route path="library" element={<LibraryWorldScope />}>
+            <Route index element={<Library />} />
+            <Route path=":entryId" element={<WorldEntry />} />
+          </Route>
           <Route path="settings" element={<SettingsRedirect />} />
           <Route path="settings/:tab" element={<SettingsRedirect />} />
           <Route path="support" element={<Support />} />

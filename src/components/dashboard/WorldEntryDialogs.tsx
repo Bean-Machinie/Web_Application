@@ -6,7 +6,6 @@ import { EntryNameDialog } from "./EntryNameDialog"
 import { NewEntryDialog } from "./NewEntryDialog"
 
 type Props = {
-  campaignId: string
   creating: WorldEntryKind | null
   renaming: WorldEntry | null
   deleting: WorldEntry | null
@@ -19,12 +18,11 @@ type Props = {
 }
 
 export function WorldEntryDialogs(props: Props) {
-  const { campaignId, creating, renaming, deleting, busy, reload } = props
+  const { creating, renaming, deleting, busy, reload } = props
 
   return (
     <>
       <NewEntryDialog
-        campaignId={campaignId}
         kind={creating}
         reload={reload}
         onClose={props.onCloseCreate}

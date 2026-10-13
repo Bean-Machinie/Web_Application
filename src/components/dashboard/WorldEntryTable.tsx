@@ -13,6 +13,7 @@ import { HiddenBadge } from "./HiddenBadge"
 import { KindLabel } from "./KindLabel"
 import { MemberMenu } from "./MemberMenu"
 import { cellClass } from "./members-table-styles"
+import { useWorldScope } from "./useWorldScope"
 import { scrollClass } from "./WorldEntryGrid"
 import { VisibilitySwitch } from "./VisibilitySwitch"
 import { WorldTableHeader } from "./WorldTableHeader"
@@ -31,6 +32,7 @@ const cell = `${cellClass} max-md:px-3 max-md:py-2`
 
 export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
   const navigate = useNavigate()
+  const { basePath, hasVisibility } = useWorldScope()
   const { rowProps } = useRowReorder({
     ids: entries.map((entry) => entry.id),
     // A column sort replaces the manual order, so rows cannot be moved then.
@@ -43,7 +45,7 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
     <colgroup>
       <col className="md:w-[50%]" />
       <col className="hidden md:table-column" />
-      {manage && <col className="w-16 md:w-auto" />}
+      {manage && hasVisibility && <col className="w-16 md:w-auto" />}
       {manage && <col className="w-12 md:w-16" />}
     </colgroup>
   )
@@ -53,7 +55,12 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
       <div className={`bg-muted/40 shrink-0 overflow-y-hidden border-b ${manage ? "" : "max-md:hidden"} [scrollbar-gutter:stable] [scrollbar-width:thin]`}>
         <Table className="table-fixed">
           {columns}
-          <WorldTableHeader withVisibility={manage !== null} sort={sort} onSort={onSort} />
+          <WorldTableHeader
+            withVisibility={manage !== null && hasVisibility}
+            withActions={manage !== null}
+            sort={sort}
+            onSort={onSort}
+          />
         </Table>
       </div>
       <div data-world-scroll className={`${scrollClass} [scrollbar-gutter:stable]`}>
@@ -62,6 +69,7 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
           <TableBody>
             {entries.map((entry, index) => {
               const { icon: KindIcon } = WORLD_KINDS[entry.kind]
+              const hidden = hasVisibility && !entry.revealed
               return (
                 <TableRow
                   key={entry.id}
@@ -72,9 +80,9 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
                     const target = event.target as Element
                     if (!event.currentTarget.contains(target)) return
                     if (target.closest("a, button, [role=switch]")) return
-                    navigate(`/app/world/${entry.id}`)
+                    navigate(`${basePath}/${entry.id}`)
                   }}
-                  className={`${entry.revealed ? "" : "bg-muted/50 "}${
+                  className={`${hidden ? "bg-muted/50 " : ""}${
                     manage
                       ? "relative cursor-pointer select-none [-webkit-touch-callout:none] data-lifted:outline data-lifted:-outline-offset-2 data-lifted:outline-ring data-lifted:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)]"
                       : "relative cursor-pointer"
@@ -85,7 +93,7 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
                     <div className="flex items-center gap-3">
                       <span
                         className={`bg-muted text-muted-foreground flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border md:size-20 ${
-                          entry.revealed ? "" : "opacity-60 grayscale"
+                          hidden ? "opacity-60 grayscale" : ""
                         }`}
                       >
                         {entry.imageUrl ? (
@@ -102,12 +110,12 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
                       <div className="flex min-w-0 flex-col items-start gap-1">
                         <div className="flex max-w-full min-w-0 items-center gap-2">
                           <Link
-                            to={`/app/world/${entry.id}`}
+                            to={`${basePath}/${entry.id}`}
                             className="focus-visible:ring-ring truncate rounded-sm font-medium outline-none focus-visible:ring-2"
                           >
                             {entry.name}
                           </Link>
-                          {!entry.revealed && <HiddenBadge className="shrink-0" />}
+                          {hidden && <HiddenBadge className="shrink-0" />}
                         </div>
                         {entry.role && (
                           <span className="text-muted-foreground max-w-full truncate text-xs">
@@ -121,7 +129,7 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
                   <TableCell className={`${cell} hidden md:table-cell`}>
                     <KindLabel kind={entry.kind} />
                   </TableCell>
-                  {manage && (
+                  {manage && hasVisibility && (
                     <TableCell className={cell}>
                       <div className="relative z-10 w-fit">
                         <VisibilitySwitch

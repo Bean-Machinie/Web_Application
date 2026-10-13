@@ -4,7 +4,6 @@ import type { WorldEntryKind } from "@/lib/world-kinds"
 import { NewEntryForm } from "./NewEntryForm"
 
 type Props = {
-  campaignId: string
   kind: WorldEntryKind | null
   reload: () => Promise<unknown>
   onClose: () => void

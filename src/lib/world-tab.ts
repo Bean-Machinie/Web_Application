@@ -1,13 +1,14 @@
 import type { WorldEntryKind } from "./world-kinds"
 
-// The tab the World list was last on, so "< World" on an entry page goes back
-// to it instead of to All. Kept for the length of the visit.
-let lastKind: WorldEntryKind | null = null
+// The tab each list was last on, so "< World" on an entry page goes back to it
+// instead of to All. Kept for the length of the visit.
+const lastKind = new Map<string, WorldEntryKind | null>()
 
-export function rememberWorldKind(kind: WorldEntryKind | null) {
-  lastKind = kind
+export function rememberWorldKind(basePath: string, kind: WorldEntryKind | null) {
+  lastKind.set(basePath, kind)
 }
 
-export function worldListPath() {
-  return lastKind ? `/app/world?kind=${lastKind}` : "/app/world"
+export function worldListPath(basePath: string) {
+  const kind = lastKind.get(basePath)
+  return kind ? `${basePath}?kind=${kind}` : basePath
 }

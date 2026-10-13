@@ -11,7 +11,7 @@ import type { WorldFieldsState } from "./WorldFields"
 
 type Props = {
   entryId: string
-  campaignId: string
+  folder: string
   kind: WorldEntryKind
   name: string
   canManage: boolean

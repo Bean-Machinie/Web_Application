@@ -7,13 +7,14 @@ import { headClass } from "./members-table-styles"
 import { SortableHead } from "./SortableHead"
 
 type Props = {
-  // Players get no visibility column.
+  // Players get neither of the next two; a library has no visibility.
   withVisibility: boolean
+  withActions: boolean
   sort: Sort
   onSort: (sort: Sort) => void
 }
 
-export function WorldTableHeader({ withVisibility, sort, onSort }: Props) {
+export function WorldTableHeader({ withVisibility, withActions, sort, onSort }: Props) {
   const column = (label: string, by: SortKey, className?: string) => (
     <SortableHead
       label={label}
@@ -30,7 +31,7 @@ export function WorldTableHeader({ withVisibility, sort, onSort }: Props) {
         {column("Name", "name")}
         {column("Type", "type", "hidden md:table-cell")}
         {withVisibility && column("Visibility", "visibility")}
-        {withVisibility && (
+        {withActions && (
           <TableHead className={`${headClass} text-right max-md:px-2`}>
             {sort && (
               <Button

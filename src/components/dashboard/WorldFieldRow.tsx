@@ -7,7 +7,7 @@ import { Undisclosed } from "./Undisclosed"
 
 type Props = {
   def: FieldDef
-  context: { campaignId: string; entryId: string }
+  context: { folder: string; entryId: string }
   stored: StoredField | undefined
   // Null for players: read-only, no private toggle.
   manage: {

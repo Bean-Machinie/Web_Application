@@ -12,10 +12,10 @@ import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
 import { MarkerEntryCard } from "./MarkerEntryCard"
 import { MarkerKindTabs } from "./MarkerKindTabs"
+import { useWorldScope } from "./useWorldScope"
 import { WorldEmptyState } from "./WorldEmptyState"
 
 type Props = {
-  campaignId: string
   // The map itself cannot be pinned to itself.
   exceptId: string
   disabled: boolean
@@ -35,11 +35,12 @@ const GRID_SMALL = "grid grid-cols-3 gap-2"
 // takes the height the screen allows, with the kinds beside the entries and not
 // above them, so the entries get as much room as possible. The height is fixed
 // so changing kind or searching never makes the dialog jump.
-export function MarkerEntryPicker({ campaignId, exceptId, disabled, onPick, onCreate, compact }: Props) {
-  const { entries, error } = useWorldEntries(campaignId)
+export function MarkerEntryPicker({ exceptId, disabled, onPick, onCreate, compact }: Props) {
+  const scope = useWorldScope()
+  const { entries, error } = useWorldEntries(scope)
   const [kind, setKind] = useState<WorldEntryKind | null>(null)
   const [query, setQuery] = useState("")
-  const searchText = useWorldSearchText(campaignId, query.trim() !== "")
+  const searchText = useWorldSearchText(scope, query.trim() !== "")
 
   const others = useMemo(
     () => entries?.filter((entry) => entry.id !== exceptId) ?? null,

@@ -10,6 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { useWorldScope } from "./useWorldScope"
 import { VisibilitySwitch } from "./VisibilitySwitch"
 
 type Props = {
@@ -40,6 +41,7 @@ const SECTION = "flex flex-col gap-3 border-b px-5 py-4"
 export function WorldEntryDetails(props: Props) {
   const { open, onOpenChange, name, revealed, canManage, onRevealedChange, onDelete } = props
   const phone = usePhoneScreen() && Boolean(props.bottomOnPhone)
+  const { hasVisibility } = useWorldScope()
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -66,7 +68,7 @@ export function WorldEntryDetails(props: Props) {
         </SheetHeader>
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]">
           {props.children}
-          {canManage && (
+          {canManage && hasVisibility && (
             <section className={`${SECTION} border-b-0`}>
               <div>
                 <h3 className="text-sm font-medium">Visibility</h3>

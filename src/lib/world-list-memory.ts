@@ -8,7 +8,7 @@ export type WorldListMemory = {
   signature: string
 }
 
-const listKey = (campaignId: string) => `world-list:${campaignId}`
+const listKey = (key: string) => `world-list:${key}`
 const RETURN_KEY = "world-list-return"
 
 function read(key: string) {
@@ -28,12 +28,12 @@ function write(key: string, value: string | null) {
   }
 }
 
-export function saveWorldList(campaignId: string, memory: WorldListMemory) {
-  write(listKey(campaignId), JSON.stringify(memory))
+export function saveWorldList(key: string, memory: WorldListMemory) {
+  write(listKey(key), JSON.stringify(memory))
 }
 
-export function loadWorldList(campaignId: string): WorldListMemory | null {
-  const text = read(listKey(campaignId))
+export function loadWorldList(key: string): WorldListMemory | null {
+  const text = read(listKey(key))
   if (!text) return null
   try {
     return JSON.parse(text) as WorldListMemory

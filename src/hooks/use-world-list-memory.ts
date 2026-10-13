@@ -16,12 +16,12 @@ const SCROLL_SELECTOR = "[data-world-scroll]"
 // that holds the toolbar and the results; `ready` is true once the entries are
 // there to scroll.
 export function useWorldListMemory(
-  campaignId: string,
+  scopeKey: string,
   kind: WorldEntryKind | null,
   mode: WorldViewMode,
   ready: boolean
 ) {
-  const [saved] = useState(() => (isWorldListReturn() ? loadWorldList(campaignId) : null))
+  const [saved] = useState(() => (isWorldListReturn() ? loadWorldList(scopeKey) : null))
   const [query, setQuery] = useState(saved?.query ?? "")
   const wrapper = useRef<HTMLDivElement>(null)
   const signature = `${kind ?? "all"}|${mode}|${query}`
@@ -44,7 +44,7 @@ export function useWorldListMemory(
       if (!(target instanceof HTMLElement) || !target.matches(SCROLL_SELECTOR)) return
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() =>
-        saveWorldList(campaignId, { ...latest.current, scroll: target.scrollTop })
+        saveWorldList(scopeKey, { ...latest.current, scroll: target.scrollTop })
       )
     }
     // Scroll does not bubble, but it can be caught on the way down.
@@ -53,12 +53,12 @@ export function useWorldListMemory(
       element.removeEventListener("scroll", onScroll, true)
       cancelAnimationFrame(frame)
     }
-  }, [campaignId])
+  }, [scopeKey])
 
   // A new search or tab starts at the top of its list.
   useEffect(() => {
-    saveWorldList(campaignId, { query, scroll: 0, signature })
-  }, [campaignId, query, signature])
+    saveWorldList(scopeKey, { query, scroll: 0, signature })
+  }, [scopeKey, query, signature])
 
   // Back to where it was, once the entries are on screen and only if it is the
   // same list (tab, view and search).

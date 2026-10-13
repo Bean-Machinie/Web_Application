@@ -1,35 +1,33 @@
 import { useCallback, useEffect, useState } from "react"
 import { errorMessage } from "@/lib/campaigns"
-import {
-  fetchWorldEntries,
-  reorderWorldEntries,
-  setWorldEntryRevealed,
-} from "@/lib/world-entries"
+import { setWorldEntryRevealed } from "@/lib/world-entries"
 import type { WorldEntry } from "@/lib/world-entries"
 import { reorderEntries } from "@/lib/world-list"
+import type { WorldScope } from "@/lib/world-scope"
 
-// The last list seen per campaign, so coming back shows it at once and
+// The last list seen per scope, so coming back shows it at once and
 // refreshes quietly instead of starting from a skeleton.
 const seen = new Map<string, WorldEntry[]>()
 
-// Use with key={campaignId} so switching campaigns starts from that
-// campaign's cached list.
-export function useWorldEntries(campaignId: string) {
+// Use with key={scope.key} so switching scope starts from that scope's
+// cached list.
+export function useWorldEntries(scope: WorldScope) {
   const [entries, setEntries] = useState<WorldEntry[] | null>(
-    () => seen.get(campaignId) ?? null
+    () => seen.get(scope.key) ?? null
   )
   const [error, setError] = useState<string | null>(null)
 
   const reload = useCallback(
     () =>
-      fetchWorldEntries(campaignId)
+      scope
+        .fetchEntries()
         .then((list) => {
-          seen.set(campaignId, list)
+          seen.set(scope.key, list)
           setEntries(list)
           setError(null)
         })
         .catch((failure) => setError(errorMessage(failure))),
-    [campaignId]
+    [scope]
   )
 
   useEffect(() => {
@@ -57,13 +55,13 @@ export function useWorldEntries(campaignId: string) {
     if (!entries) return
     const previous = entries
     const apply = (list: WorldEntry[]) => {
-      seen.set(campaignId, list)
+      seen.set(scope.key, list)
       setEntries(list)
     }
     const next = reorderEntries(previous, visibleIds)
     apply(next)
     try {
-      await reorderWorldEntries(campaignId, next.map((entry) => entry.id))
+      await scope.reorderEntries(next.map((entry) => entry.id))
     } catch (failure) {
       apply(previous)
       throw failure

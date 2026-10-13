@@ -4,7 +4,7 @@ import type { WorldFieldsState } from "./WorldFields"
 // What the layouts of an entry page share; WorldEntryView loads it all.
 export type EntryProps = {
   entryId: string
-  campaignId: string
+  folder: string
   kind: WorldEntryKind
   name: string
   revealed: boolean

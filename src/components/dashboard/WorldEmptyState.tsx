@@ -1,6 +1,7 @@
 import { Globe2, SearchX } from "lucide-react"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
+import { useWorldScope } from "./useWorldScope"
 
 type Props = {
   kind: WorldEntryKind | null
@@ -10,6 +11,7 @@ type Props = {
 }
 
 export function WorldEmptyState({ kind, filtered, canManage }: Props) {
+  const { hasVisibility } = useWorldScope()
   const Icon = filtered ? SearchX : Globe2
   const what = kind ? WORLD_KINDS[kind].plural.toLowerCase() : "entries"
 
@@ -21,7 +23,7 @@ export function WorldEmptyState({ kind, filtered, canManage }: Props) {
   const body = filtered
     ? "Try a different name, or clear the filter."
     : canManage
-      ? `Create your first ${kind ? WORLD_KINDS[kind].label.toLowerCase() : "entry"} to start building the world.`
+      ? `Create your first ${kind ? WORLD_KINDS[kind].label.toLowerCase() : "entry"} to start building ${hasVisibility ? "the world" : "your library"}.`
       : "What your GM reveals will show up here."
 
   return (

@@ -22,7 +22,7 @@ export function ImageFieldEditor({ value, fallback, context, onChange }: FieldEd
     setFailure(null)
     try {
       const uploaded = file
-        ? await uploadWorldImage(context.campaignId, context.entryId, file)
+        ? await uploadWorldImage(context.folder, context.entryId, file)
         : null
       const saved = await onChange(uploaded)
       await deleteWorldImage(saved ? current?.path : uploaded?.path)

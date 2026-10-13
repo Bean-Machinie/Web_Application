@@ -6,12 +6,18 @@ import { worldListPath } from "./world-tab"
 // One step of the trail in the app header. The last one has no link.
 export type Crumb = { label: string; to?: string }
 
-// The World step leads to the tab the list was last on.
-const world = (): Crumb => ({ label: "World", to: worldListPath() })
+// The list an entry lives in: its label and where it is.
+export type TrailRoot = { label: string; basePath: string }
 
-const tab = (kind: WorldEntryKind): Crumb => ({
+// The first step leads to the tab the list was last on.
+const root = (scope: TrailRoot): Crumb => ({
+  label: scope.label,
+  to: worldListPath(scope.basePath),
+})
+
+const tab = (scope: TrailRoot, kind: WorldEntryKind): Crumb => ({
   label: WORLD_KINDS[kind].plural,
-  to: `/app/world?kind=${kind}`,
+  to: `${scope.basePath}?kind=${kind}`,
 })
 
 // The maps above a page, outermost first: the map its marker was on, and the
@@ -32,8 +38,9 @@ export function mapsAbove(pageId: string, from: BackTo | null): Crumb[] {
 // browser's job.
 export function entryTrail(
   entry: { id: string; kind: WorldEntryKind; name: string },
-  from: BackTo | null
+  from: BackTo | null,
+  scope: TrailRoot
 ): Crumb[] {
-  if (!from) return [world(), tab(entry.kind), { label: entry.name }]
-  return [world(), tab("map"), ...mapsAbove(entry.id, from), { label: entry.name }]
+  if (!from) return [root(scope), tab(scope, entry.kind), { label: entry.name }]
+  return [root(scope), tab(scope, "map"), ...mapsAbove(entry.id, from), { label: entry.name }]
 }

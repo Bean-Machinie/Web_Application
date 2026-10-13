@@ -4,6 +4,7 @@ import { useEntryPlacements } from "@/hooks/use-entry-placements"
 import { WorldEntryDetails } from "./WorldEntryDetails"
 import { WorldEntryHeader } from "./WorldEntryHeader"
 import { WorldEntryMaps } from "./WorldEntryMaps"
+import { useWorldScope } from "./useWorldScope"
 import { WorldFields } from "./WorldFields"
 import type { EntryProps } from "./world-entry-props"
 
@@ -11,15 +12,16 @@ import type { EntryProps } from "./world-entry-props"
 // stands on beside them. Who can see it, and deleting it, are in the details
 // panel the header opens.
 export function WorldEntryPage(props: EntryProps) {
-  const { entryId, campaignId, kind, name, revealed, canManage, state } = props
+  const { entryId, folder, kind, name, revealed, canManage, state } = props
   // Null while loading, and the maps appear when they arrive.
-  const placements = useEntryPlacements(entryId)
+  const { kinds } = useWorldScope()
+  const placements = useEntryPlacements(entryId, kinds.includes("map"))
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col">
       <WorldEntryHeader
         entryId={entryId}
-        campaignId={campaignId}
+        folder={folder}
         kind={kind}
         name={name}
         revealed={revealed}
@@ -34,7 +36,7 @@ export function WorldEntryPage(props: EntryProps) {
         <div className="min-w-0 flex-1 lg:pr-6">
           <WorldFields
             entryId={entryId}
-            campaignId={campaignId}
+            folder={folder}
             kind={kind}
             canManage={canManage}
             state={state}
