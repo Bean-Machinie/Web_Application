@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 import { LoadingGate } from "@/components/LoadingGate"
+import { useEntrySelection } from "@/hooks/use-entry-selection"
 import { useSaveToLibrary } from "@/hooks/use-save-to-library"
+import { useWorldBulk } from "@/hooks/use-world-bulk"
 import { useWorldEntries } from "@/hooks/use-world-entries"
+import { useWorldEntryDelete } from "@/hooks/use-world-entry-delete"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useWorldListMemory } from "@/hooks/use-world-list-memory"
 import { useWorldSearchText } from "@/hooks/use-world-search-text"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
-import { errorMessage } from "@/lib/campaigns"
-import { deleteWorldEntry } from "@/lib/world-entries"
 import type { WorldEntry } from "@/lib/world-entries"
-import { deleteWorldImage } from "@/lib/world-images"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
@@ -18,6 +18,7 @@ import { rememberWorldKind } from "@/lib/world-tab"
 import type { Sort, VisibilityFilter } from "@/lib/world-list"
 import { usePageTrail } from "./usePageTrail"
 import { useWorldScope } from "./useWorldScope"
+import { WorldBulkBar } from "./WorldBulkBar"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
 import { WorldEntryNotices } from "./WorldEntryNotices"
 import { WorldEntryResults } from "./WorldEntryResults"
@@ -41,9 +42,8 @@ export function WorldEntryList() {
   const [sort, setSort] = useState<Sort>(null)
   const [creating, setCreating] = useState<WorldEntryKind | null>(null)
   const [renaming, setRenaming] = useState<WorldEntry | null>(null)
-  const [deleting, setDeleting] = useState<WorldEntry | null>(null)
-  const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
+  const removal = useWorldEntryDelete(reload, setActionError)
 
   // An unknown ?kind= falls back to All.
   const kind = scope.kinds.find((option) => option === params.get("kind")) ?? null
@@ -63,28 +63,20 @@ export function WorldEntryList() {
       searchText,
     })
 
-  async function handleDelete() {
-    setBusy(true)
-    try {
-      await deleteWorldEntry(deleting!.id)
-      // The file is no longer referenced; failing to remove it is harmless.
-      await deleteWorldImage(deleting!.imagePath).catch(() => {})
-      setDeleting(null)
-      await reload()
-    } catch (failure) {
-      setActionError(errorMessage(failure))
-      setDeleting(null)
-    } finally {
-      setBusy(false)
-    }
-  }
+  const selection = useEntrySelection({
+    visibleIds: shown?.map((entry) => entry.id) ?? [],
+    allIds: entries?.map((entry) => entry.id) ?? [],
+    viewKey: `${kind}|${query}|${visibility}`,
+    enabled: canManage,
+  })
+  const bulk = useWorldBulk({ entries, selection, reload, setError: setActionError })
 
   const manage = canManage
     ? createWorldManage({
         setRevealed,
         reorder,
         onRename: setRenaming,
-        onDelete: setDeleting,
+        onDelete: removal.setDeleting,
         onSaveToLibrary: scope.canSaveToLibrary ? library.save : undefined,
         setError: setActionError,
       })
@@ -132,6 +124,7 @@ export function WorldEntryList() {
                 filtered={query.trim() !== "" || visibility !== "all"}
                 canManage={canManage}
                 manage={manage}
+                selection={canManage ? selection : null}
                 sort={sort}
                 onSort={setSort}
               />
@@ -140,16 +133,17 @@ export function WorldEntryList() {
         </LoadingGate>
       </div>
 
+      {canManage && <WorldBulkBar selection={selection} bulk={bulk} />}
       <WorldEntryDialogs
         creating={creating}
         renaming={renaming}
-        deleting={deleting}
-        busy={busy}
+        deleting={removal.deleting}
+        busy={removal.busy}
         reload={reload}
-        onDelete={handleDelete}
+        onDelete={removal.confirm}
         onCloseCreate={() => setCreating(null)}
         onCloseRename={() => setRenaming(null)}
-        onCloseDelete={() => setDeleting(null)}
+        onCloseDelete={() => removal.setDeleting(null)}
       />
     </div>
   )

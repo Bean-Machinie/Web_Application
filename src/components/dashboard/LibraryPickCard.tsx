@@ -8,7 +8,8 @@ type Props = {
   entry: WorldEntry
   selected: boolean
   disabled: boolean
-  onToggle: (entry: WorldEntry) => void
+  // Shift-click takes a range, so the click is passed on.
+  onToggle: (entry: WorldEntry, event: { shiftKey: boolean }) => void
 }
 
 // A library entry as in the world page's grid, a square picture over its name
@@ -21,7 +22,8 @@ export function LibraryPickCard({ entry, selected, disabled, onToggle }: Props) 
       type="button"
       aria-pressed={selected}
       disabled={disabled}
-      onClick={() => onToggle(entry)}
+      data-entry-id={entry.id}
+      onClick={(event) => onToggle(entry, event)}
       className={cn(
         "bg-card hover:border-foreground/25 focus-visible:ring-ring relative flex flex-col overflow-hidden rounded-lg border text-left outline-none transition-[translate,rotate,scale,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:z-10 hover:shadow-lg focus-visible:ring-2 disabled:opacity-60 [@media(hover:hover)]:enabled:hover:-translate-y-1 [@media(hover:hover)]:enabled:hover:-rotate-1 [@media(hover:hover)]:enabled:hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:rotate-0 motion-reduce:hover:scale-100",
         selected && "border-primary ring-primary ring-2 hover:border-primary"

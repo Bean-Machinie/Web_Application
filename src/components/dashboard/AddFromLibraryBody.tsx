@@ -1,22 +1,27 @@
-import { useState } from "react"
-import { Loader2, Search } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Search } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useEntrySelection } from "@/hooks/use-entry-selection"
 import { useLibraryPicker } from "@/hooks/use-library-picker"
+import { useSelectionBox } from "@/hooks/use-selection-box"
 import { cn } from "@/lib/utils"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
 import { libraryKinds } from "@/lib/world-scope"
+import { AddFromLibraryFooter } from "./AddFromLibraryFooter"
 import { LibraryPickCard } from "./LibraryPickCard"
 import { MarkerKindTabs } from "./MarkerKindTabs"
+import { SelectionBox } from "./SelectionBox"
 
 type Props = {
   add: (entryId: string) => Promise<void>
   // How many were added, as soon as there are any, even if a later one fails.
   onAdded: (count: number) => void
   onClose: () => void
+  // Told whether entries are picked, so Escape lets go of them before it closes.
+  onHold: (holding: boolean) => void
   // On a phone: filling a sheet, and with room for fingers.
   compact?: boolean
 }
@@ -26,9 +31,13 @@ const GRID_SMALL = "grid grid-cols-3 gap-2"
 
 // Only mounted while the dialog is open, so it starts fresh every time. The
 // library as a grid to pick from, with the kinds beside it like the marker
-// picker; "Add" copies the picked entries one after another.
-export function AddFromLibraryBody({ add, onAdded, onClose, compact }: Props) {
-  const { entries, loadError, selected, toggle, progress, error, addSelected } = useLibraryPicker({
+// picker. Picking works as in the lists: click, Shift-click for a range,
+// Ctrl/Cmd+A for everything shown, a box dragged across the cards. "Add"
+// copies the picked entries one after another.
+export function AddFromLibraryBody({ add, onAdded, onClose, onHold, compact }: Props) {
+  const root = useRef<HTMLDivElement>(null)
+  const scroller = useRef<HTMLDivElement>(null)
+  const { entries, loadError, progress, error, addEntries } = useLibraryPicker({
     add,
     onAdded,
     onClose,
@@ -40,10 +49,34 @@ export function AddFromLibraryBody({ add, onAdded, onClose, compact }: Props) {
   const shown =
     entries && viewEntries(entries, { kind, query, visibility: "all", sort: null, searchText: null })
 
-  const count = selected.size
+  const selection = useEntrySelection({
+    visibleIds: shown?.map((entry) => entry.id) ?? [],
+    allIds: entries?.map((entry) => entry.id) ?? [],
+    // Never starts over: picks made under one kind stay while looking at another.
+    viewKey: "",
+    container: root,
+  })
+  const { onPointerDown, box } = useSelectionBox({
+    container: scroller,
+    enabled: !busy,
+    selected: selection.selected,
+    onSelect: selection.set,
+    onClear: selection.clear,
+  })
+  useEffect(() => {
+    onHold(selection.active)
+  }, [onHold, selection.active])
+
+  const count = selection.count
+  const addSelected = () =>
+    addEntries(
+      (entries ?? []).filter((entry) => selection.isSelected(entry.id)),
+      selection.deselect
+    )
 
   return (
     <div
+      ref={root}
       className={cn(
         "flex min-w-0 flex-col gap-3",
         compact ? "min-h-0 flex-1" : "h-[calc(100svh-13rem)] max-h-[52rem] min-h-80"
@@ -72,11 +105,14 @@ export function AddFromLibraryBody({ add, onAdded, onClose, compact }: Props) {
           </div>
           {loadError && <FormAlert tone="error">{loadError}</FormAlert>}
           <div
+            ref={scroller}
+            onPointerDown={onPointerDown}
             className={cn(
-              "min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]",
+              "relative min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]",
               compact ? "py-0.5" : "-mr-3 -ml-2 py-2 pr-3 pl-2"
             )}
           >
+            <SelectionBox box={box} />
             {!shown ? (
               !loadError && (
                 <div className={compact ? GRID_SMALL : GRID}>
@@ -92,14 +128,14 @@ export function AddFromLibraryBody({ add, onAdded, onClose, compact }: Props) {
                   : "No matches. Try a different name, or another kind."}
               </p>
             ) : (
-              <div className={compact ? GRID_SMALL : GRID}>
+              <div className={cn(compact ? GRID_SMALL : GRID, "select-none")}>
                 {shown.map((entry) => (
                   <LibraryPickCard
                     key={entry.id}
                     entry={entry}
-                    selected={selected.has(entry.id)}
+                    selected={selection.isSelected(entry.id)}
                     disabled={busy}
-                    onToggle={toggle}
+                    onToggle={(picked, event) => selection.click(picked.id, event)}
                   />
                 ))}
               </div>
@@ -108,20 +144,15 @@ export function AddFromLibraryBody({ add, onAdded, onClose, compact }: Props) {
         </div>
       </div>
       {error && <FormAlert tone="error">{error}</FormAlert>}
-      <div className="flex shrink-0 items-center justify-between gap-3 border-t pt-3">
-        <span className="text-muted-foreground text-sm">
-          {progress ?? (count === 0 ? "Pick the entries to add." : `${count} selected`)}
-        </span>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onClose} disabled={busy}>
-            Cancel
-          </Button>
-          <Button onClick={addSelected} disabled={busy || count === 0}>
-            {busy && <Loader2 className="size-4 animate-spin" />}
-            {count > 0 ? `Add ${count}` : "Add"}
-          </Button>
-        </div>
-      </div>
+      <AddFromLibraryFooter
+        progress={progress}
+        picked={count}
+        shown={shown?.length ?? 0}
+        allShownPicked={selection.allVisibleSelected}
+        onToggleAll={selection.allVisibleSelected ? selection.clear : selection.selectAllVisible}
+        onCancel={onClose}
+        onAdd={addSelected}
+      />
     </div>
   )
 }

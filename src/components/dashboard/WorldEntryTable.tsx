@@ -1,21 +1,11 @@
-import { Link, useNavigate } from "react-router-dom"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "@/components/ui/table"
+import { Table, TableBody } from "@/components/ui/table"
+import type { EntrySelection } from "@/hooks/use-entry-selection"
 import { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
-import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { Sort } from "@/lib/world-list"
-import { HiddenBadge } from "./HiddenBadge"
-import { KindLabel } from "./KindLabel"
-import { MemberMenu } from "./MemberMenu"
-import { cellClass } from "./members-table-styles"
 import { useWorldScope } from "./useWorldScope"
 import { scrollClass } from "./WorldEntryGrid"
-import { VisibilitySwitch } from "./VisibilitySwitch"
+import { WorldEntryRow } from "./WorldEntryRow"
 import { WorldTableHeader } from "./WorldTableHeader"
 import type { WorldManage } from "./world-manage"
 
@@ -23,26 +13,25 @@ type Props = {
   entries: WorldEntry[]
   // Null for players: no visibility column, no menu.
   manage: WorldManage | null
+  // Null where nothing can be picked: no checkbox column.
+  selection: EntrySelection | null
   sort: Sort
   onSort: (sort: Sort) => void
 }
 
-// Tighter on phones, where the type moves under the name.
-const cell = `${cellClass} max-md:px-3 max-md:py-2`
-
-export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
-  const navigate = useNavigate()
-  const { basePath, hasVisibility } = useWorldScope()
+export function WorldEntryTable({ entries, manage, selection, sort, onSort }: Props) {
+  const { hasVisibility } = useWorldScope()
   const { rowProps } = useRowReorder({
     ids: entries.map((entry) => entry.id),
     // A column sort replaces the manual order, so rows cannot be moved then.
-    onReorder: sort ? undefined : manage?.onReorder,
+    onReorder: sort || selection?.active ? undefined : manage?.onReorder,
   })
 
   // The header is its own table above the scrolling body, so the scroll bar
   // starts below it. Both reserve the same gutter and share column widths.
   const columns = (
     <colgroup>
+      {selection && <col className="w-11 md:w-14" />}
       <col className="md:w-[50%]" />
       <col className="hidden md:table-column" />
       {manage && hasVisibility && <col className="w-16 md:w-auto" />}
@@ -56,6 +45,7 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
         <Table className="table-fixed">
           {columns}
           <WorldTableHeader
+            selection={selection}
             withVisibility={manage !== null && hasVisibility}
             withActions={manage !== null}
             sort={sort}
@@ -67,90 +57,15 @@ export function WorldEntryTable({ entries, manage, sort, onSort }: Props) {
         <Table className="table-fixed">
           {columns}
           <TableBody>
-            {entries.map((entry, index) => {
-              const { icon: KindIcon } = WORLD_KINDS[entry.kind]
-              const hidden = hasVisibility && !entry.revealed
-              return (
-                <TableRow
-                  key={entry.id}
-                  // The whole row opens the entry. A click handler, not a link
-                  // stretched over the row: phone browsers do not treat a
-                  // table row as the box such a link stretches to.
-                  onClick={(event) => {
-                    const target = event.target as Element
-                    if (!event.currentTarget.contains(target)) return
-                    if (target.closest("a, button, [role=switch]")) return
-                    navigate(`${basePath}/${entry.id}`)
-                  }}
-                  className={`${hidden ? "bg-muted/50 " : ""}${
-                    manage
-                      ? "relative cursor-pointer select-none [-webkit-touch-callout:none] data-lifted:outline data-lifted:-outline-offset-2 data-lifted:outline-ring data-lifted:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)]"
-                      : "relative cursor-pointer"
-                  }`}
-                  {...rowProps(entry.id, index)}
-                >
-                  <TableCell className={cell}>
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`bg-muted text-muted-foreground flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border md:size-20 ${
-                          hidden ? "opacity-60 grayscale" : ""
-                        }`}
-                      >
-                        {entry.imageUrl ? (
-                          <img
-                            src={entry.imageUrl}
-                            alt=""
-                            loading="lazy"
-                            className="size-full object-cover"
-                          />
-                        ) : (
-                          <KindIcon className="size-6" />
-                        )}
-                      </span>
-                      <div className="flex min-w-0 flex-col items-start gap-1">
-                        <div className="flex max-w-full min-w-0 items-center gap-2">
-                          <Link
-                            to={`${basePath}/${entry.id}`}
-                            className="focus-visible:ring-ring truncate rounded-sm font-medium outline-none focus-visible:ring-2"
-                          >
-                            {entry.name}
-                          </Link>
-                          {hidden && <HiddenBadge className="shrink-0" />}
-                        </div>
-                        {entry.role && (
-                          <span className="text-muted-foreground max-w-full truncate text-xs">
-                            {entry.role}
-                          </span>
-                        )}
-                        <KindLabel kind={entry.kind} className="md:hidden" />
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className={`${cell} hidden md:table-cell`}>
-                    <KindLabel kind={entry.kind} />
-                  </TableCell>
-                  {manage && hasVisibility && (
-                    <TableCell className={cell}>
-                      <div className="relative z-10 w-fit">
-                        <VisibilitySwitch
-                          compact
-                          revealed={entry.revealed}
-                          name={entry.name}
-                          onChange={(revealed) => manage.onReveal(entry, revealed)}
-                        />
-                      </div>
-                    </TableCell>
-                  )}
-                  {manage && (
-                    <TableCell className={`${cell} text-right`}>
-                      <div className="relative z-10 inline-block">
-                        <MemberMenu name={entry.name} actions={manage.actionsFor(entry)} />
-                      </div>
-                    </TableCell>
-                  )}
-                </TableRow>
-              )
-            })}
+            {entries.map((entry, index) => (
+              <WorldEntryRow
+                key={entry.id}
+                entry={entry}
+                manage={manage}
+                selection={selection}
+                rowProps={rowProps(entry.id, index)}
+              />
+            ))}
           </TableBody>
         </Table>
       </div>

@@ -155,3 +155,26 @@ export async function reorderLibraryEntries(orderedIds: string[]) {
   })
   if (error) throw error
 }
+
+// One call for all of them: it changes every one or none. Returns how many
+// changed; those already in the wanted state are left as they are.
+export async function setWorldEntriesRevealed(ids: string[], revealed: boolean) {
+  const { data, error } = await supabase.rpc("set_world_entries_revealed", {
+    target_entries: ids,
+    is_revealed: revealed,
+  })
+  if (error) throw error
+
+  return data as number
+}
+
+// Likewise all or none. Returns how many were deleted.
+export async function deleteWorldEntries(ids: string[]) {
+  const { data, error } = await supabase.rpc("delete_world_entries", {
+    target_entries: ids,
+  })
+  if (error) throw error
+
+  return data as number
+}
+

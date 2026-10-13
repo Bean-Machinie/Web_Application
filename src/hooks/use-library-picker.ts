@@ -10,12 +10,11 @@ type Options = {
   onClose: () => void
 }
 
-// The library's entries, which of them are picked, and adding the picked ones
-// one after another. `entries` is null while they load.
+// The library's entries, and adding some of them one after another.
+// `entries` is null while they load.
 export function useLibraryPicker({ add, onAdded, onClose }: Options) {
   const [entries, setEntries] = useState<WorldEntry[] | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [selected, setSelected] = useState<Set<string>>(new Set())
   // Says where the adding has got to; null when nothing is being added.
   const [progress, setProgress] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -26,16 +25,8 @@ export function useLibraryPicker({ add, onAdded, onClose }: Options) {
       .catch((failure) => setLoadError(errorMessage(failure)))
   }, [])
 
-  function toggle(entry: WorldEntry) {
-    setSelected((old) => {
-      const next = new Set(old)
-      if (!next.delete(entry.id)) next.add(entry.id)
-      return next
-    })
-  }
-
-  async function addSelected() {
-    const chosen = (entries ?? []).filter((entry) => selected.has(entry.id))
+  // `onEach` hears of every entry as it is added, so the page can let go of it.
+  async function addEntries(chosen: WorldEntry[], onEach: (id: string) => void) {
     setError(null)
     let added = 0
     try {
@@ -47,11 +38,7 @@ export function useLibraryPicker({ add, onAdded, onClose }: Options) {
           throw new Error(`${entry.name}: ${errorMessage(failure)}`)
         }
         added += 1
-        setSelected((old) => {
-          const next = new Set(old)
-          next.delete(entry.id)
-          return next
-        })
+        onEach(entry.id)
       }
       onAdded(added)
       onClose()
@@ -64,5 +51,5 @@ export function useLibraryPicker({ add, onAdded, onClose }: Options) {
     }
   }
 
-  return { entries, loadError, selected, toggle, progress, error, addSelected }
+  return { entries, loadError, progress, error, addEntries }
 }

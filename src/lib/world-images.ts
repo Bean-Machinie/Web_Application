@@ -63,3 +63,15 @@ export async function copyWorldImage(fromPath: string, toPath: string) {
   const { error } = await supabase.storage.from(PORTRAIT_BUCKET).copy(fromPath, toPath)
   if (error) throw error
 }
+
+// Removes the files of several entries, one request per bucket.
+export async function deleteWorldImages(images: { path: string | null; kind: WorldEntryKind }[]) {
+  const byBucket = new Map<string, string[]>()
+  for (const { path, kind } of images) {
+    if (path) byBucket.set(bucketFor(kind), [...(byBucket.get(bucketFor(kind)) ?? []), path])
+  }
+  await Promise.all(
+    [...byBucket].map(([bucket, paths]) => supabase.storage.from(bucket).remove(paths))
+  )
+}
+

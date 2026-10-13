@@ -1,3 +1,4 @@
+import type { EntrySelection } from "@/hooks/use-entry-selection"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { WorldEntryKind } from "@/lib/world-kinds"
@@ -15,19 +16,26 @@ type Props = {
   filtered: boolean
   canManage: boolean
   manage: WorldManage | null
+  selection: EntrySelection | null
   sort: Sort
   onSort: (sort: Sort) => void
 }
 
-export function WorldEntryResults({ entries, mode, kind, filtered, canManage, manage, sort, onSort }: Props) {
+export function WorldEntryResults({ entries, mode, kind, filtered, canManage, manage, selection, sort, onSort }: Props) {
   return (
     <div className="flex min-h-0 flex-1 flex-col border-t">
       {entries.length === 0 ? (
         <WorldEmptyState kind={kind} filtered={filtered} canManage={canManage} />
       ) : mode === "grid" ? (
-        <WorldEntryGrid entries={entries} manage={manage} />
+        <WorldEntryGrid entries={entries} manage={manage} selection={selection} />
       ) : (
-        <WorldEntryTable entries={entries} manage={manage} sort={sort} onSort={onSort} />
+        <WorldEntryTable
+          entries={entries}
+          manage={manage}
+          selection={selection}
+          sort={sort}
+          onSort={onSort}
+        />
       )}
     </div>
   )

@@ -1,3 +1,4 @@
+import { useCallback, useRef } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -32,6 +33,13 @@ const DESCRIPTION =
 // the entries to scroll with a thumb.
 export function AddFromLibraryDialog({ open, onClose, ...body }: Props) {
   const phone = usePhoneScreen()
+  // True while entries are picked: the first Escape lets go of them, the next
+  // one closes the dialog.
+  const holding = useRef(false)
+  const keepOpen = (event: Event) => holding.current && event.preventDefault()
+  const hold = useCallback((active: boolean) => {
+    holding.current = active
+  }, [])
 
   if (phone) {
     return (
@@ -39,6 +47,7 @@ export function AddFromLibraryDialog({ open, onClose, ...body }: Props) {
         <SheetContent
           side="bottom"
           showCloseButton={false}
+          onEscapeKeyDown={keepOpen}
           className="gap-0 rounded-none p-0 data-[side=bottom]:h-dvh data-[side=bottom]:border-t-0"
         >
           <SheetHeader className="flex h-12 shrink-0 flex-row items-center justify-between border-b py-0 pr-1 pl-4">
@@ -51,7 +60,7 @@ export function AddFromLibraryDialog({ open, onClose, ...body }: Props) {
           </SheetHeader>
           <SheetDescription className="sr-only">{DESCRIPTION}</SheetDescription>
           <div className="flex min-h-0 flex-1 flex-col p-3">
-            {open && <AddFromLibraryBody {...body} onClose={onClose} compact />}
+            {open && <AddFromLibraryBody {...body} onClose={onClose} onHold={hold} compact />}
           </div>
         </SheetContent>
       </Sheet>
@@ -60,12 +69,12 @@ export function AddFromLibraryDialog({ open, onClose, ...body }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-6xl">
+      <DialogContent className="sm:max-w-6xl" onEscapeKeyDown={keepOpen}>
         <DialogHeader>
           <DialogTitle>Add from your library</DialogTitle>
           <DialogDescription>{DESCRIPTION}</DialogDescription>
         </DialogHeader>
-        {open && <AddFromLibraryBody {...body} onClose={onClose} />}
+        {open && <AddFromLibraryBody {...body} onClose={onClose} onHold={hold} />}
       </DialogContent>
     </Dialog>
   )
