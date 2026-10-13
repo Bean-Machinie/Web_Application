@@ -14,6 +14,8 @@ export type EntryProps = {
   onRevealedChange: (revealed: boolean) => void
   // Asks to delete; WorldEntryView confirms first.
   onDelete: () => void
+  // Absent where the entry cannot be saved to the library.
+  onSaveToLibrary?: () => void
   detailsOpen: boolean
   onDetailsOpenChange: (open: boolean) => void
 }

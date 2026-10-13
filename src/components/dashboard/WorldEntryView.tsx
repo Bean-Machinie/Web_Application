@@ -3,11 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useSaveToLibrary } from "@/hooks/use-save-to-library"
 import { useWorldEntry } from "@/hooks/use-world-entry"
 import { useWorldFields } from "@/hooks/use-world-fields"
 import { readBackTo } from "@/lib/back-link"
 import { entryTrail } from "@/lib/breadcrumbs"
 import { errorMessage } from "@/lib/campaigns"
+import { isCopyable } from "@/lib/world-copy"
 import { deleteWorldEntry, renameWorldEntry } from "@/lib/world-entries"
 import { deleteWorldImage, toWorldImage } from "@/lib/world-images"
 import { COVER_FIELD } from "@/lib/world-kinds"
@@ -15,6 +17,7 @@ import { markWorldListReturn } from "@/lib/world-list-memory"
 import { worldListPath } from "@/lib/world-tab"
 import { ConfirmDialog } from "./ConfirmDialog"
 import { MapEntryScreen } from "./MapEntryScreen"
+import { SavedToLibraryNotice } from "./SavedToLibraryNotice"
 import { usePageTrail } from "./usePageTrail"
 import { useWorldScope } from "./useWorldScope"
 import { WorldEntryPage } from "./WorldEntryPage"
@@ -42,6 +45,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
+  const library = useSaveToLibrary()
 
   async function handleDelete() {
     setBusy(true)
@@ -64,9 +68,10 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
 
   return (
     <>
-      {(error || actionError) && (
-        <FormAlert tone="error">{(error || actionError)!}</FormAlert>
+      {(error || actionError || library.error) && (
+        <FormAlert tone="error">{(error || actionError || library.error)!}</FormAlert>
       )}
+      {library.savedName && <SavedToLibraryNotice name={library.savedName} />}
       <LoadingGate
         // Fills the page, so a map can fill the screen.
         className="flex min-h-0 flex-1 flex-col"
@@ -105,6 +110,15 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                       setRevealed(revealed).catch(fail)
                     },
                     onDelete: () => setDeleting(true),
+                    onSaveToLibrary:
+                      scope.canSaveToLibrary && isCopyable(entry.kind)
+                        ? () => {
+                            setActionError(null)
+                            // The notice is on the page behind the panel.
+                            setDetailsOpen(false)
+                            library.save({ id: entryId, name: entry.name })
+                          }
+                        : undefined,
                     detailsOpen,
                     onDetailsOpenChange: setDetailsOpen,
                   }

@@ -21,6 +21,8 @@ type Props = {
   canManage: boolean
   onRevealedChange: (revealed: boolean) => void
   onDelete: () => void
+  // Absent where the entry cannot be saved to the library.
+  onSaveToLibrary?: () => void
   // On a phone, rise from the bottom (as a map's does) instead of from the right.
   bottomOnPhone?: boolean
   // Shown beside the title, such as whether the entry has been saved.
@@ -68,6 +70,20 @@ export function WorldEntryDetails(props: Props) {
         </SheetHeader>
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]">
           {props.children}
+          {canManage && props.onSaveToLibrary && (
+            <section className={SECTION}>
+              <div>
+                <h3 className="text-sm font-medium">Library</h3>
+                <p className="text-muted-foreground mt-0.5 text-[13px] leading-snug">
+                  Save a copy to your library to reuse in other campaigns. The copy is separate:
+                  changing one does not change the other.
+                </p>
+              </div>
+              <Button variant="outline" className="w-fit" onClick={props.onSaveToLibrary}>
+                Save to library
+              </Button>
+            </section>
+          )}
           {canManage && hasVisibility && (
             <section className={`${SECTION} border-b-0`}>
               <div>

@@ -62,6 +62,7 @@ export function WorldEntryPage(props: EntryProps) {
         canManage={canManage}
         onRevealedChange={props.onRevealedChange}
         onDelete={props.onDelete}
+        onSaveToLibrary={props.onSaveToLibrary}
       />
     </div>
   )

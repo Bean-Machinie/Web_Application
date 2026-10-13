@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
+import { useSaveToLibrary } from "@/hooks/use-save-to-library"
 import { useWorldEntries } from "@/hooks/use-world-entries"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useWorldListMemory } from "@/hooks/use-world-list-memory"
@@ -19,6 +19,7 @@ import type { Sort, VisibilityFilter } from "@/lib/world-list"
 import { usePageTrail } from "./usePageTrail"
 import { useWorldScope } from "./useWorldScope"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
+import { WorldEntryNotices } from "./WorldEntryNotices"
 import { WorldEntryResults } from "./WorldEntryResults"
 import { WorldGridSkeleton } from "./WorldGridSkeleton"
 import { WorldListSkeleton } from "./WorldListSkeleton"
@@ -31,6 +32,7 @@ export function WorldEntryList() {
   const scope = useWorldScope()
   const { canManage } = scope
   const { entries, error, reload, setRevealed, reorder } = useWorldEntries(scope)
+  const library = useSaveToLibrary()
   const [params] = useSearchParams()
   const [chosenMode, setMode] = useWorldViewMode()
   // Phones only get the grid; the saved choice is kept for larger screens.
@@ -83,6 +85,7 @@ export function WorldEntryList() {
         reorder,
         onRename: setRenaming,
         onDelete: setDeleting,
+        onSaveToLibrary: scope.canSaveToLibrary ? library.save : undefined,
         setError: setActionError,
       })
     : null
@@ -104,11 +107,10 @@ export function WorldEntryList() {
           onMode={setMode}
         />
 
-        {(error || actionError) && (
-          <div className="border-t px-6 py-4">
-            <FormAlert tone="error">{(error || actionError)!}</FormAlert>
-          </div>
-        )}
+        <WorldEntryNotices
+          problem={error || actionError || library.error}
+          savedName={library.savedName}
+        />
         <LoadingGate
           loading={!entries && !error}
           className="flex min-h-0 flex-1 flex-col border-t"

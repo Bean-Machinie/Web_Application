@@ -28,6 +28,8 @@ export type WorldScope = {
   // Whether entries are hidden from or revealed to players. A library is
   // private to its owner, so it has neither.
   hasVisibility: boolean
+  // Whether its entries can be copied into the library.
+  canSaveToLibrary: boolean
   // First folder of the files of this scope's entries in storage.
   imageFolder: string
   fetchEntries: () => Promise<WorldEntry[]>
@@ -45,6 +47,7 @@ export function campaignScope(campaignId: string, canManage: boolean): WorldScop
     canManage,
     kinds: worldKinds,
     hasVisibility: true,
+    canSaveToLibrary: true,
     imageFolder: campaignId,
     fetchEntries: () => fetchWorldEntries(campaignId),
     createEntry: (kind, name) => createWorldEntry(campaignId, kind, name),
@@ -63,6 +66,7 @@ export function libraryScope(userId: string): WorldScope {
     canManage: true,
     kinds: worldKinds.filter((kind) => kind !== "map"),
     hasVisibility: false,
+    canSaveToLibrary: false,
     imageFolder: userId,
     fetchEntries: fetchLibraryEntries,
     createEntry: createLibraryEntry,

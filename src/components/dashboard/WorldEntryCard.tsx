@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"
+import { isCopyable } from "@/lib/world-copy"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { HiddenBadge } from "./HiddenBadge"
@@ -17,8 +18,12 @@ export function WorldEntryCard({ entry, manage }: Props) {
   const hidden = hasVisibility && !entry.revealed
   const { icon: KindIcon } = WORLD_KINDS[entry.kind]
 
+  const save = manage?.onSaveToLibrary
   const actions = manage && [
     { label: "Rename", onSelect: () => manage.onRename(entry) },
+    ...(save && isCopyable(entry.kind)
+      ? [{ label: "Save to library", onSelect: () => save(entry) }]
+      : []),
     {
       label: "Delete",
       destructive: true,
