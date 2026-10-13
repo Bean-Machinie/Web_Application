@@ -10,6 +10,7 @@ import {
 import type { VisibilityFilter } from "@/lib/world-list"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
+import { AddFromLibraryButton } from "./AddFromLibraryButton"
 import { NewEntryButton } from "./NewEntryButton"
 import { WorldViewToggle } from "./WorldViewToggle"
 
@@ -20,12 +21,15 @@ type Props = {
   visibility: VisibilityFilter | null
   onVisibility: (visibility: VisibilityFilter) => void
   onCreate: ((kind: WorldEntryKind) => void) | null
+  // Reloads the list after entries were added from the library; null where
+  // that is not offered.
+  onLibraryAdded: (() => Promise<unknown>) | null
   mode: WorldViewMode
   onMode: (mode: WorldViewMode) => void
 }
 
 export function WorldToolbar(props: Props) {
-  const { query, onQuery, visibility, onVisibility, onCreate, mode, onMode } = props
+  const { query, onQuery, visibility, onVisibility, onCreate, onLibraryAdded, mode, onMode } = props
 
   // Players have only the view switch besides the search, so on a phone they
   // share one row and the list gets the room.
@@ -71,6 +75,7 @@ export function WorldToolbar(props: Props) {
           <div className="max-md:hidden">
           <WorldViewToggle mode={mode} onChange={onMode} />
         </div>
+          {onLibraryAdded && <AddFromLibraryButton onAdded={onLibraryAdded} />}
           {onCreate && <NewEntryButton onPick={onCreate} />}
         </div>
       </div>

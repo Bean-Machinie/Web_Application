@@ -10,14 +10,16 @@ type Props = {
   onChange: (kind: WorldEntryKind | null) => void
   // On a phone: a row of chips to swipe along, whatever the width.
   compact?: boolean
+  // Defaults to every kind.
+  kinds?: WorldEntryKind[]
 }
 
 // The world page's kinds, All and one per kind, that filter in place. A
 // column beside the entries, which leaves the full height to them; on a phone
 // a row above them. Nothing here scrolls on a larger screen, so nothing clips
 // the focus ring.
-export function MarkerKindTabs({ entries, active, onChange, compact }: Props) {
-  const tabs = [null, ...worldKinds]
+export function MarkerKindTabs({ entries, active, onChange, compact, kinds = worldKinds }: Props) {
+  const tabs = [null, ...kinds]
 
   return (
     <div

@@ -44,3 +44,7 @@ async function copyEntry(entryId: string, folder: string, targetCampaign: string
 // A separate copy in the person's library. It remembers where it came from.
 export const saveToLibrary = (entryId: string, userId: string) =>
   copyEntry(entryId, userId, null)
+
+// A separate copy in the campaign, hidden from players. It remembers where it came from.
+export const addFromLibrary = (entryId: string, campaignId: string) =>
+  copyEntry(entryId, campaignId, campaignId)

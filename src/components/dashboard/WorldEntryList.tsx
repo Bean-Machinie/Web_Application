@@ -103,6 +103,7 @@ export function WorldEntryList() {
           visibility={canManage && scope.hasVisibility ? visibility : null}
           onVisibility={setVisibility}
           onCreate={canManage ? setCreating : null}
+          onLibraryAdded={canManage ? reload : null}
           mode={mode}
           onMode={setMode}
         />

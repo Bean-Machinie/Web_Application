@@ -9,6 +9,7 @@ import {
 import type { WorldEntry } from "./world-entries"
 import { fetchLibrarySearchText, fetchSearchText } from "./world-search"
 import type { SearchText } from "./world-search"
+import { addFromLibrary } from "./world-copy"
 import { worldKinds } from "./world-kinds"
 import type { WorldEntryKind } from "./world-kinds"
 
@@ -30,6 +31,8 @@ export type WorldScope = {
   hasVisibility: boolean
   // Whether its entries can be copied into the library.
   canSaveToLibrary: boolean
+  // Copies a library entry into this scope. Absent where that makes no sense.
+  addFromLibrary?: (entryId: string) => Promise<void>
   // First folder of the files of this scope's entries in storage.
   imageFolder: string
   fetchEntries: () => Promise<WorldEntry[]>
@@ -48,6 +51,7 @@ export function campaignScope(campaignId: string, canManage: boolean): WorldScop
     kinds: worldKinds,
     hasVisibility: true,
     canSaveToLibrary: true,
+    addFromLibrary: (entryId) => addFromLibrary(entryId, campaignId),
     imageFolder: campaignId,
     fetchEntries: () => fetchWorldEntries(campaignId),
     createEntry: (kind, name) => createWorldEntry(campaignId, kind, name),
@@ -55,6 +59,9 @@ export function campaignScope(campaignId: string, canManage: boolean): WorldScop
     fetchSearchText: () => fetchSearchText(campaignId),
   }
 }
+
+// Maps are not supported in a library yet.
+export const libraryKinds = worldKinds.filter((kind) => kind !== "map")
 
 // A person's own library. They can always manage it, and maps are not
 // supported in it yet.
@@ -64,7 +71,7 @@ export function libraryScope(userId: string): WorldScope {
     basePath: "/app/library",
     label: "Your library",
     canManage: true,
-    kinds: worldKinds.filter((kind) => kind !== "map"),
+    kinds: libraryKinds,
     hasVisibility: false,
     canSaveToLibrary: false,
     imageFolder: userId,
