@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react"
 import type { RefObject } from "react"
 import { isTyping, rangeBetween } from "@/lib/entry-selection"
+import type { ClickModifiers } from "@/lib/entry-selection"
+import { markSelectionLearned } from "@/lib/selection-hint"
 
 type Options = {
   // The ids as shown, in order.
@@ -57,11 +59,18 @@ export function useEntrySelection(options: Options) {
     anchor.current = id
   }
 
-  // A click or a tap on an entry or its checkbox.
-  function click(id: string, event: { shiftKey: boolean }) {
+  // A click on an entry, as in a file manager. Shift-click picks everything
+  // from the last one clicked to this one and nothing else, so clicking
+  // further up drops what was below the new point. Shift together with
+  // Ctrl/Cmd adds the range to what is already picked.
+  function click(id: string, event: ClickModifiers) {
     const from = anchor.current
+    if (event.shiftKey || event.ctrlKey || event.metaKey) markSelectionLearned()
+
     if (event.shiftKey && from && visibleIds.includes(from)) {
-      setSelected((old) => new Set([...old, ...rangeBetween(visibleIds, from, id)]))
+      const range = rangeBetween(visibleIds, from, id)
+      const add = event.ctrlKey || event.metaKey
+      setSelected((old) => new Set(add ? [...old, ...range] : range))
     } else {
       toggle(id)
     }
@@ -73,7 +82,10 @@ export function useEntrySelection(options: Options) {
       next.delete(id)
       return next
     })
-  const set = (ids: Iterable<string>) => setSelected(new Set(ids))
+  const set = (ids: Iterable<string>) => {
+    markSelectionLearned()
+    setSelected(new Set(ids))
+  }
   const clear = () => {
     setSelected(new Set())
     anchor.current = null

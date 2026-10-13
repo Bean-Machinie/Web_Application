@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom"
 import { TableCell, TableRow } from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
 import type { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
@@ -9,6 +8,7 @@ import { HiddenBadge } from "./HiddenBadge"
 import { KindLabel } from "./KindLabel"
 import { MemberMenu } from "./MemberMenu"
 import { worldCellClass as cell } from "./members-table-styles"
+import { SelectHint } from "./SelectHint"
 import { useWorldScope } from "./useWorldScope"
 import { VisibilitySwitch } from "./VisibilitySwitch"
 import type { WorldManage } from "./world-manage"
@@ -29,7 +29,7 @@ export function WorldEntryRow({ entry, manage, selection, rowProps }: Props) {
   const hidden = hasVisibility && !entry.revealed
   const selected = selection?.isSelected(entry.id) ?? false
 
-  return (
+  const row = (
     <TableRow
           // The whole row opens the entry. A click handler, not a link
       // stretched over the row: phone browsers do not treat a
@@ -46,24 +46,13 @@ export function WorldEntryRow({ entry, manage, selection, rowProps }: Props) {
         navigate(`${basePath}/${entry.id}`)
       }}
       data-state={selected ? "selected" : undefined}
-      className={`${hidden ? "bg-muted/50 " : ""}${
+      className={`data-[state=selected]:bg-primary/10! ${hidden ? "bg-muted/50 " : ""}${
         manage
           ? "relative cursor-pointer select-none [-webkit-touch-callout:none] data-lifted:outline data-lifted:-outline-offset-2 data-lifted:outline-ring data-lifted:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)]"
           : "relative cursor-pointer"
       }`}
       {...rowProps}
     >
-      {selection && (
-        <TableCell className={`${cell} pr-0`}>
-          <div className="relative z-10 flex">
-            <Checkbox
-              checked={selected}
-              aria-label={`Select ${entry.name}`}
-              onClick={(event) => selection.click(entry.id, event)}
-            />
-          </div>
-        </TableCell>
-      )}
       <TableCell className={cell}>
         <div className="flex items-center gap-3">
           <span
@@ -131,5 +120,13 @@ export function WorldEntryRow({ entry, manage, selection, rowProps }: Props) {
         </TableCell>
       )}
     </TableRow>
+  )
+
+  return selection ? (
+    <SelectHint kind="list" align="start">
+      {row}
+    </SelectHint>
+  ) : (
+    row
   )
 }

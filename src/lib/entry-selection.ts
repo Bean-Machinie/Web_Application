@@ -1,3 +1,6 @@
+// What a click on an entry carries that matters to picking.
+export type ClickModifiers = { shiftKey: boolean; ctrlKey?: boolean; metaKey?: boolean }
+
 // The ids from one to the other, both included, in the order shown. Empty if
 // either is not shown.
 export function rangeBetween(ids: string[], from: string, to: string) {

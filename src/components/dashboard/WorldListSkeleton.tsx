@@ -20,7 +20,6 @@ export function WorldListSkeleton({ canManage }: { canManage: boolean }) {
     <Table>
       <TableHeader>
         <TableRow className={headRowClass}>
-          {canManage && <TableHead className={`${headClass} w-11 pr-0 md:w-14`} />}
           <TableHead className={`${headClass} w-[50%]`}>Name</TableHead>
           <TableHead className={headClass}>Type</TableHead>
           {withVisibility && <TableHead className={headClass}>Visibility</TableHead>}
@@ -30,11 +29,6 @@ export function WorldListSkeleton({ canManage }: { canManage: boolean }) {
       <TableBody>
         {[0, 1, 2].map((row) => (
           <TableRow key={row}>
-            {canManage && (
-              <TableCell className={`${cellClass} pr-0`}>
-                <Skeleton className="size-4 rounded-[4px]" />
-              </TableCell>
-            )}
             <TableCell className={cellClass}>
               <div className="flex items-center gap-3">
                 <Skeleton className="size-16 rounded-lg md:size-20" />

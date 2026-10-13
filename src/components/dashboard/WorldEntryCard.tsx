@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom"
-import { Checkbox } from "@/components/ui/checkbox"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
 import { isCopyable } from "@/lib/world-copy"
 import type { WorldEntry } from "@/lib/world-entries"
@@ -37,7 +36,7 @@ export function WorldEntryCard({ entry, manage, selection }: Props) {
   // On hover the whole card lifts and tilts a touch, with a small overshoot.
   return (
     <div
-      className={`group bg-card hover:border-foreground/25 relative overflow-hidden rounded-lg border transition-[translate,rotate,scale,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:z-10 hover:shadow-lg [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:-rotate-1 [@media(hover:hover)]:hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:rotate-0 motion-reduce:hover:scale-100 ${
+      className={`group ${selected ? "bg-primary/10" : "bg-card"} hover:border-foreground/25 relative overflow-hidden rounded-lg border transition-[translate,rotate,scale,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:z-10 hover:shadow-lg [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:-rotate-1 [@media(hover:hover)]:hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:rotate-0 motion-reduce:hover:scale-100 ${
         hidden ? "border-dashed" : ""
       } ${selected ? "border-primary ring-primary hover:border-primary ring-2" : ""}`}>
       <div className="bg-muted text-muted-foreground relative flex aspect-square items-center justify-center overflow-hidden">
@@ -50,23 +49,6 @@ export function WorldEntryCard({ entry, manage, selection }: Props) {
           />
         ) : (
           <KindIcon className="size-10" />
-        )}
-        {selection && (
-          // Shown on hover, and always once anything is picked or on a screen
-          // without hover.
-          <div
-            className={`bg-background/85 absolute top-2 left-2 z-10 flex rounded-md p-2 backdrop-blur-sm transition-opacity has-[:focus-visible]:opacity-100 ${
-              selection.active
-                ? "opacity-100"
-                : "[@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
-            }`}
-          >
-            <Checkbox
-              checked={selected}
-              aria-label={`Select ${entry.name}`}
-              onClick={(event) => selection.click(entry.id, event)}
-            />
-          </div>
         )}
         {hidden && <HiddenBadge className="absolute right-2 bottom-2" />}
         <StatusMarker entry={entry} />
