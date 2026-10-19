@@ -5,6 +5,7 @@ import type { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { HiddenBadge } from "./HiddenBadge"
+import { KindBadge } from "./KindBadge"
 import { KindLabel } from "./KindLabel"
 import { MemberMenu } from "./MemberMenu"
 import { worldCellClass as cell } from "./members-table-styles"
@@ -98,7 +99,7 @@ export function WorldEntryRow({ entry, manage, selection, rowProps }: Props) {
         </div>
       </TableCell>
       <TableCell className={`${cell} hidden md:table-cell`}>
-        <KindLabel kind={entry.kind} />
+        <KindBadge kind={entry.kind} />
       </TableCell>
       {manage && hasVisibility && (
         <TableCell className={cell}>

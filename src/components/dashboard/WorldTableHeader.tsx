@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { nextSort } from "@/lib/world-list"
 import type { Sort, SortKey } from "@/lib/world-list"
-import { headClass } from "./members-table-styles"
+import { worldHeadClass } from "./members-table-styles"
 import { SortableHead } from "./SortableHead"
 
 type Props = {
@@ -20,6 +20,7 @@ export function WorldTableHeader({ withVisibility, withActions, sort, onSort }: 
       label={label}
       direction={sort?.by === by ? sort.dir : null}
       onSort={() => onSort(nextSort(sort, by))}
+      base={worldHeadClass}
       className={className}
     />
   )
@@ -32,7 +33,7 @@ export function WorldTableHeader({ withVisibility, withActions, sort, onSort }: 
         {column("Type", "type", "hidden md:table-cell")}
         {withVisibility && column("Visibility", "visibility")}
         {withActions && (
-          <TableHead className={`${headClass} text-right max-md:px-2`}>
+          <TableHead className={`${worldHeadClass} text-right`}>
             {sort && (
               <Button
                 variant="ghost"

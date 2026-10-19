@@ -23,6 +23,7 @@ import { WorldEntryDialogs } from "./WorldEntryDialogs"
 import { WorldEntryNotices } from "./WorldEntryNotices"
 import { WorldEntryResults } from "./WorldEntryResults"
 import { WorldGridSkeleton } from "./WorldGridSkeleton"
+import { WorldHeading } from "./WorldHeading"
 import { WorldListSkeleton } from "./WorldListSkeleton"
 import { WorldTabs } from "./WorldTabs"
 import { WorldToolbar } from "./WorldToolbar"
@@ -83,19 +84,19 @@ export function WorldEntryList() {
     : null
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3 md:gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <WorldHeading
+        count={entries?.length ?? null}
+        onCreate={canManage ? setCreating : null}
+        onLibraryAdded={canManage ? reload : null}
+      />
       <WorldTabs entries={entries} active={kind} />
-      <div
-        ref={wrapper}
-        className="bg-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-lg border border-b-0 shadow-xs"
-      >
+      <div ref={wrapper} className="flex min-h-0 flex-1 flex-col gap-3">
         <WorldToolbar
           query={query}
           onQuery={setQuery}
           visibility={canManage && scope.hasVisibility ? visibility : null}
           onVisibility={setVisibility}
-          onCreate={canManage ? setCreating : null}
-          onLibraryAdded={canManage ? reload : null}
           mode={mode}
           onMode={setMode}
         />
@@ -106,7 +107,7 @@ export function WorldEntryList() {
         />
         <LoadingGate
           loading={!entries && !error}
-          className="flex min-h-0 flex-1 flex-col border-t"
+          className="bg-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-lg border border-b-0"
           skeleton={
             mode === "grid" ? (
               <WorldGridSkeleton />

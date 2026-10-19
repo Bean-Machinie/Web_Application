@@ -1,4 +1,5 @@
 import { Globe2, SearchX } from "lucide-react"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { useWorldScope } from "./useWorldScope"
@@ -27,12 +28,14 @@ export function WorldEmptyState({ kind, filtered, canManage }: Props) {
       : "What your GM reveals will show up here."
 
   return (
-    <div className="flex flex-col items-center gap-2 px-6 py-14 text-center">
-      <span className="bg-muted text-muted-foreground flex size-10 items-center justify-center rounded-full">
-        <Icon className="size-5" />
-      </span>
-      <p className="text-sm font-medium">{title}</p>
-      <p className="text-muted-foreground max-w-xs text-sm">{body}</p>
-    </div>
+    <Empty className="py-16">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <Icon />
+        </EmptyMedia>
+        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyDescription>{body}</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   )
 }

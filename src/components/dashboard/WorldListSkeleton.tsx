@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { cellClass, headClass, headRowClass } from "./members-table-styles"
+import { headRowClass, worldCellClass as cellClass, worldHeadClass as headClass } from "./members-table-styles"
 import { useWorldScope } from "./useWorldScope"
 
 // Same table, header and cell markup as WorldEntryList, so rows match in
@@ -31,7 +31,7 @@ export function WorldListSkeleton({ canManage }: { canManage: boolean }) {
           <TableRow key={row}>
             <TableCell className={cellClass}>
               <div className="flex items-center gap-3">
-                <Skeleton className="size-16 rounded-lg md:size-20" />
+                <Skeleton className="size-10 rounded-md" />
                 <Skeleton className="h-4 w-36" />
               </div>
             </TableCell>

@@ -9,7 +9,7 @@ import { WorldEntryCard } from "./WorldEntryCard"
 import type { WorldManage } from "./world-manage"
 
 export const gridClass =
-  "grid grid-cols-2 gap-4 p-4 sm:p-6 md:grid-cols-3 xl:grid-cols-4"
+  "grid grid-cols-2 gap-4 p-4 md:grid-cols-3 xl:grid-cols-4"
 
 // Only the entries scroll; everything above stays put.
 export const scrollClass =

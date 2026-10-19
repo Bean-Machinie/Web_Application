@@ -9,14 +9,16 @@ type Props = {
   direction: "asc" | "desc" | null
   onSort: () => void
   className?: string
+  // The cell look; Members keeps its roomier default.
+  base?: string
 }
 
 // A column header you can click to sort by, with the arrow only where it
 // says something: always on the sorted column, on hover for the others.
-export function SortableHead({ label, direction, onSort, className }: Props) {
+export function SortableHead({ label, direction, onSort, className, base = headClass }: Props) {
   return (
     <TableHead
-      className={cn(headClass, "max-md:h-9 max-md:px-3", className)}
+      className={cn(base, className)}
       aria-sort={direction === "asc" ? "ascending" : direction === "desc" ? "descending" : "none"}
     >
       <button

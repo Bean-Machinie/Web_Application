@@ -26,7 +26,7 @@ export function LibraryPickCard({ entry, selected, disabled, onToggle }: Props) 
       data-entry-id={entry.id}
       onClick={(event) => onToggle(entry, event)}
       className={cn(
-        "hover:border-foreground/25 focus-visible:ring-ring relative flex flex-col overflow-hidden rounded-lg border text-left outline-none transition-[translate,rotate,scale,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:z-10 hover:shadow-lg focus-visible:ring-2 disabled:opacity-60 [@media(hover:hover)]:enabled:hover:-translate-y-1 [@media(hover:hover)]:enabled:hover:-rotate-1 [@media(hover:hover)]:enabled:hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:rotate-0 motion-reduce:hover:scale-100",
+        "hover:border-foreground/25 focus-visible:ring-ring relative flex flex-col overflow-hidden rounded-lg border text-left outline-none transition-[box-shadow,border-color] duration-150 hover:shadow-md focus-visible:ring-2 disabled:opacity-60 motion-reduce:transition-none",
         selected ? "bg-primary/10 border-primary ring-primary ring-2 hover:border-primary" : "bg-card"
       )}
     >
@@ -37,7 +37,7 @@ export function LibraryPickCard({ entry, selected, disabled, onToggle }: Props) 
           <KindIcon className="size-9" />
         )}
       </span>
-      <span className="flex flex-col gap-2 p-3">
+      <span className="flex flex-col gap-1 p-3">
         <span className="truncate font-medium">{entry.name}</span>
         <KindLabel kind={entry.kind} />
       </span>

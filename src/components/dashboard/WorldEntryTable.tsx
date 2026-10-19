@@ -31,7 +31,7 @@ export function WorldEntryTable({ entries, manage, selection, sort, onSort }: Pr
   // starts below it. Both reserve the same gutter and share column widths.
   const columns = (
     <colgroup>
-      <col className="md:w-[50%]" />
+      <col className="md:w-[55%]" />
       <col className="hidden md:table-column" />
       {manage && hasVisibility && <col className="w-16 md:w-auto" />}
       {manage && <col className="w-12 md:w-16" />}
