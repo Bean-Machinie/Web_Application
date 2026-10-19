@@ -33,10 +33,9 @@ export function WorldEntryCard({ entry, manage, selection }: Props) {
     },
   ]
 
-  // On hover the whole card lifts and tilts a touch, with a small overshoot.
   return (
     <div
-      className={`group ${selected ? "bg-primary/10" : "bg-card"} hover:border-foreground/25 relative overflow-hidden rounded-lg border transition-[translate,rotate,scale,box-shadow,border-color] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:z-10 hover:shadow-lg [@media(hover:hover)]:hover:-translate-y-1 [@media(hover:hover)]:hover:-rotate-1 [@media(hover:hover)]:hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:rotate-0 motion-reduce:hover:scale-100 ${
+      className={`group ${selected ? "bg-primary/10" : "bg-card"} hover:border-foreground/25 relative overflow-hidden rounded-lg border transition-[box-shadow,border-color] duration-150 hover:shadow-md motion-reduce:transition-none ${
         hidden ? "border-dashed" : ""
       } ${selected ? "border-primary ring-primary hover:border-primary ring-2" : ""}`}>
       <div className="bg-muted text-muted-foreground relative flex aspect-square items-center justify-center overflow-hidden">
@@ -53,7 +52,7 @@ export function WorldEntryCard({ entry, manage, selection }: Props) {
         {hidden && <HiddenBadge className="absolute right-2 bottom-2" />}
         <StatusMarker entry={entry} />
       </div>
-      <div className="flex flex-col gap-2 p-3.5">
+      <div className="flex flex-col gap-1 p-3">
         {/* The stretched link makes the whole card clickable. */}
         <Link
           to={`${basePath}/${entry.id}`}

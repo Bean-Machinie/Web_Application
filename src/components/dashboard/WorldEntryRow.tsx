@@ -56,7 +56,7 @@ export function WorldEntryRow({ entry, manage, selection, rowProps }: Props) {
       <TableCell className={cell}>
         <div className="flex items-center gap-3">
           <span
-            className={`bg-muted text-muted-foreground flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border md:size-20 ${
+            className={`bg-muted text-muted-foreground flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-md border ${
               hidden ? "opacity-60 grayscale" : ""
             }`}
           >

@@ -1,5 +1,5 @@
 import { Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import {
   Select,
   SelectContent,
@@ -43,18 +43,17 @@ export function WorldToolbar(props: Props) {
         searchOnly ? "items-center" : "flex-col"
       }`}
     >
-      <div
-        className={`relative sm:max-w-xs sm:flex-1 ${searchOnly ? "min-w-0 flex-1" : "w-full"}`}
-      >
-        <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
-        <Input
+      <InputGroup className={`sm:max-w-xs sm:flex-1 ${searchOnly ? "min-w-0 flex-1" : "w-full"}`}>
+        <InputGroupAddon>
+          <Search />
+        </InputGroupAddon>
+        <InputGroupInput
           value={query}
           onChange={(event) => onQuery(event.target.value)}
           placeholder="Search"
           aria-label="Search entries"
-          className="pl-8"
         />
-      </div>
+      </InputGroup>
       <div className="flex items-center gap-2 sm:contents">
         {visibility && (
           <Select
@@ -73,8 +72,8 @@ export function WorldToolbar(props: Props) {
         )}
         <div className="ml-auto flex items-center gap-2">
           <div className="max-md:hidden">
-          <WorldViewToggle mode={mode} onChange={onMode} />
-        </div>
+            <WorldViewToggle mode={mode} onChange={onMode} />
+          </div>
           {onLibraryAdded && <AddFromLibraryButton onAdded={onLibraryAdded} />}
           {onCreate && <NewEntryButton onPick={onCreate} />}
         </div>
