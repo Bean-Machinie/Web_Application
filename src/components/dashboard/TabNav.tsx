@@ -11,7 +11,7 @@ type Props = {
 
 function tabClass(active: boolean) {
   return cn(
-    "focus-visible:ring-ring flex shrink-0 items-center gap-2 rounded-t-md border-b-2 px-3 pt-1 pb-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2",
+    "focus-visible:ring-ring flex shrink-0 items-center gap-2 rounded-t-md border-b-2 px-3 pt-0.5 pb-2 text-sm font-medium transition-colors outline-none focus-visible:ring-2",
     active
       ? "border-primary text-foreground"
       : "text-muted-foreground hover:text-foreground border-transparent"

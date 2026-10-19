@@ -9,6 +9,9 @@ import {
 } from "@/components/ui/select"
 import type { VisibilityFilter } from "@/lib/world-list"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
+import type { WorldEntryKind } from "@/lib/world-kinds"
+import { AddFromLibraryButton } from "./AddFromLibraryButton"
+import { NewEntryButton } from "./NewEntryButton"
 import { WorldViewToggle } from "./WorldViewToggle"
 
 type Props = {
@@ -17,12 +20,16 @@ type Props = {
   // Null for players, who only ever see revealed entries.
   visibility: VisibilityFilter | null
   onVisibility: (visibility: VisibilityFilter) => void
+  onCreate: ((kind: WorldEntryKind) => void) | null
+  // Reloads the list after entries were added from the library; null where
+  // that is not offered.
+  onLibraryAdded: (() => Promise<unknown>) | null
   mode: WorldViewMode
   onMode: (mode: WorldViewMode) => void
 }
 
 export function WorldToolbar(props: Props) {
-  const { query, onQuery, visibility, onVisibility, mode, onMode } = props
+  const { query, onQuery, visibility, onVisibility, onCreate, onLibraryAdded, mode, onMode } = props
 
   return (
     <div className="flex shrink-0 items-center gap-2">
@@ -52,8 +59,12 @@ export function WorldToolbar(props: Props) {
           </SelectContent>
         </Select>
       )}
-      <div className="ml-auto max-md:hidden">
-        <WorldViewToggle mode={mode} onChange={onMode} />
+      <div className="ml-auto flex items-center gap-2">
+        <div className="max-md:hidden">
+          <WorldViewToggle mode={mode} onChange={onMode} />
+        </div>
+        {onLibraryAdded && <AddFromLibraryButton onAdded={onLibraryAdded} />}
+        {onCreate && <NewEntryButton onPick={onCreate} />}
       </div>
     </div>
   )

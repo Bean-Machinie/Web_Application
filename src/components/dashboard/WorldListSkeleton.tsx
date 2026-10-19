@@ -31,7 +31,7 @@ export function WorldListSkeleton({ canManage }: { canManage: boolean }) {
           <TableRow key={row}>
             <TableCell className={cellClass}>
               <div className="flex items-center gap-3">
-                <Skeleton className="size-10 rounded-md" />
+                <Skeleton className="size-16 rounded-md" />
                 <Skeleton className="h-4 w-36" />
               </div>
             </TableCell>

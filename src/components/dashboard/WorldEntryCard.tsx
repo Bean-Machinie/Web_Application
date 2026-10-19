@@ -52,7 +52,7 @@ export function WorldEntryCard({ entry, manage, selection }: Props) {
         {hidden && <HiddenBadge className="absolute right-2 bottom-2" />}
         <StatusMarker entry={entry} />
       </div>
-      <div className="flex flex-col gap-1 p-3">
+      <div className="flex flex-col gap-0.5 p-2.5">
         {/* The stretched link makes the whole card clickable. */}
         <Link
           to={`${basePath}/${entry.id}`}
