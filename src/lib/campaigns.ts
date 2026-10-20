@@ -21,6 +21,7 @@ export type Campaign = {
   createdBy: string
   imageUrl: string | null
   imagePath: string | null
+  createdAt: string
 }
 
 // Supabase errors are not always Error instances, so read the message directly.
@@ -38,7 +39,7 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
   const { data, error } = await supabase
     .from("campaign_members")
     .select(
-      "role, campaign:campaigns(id, name, description, status, created_by, image_url, image_path)"
+      "role, campaign:campaigns(id, name, description, status, created_by, image_url, image_path, created_at)"
     )
     .eq("user_id", userId)
     .order("joined_at")
@@ -56,6 +57,7 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
       created_by: string
       image_url: string | null
       image_path: string | null
+      created_at: string
     }
   }[]
 
@@ -68,6 +70,7 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
     createdBy: row.campaign.created_by,
     imageUrl: row.campaign.image_url,
     imagePath: row.campaign.image_path,
+    createdAt: row.campaign.created_at,
   }))
 
   // Paused and finished campaigns drop to the bottom. The sort is stable, so
@@ -95,6 +98,7 @@ export async function createCampaign(
     createdBy: data.created_by,
     imageUrl: null,
     imagePath: null,
+    createdAt: data.created_at,
   }
 }
 
