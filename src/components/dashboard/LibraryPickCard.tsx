@@ -1,3 +1,5 @@
+import { TiltCard } from "@/components/TiltCard"
+import { tiltCardSkin } from "@/components/tilt-card-styles"
 import type { ClickModifiers } from "@/lib/entry-selection"
 import type { WorldEntry } from "@/lib/world-entries"
 import { cn } from "@/lib/utils"
@@ -25,10 +27,7 @@ export function LibraryPickCard({ entry, selected, disabled, onToggle }: Props) 
       disabled={disabled}
       data-entry-id={entry.id}
       onClick={(event) => onToggle(entry, event)}
-      className={cn(
-        "hover:border-foreground/25 focus-visible:ring-ring relative flex flex-col overflow-hidden rounded-lg border text-left outline-none transition-[box-shadow,border-color] duration-150 hover:shadow-md focus-visible:ring-2 disabled:opacity-60 motion-reduce:transition-none",
-        selected ? "bg-primary/10 border-primary ring-primary ring-2 hover:border-primary" : "bg-card"
-      )}
+      className="focus-visible:ring-ring flex size-full flex-col overflow-hidden rounded-[inherit] text-left outline-none focus-visible:ring-2 disabled:opacity-60"
     >
       <span className="bg-muted text-muted-foreground relative flex aspect-square items-center justify-center overflow-hidden">
         {entry.imageUrl ? (
@@ -44,5 +43,15 @@ export function LibraryPickCard({ entry, selected, disabled, onToggle }: Props) 
     </button>
   )
 
-  return <SelectHint kind="dialog">{card}</SelectHint>
+  return (
+    <TiltCard
+      className={cn(
+        "rounded-lg border",
+        tiltCardSkin(selected ? "selected" : "default"),
+        selected ? "bg-primary/10 border-primary ring-primary ring-2" : "bg-card"
+      )}
+    >
+      <SelectHint kind="dialog">{card}</SelectHint>
+    </TiltCard>
+  )
 }

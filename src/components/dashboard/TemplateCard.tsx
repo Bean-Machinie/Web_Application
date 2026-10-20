@@ -1,4 +1,6 @@
 import type { ReactNode } from "react"
+import { TiltCard } from "@/components/TiltCard"
+import { tiltCardSkin } from "@/components/tilt-card-styles"
 import { cn } from "@/lib/utils"
 
 type Props = {
@@ -12,18 +14,20 @@ type Props = {
   onSelect: () => void
 }
 
-// One choice in the gallery; lifts on hover like the World grid cards.
+// One choice in the gallery; tilts toward the cursor like the other cards.
 export function TemplateCard({ title, description, summary, cover, dashed, onSelect }: Props) {
   return (
+    <TiltCard
+      className={cn(
+        "rounded-lg border",
+        tiltCardSkin(dashed ? "dashed" : "default"),
+        dashed ? "border-dashed bg-transparent" : "bg-card"
+      )}
+    >
     <button
       type="button"
       onClick={onSelect}
-      className={cn(
-        "group focus-visible:ring-ring flex cursor-pointer flex-col overflow-hidden rounded-lg border text-left transition-all duration-200 outline-none hover:shadow-md focus-visible:ring-2",
-        dashed
-          ? "hover:border-foreground/40 border-dashed bg-transparent"
-          : "bg-card hover:border-foreground/25"
-      )}
+      className="focus-visible:ring-ring flex size-full cursor-pointer flex-col overflow-hidden rounded-[inherit] text-left outline-none focus-visible:ring-2"
     >
       <div
         className={cn(
@@ -39,5 +43,6 @@ export function TemplateCard({ title, description, summary, cover, dashed, onSel
         <span className="text-muted-foreground text-sm">{description}</span>
       </div>
     </button>
+    </TiltCard>
   )
 }

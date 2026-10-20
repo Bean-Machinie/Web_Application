@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom"
+import { TiltCard } from "@/components/TiltCard"
+import { tiltCardSkin } from "@/components/tilt-card-styles"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
 import { isCopyable } from "@/lib/world-copy"
 import type { WorldEntry } from "@/lib/world-entries"
@@ -34,10 +36,11 @@ export function WorldEntryCard({ entry, manage, selection }: Props) {
   ]
 
   return (
-    <div
-      className={`group ${selected ? "bg-primary/10" : "bg-card"} hover:border-foreground/25 relative overflow-hidden rounded-lg border transition-[box-shadow,border-color] duration-150 hover:shadow-md motion-reduce:transition-none ${
+    <TiltCard
+      className={`group ${selected ? "bg-primary/10" : "bg-card"} rounded-lg border ${tiltCardSkin(selected ? "selected" : "default")} ${
         hidden ? "border-dashed" : ""
-      } ${selected ? "border-primary ring-primary hover:border-primary ring-2" : ""}`}>
+      } ${selected ? "border-primary ring-primary ring-2" : ""}`}>
+      <div className="overflow-hidden rounded-[inherit]">
       <div className="bg-muted text-muted-foreground relative flex aspect-square items-center justify-center overflow-hidden">
         {entry.imageUrl ? (
           <img
@@ -70,6 +73,7 @@ export function WorldEntryCard({ entry, manage, selection }: Props) {
         </Link>
         <KindLabel kind={entry.kind} />
       </div>
+      </div>
       {actions && (
         // Focus only keeps it open for the keyboard; a mouse click leaves
         // focus on the button, which would pin it open after the cursor leaves.
@@ -84,6 +88,6 @@ export function WorldEntryCard({ entry, manage, selection }: Props) {
           <MemberMenu name={entry.name} actions={actions} />
         </div>
       )}
-    </div>
+    </TiltCard>
   )
 }

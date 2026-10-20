@@ -17,7 +17,7 @@ type Props = { className?: string; children: ReactNode }
 
 // A card that tilts toward the cursor, with a faint glare under it. Pointer
 // movement only writes motion values, so nothing re-renders. Style the card
-// itself (fill, border, shadow) with className; the children sit above the glare.
+// itself (fill, border, shadow) with className; the glare is drawn over the children.
 export function TiltCard({ className, children }: Props) {
   const card = useRef<HTMLDivElement>(null)
   const rotateX = useSpring(0, SPRING)
@@ -67,7 +67,7 @@ export function TiltCard({ className, children }: Props) {
       onPointerDown={() => hovering.current && scale.set(PRESS_SCALE)}
       onPointerUp={() => hovering.current && scale.set(HOVER_SCALE)}
     >
-      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[inherit]">
+      <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-[inherit]">
         <motion.div
           className="absolute top-0 left-0 rounded-full"
           style={{

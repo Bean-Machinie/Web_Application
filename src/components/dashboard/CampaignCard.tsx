@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { TiltCard } from "@/components/TiltCard"
+import { tiltCardSkin } from "@/components/tilt-card-styles"
 import { roleLabel } from "@/lib/campaign-list"
 import type { Member } from "@/lib/campaign-members"
 import { campaignPath } from "@/lib/campaign-paths"
@@ -14,14 +15,7 @@ type Props = {
   onLeave: (campaign: Campaign) => void
 }
 
-// The tilt and scale come from TiltCard. Only transform and opacity animate. The lighter fill, border and top
-// highlight live on ::before and the deeper shadow on ::after, and each fades
-// in. Slower out (250ms) than in (150ms) leaves a soft trail when sweeping.
-const FADE_IN = "hover:before:opacity-100 hover:after:opacity-100 has-[a:focus-visible]:before:opacity-100 has-[a:focus-visible]:after:opacity-100"
-const LAYER = "before:pointer-events-none after:pointer-events-none before:absolute after:absolute before:-inset-px after:-inset-px before:-z-10 after:-z-10 before:rounded-[inherit] after:rounded-[inherit] before:opacity-0 after:opacity-0 before:transition-opacity after:transition-opacity before:duration-250 after:duration-250 before:ease-out after:ease-out hover:before:duration-150 hover:after:duration-150 before:content-[''] after:content-['']"
-const SKIN =
-  "before:border before:border-foreground/20 before:bg-foreground/[0.03] before:shadow-[inset_0_1px_0_color-mix(in_oklab,var(--foreground)_8%,transparent)] after:shadow-[0_12px_28px_-8px_rgb(0_0_0/0.35)]"
-const CARD = `bg-card relative isolate flex h-full flex-col justify-between gap-6 rounded-lg border p-4 ${LAYER} ${SKIN} ${FADE_IN}`
+const CARD = `bg-card flex h-full flex-col justify-between gap-6 rounded-lg border p-4 ${tiltCardSkin()}`
 
 export function CampaignCard({ campaign, members, onLeave }: Props) {
   return (
