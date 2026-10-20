@@ -1,23 +1,8 @@
 import { useCallback, useRef } from "react"
-import { X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet"
-import { usePhoneScreen } from "@/hooks/use-phone-screen"
 import { AddFromLibraryBody } from "./AddFromLibraryBody"
+import { HelpHint } from "./HelpHint"
+import { LibraryShell } from "./LibraryShell"
+import { MODIFIER_KEY } from "@/lib/selection-hint"
 
 type Props = {
   open: boolean
@@ -29,53 +14,37 @@ type Props = {
 const DESCRIPTION =
   "Adds copies to this campaign. They start hidden, and changing a copy does not change your library."
 
-// A dialog on a larger screen; on a phone a sheet over the whole screen, with
-// the entries to scroll with a thumb.
 export function AddFromLibraryDialog({ open, onClose, ...body }: Props) {
-  const phone = usePhoneScreen()
   // True while entries are picked: the first Escape lets go of them, the next
   // one closes the dialog.
   const holding = useRef(false)
-  const keepOpen = (event: Event) => holding.current && event.preventDefault()
   const hold = useCallback((active: boolean) => {
     holding.current = active
   }, [])
 
-  if (phone) {
-    return (
-      <Sheet open={open} onOpenChange={(next) => !next && onClose()}>
-        <SheetContent
-          side="bottom"
-          showCloseButton={false}
-          onEscapeKeyDown={keepOpen}
-          className="gap-0 rounded-none p-0 data-[side=bottom]:h-dvh data-[side=bottom]:border-t-0"
-        >
-          <SheetHeader className="flex h-12 shrink-0 flex-row items-center justify-between border-b py-0 pr-1 pl-4">
-            <SheetTitle className="text-sm font-semibold">Add from your library</SheetTitle>
-            <SheetClose asChild>
-              <Button variant="ghost" aria-label="Close" className="size-11">
-                <X />
-              </Button>
-            </SheetClose>
-          </SheetHeader>
-          <SheetDescription className="sr-only">{DESCRIPTION}</SheetDescription>
-          <div className="flex min-h-0 flex-1 flex-col p-3">
-            {open && <AddFromLibraryBody {...body} onClose={onClose} onHold={hold} compact />}
-          </div>
-        </SheetContent>
-      </Sheet>
-    )
-  }
-
   return (
-    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-6xl" onEscapeKeyDown={keepOpen}>
-        <DialogHeader>
-          <DialogTitle>Add from your library</DialogTitle>
-          <DialogDescription>{DESCRIPTION}</DialogDescription>
-        </DialogHeader>
-        {open && <AddFromLibraryBody {...body} onClose={onClose} onHold={hold} />}
-      </DialogContent>
-    </Dialog>
+    <LibraryShell
+      open={open}
+      onClose={onClose}
+      title="Add from your library"
+      description={DESCRIPTION}
+      onEscapeKeyDown={(event) => holding.current && event.preventDefault()}
+      help={
+        <HelpHint
+          title="Add from your library"
+          summary="Pick entries from your library to copy into this campaign."
+          lines={[
+            { label: "Pick an entry", keys: ["Click"] },
+            { label: "Pick a range", keys: ["Shift", "Click"] },
+            { label: "Pick everything shown", keys: [MODIFIER_KEY, "A"] },
+            { label: "Pick with a box", how: "Drag across the cards" },
+            { label: "Let go of the picks", keys: ["Esc"] },
+          ]}
+          note="Copies start hidden, and changing a copy does not change your library."
+        />
+      }
+    >
+      {(compact) => <AddFromLibraryBody {...body} onClose={onClose} onHold={hold} compact={compact} />}
+    </LibraryShell>
   )
 }

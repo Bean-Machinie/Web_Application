@@ -40,7 +40,7 @@ export function WorldToolbar(props: Props) {
         <InputGroupInput
           value={query}
           onChange={(event) => onQuery(event.target.value)}
-          placeholder="Search"
+          placeholder="Search entries"
           aria-label="Search entries"
         />
       </InputGroup>

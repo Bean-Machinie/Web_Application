@@ -1,12 +1,17 @@
-import { useWorldScope } from "@/components/dashboard/useWorldScope"
-import { WorldEntryList } from "@/components/dashboard/WorldEntryList"
+import { useNavigate } from "react-router-dom"
+import { LibraryDialog } from "@/components/dashboard/LibraryDialog"
+import { Campaigns } from "./Campaigns"
 
+// The library is a window over the campaigns home, not a page of its own:
+// closing it goes back to the campaigns. Its address still opens it, so the
+// sidebar link, the command palette and the back button all work.
 export function Library() {
-  const scope = useWorldScope()
+  const navigate = useNavigate()
 
   return (
-    <div className="mx-auto -mt-2 flex -mb-4 h-[calc(100svh-3.5rem)] w-full max-w-6xl flex-col md:-mt-3 md:-mb-6 md:h-[calc(100svh-3.75rem)]">
-      <WorldEntryList key={scope.key} />
-    </div>
+    <>
+      <Campaigns />
+      <LibraryDialog open onClose={() => navigate("/app")} />
+    </>
   )
 }

@@ -1,5 +1,6 @@
 import { LayoutGrid, List } from "lucide-react"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 
 type Props = { mode: WorldViewMode; onChange: (mode: WorldViewMode) => void }
@@ -15,12 +16,22 @@ export function WorldViewToggle({ mode, onChange }: Props) {
       aria-label="View"
       spacing={0}
     >
-      <ToggleGroupItem value="list" aria-label="List view">
-        <List />
-      </ToggleGroupItem>
-      <ToggleGroupItem value="grid" aria-label="Grid view">
-        <LayoutGrid />
-      </ToggleGroupItem>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <ToggleGroupItem value="list" aria-label="List view">
+            <List />
+          </ToggleGroupItem>
+        </TooltipTrigger>
+        <TooltipContent>List view</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <ToggleGroupItem value="grid" aria-label="Grid view">
+            <LayoutGrid />
+          </ToggleGroupItem>
+        </TooltipTrigger>
+        <TooltipContent>Grid view</TooltipContent>
+      </Tooltip>
     </ToggleGroup>
   )
 }

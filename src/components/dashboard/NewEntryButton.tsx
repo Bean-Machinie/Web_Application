@@ -6,6 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { useWorldScope } from "./useWorldScope"
@@ -17,12 +18,17 @@ export function NewEntryButton({ onPick }: { onPick: (kind: WorldEntryKind) => v
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button>
-          <Plus className="size-4" />
-          New
-        </Button>
-      </DropdownMenuTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Button>
+              <Plus className="size-4" />
+              New
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Create an entry</TooltipContent>
+      </Tooltip>
       <DropdownMenuContent align="end">
         {kinds.map((option) => {
           const { label, icon: KindIcon } = WORLD_KINDS[option]

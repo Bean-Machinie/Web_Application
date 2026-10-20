@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Library } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useNoticeTimeout } from "@/hooks/use-notice-timeout"
 import { AddFromLibraryDialog } from "./AddFromLibraryDialog"
 import { BottomNotice } from "./BottomNotice"
@@ -23,16 +24,21 @@ export function AddFromLibraryButton({ onAdded }: Props) {
 
   return (
     <>
-      <Button
-        variant="outline"
-        onClick={() => {
-          setAdded(null)
-          setOpen(true)
-        }}
-      >
-        <Library className="size-4" />
-        <span className="max-sm:sr-only">Add from library</span>
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setAdded(null)
+              setOpen(true)
+            }}
+          >
+            <Library className="size-4" />
+            <span className="max-sm:sr-only">Add from library</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Copy entries from your library into this campaign</TooltipContent>
+      </Tooltip>
       <AddFromLibraryDialog
         open={open}
         add={addFromLibrary}
