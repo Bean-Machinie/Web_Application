@@ -2,7 +2,7 @@ import { useContext, useEffect } from "react"
 import type { Crumb } from "@/lib/breadcrumbs"
 import { BreadcrumbContext } from "./BreadcrumbContext"
 
-// A page calls this to give the header its trail, such as World / Characters /
+// A page calls this to give the header its whole trail, such as World /
 // Tessa Vale. Pages that do not call it get their title alone. Pass null while
 // the page does not know its trail yet.
 export function usePageTrail(trail: Crumb[] | null) {

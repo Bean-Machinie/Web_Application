@@ -15,7 +15,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useIsMobile } from "@/hooks/use-mobile"
 import type { Crumb } from "@/lib/breadcrumbs"
 import { usePageCrumbs } from "./usePageCrumbs"
 
@@ -29,23 +28,23 @@ function CrumbLink({ crumb }: { crumb: Crumb }) {
   )
 }
 
-// The trail in the app header, on every page: World / Characters / Tessa Vale.
-// Every step but the last is a link. On a phone the middle steps fold into a "…" menu so the trail fits.
+// The trail in the app header, such as World / Wolf. Every step but the last
+// is a link. At most three steps show on any screen: when there are more, the
+// middle ones fold into a "…" menu, keeping the first and the last two.
 export function PageBreadcrumbs() {
   const crumbs = usePageCrumbs()
-  const mobile = useIsMobile()
 
   const last = crumbs[crumbs.length - 1]
-  const before = crumbs.slice(0, -1)
-  const fold = mobile && before.length > 1
-  const shown = fold ? before.slice(0, 1) : before
-  const folded = fold ? before.slice(1) : []
+  const fold = crumbs.length > 3
+  const head = fold ? crumbs.slice(0, 1) : crumbs.slice(0, -1)
+  const folded = fold ? crumbs.slice(1, -2) : []
+  const tail = fold ? crumbs.slice(-2, -1) : []
 
   return (
     <Breadcrumb className="min-w-0">
       <h1 className="sr-only">{last.label}</h1>
       <BreadcrumbList className="flex-nowrap gap-1 text-[15px] sm:gap-1.5">
-        {shown.map((crumb) => (
+        {head.map((crumb) => (
           <Fragment key={crumb.label + crumb.to}>
             <CrumbLink crumb={crumb} />
             <BreadcrumbSeparator />
@@ -73,6 +72,12 @@ export function PageBreadcrumbs() {
             <BreadcrumbSeparator />
           </>
         )}
+        {tail.map((crumb) => (
+          <Fragment key={crumb.label + crumb.to}>
+            <CrumbLink crumb={crumb} />
+            <BreadcrumbSeparator />
+          </Fragment>
+        ))}
         <BreadcrumbItem className="min-w-0">
           <BreadcrumbPage className="truncate font-medium">{last.label}</BreadcrumbPage>
         </BreadcrumbItem>

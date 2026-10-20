@@ -36,7 +36,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
   // While the entry loads, the steps already known stay put and only the name
   // is filled in after, so the trail does not blink away and back.
   const loading = from
-    ? entryTrail({ id: entryId, kind: "map", name: "…" }, from, scope)
+    ? entryTrail({ id: entryId, name: "…" }, from, scope)
     : [{ label: scope.label, to: worldListPath(scope.basePath) }, { label: "…" }]
   usePageTrail(entry ? entryTrail(entry, from, scope) : loading)
   // The World list then opens as it was left.

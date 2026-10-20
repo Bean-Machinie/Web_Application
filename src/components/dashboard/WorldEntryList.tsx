@@ -11,12 +11,10 @@ import { useWorldListMemory } from "@/hooks/use-world-list-memory"
 import { useWorldSearchText } from "@/hooks/use-world-search-text"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
 import type { WorldEntry } from "@/lib/world-entries"
-import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
 import { rememberWorldKind } from "@/lib/world-tab"
 import type { Sort, VisibilityFilter } from "@/lib/world-list"
-import { usePageTrail } from "./usePageTrail"
 import { useWorldScope } from "./useWorldScope"
 import { WorldBulkBar } from "./WorldBulkBar"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
@@ -49,9 +47,6 @@ export function WorldEntryList() {
   const kind = scope.kinds.find((option) => option === params.get("kind")) ?? null
   const { query, setQuery, wrapper } = useWorldListMemory(scope.key, kind, mode, entries !== null)
   useEffect(() => rememberWorldKind(scope.basePath, kind), [scope.basePath, kind])
-  usePageTrail(
-    kind ? [{ label: scope.label, to: scope.basePath }, { label: WORLD_KINDS[kind].plural }] : null
-  )
 
   const searchText = useWorldSearchText(scope, query.trim() !== "")
   const shown = entries && viewEntries(entries, {
