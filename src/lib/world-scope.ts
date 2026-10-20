@@ -10,6 +10,7 @@ import type { WorldEntry } from "./world-entries"
 import { fetchLibrarySearchText, fetchSearchText } from "./world-search"
 import type { SearchText } from "./world-search"
 import { addFromLibrary } from "./world-copy"
+import { campaignPath } from "./campaign-paths"
 import { worldKinds } from "./world-kinds"
 import type { WorldEntryKind } from "./world-kinds"
 
@@ -45,7 +46,7 @@ export function campaignScope(campaignId: string, canManage: boolean): WorldScop
   return {
     // The campaign id itself, so what was remembered before stays valid.
     key: campaignId,
-    basePath: "/app/world",
+    basePath: campaignPath(campaignId, "world"),
     label: "World",
     canManage,
     kinds: worldKinds,

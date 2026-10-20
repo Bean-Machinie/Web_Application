@@ -25,8 +25,9 @@ export function LeaveCampaignButton({ campaign }: { campaign: Campaign }) {
     setError(null)
     try {
       await leaveCampaign(campaign.id)
+      // Leave first: refreshing while still here would show "Campaign not found".
+      navigate("/app")
       await refresh()
-      navigate("/app/campaigns")
     } catch (failure) {
       setError(errorMessage(failure))
       setBusy(false)

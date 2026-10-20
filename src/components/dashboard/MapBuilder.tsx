@@ -29,6 +29,7 @@ import { MapStatusBar } from "./MapStatusBar"
 import { MapAccount } from "./MapAccount"
 import { MapToolPanel } from "./MapToolPanel"
 import { MapToolStrip } from "./MapToolStrip"
+import { useWorldScope } from "./useWorldScope"
 
 type Props = {
   campaignId: string
@@ -68,11 +69,12 @@ export function MapBuilder({ campaignId, mapId, name, loaded, image, onSaveImage
   const { publishing, error, publish } = useMapPublish(stage, scene, autosave, upload)
 
   const navigate = useNavigate()
+  const { basePath } = useWorldScope()
   // Set by "Edit map", so Back returns to the map exactly as it was left, with
   // its view and how it was reached; otherwise it opens the map in place of
   // this page, so Back in the browser does not bounce between the two.
   const fromMap = (useLocation().state as { fromMap?: boolean } | null)?.fromMap
-  const leave = () => (fromMap ? navigate(-1) : navigate(`/app/world/${mapId}`, { replace: true }))
+  const leave = () => (fromMap ? navigate(-1) : navigate(`${basePath}/${mapId}`, { replace: true }))
   // Leaving sends what is waiting first, saying so; only if that fails does it ask.
   const [leaveAsk, setLeaveAsk] = useState(false)
   const goBack = async () => {

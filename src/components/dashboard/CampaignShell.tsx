@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom"
+import { Toaster } from "@/components/ui/sonner"
 import { RequireAuth } from "@/auth/RequireAuth"
 import { CampaignProvider } from "./CampaignProvider"
 import { NotificationsPanel } from "./NotificationsPanel"
@@ -12,6 +13,7 @@ export function CampaignShell() {
         <Outlet />
         <SettingsWindow />
         <NotificationsPanel />
+        <Toaster />
       </CampaignProvider>
     </RequireAuth>
   )

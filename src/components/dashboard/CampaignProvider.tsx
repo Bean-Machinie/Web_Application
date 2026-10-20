@@ -1,14 +1,8 @@
 import { useCallback, useEffect, useState } from "react"
 import type { ReactNode } from "react"
 import { useAuth } from "@/auth/useAuth"
-import { can as roleCan } from "@/lib/campaign-permissions"
-import type { CampaignPermission } from "@/lib/campaign-permissions"
 import { errorMessage, fetchCampaigns } from "@/lib/campaigns"
 import type { Campaign } from "@/lib/campaigns"
-import {
-  readCurrentCampaignId,
-  saveCurrentCampaignId,
-} from "@/lib/current-campaign"
 import { respondToInvitation } from "@/lib/invitations"
 import {
   BELL_PAGE_SIZE,
@@ -25,7 +19,6 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [refreshKey, setRefreshKey] = useState(0)
-  const [currentId, setCurrentId] = useState(readCurrentCampaignId)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -67,30 +60,18 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     }
   }, [userId, refresh])
 
-  function select(id: string) {
-    setCurrentId(id)
-    saveCurrentCampaignId(id)
-  }
-
   async function respond(invitationId: string, accept: boolean) {
     await respondToInvitation(invitationId, accept)
     await refresh()
   }
 
-  const current = campaigns.find((c) => c.id === currentId) ?? campaigns[0] ?? null
-  const can = (permission: CampaignPermission) =>
-    current !== null && roleCan(current.role, permission)
-
   return (
     <CampaignContext.Provider
       value={{
         campaigns,
-        current,
         loading,
         error,
-        select,
         refresh,
-        can,
         unreadCount,
         refreshUnread,
         refreshKey,

@@ -1,9 +1,9 @@
 import { Navigate, Route, Routes } from "react-router-dom"
+import { CampaignScope } from "@/components/dashboard/CampaignScope"
 import { CampaignShell } from "@/components/dashboard/CampaignShell"
 import { CampaignWorldScope } from "@/components/dashboard/CampaignWorldScope"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { LibraryWorldScope } from "@/components/dashboard/LibraryWorldScope"
-import { RequireCampaign } from "@/components/dashboard/RequireCampaign"
 import { CampaignSettings } from "@/pages/CampaignSettings"
 import { CampaignSettingsAdvanced } from "@/pages/CampaignSettingsAdvanced"
 import { CampaignSettingsGeneral } from "@/pages/CampaignSettingsGeneral"
@@ -35,7 +35,10 @@ export default function App() {
       <Route path="/invite" element={<Invite />} />
       <Route element={<CampaignShell />}>
         <Route path="/app" element={<DashboardLayout />}>
-          <Route element={<RequireCampaign />}>
+          <Route index element={<Campaigns />} />
+          <Route path="campaigns/new" element={<NewCampaign />} />
+          <Route path="campaigns/join" element={<JoinCampaign />} />
+          <Route path="c/:campaignId" element={<CampaignScope />}>
             <Route index element={<Overview />} />
             <Route element={<CampaignWorldScope />}>
               <Route path="world" element={<World />} />
@@ -52,9 +55,6 @@ export default function App() {
               <Route path="advanced" element={<CampaignSettingsAdvanced />} />
             </Route>
           </Route>
-          <Route path="campaigns" element={<Campaigns />} />
-          <Route path="campaigns/new" element={<NewCampaign />} />
-          <Route path="campaigns/join" element={<JoinCampaign />} />
           <Route path="library" element={<LibraryWorldScope />}>
             <Route index element={<Library />} />
             <Route path=":entryId" element={<WorldEntry />} />

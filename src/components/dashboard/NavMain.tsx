@@ -35,7 +35,7 @@ export function NavMain({ items, className }: Props) {
                 asChild
                 className="h-12 pl-[15px] text-[14.5px] group-data-[collapsible=icon]:size-12! group-data-[collapsible=icon]:px-[15px]!"
                 tooltip={item.title}
-                isActive={isActive(item.to, item.to === "/app")}
+                isActive={isActive(item.to, item.exact)}
               >
                 <NavLink to={item.to} onClick={closeOnMobile}>
                   <Icon src={item.icon} className="size-[18px]" />

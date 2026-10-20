@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card"
 import { useAuth } from "@/auth/useAuth"
 import { errorMessage, joinCampaign } from "@/lib/campaigns"
-import { saveCurrentCampaignId } from "@/lib/current-campaign"
+import { campaignPath } from "@/lib/campaign-paths"
 import { fetchInvitePreview } from "@/lib/invitations"
 
 type Preview = { name: string; imageUrl: string | null }
@@ -43,8 +43,7 @@ export function Invite() {
     setBusy(true)
     setError(null)
     try {
-      saveCurrentCampaignId(await joinCampaign(code))
-      navigate("/app", { replace: true })
+      navigate(campaignPath(await joinCampaign(code)), { replace: true })
     } catch (failure) {
       setError(errorMessage(failure))
       setBusy(false)
@@ -89,7 +88,7 @@ export function Invite() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => navigate("/app/campaigns")}
+                onClick={() => navigate("/app")}
                 disabled={busy}
               >
                 Decline
@@ -114,7 +113,7 @@ export function Invite() {
             </>
           )}
           {!preview && session && (
-            <Button variant="outline" onClick={() => navigate("/app/campaigns")}>
+            <Button variant="outline" onClick={() => navigate("/app")}>
               Back
             </Button>
           )}

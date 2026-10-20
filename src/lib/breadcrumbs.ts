@@ -24,10 +24,10 @@ const tab = (scope: TrailRoot, kind: WorldEntryKind): Crumb => ({
 // ones that map was reached through. Reaching a map that is already in the chain goes back to it
 // instead of adding to it, so a map that links back to its parent cannot grow
 // the trail.
-export function mapsAbove(pageId: string, from: BackTo | null): Crumb[] {
+export function mapsAbove(pageId: string, from: BackTo | null, basePath: string): Crumb[] {
   if (!from) return []
   const chain = [...(from.maps ?? []), { label: from.label, to: from.path }]
-  const own = chain.findIndex((crumb) => crumb.to === `/app/world/${pageId}`)
+  const own = chain.findIndex((crumb) => crumb.to === `${basePath}/${pageId}`)
   return own >= 0 ? chain.slice(0, own) : chain
 }
 
@@ -42,5 +42,5 @@ export function entryTrail(
   scope: TrailRoot
 ): Crumb[] {
   if (!from) return [root(scope), tab(scope, entry.kind), { label: entry.name }]
-  return [root(scope), tab(scope, "map"), ...mapsAbove(entry.id, from), { label: entry.name }]
+  return [root(scope), tab(scope, "map"), ...mapsAbove(entry.id, from, scope.basePath), { label: entry.name }]
 }

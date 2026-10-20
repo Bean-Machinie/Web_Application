@@ -17,11 +17,13 @@ import { createScene } from "@/lib/map-scene"
 import { saveMapScene } from "@/lib/world-map-scenes"
 import { MapBuilderLink } from "./MapBuilderLink"
 import { DEFAULT_MAP_CHOICE, NewMapOptions } from "./NewMapOptions"
+import { useWorldScope } from "./useWorldScope"
 
 // For a map with no image: open it in the builder if it was built there, or
 // offer to build it instead of uploading, after choosing the canvas.
 export function MapBuildAction({ mapId, built }: { mapId: string; built: boolean }) {
   const navigate = useNavigate()
+  const { basePath } = useWorldScope()
   const [open, setOpen] = useState(false)
   const [choice, setChoice] = useState(DEFAULT_MAP_CHOICE)
   const [busy, setBusy] = useState(false)
@@ -34,7 +36,7 @@ export function MapBuildAction({ mapId, built }: { mapId: string; built: boolean
     setError(null)
     try {
       await saveMapScene(mapId, createScene(choice), null)
-      navigate(`/app/world/${mapId}/build`)
+      navigate(`${basePath}/${mapId}/build`)
     } catch (failure) {
       setError(errorMessage(failure))
       setBusy(false)

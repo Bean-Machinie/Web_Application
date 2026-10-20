@@ -10,6 +10,7 @@ import type { MapMarker } from "@/lib/world-map-markers"
 import { HiddenBadge } from "./HiddenBadge"
 import { KindLabel } from "./KindLabel"
 import { MapMarkerFacts } from "./MapMarkerFacts"
+import { useWorldScope } from "./useWorldScope"
 
 type Props = {
   marker: MapMarker
@@ -27,6 +28,7 @@ type Props = {
 // description, with the way to open the entry. Where it sits is up to whoever
 // shows it (above its pin, or along the bottom of a phone).
 export function MapMarkerCardContent({ marker, canManage, backTo, onOpen, onClose, onRemove, className }: Props) {
+  const { basePath } = useWorldScope()
   const { icon: KindIcon, tint } = WORLD_KINDS[marker.kind]
   const fields = useEntryPreview(marker.entryId)
 
@@ -68,7 +70,7 @@ export function MapMarkerCardContent({ marker, canManage, backTo, onOpen, onClos
       </CardContent>
       <CardFooter className="gap-2 px-3">
         <Button asChild size="sm" className="pointer-coarse:h-11 flex-1">
-          <Link to={`/app/world/${marker.entryId}`} state={{ backTo }} onClick={onOpen}>
+          <Link to={`${basePath}/${marker.entryId}`} state={{ backTo }} onClick={onOpen}>
             Open entry
             <ArrowRight />
           </Link>

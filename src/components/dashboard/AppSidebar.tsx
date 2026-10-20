@@ -1,22 +1,22 @@
+import { useMatch } from "react-router-dom"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { CampaignSwitcher } from "./CampaignSwitcher"
-import { campaignNav, campaignSettingsNav, libraryNav } from "./nav-items"
+import { CampaignSidebarHeader } from "./CampaignSidebarHeader"
+import { campaignNav, campaignSettingsNav, homeNav } from "./nav-items"
 import { NavMain } from "./NavMain"
 import { NavUser } from "./NavUser"
 import { SidebarBrand } from "./SidebarBrand"
-import { useCampaign } from "./useCampaign"
+import { useRouteCampaign } from "./useCurrentCampaign"
 
+// Two modes: the home pages show Campaigns and the library; inside a campaign
+// the sidebar is about that campaign alone.
 export function AppSidebar() {
-  const { current, loading } = useCampaign()
-  // The campaign links only make sense inside a campaign. While loading they
-  // stay, so the sidebar does not flash for people who do have one.
-  const inCampaign = current !== null || loading
+  const inCampaign = useMatch("/app/c/:campaignId/*") !== null
+  const campaign = useRouteCampaign()
 
   return (
     <Sidebar collapsible="icon">
@@ -25,16 +25,21 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <CampaignSwitcher />
-        {inCampaign && (
+        {inCampaign ? (
           <>
-            <NavMain items={campaignNav} className="pt-0" />
-            <SidebarSeparator className="mx-4 data-horizontal:w-auto" />
+            <CampaignSidebarHeader campaign={campaign} />
+            {campaign && (
+              <>
+                <NavMain items={campaignNav(campaign.id)} className="pt-0" />
+                <NavMain
+                  items={campaignSettingsNav(campaign.id)}
+                  className="mt-auto"
+                />
+              </>
+            )}
           </>
-        )}
-        <NavMain items={libraryNav} className={inCampaign ? "" : "pt-0"} />
-        {inCampaign && (
-          <NavMain items={campaignSettingsNav} className="mt-auto" />
+        ) : (
+          <NavMain items={homeNav} />
         )}
       </SidebarContent>
 

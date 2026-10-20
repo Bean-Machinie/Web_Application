@@ -57,7 +57,11 @@ export function NotificationRow({ notification, isNew, onDismiss }: Props) {
           </p>
           {pending && notification.invitationId && (
             <div className="mt-3">
-              <InvitationActions invitationId={notification.invitationId} />
+              <InvitationActions
+                invitationId={notification.invitationId}
+                campaignId={notification.campaignId}
+                campaignName={notification.campaignName}
+              />
             </div>
           )}
         </div>

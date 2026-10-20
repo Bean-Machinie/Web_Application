@@ -1,4 +1,6 @@
-import { Link, useNavigate } from "react-router-dom"
+import { useState } from "react"
+import { Link } from "react-router-dom"
+import { JoinCampaignDialog } from "@/components/dashboard/JoinCampaignDialog"
 import { useSettingsWindow } from "@/hooks/use-settings-window"
 import { Loader2 } from "lucide-react"
 import arrow from "@/assets/icons/arrow.svg"
@@ -8,24 +10,22 @@ import { CampaignAvatar } from "@/components/dashboard/CampaignAvatar"
 import { useCampaign } from "@/components/dashboard/useCampaign"
 import { Icon } from "@/components/Icon"
 import { LogoMark } from "@/components/LogoMark"
+import { campaignPath } from "@/lib/campaign-paths"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
 
-// Every campaign you belong to. It is where someone with no campaign lands.
-// Creating and joining live in the campaign menu in the sidebar; the buttons
-// here only appear while that menu would be the only other place to look.
+// Every campaign you belong to, and where the app always opens.
 export function Campaigns() {
-  const navigate = useNavigate()
   const settingsWindow = useSettingsWindow()
-  const { campaigns, loading, error, select, unreadCount } = useCampaign()
+  const [joining, setJoining] = useState(false)
+  const { campaigns, loading, error, unreadCount } = useCampaign()
   const waiting = unreadCount
 
   if (loading) {
@@ -38,11 +38,21 @@ export function Campaigns() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
-      <div>
-        <h2 className="text-xl font-semibold tracking-tight">Campaigns</h2>
-        <p className="text-muted-foreground mt-1 text-sm">
-          The campaigns you are part of.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight">Campaigns</h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            The campaigns you are part of.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setJoining(true)}>
+            Join with invite link
+          </Button>
+          <Button asChild>
+            <Link to="/app/campaigns/new">New campaign</Link>
+          </Button>
+        </div>
       </div>
 
       {waiting > 0 && (
@@ -71,26 +81,14 @@ export function Campaigns() {
               invite link from your GM.
             </EmptyDescription>
           </EmptyHeader>
-          <EmptyContent className="flex-row justify-center gap-2">
-            <Button asChild>
-              <Link to="/app/campaigns/new">Create a campaign</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/app/campaigns/join">Join with invite link</Link>
-            </Button>
-          </EmptyContent>
         </Empty>
       ) : (
         <ul className="divide-y overflow-hidden rounded-lg border">
           {campaigns.map((campaign) => (
             <li key={campaign.id}>
-              <button
-                type="button"
-                className="hover:bg-muted/50 flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors"
-                onClick={() => {
-                  select(campaign.id)
-                  navigate("/app")
-                }}
+              <Link
+                to={campaignPath(campaign.id)}
+                className="hover:bg-muted/50 flex w-full items-center gap-3 px-4 py-3 text-left transition-colors"
               >
                 <CampaignAvatar
                   name={campaign.name}
@@ -104,11 +102,13 @@ export function Campaigns() {
                   {campaign.role === "gm" ? "GM" : "Player"}
                 </Badge>
                 <Icon src={arrow} className="text-muted-foreground" />
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
       )}
+
+      <JoinCampaignDialog open={joining} onOpenChange={setJoining} />
     </div>
   )
 }

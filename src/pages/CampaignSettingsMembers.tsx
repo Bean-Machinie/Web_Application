@@ -1,9 +1,8 @@
 import { CampaignMembers } from "@/components/dashboard/CampaignMembers"
-import { useCampaign } from "@/components/dashboard/useCampaign"
+import { useCurrentCampaign } from "@/components/dashboard/useCurrentCampaign"
 
 export function CampaignSettingsMembers() {
-  const { current } = useCampaign()
-  if (!current) return null
+  const { current } = useCurrentCampaign()
 
   return <CampaignMembers key={current.id} campaign={current} />
 }

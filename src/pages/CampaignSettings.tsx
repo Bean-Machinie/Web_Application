@@ -1,13 +1,10 @@
 import { Outlet } from "react-router-dom"
 import { CampaignSettingsTabs } from "@/components/dashboard/CampaignSettingsTabs"
 import { LeaveCampaignButton } from "@/components/dashboard/LeaveCampaignButton"
-import { useCampaign } from "@/components/dashboard/useCampaign"
+import { useCurrentCampaign } from "@/components/dashboard/useCurrentCampaign"
 
 export function CampaignSettings() {
-  const { current } = useCampaign()
-
-  // Only rendered inside RequireCampaign, so there is always a campaign.
-  if (!current) return null
+  const { current } = useCurrentCampaign()
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col">

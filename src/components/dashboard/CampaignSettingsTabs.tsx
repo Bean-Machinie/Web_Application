@@ -1,9 +1,10 @@
 import { TabNav } from "./TabNav"
-import { useCampaign } from "./useCampaign"
+import { campaignPath } from "@/lib/campaign-paths"
+import { useCurrentCampaign } from "./useCurrentCampaign"
 
 export function CampaignSettingsTabs() {
-  const { can } = useCampaign()
-  const base = "/app/campaign-settings"
+  const { current, can } = useCurrentCampaign()
+  const base = campaignPath(current.id, "campaign-settings")
 
   const tabs = [
     { label: "General", to: `${base}/general` },

@@ -1,10 +1,9 @@
 import { CampaignGeneralForm } from "@/components/dashboard/CampaignGeneralForm"
 import { CampaignGeneralView } from "@/components/dashboard/CampaignGeneralView"
-import { useCampaign } from "@/components/dashboard/useCampaign"
+import { useCurrentCampaign } from "@/components/dashboard/useCurrentCampaign"
 
 export function CampaignSettingsGeneral() {
-  const { current, can } = useCampaign()
-  if (!current) return null
+  const { current, can } = useCurrentCampaign()
 
   return can("manage") ? (
     <CampaignGeneralForm key={current.id} campaign={current} />

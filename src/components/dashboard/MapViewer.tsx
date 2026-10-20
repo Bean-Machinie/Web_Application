@@ -28,6 +28,7 @@ import { MapMarkerPeek } from "./MapMarkerPeek"
 import { MapViewerNavigator } from "./MapViewerNavigator"
 import { MapViewerPhoneControls } from "./MapViewerPhoneControls"
 import { MapViewerStatusBar } from "./MapViewerStatusBar"
+import { useWorldScope } from "./useWorldScope"
 
 type Props = {
   campaignId: string
@@ -43,6 +44,7 @@ type Props = {
 // click a marker for a preview. A GM adds markers, and switches to editing
 // mode to drag them, change what they link to, or remove them.
 export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDetails }: Props) {
+  const { basePath } = useWorldScope()
   const size = useMemo(
     () => ({ width: image.width, height: image.height }),
     [image.width, image.height]
@@ -115,7 +117,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDeta
         <MapMarkerPeek
           marker={selected}
           canManage={canManage}
-          backTo={{ path: `/app/world/${mapId}`, label: mapName, maps: mapsAbove(mapId, from) }}
+          backTo={{ path: `${basePath}/${mapId}`, label: mapName, maps: mapsAbove(mapId, from, basePath) }}
           onOpen={() => rememberReturn(mapId, selected.id)}
           onClose={clear}
           onRemove={removeSelected}
@@ -129,7 +131,7 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDeta
           point={point}
           mapWidth={map.getSize().x}
           canManage={canManage}
-          backTo={{ path: `/app/world/${mapId}`, label: mapName, maps: mapsAbove(mapId, from) }}
+          backTo={{ path: `${basePath}/${mapId}`, label: mapName, maps: mapsAbove(mapId, from, basePath) }}
           onOpen={() => rememberReturn(mapId, selected.id)}
           onClose={clear}
           onRemove={removeSelected}

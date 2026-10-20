@@ -3,7 +3,7 @@ import { useAuth } from "@/auth/useAuth"
 import { DangerZone } from "@/components/dashboard/DangerZone"
 import { SettingsSection } from "@/components/dashboard/SettingsSection"
 import { TransferOwnership } from "@/components/dashboard/TransferOwnership"
-import { useCampaign } from "@/components/dashboard/useCampaign"
+import { useCurrentCampaign } from "@/components/dashboard/useCurrentCampaign"
 import {
   canDeleteCampaign,
   canTransferCampaign,
@@ -11,9 +11,8 @@ import {
 
 export function CampaignSettingsAdvanced() {
   const userId = useAuth().session!.user.id
-  const { current, can } = useCampaign()
+  const { current, can } = useCurrentCampaign()
 
-  if (!current) return null
   if (!can("manage")) return <Navigate to="../general" replace />
 
   const canTransfer = canTransferCampaign(current, userId)

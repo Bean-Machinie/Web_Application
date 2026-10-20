@@ -17,7 +17,7 @@ import { InviteDialog } from "./InviteDialog"
 import { MembersTable } from "./MembersTable"
 import { MembersTableSkeleton } from "./MembersTableSkeleton"
 import { SentInvitations } from "./SentInvitations"
-import { useCampaign } from "./useCampaign"
+import { useCurrentCampaign } from "./useCurrentCampaign"
 
 // The last list seen per campaign, so coming back shows it at once and
 // refreshes quietly instead of starting from a skeleton.
@@ -26,7 +26,7 @@ const seenMembers = new Map<string, Member[]>()
 // Render with key={campaign.id} so switching campaigns starts from scratch.
 export function CampaignMembers({ campaign }: { campaign: Campaign }) {
   const userId = useAuth().session!.user.id
-  const { can } = useCampaign()
+  const { can } = useCurrentCampaign()
   const [members, setMembers] = useState<Member[] | null>(
     () => seenMembers.get(campaign.id) ?? null
   )
