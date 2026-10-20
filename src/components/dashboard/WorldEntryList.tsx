@@ -32,7 +32,7 @@ export function WorldEntryList() {
   const { canManage } = scope
   const { entries, error, reload, setRevealed, reorder } = useWorldEntries(scope)
   const library = useSaveToLibrary()
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
   const [chosenMode, setMode] = useWorldViewMode()
   // Phones only get the grid; the saved choice is kept for larger screens.
   const mode = useIsMobile() ? "grid" : chosenMode
@@ -45,6 +45,19 @@ export function WorldEntryList() {
 
   // An unknown ?kind= falls back to All.
   const kind = scope.kinds.find((option) => option === params.get("kind")) ?? null
+  // The command palette's "New ..." actions arrive as ?create=<kind>.
+  const wanted = scope.kinds.find((option) => option === params.get("create")) ?? null
+  useEffect(() => {
+    if (!wanted || !canManage) return
+    setCreating(wanted)
+    setParams(
+      (current) => {
+        current.delete("create")
+        return current
+      },
+      { replace: true }
+    )
+  }, [wanted, canManage, setParams])
   const { query, setQuery, wrapper } = useWorldListMemory(scope.key, kind, mode, entries !== null)
   useEffect(() => rememberWorldKind(scope.basePath, kind), [scope.basePath, kind])
 

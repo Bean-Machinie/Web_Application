@@ -1,4 +1,5 @@
 import { useMatch } from "react-router-dom"
+import { AnimatePresence, motion } from "motion/react"
 import {
   Sidebar,
   SidebarContent,
@@ -10,6 +11,7 @@ import { campaignNav, campaignSettingsNav, homeNav } from "./nav-items"
 import { NavMain } from "./NavMain"
 import { NavUser } from "./NavUser"
 import { SidebarBrand } from "./SidebarBrand"
+import { SidebarSearch } from "./SidebarSearch"
 import { useRouteCampaign } from "./useCurrentCampaign"
 
 // Two modes: the home pages show Campaigns and the library; inside a campaign
@@ -25,21 +27,29 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        {/* Both top rows are the same height, so they crossfade in place. */}
+        <div className="relative shrink-0">
+          <AnimatePresence initial={false} mode="popLayout">
+            <motion.div
+              key={inCampaign ? "campaign" : "home"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+            >
+              {inCampaign ? <CampaignSidebarHeader campaign={campaign} /> : <SidebarSearch />}
+            </motion.div>
+          </AnimatePresence>
+        </div>
         {inCampaign ? (
-          <>
-            <CampaignSidebarHeader campaign={campaign} />
-            {campaign && (
-              <>
-                <NavMain items={campaignNav(campaign.id)} className="pt-0" />
-                <NavMain
-                  items={campaignSettingsNav(campaign.id)}
-                  className="mt-auto"
-                />
-              </>
-            )}
-          </>
+          campaign && (
+            <>
+              <NavMain items={campaignNav(campaign.id)} className="pt-0" />
+              <NavMain items={campaignSettingsNav(campaign.id)} className="mt-auto" />
+            </>
+          )
         ) : (
-          <NavMain items={homeNav} />
+          <NavMain items={homeNav} className="pt-0" />
         )}
       </SidebarContent>
 

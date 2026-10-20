@@ -16,7 +16,13 @@ import type { Campaign } from "@/lib/campaigns"
 import { TruncatedText } from "./TruncatedText"
 
 const SLIDE = 8
-const LAYER = "absolute inset-0 flex items-center gap-3 group-data-[collapsible=icon]:justify-center"
+// Each layer keeps the full width of the open sidebar, pinned to the left, so
+// collapsing only clips it: the image never moves and the text never reflows.
+// The image's 6px inset centres it in the collapsed 48px button.
+const LAYER =
+  "absolute inset-y-0 left-0 flex w-full min-w-[calc(var(--sidebar-width)-1rem)] items-center gap-3 pr-3 pl-1.5"
+// What is only there when the sidebar is open fades rather than disappearing.
+const FADES = "transition-opacity duration-200 ease-linear group-data-[collapsible=icon]:opacity-0"
 
 // The campaign image, or its initials on a muted background.
 function Picture({ campaign }: { campaign: Campaign | null }) {
@@ -51,7 +57,7 @@ export function CampaignSidebarHeader({ campaign }: { campaign: Campaign | null 
             asChild
             size="lg"
             tooltip="All campaigns"
-            className="h-14 p-2 group-data-[collapsible=icon]:size-12! group-data-[collapsible=icon]:justify-center"
+            className="relative h-14 min-h-14 p-0! group-data-[collapsible=icon]:size-12!"
           >
             <Link
               to="/app"
@@ -62,7 +68,7 @@ export function CampaignSidebarHeader({ campaign }: { campaign: Campaign | null 
               onFocus={(event) => setActive(event.currentTarget.matches(":focus-visible"))}
               onBlur={() => setActive(false)}
             >
-              <span className="relative block h-full w-full overflow-visible!">
+              <span className="block h-full w-full">
                 <motion.span
                   className={LAYER}
                   initial={false}
@@ -70,7 +76,7 @@ export function CampaignSidebarHeader({ campaign }: { campaign: Campaign | null 
                   transition={transition}
                 >
                   <Picture campaign={campaign} />
-                  <span className="flex min-w-0 flex-1 flex-col gap-0.5 group-data-[collapsible=icon]:hidden">
+                  <span className={`flex min-w-0 flex-1 flex-col gap-0.5 ${FADES}`}>
                     {campaign ? (
                       <>
                         <TruncatedText text={campaign.name} className="text-[15px] leading-tight font-semibold" />
@@ -87,7 +93,7 @@ export function CampaignSidebarHeader({ campaign }: { campaign: Campaign | null 
                   </span>
                 </motion.span>
                 <motion.span
-                  className={`${LAYER} text-muted-foreground`}
+                  className={LAYER}
                   initial={false}
                   animate={{ opacity: active ? 1 : 0, x: active ? 0 : slide }}
                   transition={transition}
@@ -95,7 +101,7 @@ export function CampaignSidebarHeader({ campaign }: { campaign: Campaign | null 
                   <span className="flex size-9 shrink-0 items-center justify-center">
                     <ArrowLeft className="size-[18px]" />
                   </span>
-                  <span className="text-sm font-medium group-data-[collapsible=icon]:hidden">
+                  <span className={`text-[14.5px] ${FADES}`}>
                     All campaigns
                   </span>
                 </motion.span>

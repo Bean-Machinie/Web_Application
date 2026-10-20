@@ -19,6 +19,8 @@ import { ConfirmDialog } from "./ConfirmDialog"
 import { MapEntryScreen } from "./MapEntryScreen"
 import { SavedToLibraryNotice } from "./SavedToLibraryNotice"
 import { usePageTrail } from "./usePageTrail"
+import { useRecordRecent } from "./useRecordRecent"
+import { useRouteCampaign } from "./useCurrentCampaign"
 import { useWorldScope } from "./useWorldScope"
 import { WorldEntryPage } from "./WorldEntryPage"
 
@@ -39,6 +41,16 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
     ? entryTrail({ id: entryId, name: "…" }, from, scope)
     : [{ label: scope.label, to: worldListPath(scope.basePath) }, { label: "…" }]
   usePageTrail(entry ? entryTrail(entry, from, scope) : loading)
+  const campaign = useRouteCampaign()
+  useRecordRecent(
+    entry && {
+      key: `entry:${entry.id}`,
+      name: entry.name,
+      path: `${scope.basePath}/${entry.id}`,
+      context: campaign?.name ?? "Library",
+      visual: { type: "entry", kind: entry.kind, imageUrl: null },
+    }
+  )
   // The World list then opens as it was left.
   useEffect(() => markWorldListReturn(), [])
   const [detailsOpen, setDetailsOpen] = useState(false)

@@ -3,6 +3,7 @@ import characters from "@/assets/icons/menu-profile.svg"
 import desktop from "@/assets/icons/desktop.svg"
 import file from "@/assets/icons/file.svg"
 import globe from "@/assets/icons/globe.svg"
+import lifeBuoy from "@/assets/icons/life-buoy.svg"
 import settings from "@/assets/icons/settings.svg"
 import userGroup from "@/assets/icons/user-group.svg"
 import { campaignPath } from "@/lib/campaign-paths"
@@ -33,3 +34,6 @@ export const homeNav: NavItem[] = [
   { title: "Campaigns", to: "/app", icon: globe, exact: true },
   { title: "Your library", to: "/app/library", icon: box },
 ]
+
+// The pages the command palette offers everywhere.
+export const mainPages = [...homeNav, { title: "Support", to: "/app/support", icon: lifeBuoy }]
