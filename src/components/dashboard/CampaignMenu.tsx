@@ -1,3 +1,4 @@
+import { ExternalLink, LogOut, Settings } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/auth/useAuth"
 import { campaignPath } from "@/lib/campaign-paths"
@@ -14,17 +15,18 @@ export function CampaignMenu({ campaign, onLeave }: Props) {
   const navigate = useNavigate()
 
   const actions = [
-    { label: "Open", onSelect: () => navigate(campaignPath(campaign.id)) },
+    { label: "Open", icon: ExternalLink, onSelect: () => navigate(campaignPath(campaign.id)) },
     ...(can(campaign.role, "manage")
       ? [
           {
             label: "Campaign settings",
+            icon: Settings,
             onSelect: () => navigate(campaignPath(campaign.id, "campaign-settings")),
           },
         ]
       : []),
     ...(canLeaveCampaign(campaign, userId)
-      ? [{ label: "Leave campaign", destructive: true, onSelect: () => onLeave(campaign) }]
+      ? [{ label: "Leave campaign", icon: LogOut, destructive: true, onSelect: () => onLeave(campaign) }]
       : []),
   ]
 

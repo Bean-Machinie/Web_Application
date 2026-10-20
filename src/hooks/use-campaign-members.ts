@@ -3,10 +3,13 @@ import { fetchMembers } from "@/lib/campaign-members"
 import type { Member } from "@/lib/campaign-members"
 import type { Campaign } from "@/lib/campaigns"
 
-// Members per campaign id. A campaign whose members fail to load is simply
-// missing, and its card shows no people.
+// The last lists seen, so coming back to the page shows people at once and
+// refreshes quietly instead of starting from skeletons.
+const seen = new Map<string, Member[]>()
+
+// Members per campaign id. One that fails to load stays on its skeleton.
 export function useCampaignMembers(campaigns: Campaign[]) {
-  const [members, setMembers] = useState<Record<string, Member[]>>({})
+  const [members, setMembers] = useState<Record<string, Member[]>>(() => Object.fromEntries(seen))
   // The list is re-fetched every minute; only a change of campaigns matters.
   const ids = campaigns.map((campaign) => campaign.id).join(",")
 
@@ -24,7 +27,10 @@ export function useCampaignMembers(campaigns: Campaign[]) {
         )
     ).then((entries) => {
       if (!current) return
-      setMembers(Object.fromEntries(entries.filter((entry) => entry !== null)))
+      const loaded = entries.filter((entry) => entry !== null)
+      loaded.forEach(([id, list]) => seen.set(id, list))
+      // Keep what was already shown for a campaign whose refresh failed.
+      setMembers((previous) => ({ ...previous, ...Object.fromEntries(loaded) }))
     })
     return () => {
       current = false

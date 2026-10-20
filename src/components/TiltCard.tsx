@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 import type { ReactNode } from "react"
 import { motion, useSpring } from "motion/react"
 
@@ -29,8 +29,17 @@ export function TiltCard({ className, children }: Props) {
   const glareY = useSpring(0, SPRING)
   const hovering = useRef(false)
 
+  // A menu opened from inside the card (its trigger is marked open) takes
+  // over the pointer, so the card stops reacting until it closes.
+  const menuOpen = () => !!card.current?.querySelector("[data-state=open]")
+
   function follow(event: React.PointerEvent) {
-    if (still() || !card.current) return
+    if (still() || !card.current || menuOpen()) return
+    if (!hovering.current) {
+      hovering.current = true
+      scale.set(HOVER_SCALE)
+      glareOpacity.set(1)
+    }
     const box = card.current.getBoundingClientRect()
     const x = (event.clientX - box.left) / box.width
     const y = (event.clientY - box.top) / box.height
@@ -38,14 +47,6 @@ export function TiltCard({ className, children }: Props) {
     rotateX.set((0.5 - y) * 2 * MAX_TILT)
     glareX.set(x * box.width - GLARE_SIZE / 2)
     glareY.set(y * box.height - GLARE_SIZE / 2)
-  }
-
-  function enter(event: React.PointerEvent) {
-    if (still()) return
-    hovering.current = true
-    follow(event)
-    scale.set(HOVER_SCALE)
-    glareOpacity.set(1)
   }
 
   function leave() {
@@ -56,12 +57,22 @@ export function TiltCard({ className, children }: Props) {
     glareOpacity.set(0)
   }
 
+  useEffect(() => {
+    const element = card.current
+    if (!element) return
+    const watch = new MutationObserver(() => menuOpen() && leave())
+    watch.observe(element, { attributes: true, attributeFilter: ["data-state"], subtree: true })
+    return () => watch.disconnect()
+    // leave only writes motion values, which never change.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <motion.div
       ref={card}
       className={className}
       style={{ rotateX, rotateY, scale, transformPerspective: 1000 }}
-      onPointerEnter={enter}
+      onPointerEnter={follow}
       onPointerMove={follow}
       onPointerLeave={leave}
       onPointerDown={() => hovering.current && scale.set(PRESS_SCALE)}

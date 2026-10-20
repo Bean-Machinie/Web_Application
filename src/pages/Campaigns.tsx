@@ -9,9 +9,9 @@ import { JoinCampaignDialog } from "@/components/dashboard/JoinCampaignDialog"
 import { LeaveCampaignDialog } from "@/components/dashboard/LeaveCampaignDialog"
 import { useCampaign } from "@/components/dashboard/useCampaign"
 import { useCampaignMembers } from "@/hooks/use-campaign-members"
+import { useCampaignListPrefs } from "@/hooks/use-campaign-list-prefs"
 import { useCampaignViewMode } from "@/hooks/use-campaign-view-mode"
-import { defaultSort, viewCampaigns } from "@/lib/campaign-list"
-import type { RoleFilter, Sort } from "@/lib/campaign-list"
+import { viewCampaigns } from "@/lib/campaign-list"
 import type { Campaign } from "@/lib/campaigns"
 
 // Every campaign you belong to, and where the app always opens.
@@ -20,8 +20,7 @@ export function Campaigns() {
   const members = useCampaignMembers(campaigns)
   const [mode, setMode] = useCampaignViewMode()
   const [query, setQuery] = useState("")
-  const [role, setRole] = useState<RoleFilter>("all")
-  const [sort, setSort] = useState<Sort>(defaultSort("name"))
+  const { role, setRole, sort, setSort } = useCampaignListPrefs()
   const [joining, setJoining] = useState(false)
   const [leaving, setLeaving] = useState<Campaign | null>(null)
 
