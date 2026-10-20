@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/auth/useAuth"
 import {
@@ -6,55 +6,86 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandInput,
-  CommandList,
 } from "@/components/ui/command"
 import { KeyChips } from "@/components/ui/key-chips"
 import { buildGroups } from "@/lib/palette-groups"
+import type { SearchSource } from "@/lib/search-entries"
+import type { PaletteScope } from "@/lib/palette-groups"
 import type { PaletteItem } from "@/lib/palette-items"
 import { loadRecents, recordRecent } from "@/lib/recent-items"
 import { campaignNav, campaignSettingsNav, mainPages } from "./nav-items"
+import { PaletteList } from "./PaletteList"
+import { PaletteMoreRow } from "./PaletteMoreRow"
 import { PaletteRow } from "./PaletteRow"
+import { PaletteScopeSelect } from "./PaletteScopeSelect"
 import { useCampaign } from "./useCampaign"
 import { useRouteCampaign } from "./useCurrentCampaign"
-import { usePaletteData } from "./usePaletteData"
+import { useEntrySearch } from "./useEntrySearch"
 
 type Props = { open: boolean; onOpenChange: (open: boolean) => void }
 
-// Jump to a campaign, an entry or a page. What it lists depends on where you
-// are: inside a campaign that campaign's world and pages come first.
+// Results shown per group before "Show all".
+const TOP = 4
+
+// Jump to a campaign, an entry or a page. Inside a campaign it starts by
+// searching that campaign; Tab steps through the other scopes.
 export function CommandPalette({ open, onOpenChange }: Props) {
   const userId = useAuth().session!.user.id
   const { campaigns } = useCampaign()
   const current = useRouteCampaign()
   const navigate = useNavigate()
-  const data = usePaletteData(open, current?.id ?? null)
+  const input = useRef<HTMLInputElement>(null)
+  const scopes: PaletteScope[] = current
+    ? ["campaign", "everywhere", "campaigns", "library"]
+    : ["everywhere", "campaigns", "library"]
   const [query, setQuery] = useState("")
+  const [scope, setScope] = useState<PaletteScope>(scopes[0])
+  const [expanded, setExpanded] = useState<string[]>([])
   const [selected, setSelected] = useState("")
   // Read when the palette opens, not on every keystroke.
   const recents = useMemo(() => (open ? loadRecents(userId) : []), [open, userId])
+
+  // Which of the database's groups the scope asks for.
+  const sources: SearchSource[] =
+    scope === "library" ? ["library"] : scope === "campaign" ? ["current"] : scope === "campaigns" ? ["current", "other"] : ["current", "other", "library"]
+  const hits = useEntrySearch(open, query, current?.id ?? null, sources)
+
+  // Each opening, and a move into or out of a campaign, starts at the default scope.
+  const defaultScope = scopes[0]
+  useEffect(() => setScope(defaultScope), [open, defaultScope])
 
   const groups = useMemo(
     () =>
       buildGroups({
         query,
+        scope,
         campaigns,
         current,
         recents,
         campaignPages: current ? [...campaignNav(current.id), ...campaignSettingsNav(current.id)] : [],
         mainPages,
-        campaignEntries: data.campaignEntries,
-        libraryEntries: data.libraryEntries,
+        hits,
       }),
-    [query, campaigns, current, recents, data.campaignEntries, data.libraryEntries]
+    [query, scope, campaigns, current, recents, hits]
   )
+  const shown = groups.map((group) => ({
+    ...group,
+    visible: group.collapsible && !expanded.includes(group.heading) ? group.items.slice(0, TOP) : group.items,
+  }))
 
   // The first result is always the selected one, whatever the search finds.
-  const firstId = groups[0]?.items[0]?.id ?? ""
+  const firstId = shown[0]?.visible[0]?.id ?? ""
   useEffect(() => setSelected(firstId), [firstId])
+
+  function change(next: string, nextScope = scope) {
+    setQuery(next)
+    setScope(nextScope)
+    setExpanded([])
+  }
 
   function close(next: boolean) {
     onOpenChange(next)
-    if (!next) setQuery("")
+    if (!next) change("")
   }
 
   function choose(item: PaletteItem) {
@@ -62,6 +93,26 @@ export function CommandPalette({ open, onOpenChange }: Props) {
     close(false)
     navigate(item.path)
   }
+
+  function expand(heading: string, firstHidden: PaletteItem) {
+    setExpanded((current) => [...current, heading])
+    // The row that was asked for is gone; the next result takes the selection.
+    setSelected(firstHidden.id)
+  }
+
+  function cycleScope(event: React.KeyboardEvent) {
+    if (event.key !== "Tab") return
+    event.preventDefault()
+    const step = event.shiftKey ? scopes.length - 1 : 1
+    change(query, scopes[(scopes.indexOf(scope) + step) % scopes.length])
+  }
+
+  const placeholder = {
+    everywhere: "Search everywhere…",
+    campaign: `Search ${current?.name ?? "this campaign"}…`,
+    campaigns: "Search campaigns…",
+    library: "Search your library…",
+  }[scope]
 
   return (
     <CommandDialog
@@ -72,21 +123,40 @@ export function CommandPalette({ open, onOpenChange }: Props) {
       commandProps={{ value: selected, onValueChange: setSelected, loop: true }}
     >
       <CommandInput
+        ref={input}
         value={query}
-        onValueChange={setQuery}
-        placeholder={current ? `Search ${current.name}…` : "Search campaigns and library…"}
-        trailing={<KeyChips keys={["Esc"]} />}
+        onValueChange={(next) => change(next)}
+        onKeyDown={cycleScope}
+        placeholder={placeholder}
+        trailing={
+          <>
+            <PaletteScopeSelect
+              scope={scope}
+              scopes={scopes}
+              onChange={(next) => change(query, next)}
+              onClosed={() => input.current?.focus()}
+            />
+            <KeyChips keys={["Esc"]} />
+          </>
+        }
       />
-      <CommandList>
+      <PaletteList resetKey={`${query}|${scope}`}>
         <CommandEmpty>Nothing matches “{query}”.</CommandEmpty>
-        {groups.map((group) => (
+        {shown.map((group) => (
           <CommandGroup key={group.heading} heading={group.heading}>
-            {group.items.map((item) => (
+            {group.visible.map((item) => (
               <PaletteRow key={item.id} item={item} onSelect={choose} />
             ))}
+            {group.visible.length < group.items.length && (
+              <PaletteMoreRow
+                heading={group.heading}
+                count={group.items.length}
+                onExpand={() => expand(group.heading, group.items[group.visible.length])}
+              />
+            )}
           </CommandGroup>
         ))}
-      </CommandList>
+      </PaletteList>
     </CommandDialog>
   )
 }

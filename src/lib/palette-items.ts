@@ -29,4 +29,9 @@ export type PaletteItem = {
   recent?: Recent
 }
 
-export type PaletteGroup = { heading: string; items: PaletteItem[] }
+export type PaletteGroup = {
+  heading: string
+  items: PaletteItem[]
+  // Shows its first results and a "Show all" row for the rest.
+  collapsible?: boolean
+}

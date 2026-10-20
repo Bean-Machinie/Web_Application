@@ -5,6 +5,7 @@ import { cn } from "cn"
 import { Command as CommandPrimitive } from "cmdk"
 import { SearchIcon } from "lucide-react"
 import { Dialog as DialogPrimitive } from "radix-ui"
+import { DialogOverlay } from "@/components/ui/dialog"
 
 function Command({
   className,
@@ -39,21 +40,17 @@ function CommandDialog({
   return (
     <DialogPrimitive.Root {...props}>
       <DialogPrimitive.Portal>
-        {/* A soft dim, no blur. */}
-        <DialogPrimitive.Overlay
-          data-slot="command-overlay"
-          className="fixed inset-0 z-50 bg-black/30 duration-150 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0"
-        />
+        <DialogOverlay />
         <DialogPrimitive.Content
           data-slot="command-dialog"
           className={cn(
-            "fixed top-[20%] left-1/2 z-50 w-[calc(100%-2rem)] max-w-[640px] -translate-x-1/2 overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-2xl ring-1 ring-foreground/10 duration-150 ease-out outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-98 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-98",
+            "fixed top-[min(20vh,max(1rem,calc(100dvh-496px)))] left-1/2 z-50 flex h-[min(480px,calc(100dvh-2rem))] w-[min(720px,calc(100vw-2rem))] -translate-x-1/2 flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-2xl ring-1 ring-foreground/10 duration-150 ease-out outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-98 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-98",
             className
           )}
         >
           <DialogPrimitive.Title className="sr-only">{title}</DialogPrimitive.Title>
           <DialogPrimitive.Description className="sr-only">{description}</DialogPrimitive.Description>
-          <Command shouldFilter={false} {...commandProps}>
+          <Command shouldFilter={false} className="min-h-0 flex-1" {...commandProps}>
             {children}
           </Command>
         </DialogPrimitive.Content>
@@ -81,7 +78,7 @@ function CommandInput({
         )}
         {...props}
       />
-      {trailing}
+      {trailing && <div className="flex shrink-0 items-center gap-1">{trailing}</div>}
     </div>
   )
 }
@@ -93,9 +90,10 @@ function CommandList({
   return (
     <CommandPrimitive.List
       data-slot="command-list"
-      // cmdk reports the height of the results; the list follows it, up to a maximum.
+      // Fills the fixed frame under the input and scrolls on its own. The thumb
+      // only shows while scrolling or hovering.
       className={cn(
-        "h-[min(var(--cmdk-list-height),26rem)] overflow-x-hidden overflow-y-auto transition-[height] duration-150 ease-out [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin] motion-reduce:transition-none",
+        "h-full scroll-py-3 overflow-x-hidden overflow-y-auto [scrollbar-color:transparent_transparent] [scrollbar-width:thin] hover:[scrollbar-color:var(--border)_transparent] data-[scrolling=true]:[scrollbar-color:var(--border)_transparent]",
         className
       )}
       {...props}
@@ -123,7 +121,7 @@ function CommandGroup({
     <CommandPrimitive.Group
       data-slot="command-group"
       className={cn(
-        "overflow-hidden px-2 pt-2 pb-1 text-foreground last:pb-2 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:pt-1 **:[[cmdk-group-heading]]:pb-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
+        "px-2 pb-1 text-foreground last:pb-2 **:[[cmdk-group-heading]]:sticky **:[[cmdk-group-heading]]:top-0 **:[[cmdk-group-heading]]:z-10 **:[[cmdk-group-heading]]:-mx-2 **:[[cmdk-group-heading]]:bg-popover **:[[cmdk-group-heading]]:px-4 **:[[cmdk-group-heading]]:pt-3 **:[[cmdk-group-heading]]:pb-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
         className
       )}
       {...props}

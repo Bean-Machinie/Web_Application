@@ -7,12 +7,12 @@ import { CampaignImage } from "./CampaignImage"
 import { HighlightedText } from "./HighlightedText"
 
 const tile =
-  "bg-muted text-muted-foreground flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md border"
+  "bg-muted text-muted-foreground flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-md border"
 
 function Leading({ visual }: { visual: Visual }) {
   switch (visual.type) {
     case "campaign":
-      return <CampaignImage name={visual.name} imageUrl={visual.imageUrl} className="size-7 rounded-md" />
+      return <CampaignImage name={visual.name} imageUrl={visual.imageUrl} className="size-6 rounded-md" />
     case "entry": {
       const KindIcon = WORLD_KINDS[visual.kind].icon
       return (
@@ -42,12 +42,14 @@ function Leading({ visual }: { visual: Visual }) {
 
 export function PaletteRow({ item, onSelect }: { item: PaletteItem; onSelect: (item: PaletteItem) => void }) {
   return (
-    <CommandItem value={item.id} onSelect={() => onSelect(item)}>
+    <CommandItem value={item.id} onSelect={() => onSelect(item)} className="animate-in fade-in-0 py-1.5 duration-100">
       <Leading visual={item.visual} />
       <span className="text-foreground/70 truncate">
         <HighlightedText text={item.name} matched={item.matched} />
       </span>
-      <span className="text-muted-foreground ml-auto shrink-0 pl-3 text-xs">{item.context}</span>
+      {item.context && (
+        <span className="text-muted-foreground ml-auto shrink-0 pl-3 text-xs">{item.context}</span>
+      )}
     </CommandItem>
   )
 }
