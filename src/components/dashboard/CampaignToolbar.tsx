@@ -10,8 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import type { CampaignViewMode } from "@/hooks/use-campaign-view-mode"
-import { defaultSort } from "@/lib/campaign-list"
-import type { RoleFilter, Sort, SortKey } from "@/lib/campaign-list"
+import type { RoleFilter, Sort } from "@/lib/campaign-list"
+import { CampaignSortMenu } from "./CampaignSortMenu"
 import { CampaignViewToggle } from "./CampaignViewToggle"
 
 type Props = {
@@ -31,7 +31,7 @@ export function CampaignToolbar(props: Props) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <InputGroup className="min-w-0 flex-1 sm:max-w-xs">
+      <InputGroup className="w-full sm:w-56 sm:flex-none">
         <InputGroupAddon>
           <Search />
         </InputGroupAddon>
@@ -42,8 +42,9 @@ export function CampaignToolbar(props: Props) {
           aria-label="Search campaigns"
         />
       </InputGroup>
+      <div className="min-w-0 flex-1 sm:w-36 sm:flex-none">
       <Select value={role} onValueChange={(value) => onRole(value as RoleFilter)}>
-        <SelectTrigger aria-label="Filter by role" className="w-36">
+        <SelectTrigger aria-label="Filter by role" className="w-full">
           <SelectValue />
         </SelectTrigger>
         <SelectContent position="popper" align="start">
@@ -52,21 +53,14 @@ export function CampaignToolbar(props: Props) {
           <SelectItem value="player">Player</SelectItem>
         </SelectContent>
       </Select>
-      <Select value={sort.by} onValueChange={(value) => onSort(defaultSort(value as SortKey))}>
-        <SelectTrigger aria-label="Sort by" className="w-36">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent position="popper" align="start">
-          <SelectItem value="name">Name</SelectItem>
-          <SelectItem value="created">Created</SelectItem>
-        </SelectContent>
-      </Select>
+      </div>
+      <CampaignSortMenu sort={sort} onSort={onSort} className="min-w-0 flex-1 sm:w-56 sm:flex-none" />
       <CampaignViewToggle mode={mode} onChange={onMode} />
-      <div className="ml-auto flex items-center gap-2">
-        <Button variant="outline" onClick={onJoin}>
+      <div className="flex w-full gap-2 sm:ml-auto sm:w-auto">
+        <Button variant="outline" className="flex-1 sm:flex-none" onClick={onJoin}>
           Join with invite link
         </Button>
-        <Button asChild>
+        <Button asChild className="flex-1 sm:flex-none">
           <Link to="/app/campaigns/new">New campaign</Link>
         </Button>
       </div>
