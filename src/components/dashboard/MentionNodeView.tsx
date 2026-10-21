@@ -26,15 +26,22 @@ export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
   const name = entry?.name ?? (node.attrs.label as string)
   const hidden = !!entry && !!scope?.hasVisibility && !entry.revealed
   const Icon = entry ? WORLD_KINDS[entry.kind].icon : null
-  const href = entry && scope ? `${scope.basePath}/${entry.id}` : null
-  // Once the entries are known, a mention of one that is not there (deleted, or
-  // one a player cannot see) is just its name.
-  if (entries && !entry) return <NodeViewWrapper as="span" className="inline">{name}</NodeViewWrapper>
+  // Read-only is what a player sees, and the database only leaves a mention in
+  // what a player is sent when they may follow it, so it is a link whether or not
+  // the list of entries has loaded, or has it. Being edited, it needs the list to
+  // know the entry is still there.
+  const readOnly = !editor.isEditable
+  const href = scope && (entry || readOnly) ? `${scope.basePath}/${id}` : null
+  // In the editor, once the entries are known, a mention of one that is not there
+  // (deleted) is just its name.
+  if (!readOnly && entries && !entry) {
+    return <NodeViewWrapper as="span" className="inline">{name}</NodeViewWrapper>
+  }
 
   const className = cn(
     CHIP,
-    !entry && "border-transparent bg-muted text-muted-foreground",
-    entry && !hidden && "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15",
+    !href && "border-transparent bg-muted text-muted-foreground",
+    href && !hidden && "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15",
     hidden && "border-muted-foreground/60 text-muted-foreground border-dashed bg-transparent",
     selected && "ring-foreground/20 ring-2",
     // The editor's own text cursor would be inherited otherwise.
@@ -53,7 +60,7 @@ export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
 
   return (
     <NodeViewWrapper as="span" className="inline">
-      {href && !editor.isEditable ? (
+      {href && readOnly ? (
         <Link to={href} className={className}>
           {content}
         </Link>
