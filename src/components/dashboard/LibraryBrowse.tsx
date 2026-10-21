@@ -10,6 +10,7 @@ import { useWorldEntries } from "@/hooks/use-world-entries"
 import { useWorldEntryDelete } from "@/hooks/use-world-entry-delete"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { WorldEntryKind } from "@/lib/world-kinds"
+import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import { LibrarySelectionFooter } from "./LibrarySelectionFooter"
 import { LibraryWindow } from "./LibraryWindow"
 import { NewEntryButton } from "./NewEntryButton"
@@ -18,7 +19,11 @@ import { SelectionBox } from "./SelectionBox"
 import { useWorldScope } from "./useWorldScope"
 import { WorldEntryCard } from "./WorldEntryCard"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
+import { WorldEntryGraph } from "./WorldEntryGraph"
+import { WorldViewToggle } from "./WorldViewToggle"
 import { createWorldManage } from "./world-manage"
+
+const LIBRARY_VIEWS: readonly WorldViewMode[] = ["grid", "graph"]
 
 type Props = {
   compact: boolean
@@ -39,6 +44,8 @@ export function LibraryBrowse({ compact, onHold }: Props) {
   const [creating, setCreating] = useState<WorldEntryKind | null>(null)
   const [renaming, setRenaming] = useState<WorldEntry | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  // The cards, or the graph; the library has no list.
+  const [mode, setMode] = useState<WorldViewMode>("grid")
   const removal = useWorldEntryDelete(reload, setActionError)
   const root = useRef<HTMLDivElement>(null)
   const scroller = useRef<HTMLDivElement>(null)
@@ -107,7 +114,13 @@ export function LibraryBrowse({ compact, onHold }: Props) {
         onQuery={view.setQuery}
         loadError={error}
         compact={compact}
-        toolbar={<NewEntryButton onPick={setCreating} />}
+        toolbar={
+          <>
+            <WorldViewToggle mode={mode} onChange={setMode} modes={LIBRARY_VIEWS} />
+            <NewEntryButton onPick={setCreating} />
+          </>
+        }
+        graph={mode === "graph" && view.shown ? <WorldEntryGraph entries={view.shown} /> : undefined}
         emptyText="Your library is empty. Create an entry, or save entries from a campaign's World."
         scroller={{ ref: scroller, onPointerDown, overlay: <SelectionBox box={box} /> }}
         renderEntry={(entry, index) => (

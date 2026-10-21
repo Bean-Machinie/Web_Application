@@ -31,6 +31,8 @@ type Props = {
   // Said when the library has no entries at all.
   emptyText: string
   rootRef?: Ref<HTMLDivElement>
+  // Takes the place of the cards, such as the graph.
+  graph?: ReactNode
   // For a box dragged across the entries to pick them.
   scroller?: { ref: Ref<HTMLDivElement>; onPointerDown: PointerEventHandler; overlay: ReactNode }
 }
@@ -79,7 +81,12 @@ export function LibraryWindow(props: Props) {
             {props.toolbar}
           </div>
           {props.loadError && <FormAlert tone="error">{props.loadError}</FormAlert>}
-          {/* The scrollbar sits in the margin, so the cards line up with the search above. */}
+          {props.graph ? (
+            <div className="bg-card relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border">
+              {props.graph}
+            </div>
+          ) : (
+          // The scrollbar sits in the margin, so the cards line up with the search above.
           <div
             ref={scroller?.ref}
             onPointerDown={scroller?.onPointerDown}
@@ -111,6 +118,7 @@ export function LibraryWindow(props: Props) {
               </div>
             )}
           </div>
+          )}
         </div>
       </div>
       {props.footer}

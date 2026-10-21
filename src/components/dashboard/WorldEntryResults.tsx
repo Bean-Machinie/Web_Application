@@ -4,6 +4,7 @@ import type { WorldEntry } from "@/lib/world-entries"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import type { Sort } from "@/lib/world-list"
 import { WorldEmptyState } from "./WorldEmptyState"
+import { WorldEntryGraph } from "./WorldEntryGraph"
 import { WorldEntryGrid } from "./WorldEntryGrid"
 import { WorldEntryTable } from "./WorldEntryTable"
 import type { WorldManage } from "./world-manage"
@@ -26,6 +27,8 @@ export function WorldEntryResults({ entries, mode, kind, filtered, canManage, ma
     <div className="flex min-h-0 flex-1 flex-col">
       {entries.length === 0 ? (
         <WorldEmptyState kind={kind} filtered={filtered} canManage={canManage} />
+      ) : mode === "graph" ? (
+        <WorldEntryGraph entries={entries} />
       ) : mode === "grid" ? (
         <WorldEntryGrid entries={entries} manage={manage} selection={selection} />
       ) : (

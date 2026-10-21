@@ -1,14 +1,15 @@
 import { useState } from "react"
 import { useAuth } from "@/auth/useAuth"
 
-export type WorldViewMode = "list" | "grid"
+export type WorldViewMode = "list" | "grid" | "graph"
 
 // Remembered per user, in this browser.
 export function useWorldViewMode() {
   const storageKey = `world-view:${useAuth().session!.user.id}`
   const [mode, setMode] = useState<WorldViewMode>(() => {
     try {
-      return localStorage.getItem(storageKey) === "grid" ? "grid" : "list"
+      const stored = localStorage.getItem(storageKey)
+      return stored === "grid" || stored === "graph" ? stored : "list"
     } catch {
       return "list"
     }
