@@ -4,6 +4,7 @@ import { EyeOff } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import { useMentionEntries } from "@/hooks/use-mention-entries"
 import { cn } from "@/lib/utils"
+import { MODIFIER_KEY } from "@/lib/selection-hint"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { useMentionScope } from "./useMentionScope"
 
@@ -35,7 +36,9 @@ export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
     !entry && "border-transparent bg-muted text-muted-foreground",
     entry && !hidden && "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15",
     hidden && "border-muted-foreground/60 text-muted-foreground border-dashed bg-transparent",
-    selected && "ring-foreground/20 ring-2"
+    selected && "ring-foreground/20 ring-2",
+    // The editor's own text cursor would be inherited otherwise.
+    href ? "cursor-pointer" : "cursor-default"
   )
   const content = (
     <>
@@ -57,7 +60,12 @@ export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
       ) : (
         <span
           className={className}
-          title={hidden ? "Hidden from players, who read this as plain text" : undefined}
+          title={[
+            hidden && "Hidden from players, who read this as plain text.",
+            href && `${MODIFIER_KEY} click to open.`,
+          ]
+            .filter(Boolean)
+            .join(" ") || undefined}
           onClick={(event) => href && (event.ctrlKey || event.metaKey) && navigate(href)}
         >
           {content}
