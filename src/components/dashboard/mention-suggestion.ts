@@ -82,6 +82,15 @@ export function mentionSuggestion(
 ): Omit<SuggestionOptions<MentionItem>, "editor"> {
   return {
     char: "@",
+    // Only the chip: the default adds a space after it, which leaves a gap before
+    // a comma or a full stop typed next.
+    command: ({ editor, range, props }) => {
+      editor
+        .chain()
+        .focus()
+        .insertContentAt(range, { type: "mention", attrs: { id: props.id, label: props.label } })
+        .run()
+    },
     items: ({ query }) => items(scope, exceptId, query),
     render,
   }

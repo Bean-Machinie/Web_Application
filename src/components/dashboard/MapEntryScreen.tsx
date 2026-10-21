@@ -17,6 +17,7 @@ import { MapTitlePill } from "./MapTitlePill"
 import { MapUploadPrompt } from "./MapUploadPrompt"
 import { SaveIndicator } from "./SaveIndicator"
 import { EditableName } from "./EditableName"
+import { EntryConnections } from "./EntryConnections"
 import { WorldEntryDetails } from "./WorldEntryDetails"
 import { WorldFields } from "./WorldFields"
 import type { EntryProps } from "./world-entry-props"
@@ -105,6 +106,12 @@ export function MapEntryScreen(props: EntryProps) {
             state={state}
           />
         </div>
+        <EntryConnections
+          entryId={entryId}
+          kind={kind}
+          name={name}
+          className="border-b px-5 py-4"
+        />
         {canManage && built && (
           <section className="flex flex-col gap-3 border-b px-5 py-4">
             <div>
