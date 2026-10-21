@@ -5,6 +5,11 @@ import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 
 type Props = { mode: WorldViewMode; onChange: (mode: WorldViewMode) => void }
 
+// The tooltip around each item sets its own data-state ("closed"), which replaces
+// the toggle's "on", so the chosen view is marked by what the group sets on it
+// instead: aria-checked. It is the same fill the campaigns switch uses.
+const CHOSEN = "aria-checked:bg-muted"
+
 export function WorldViewToggle({ mode, onChange }: Props) {
   return (
     <ToggleGroup
@@ -18,7 +23,7 @@ export function WorldViewToggle({ mode, onChange }: Props) {
     >
       <Tooltip>
         <TooltipTrigger asChild>
-          <ToggleGroupItem value="list" aria-label="List view">
+          <ToggleGroupItem value="list" aria-label="List view" className={CHOSEN}>
             <List />
           </ToggleGroupItem>
         </TooltipTrigger>
@@ -26,7 +31,7 @@ export function WorldViewToggle({ mode, onChange }: Props) {
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
-          <ToggleGroupItem value="grid" aria-label="Grid view">
+          <ToggleGroupItem value="grid" aria-label="Grid view" className={CHOSEN}>
             <LayoutGrid />
           </ToggleGroupItem>
         </TooltipTrigger>

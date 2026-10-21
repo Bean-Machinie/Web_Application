@@ -26,8 +26,8 @@ type Props = {
   toolbar?: ReactNode
   // Under the entries, such as the buttons of a picker.
   footer?: ReactNode
-  // How one entry looks; the window lays them out.
-  renderEntry: (entry: WorldEntry) => ReactNode
+  // How one entry looks, and where it stands in the list; the window lays them out.
+  renderEntry: (entry: WorldEntry, index: number) => ReactNode
   // Said when the library has no entries at all.
   emptyText: string
   rootRef?: Ref<HTMLDivElement>
@@ -105,8 +105,8 @@ export function LibraryWindow(props: Props) {
               </p>
             ) : (
               <div className={cn(compact ? GRID_SMALL : GRID, "select-none")}>
-                {shown.map((entry) => (
-                  <Fragment key={entry.id}>{props.renderEntry(entry)}</Fragment>
+                {shown.map((entry, index) => (
+                  <Fragment key={entry.id}>{props.renderEntry(entry, index)}</Fragment>
                 ))}
               </div>
             )}
