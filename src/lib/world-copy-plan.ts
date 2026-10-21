@@ -10,6 +10,9 @@ export type PlanNode = {
   isRoot: boolean
   // The copy already in the target, if there is one; links point at it.
   existingId: string | null
+  // For a picked entry: the copy the target already has of it, which is why
+  // another would be a duplicate.
+  copyHere: string | null
   imagePath: string | null
 }
 
@@ -25,6 +28,7 @@ type Stored = {
     kind: WorldEntryKind
     is_root: boolean
     existing_id: string | null
+    copy_here: string | null
     image_path: string | null
   }[]
   edges: { source_id: string; target_id: string; link_type: PlanEdge["type"] }[]
@@ -47,6 +51,7 @@ export async function fetchCopyPlan(entryIds: string[], targetCampaign: string |
         kind: node.kind,
         isRoot: node.is_root,
         existingId: node.existing_id,
+        copyHere: node.copy_here,
         imagePath: node.image_path,
       })
     ),

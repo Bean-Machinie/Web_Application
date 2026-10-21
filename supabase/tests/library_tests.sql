@@ -2,8 +2,9 @@
 -- a library owner and a stranger.
 --
 -- HOW TO RUN: apply the library migrations first (through the one that copies
--- entries with their links, 20261030000000, and the one that drops the mention
--- delete trigger, 20261031000000), then paste this whole
+-- entries with their links, 20261030000000, the ones that drop the mention delete
+-- trigger, 20261031000000, add dormant mentions, 20261102000000, and reconnect
+-- old ones by name, 20261103000000), then paste this whole
 -- file into the Supabase SQL editor and run it once, on a development project.
 -- It runs inside one transaction that is rolled back at the end, so nothing is
 -- kept. The last statement returns one row per check (failures first) after a
@@ -735,7 +736,8 @@ insert into pg_temp.test_ids values
   ('s4', 'f3000000-0000-0000-0000-000000000004'),
   ('s5', 'f3000000-0000-0000-0000-000000000005'),
   ('s6', 'f3000000-0000-0000-0000-000000000006'),
-  ('s7', 'f3000000-0000-0000-0000-000000000007');
+  ('s7', 'f3000000-0000-0000-0000-000000000007'),
+  ('s8', 'f3000000-0000-0000-0000-000000000008');
 
 insert into public.world_entries (id, kind, name, owner_id, created_by, sort_order)
 select pg_temp.id(e.k), e.kind::public.world_entry_kind, e.k, pg_temp.id('gm'), pg_temp.id('gm'), e.pos
@@ -785,8 +787,24 @@ select pg_temp.count_is(pg_temp.id('root'), 'diamond: dx mentions the copy of dz
   $$select 1 from public.world_entry_mentions where source_entry_id = '{s5}' and target_entry_id = '{s6}'$$, 1);
 select pg_temp.count_is(pg_temp.id('root'), 'diamond: the mention of dy is gone, so dr links nothing by mention',
   $$select 1 from public.world_entry_mentions where source_entry_id = '{s4}'$$, 0);
-select pg_temp.value_is(pg_temp.id('root'), 'diamond: dy stays as its name, with no id',
-  $$select (value::text like '%Why%' and value::text not like '%{dy}%')::text from public.world_entry_fields where entry_id = '{s4}' and key = 'description'$$, 'true');
+select pg_temp.value_is(pg_temp.id('root'), 'diamond: the mention of dy stays in the text, dormant',
+  $$select (value::text like '%Why%' and value::text like '%{dy}%')::text from public.world_entry_fields where entry_id = '{s4}' and key = 'description'$$, 'true');
+select pg_temp.count_is(pg_temp.id('root'), 'diamond: and waits in the registry',
+  $$select 1 from public.world_dormant_mentions where source_entry_id = '{s4}' and origin_entry_id = '{dy}'$$, 1);
+
+-- A copied entry is pinned on the maps the target already has: ld is pinned on la,
+-- la has copies in c1 (r1 is the oldest), so the new copy of ld gets that pin on r1,
+-- and nowhere else. Nothing else on r1 is touched.
+select pg_temp.count_is(pg_temp.id('gm'), 'plan: ld already has a copy here', $$select 1 from jsonb_array_elements(public.plan_entry_copy(array['{ld}'::uuid], '{c1}') -> 'nodes') n where n ->> 'is_root' = 'true' and n ->> 'copy_here' is not null$$, 1);
+select pg_temp.count_is(pg_temp.id('gm'), 'plan: dy has no copy here', $$select 1 from jsonb_array_elements(public.plan_entry_copy(array['{dy}'::uuid], '{c1}') -> 'nodes') n where n ->> 'is_root' = 'true' and n ->> 'copy_here' is not null$$, 0);
+select pg_temp.allowed(pg_temp.id('gm'), 'copy an entry that is pinned on a map already there',
+  $$select * from public.copy_entries_with_links(array['{ld}'::uuid], '{c1}', '{"{ld}": "{s8}"}'::jsonb)$$);
+select pg_temp.count_is(pg_temp.id('root'), 'pins to existing maps: the new copy is pinned on the oldest copy of la',
+  $$select 1 from public.world_map_markers where map_id = '{r1}' and entry_id = '{s8}'$$, 1);
+select pg_temp.value_is(pg_temp.id('root'), 'pins to existing maps: in the same place',
+  $$select x::text || ',' || y::text from public.world_map_markers where map_id = '{r1}' and entry_id = '{s8}'$$, '25,25');
+select pg_temp.count_is(pg_temp.id('root'), 'pins to existing maps: only that one pin',
+  $$select 1 from public.world_map_markers where entry_id = '{s8}'$$, 1);
 
 -- A copy that fails says which entry it failed on, and leaves nothing behind.
 select pg_temp.denied(pg_temp.id('gm'), 'failure: names the entry', 'elg: Copy the image file first',
@@ -908,8 +926,10 @@ select pg_temp.count_is(pg_temp.id('root'), 'copy: the mention of lc goes to its
   $$select 1 from public.world_entry_mentions where source_entry_id = '{r9}' and target_entry_id = '{r3}'$$, 1);
 select pg_temp.count_is(pg_temp.id('root'), 'copy: nothing else is linked',
   $$select 1 from public.world_entry_mentions where source_entry_id = '{r9}'$$, 1);
-select pg_temp.value_is(pg_temp.id('root'), 'copy: lz stays as its name, with no id',
-  $$select (value::text like '%Zed%' and value::text not like '%{lz}%' and value::text not like '%{lc}%')::text from public.world_entry_fields where entry_id = '{r9}' and key = 'description'$$, 'true');
+select pg_temp.value_is(pg_temp.id('root'), 'copy: the mention of lz stays in the text, dormant, and lc is the copy',
+  $$select (value::text like '%Zed%' and value::text like '%{lz}%' and value::text not like '%{lc}%')::text from public.world_entry_fields where entry_id = '{r9}' and key = 'description'$$, 'true');
+select pg_temp.count_is(pg_temp.id('root'), 'copy: lz waits in the registry',
+  $$select 1 from public.world_dormant_mentions where source_entry_id = '{r9}' and origin_entry_id = '{lz}'$$, 1);
 select pg_temp.count_is(pg_temp.id('root'), 'copy: the original keeps its mentions',
   $$select 1 from public.world_entry_mentions where source_entry_id = '{lm}'$$, 2);
 
@@ -944,14 +964,161 @@ select pg_temp.count_is(pg_temp.id('root'), 'delete campaign: its entries are go
 select pg_temp.count_is(pg_temp.id('root'), 'delete campaign: no row left',
   $$select 1 from public.world_entry_mentions where source_entry_id in ('{q1}', '{q2}', '{q3}') or target_entry_id in ('{q1}', '{q2}', '{q3}')$$, 0);
 
+-- Dormant mentions. In campaign c5, Kestrel (kk) mentions Mara (mm); Mara is saved
+-- to the library (ml), then deleted in the campaign. The mention must stay in
+-- Kestrel's text and wait, not turn to plain text: this fails if the old delete
+-- trigger, which rewrote the text, is still there. c6 is another campaign of the
+-- GM. k2 mentions cx; k2 is saved to the library without cx, and cx after it.
+insert into pg_temp.test_ids values
+  ('c5', 'c0000000-0000-0000-0000-000000000005'),
+  ('c6', 'c0000000-0000-0000-0000-000000000006'),
+  ('kk', 'e4000000-0000-0000-0000-000000000001'),
+  ('mm', 'e4000000-0000-0000-0000-000000000002'),
+  ('k2', 'e4000000-0000-0000-0000-000000000003'),
+  ('cx', 'e4000000-0000-0000-0000-000000000004'),
+  ('ml', 'f4000000-0000-0000-0000-000000000001'),
+  ('m2', 'f4000000-0000-0000-0000-000000000002'),
+  ('m3', 'f4000000-0000-0000-0000-000000000003'),
+  ('m4', 'f4000000-0000-0000-0000-000000000004'),
+  ('lk', 'f4000000-0000-0000-0000-000000000005'),
+  ('lx', 'f4000000-0000-0000-0000-000000000006');
+
+insert into public.campaigns (id, name, created_by) values
+  (pg_temp.id('c5'), 'Dormant campaign', pg_temp.id('gm')),
+  (pg_temp.id('c6'), 'Other campaign', pg_temp.id('gm'));
+
+insert into public.campaign_members (campaign_id, user_id, role) values
+  (pg_temp.id('c5'), pg_temp.id('gm'), 'gm'),
+  (pg_temp.id('c5'), pg_temp.id('player'), 'player'),
+  (pg_temp.id('c6'), pg_temp.id('gm'), 'gm');
+
+insert into public.world_entries (id, kind, name, campaign_id, revealed, sort_order)
+select pg_temp.id(e.k), 'character', e.k, pg_temp.id('c5'), true, e.pos
+from (values ('kk', 1), ('mm', 2), ('k2', 3), ('cx', 4)) as e (k, pos);
+
+insert into public.world_entry_fields (entry_id, key, type, value, private) values
+  (pg_temp.id('kk'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Friend of "},{"type":"mention","attrs":{"id":"{mm}","label":"Mara"}}]}]}')::jsonb, false),
+  (pg_temp.id('k2'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{cx}","label":"Cee"}}]}]}')::jsonb, false);
+
+select pg_temp.allowed(pg_temp.id('gm'), 'dormant: save Mara to the library',
+  $$select * from public.copy_entries_with_links(array['{mm}'::uuid], null, '{"{mm}": "{ml}"}'::jsonb)$$);
+select pg_temp.value_is(pg_temp.id('gm'), 'dormant: her copy leads back to her',
+  $$select (source_entry_id = '{mm}')::text from public.world_entries where id = '{ml}'$$, 'true');
+select pg_temp.count_is(pg_temp.id('root'), 'dormant: before, Kestrel mentions her for real',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{kk}' and target_entry_id = '{mm}'$$, 1);
+
+select pg_temp.allowed(pg_temp.id('gm'), 'dormant: delete Mara in the campaign', $$select public.delete_world_entry('{mm}')$$);
+select pg_temp.count_is(pg_temp.id('root'), 'dormant: no mention row points at her', $$select 1 from public.world_entry_mentions where target_entry_id = '{mm}'$$, 0);
+select pg_temp.value_is(pg_temp.id('root'), 'dormant: Kestrel''s text still holds the mention',
+  $$select (value::text like '%{mm}%')::text from public.world_entry_fields where entry_id = '{kk}' and key = 'description'$$, 'true');
+select pg_temp.count_is(pg_temp.id('root'), 'dormant: and a dormant row waits for her',
+  $$select 1 from public.world_dormant_mentions where source_entry_id = '{kk}' and origin_entry_id = '{mm}'$$, 1);
+select pg_temp.value_is(pg_temp.id('gm'), 'dormant: her copy still leads back to her',
+  $$select (source_entry_id = '{mm}')::text from public.world_entries where id = '{ml}'$$, 'true');
+select pg_temp.value_is(pg_temp.id('player'), 'dormant: a player gets plain text',
+  $$select (not jsonb_path_exists(f.value, 'lax $.** ? (@.type == "mention")') and f.value::text like '%Mara%')::text from public.get_world_entry_fields('{kk}') f where f.key = 'description'$$, 'true');
+
+-- Another home does not take it.
+select pg_temp.allowed(pg_temp.id('gm'), 'dormant: add Mara to another campaign',
+  $$select * from public.copy_entries_with_links(array['{ml}'::uuid], '{c6}', '{"{ml}": "{m4}"}'::jsonb)$$);
+select pg_temp.count_is(pg_temp.id('root'), 'dormant: Kestrel''s mention still waits',
+  $$select 1 from public.world_dormant_mentions where source_entry_id = '{kk}' and origin_entry_id = '{mm}'$$, 1);
+
+-- Mara comes back from the library, into the campaign she was in.
+select pg_temp.allowed(pg_temp.id('gm'), 'dormant: add Mara from the library to the campaign',
+  $$select * from public.copy_entries_with_links(array['{ml}'::uuid], '{c5}', '{"{ml}": "{m2}"}'::jsonb)$$);
+select pg_temp.value_is(pg_temp.id('root'), 'dormant: Kestrel''s mention now holds the new copy',
+  $$select (value::text like '%{m2}%' and value::text not like '%{mm}%')::text from public.world_entry_fields where entry_id = '{kk}' and key = 'description'$$, 'true');
+select pg_temp.count_is(pg_temp.id('root'), 'dormant: it is a mention again',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{kk}' and target_entry_id = '{m2}'$$, 1);
+select pg_temp.count_is(pg_temp.id('root'), 'dormant: and no longer waits',
+  $$select 1 from public.world_dormant_mentions where source_entry_id = '{kk}'$$, 0);
+select pg_temp.value_is(pg_temp.id('root'), 'dormant: the text around it is untouched',
+  $$select (value::text like '%Friend of %' and value::text like '%Mara%')::text from public.world_entry_fields where entry_id = '{kk}' and key = 'description'$$, 'true');
+
+-- The first to arrive wins: a second copy of Mara changes nothing.
+select pg_temp.allowed(pg_temp.id('gm'), 'dormant: add Mara a second time',
+  $$select * from public.copy_entries_with_links(array['{ml}'::uuid], '{c5}', '{"{ml}": "{m3}"}'::jsonb)$$);
+select pg_temp.value_is(pg_temp.id('root'), 'dormant: Kestrel still holds the first copy',
+  $$select (value::text like '%{m2}%' and value::text not like '%{m3}%')::text from public.world_entry_fields where entry_id = '{kk}' and key = 'description'$$, 'true');
+
+-- The same in the library: an entry saved without what it mentions, which is saved
+-- after.
+select pg_temp.allowed(pg_temp.id('gm'), 'dormant: save k2 to the library without cx',
+  $$select * from public.copy_entries_with_links(array['{k2}'::uuid], null, '{"{k2}": "{lk}"}'::jsonb)$$);
+select pg_temp.value_is(pg_temp.id('root'), 'dormant: its copy keeps the mention in the text',
+  $$select (value::text like '%{cx}%')::text from public.world_entry_fields where entry_id = '{lk}' and key = 'description'$$, 'true');
+select pg_temp.count_is(pg_temp.id('root'), 'dormant: waiting, not a mention',
+  $$select 1 from public.world_dormant_mentions where source_entry_id = '{lk}' and origin_entry_id = '{cx}'$$, 1);
+select pg_temp.count_is(pg_temp.id('root'), 'dormant: no mention row yet',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{lk}'$$, 0);
+select pg_temp.allowed(pg_temp.id('gm'), 'dormant: save cx to the library',
+  $$select * from public.copy_entries_with_links(array['{cx}'::uuid], null, '{"{cx}": "{lx}"}'::jsonb)$$);
+select pg_temp.value_is(pg_temp.id('root'), 'dormant: the library copy of k2 now holds the library copy of cx',
+  $$select (value::text like '%{lx}%' and value::text not like '%{cx}%')::text from public.world_entry_fields where entry_id = '{lk}' and key = 'description'$$, 'true');
+select pg_temp.count_is(pg_temp.id('root'), 'dormant: connected',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{lk}' and target_entry_id = '{lx}'$$, 1);
+select pg_temp.count_is(pg_temp.id('root'), 'dormant: and no longer waiting',
+  $$select 1 from public.world_dormant_mentions where source_entry_id = '{lk}'$$, 0);
+
+-- Nobody reads the registry.
+select pg_temp.sees('the dormant registry is closed', $$select 1 from public.world_dormant_mentions$$, 0, 0, 0, 0);
+
+-- An old broken mention: kz mentions an entry that does not exist (zd), with no
+-- lineage to go by. Registered as legacy, it connects to a copy that arrives with
+-- the same name, whatever the case, and to nothing else.
+insert into pg_temp.test_ids values
+  ('kz', 'e4000000-0000-0000-0000-000000000005'),
+  ('zd', 'e4000000-0000-0000-0000-0000000000ff'),
+  ('lzn', 'e4000000-0000-0000-0000-000000000006'),
+  ('lzo', 'e4000000-0000-0000-0000-000000000007'),
+  ('z1', 'f4000000-0000-0000-0000-000000000007'),
+  ('z2', 'f4000000-0000-0000-0000-000000000008');
+
+insert into public.world_entries (id, kind, name, campaign_id, revealed, sort_order)
+values (pg_temp.id('kz'), 'character', 'kz', pg_temp.id('c5'), true, 5);
+
+insert into public.world_entries (id, kind, name, owner_id, created_by, sort_order) values
+  (pg_temp.id('lzn'), 'character', 'OLD ZED', pg_temp.id('gm'), pg_temp.id('gm'), 50),
+  (pg_temp.id('lzo'), 'character', 'Someone else', pg_temp.id('gm'), pg_temp.id('gm'), 51);
+
+insert into public.world_entry_fields (entry_id, key, type, value, private) values
+  (pg_temp.id('kz'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{zd}","label":"Old Zed"}}]}]}')::jsonb, false);
+
+-- Before the migration there was no registry: take away the row the fixture made
+-- and register it the way the migration does.
+delete from public.world_dormant_mentions where source_entry_id = pg_temp.id('kz');
+select pg_temp.allowed(pg_temp.id('root'), 'legacy: register old mentions', $$select public.register_legacy_mentions()$$);
+select pg_temp.count_is(pg_temp.id('root'), 'legacy: registered as legacy, with its name',
+  $$select 1 from public.world_dormant_mentions where source_entry_id = '{kz}' and origin_entry_id = '{zd}' and legacy and label = 'Old Zed'$$, 1);
+select pg_temp.allowed(pg_temp.id('root'), 'legacy: registering again changes nothing', $$select public.register_legacy_mentions()$$);
+select pg_temp.count_is(pg_temp.id('root'), 'legacy: still one row', $$select 1 from public.world_dormant_mentions where source_entry_id = '{kz}'$$, 1);
+
+select pg_temp.allowed(pg_temp.id('gm'), 'legacy: add an entry with another name',
+  $$select * from public.copy_entries_with_links(array['{lzo}'::uuid], '{c5}', '{"{lzo}": "{z2}"}'::jsonb)$$);
+select pg_temp.count_is(pg_temp.id('root'), 'legacy: another name does not connect it',
+  $$select 1 from public.world_dormant_mentions where source_entry_id = '{kz}'$$, 1);
+
+select pg_temp.allowed(pg_temp.id('gm'), 'legacy: add the entry with the same name',
+  $$select * from public.copy_entries_with_links(array['{lzn}'::uuid], '{c5}', '{"{lzn}": "{z1}"}'::jsonb)$$);
+select pg_temp.value_is(pg_temp.id('root'), 'legacy: the old mention now holds the copy',
+  $$select (value::text like '%{z1}%' and value::text not like '%{zd}%')::text from public.world_entry_fields where entry_id = '{kz}' and key = 'description'$$, 'true');
+select pg_temp.count_is(pg_temp.id('root'), 'legacy: it is a mention again, and no longer waits',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{kz}' and target_entry_id = '{z1}'$$, 1);
+select pg_temp.count_is(pg_temp.id('root'), 'legacy: nothing waits',
+  $$select 1 from public.world_dormant_mentions where source_entry_id = '{kz}'$$, 0);
+
 -- Copies and sources live separate lives.
 select pg_temp.allowed(pg_temp.id('gm'), 'edit the copy', $$select public.rename_world_entry('{n1}', 'Copy only')$$);
 select pg_temp.value_is(pg_temp.id('gm'), 'editing the copy leaves the source', $$select name from public.world_entries where id = '{ec}'$$, 'Renamed');
 select pg_temp.allowed(pg_temp.id('gm'), 'delete the copy', $$select public.delete_world_entry('{n1}')$$);
 select pg_temp.count_is(pg_temp.id('gm'), 'deleting the copy leaves the source', $$select 1 from public.world_entries where id = '{ec}'$$, 1);
 select pg_temp.allowed(pg_temp.id('gm'), 'delete the source', $$select public.delete_world_entry('{elg}')$$);
-select pg_temp.value_is(pg_temp.id('gm'), 'deleting the source leaves the copy, forgetting it',
-  $$select (source_entry_id is null)::text from public.world_entries where id = '{n5}'$$, 'true');
+select pg_temp.value_is(pg_temp.id('gm'), 'deleting the source leaves the copy, still leading back to it',
+  $$select (source_entry_id = '{elg}')::text from public.world_entries where id = '{n5}'$$, 'true');
 
 -- Image files. Library files live under "<user id>/", campaign files under
 -- "<campaign id>/". Maps follow the same rule in world-maps.
@@ -993,7 +1160,7 @@ select pg_temp.count_is(pg_temp.id('root'), 'deleting a campaign removes its ent
 
 select pg_temp.allowed(pg_temp.id('root'), 'delete a user', $$delete from auth.users where id = '{owner}'$$);
 select pg_temp.count_is(pg_temp.id('root'), 'deleting a user removes their library', $$select 1 from public.world_entries where owner_id = '{owner}'$$, 0);
-select pg_temp.count_is(pg_temp.id('root'), 'deleting a user leaves campaign entries alone', $$select 1 from public.world_entries where campaign_id = '{c1}'$$, 23);
+select pg_temp.count_is(pg_temp.id('root'), 'deleting a user leaves campaign entries alone', $$select 1 from public.world_entries where campaign_id = '{c1}'$$, 24);
 
 rollback;
 

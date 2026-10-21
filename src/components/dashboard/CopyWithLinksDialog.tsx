@@ -11,12 +11,19 @@ import {
 import type { Asking, CopyChoiceDialog } from "@/hooks/use-copy-choice"
 import { reachFrom } from "@/lib/world-copy-plan"
 import { CopyChoiceOption } from "./CopyChoiceOption"
+import { CopyDuplicatesQuestion } from "./CopyDuplicatesQuestion"
 import { CopyPlanList } from "./CopyPlanList"
 
 const entries = (count: number) => `${count} linked ${count === 1 ? "entry" : "entries"}`
 
 // Only mounted while asking, so it starts on the same answer every time.
-function Question({ asking, onChoose }: { asking: Asking; onChoose: CopyChoiceDialog["onChoose"] }) {
+function Question({
+  asking,
+  onChoose,
+}: {
+  asking: Extract<Asking, { kind: "links" }>
+  onChoose: CopyChoiceDialog["onChoose"]
+}) {
   const { plan, target, picked } = asking
   const [withLinks, setWithLinks] = useState(true)
   const [unticked, setUnticked] = useState<ReadonlySet<string>>(new Set())
@@ -74,14 +81,18 @@ function Question({ asking, onChoose }: { asking: Asking; onChoose: CopyChoiceDi
   )
 }
 
-// What a copy asks when what is picked links to entries the target does not
-// have: only what was picked, or also the linked entries that are ticked, which
-// bring what only they link, and so on.
+// What a copy asks. First, when the target already has a copy of something picked:
+// whether to add another. Then, when what is picked links to entries the target
+// does not have: only what was picked, or also the linked entries that are ticked,
+// which bring what only they link, and so on.
 export function CopyWithLinksDialog({ asking, onChoose }: CopyChoiceDialog) {
   return (
     <Dialog open={asking !== null} onOpenChange={(next) => !next && onChoose(null)}>
       <DialogContent className="sm:max-w-lg">
-        {asking && <Question asking={asking} onChoose={onChoose} />}
+        {asking?.kind === "links" && <Question asking={asking} onChoose={onChoose} />}
+        {asking?.kind === "duplicates" && (
+          <CopyDuplicatesQuestion asking={asking} onChoose={onChoose} />
+        )}
       </DialogContent>
     </Dialog>
   )

@@ -12,11 +12,13 @@ const CHIP =
   "inline-flex items-center gap-1 rounded-md border px-1.5 py-px align-baseline text-[0.9em] leading-snug font-medium no-underline transition-colors"
 
 // A mention as a chip. It shows the entry's current name when the entry is
-// known, and the name it was given when not (an entry players cannot see, or one
-// that is gone, is just that name). A hidden entry is dashed with the Hidden
-// icon, so a GM can see what players will read as plain text. Read-only, it is
-// a link to the entry; being edited, a plain click only selects it, and Ctrl or
-// Cmd with a click opens it, so a click never loses what is being typed.
+// known, and the name it was given when not. A hidden entry is dashed with the
+// Hidden icon, so a GM can see what players will read as plain text. A mention of
+// an entry that is not here (deleted, or in another home) is dormant: to a GM it
+// is its name with a dotted underline and a tooltip saying so, and it connects
+// again when the entry or a copy of it arrives. Read-only, a mention is a link to
+// the entry; being edited, a plain click only selects it, and Ctrl or Cmd with a
+// click opens it, so a click never loses what is being typed.
 export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
   const scope = useMentionScope()
   const entries = useMentionEntries(scope)
@@ -32,10 +34,21 @@ export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
   // know the entry is still there.
   const readOnly = !editor.isEditable
   const href = scope && (entry || readOnly) ? `${scope.basePath}/${id}` : null
-  // In the editor, once the entries are known, a mention of one that is not there
-  // (deleted) is just its name.
-  if (!readOnly && entries && !entry) {
-    return <NodeViewWrapper as="span" className="inline">{name}</NodeViewWrapper>
+  // Once the entries are known, a mention of one that is not there is dormant. A
+  // player is never sent one (it arrives as plain text), so this is for GMs, in the
+  // editor and in a read view of theirs.
+  if (entries && !entry && (!readOnly || scope?.canManage)) {
+    const where = scope?.hasVisibility ? "this campaign" : "your library"
+    return (
+      <NodeViewWrapper as="span" className="inline">
+        <span
+          className="decoration-muted-foreground/70 underline decoration-dotted underline-offset-4"
+          title={`Not linked: ${name} isn't in ${where}`}
+        >
+          {name}
+        </span>
+      </NodeViewWrapper>
+    )
   }
 
   const className = cn(

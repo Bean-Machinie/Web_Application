@@ -25,12 +25,31 @@ async function copyFiles(jobs: Job[], done: Copied[]) {
   }
 }
 
+// The maps that already had a pin added for a copied entry: the names of the maps
+// that carry a pin on one of the new copies, apart from the maps copied now. Read
+// after the copy, and left empty if it cannot be read, since it is only for the
+// notice.
+async function pinnedOnExistingMaps(copiedIds: string[]) {
+  const { data, error } = await supabase
+    .from("world_map_markers")
+    .select("map_id, map:world_entries!map_id(name)")
+    .in("entry_id", copiedIds)
+  if (error) return []
+
+  const copied = new Set(copiedIds)
+  const names = (data as unknown as { map_id: string; map: { name: string } | null }[])
+    .filter((row) => !copied.has(row.map_id) && row.map)
+    .map((row) => row.map!.name)
+  return [...new Set(names)]
+}
+
 // Copies the picked entries and the linked ones that were kept. The image files
 // are copied first, then the database copies everything in one transaction, so a
 // failure anywhere leaves no entry behind; the files copied so far are then
 // removed again. A failure says which entry it was on. Anything in the plan that
 // is not picked and not in `keep` is left out: its pins are dropped and its
-// mentions become plain text.
+// mentions wait, as plain text. Resolves to the names of the maps the target
+// already had that got a pin for a copied entry.
 export async function copyEntriesWithLinks(
   pickedIds: string[],
   keep: string[],
@@ -67,4 +86,6 @@ export async function copyEntriesWithLinks(
     await deleteWorldImages(copied).catch(() => {})
     throw failure
   }
+
+  return pinnedOnExistingMaps(Object.values(newIds))
 }
