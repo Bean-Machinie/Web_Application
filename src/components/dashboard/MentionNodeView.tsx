@@ -26,6 +26,9 @@ export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
   const hidden = !!entry && !!scope?.hasVisibility && !entry.revealed
   const Icon = entry ? WORLD_KINDS[entry.kind].icon : null
   const href = entry && scope ? `${scope.basePath}/${entry.id}` : null
+  // Once the entries are known, a mention of one that is not there (deleted, or
+  // one a player cannot see) is just its name.
+  if (entries && !entry) return <NodeViewWrapper as="span" className="inline">{name}</NodeViewWrapper>
 
   const className = cn(
     CHIP,

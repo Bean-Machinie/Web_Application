@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase"
+import { forgetMentionEntries } from "./mention-entries"
 import { toWorldImage } from "./world-images"
 import { COVER_FIELD } from "./world-kinds"
 import type { WorldEntryKind } from "./world-kinds"
@@ -106,6 +107,7 @@ export async function createWorldEntry(
   })
   if (error) throw error
 
+  forgetMentionEntries()
   return toEntry(data as Record<string, unknown>)
 }
 
@@ -116,6 +118,7 @@ export async function createLibraryEntry(kind: WorldEntryKind, name: string) {
   })
   if (error) throw error
 
+  forgetMentionEntries()
   return toEntry(data as Record<string, unknown>)
 }
 
@@ -125,6 +128,7 @@ export async function renameWorldEntry(id: string, name: string) {
     new_name: name,
   })
   if (error) throw error
+  forgetMentionEntries()
 }
 
 export async function setWorldEntryRevealed(id: string, revealed: boolean) {
@@ -133,6 +137,7 @@ export async function setWorldEntryRevealed(id: string, revealed: boolean) {
     is_revealed: revealed,
   })
   if (error) throw error
+  forgetMentionEntries()
 }
 
 export async function deleteWorldEntry(id: string) {
@@ -140,6 +145,7 @@ export async function deleteWorldEntry(id: string) {
     target_entry: id,
   })
   if (error) throw error
+  forgetMentionEntries()
 }
 
 // Every entry of the campaign, in their new order.
@@ -167,6 +173,7 @@ export async function setWorldEntriesRevealed(ids: string[], revealed: boolean) 
   })
   if (error) throw error
 
+  forgetMentionEntries()
   return data as number
 }
 
@@ -177,6 +184,7 @@ export async function deleteWorldEntries(ids: string[]) {
   })
   if (error) throw error
 
+  forgetMentionEntries()
   return data as number
 }
 

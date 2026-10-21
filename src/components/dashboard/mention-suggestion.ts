@@ -1,6 +1,6 @@
 import { ReactRenderer } from "@tiptap/react"
 import type { SuggestionOptions, SuggestionProps } from "@tiptap/suggestion"
-import { loadMentionEntries } from "@/hooks/use-mention-entries"
+import { loadMentionEntries } from "@/lib/mention-entries"
 import { normalize } from "@/lib/world-search"
 import type { WorldScope } from "@/lib/world-scope"
 import { MentionList } from "./MentionList"

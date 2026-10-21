@@ -1,9 +1,11 @@
-import { copyEntry } from "./world-copy"
-import { fetchCopyPlan } from "./world-copy-plan"
-import type { PlanRow } from "./world-copy-plan"
-import { copyMapsWithPins } from "./world-copy-pins"
 import { errorMessage } from "./campaigns"
+import { copyEntriesWithLinks } from "./world-copy-links"
+import { fetchCopyPlan, newEntries } from "./world-copy-plan"
+import type { Plan } from "./world-copy-plan"
 import type { WorldEntryKind } from "./world-kinds"
+
+// The database takes this many picked entries in one copy.
+export const COPY_LIMIT = 200
 
 export type CopyItem = { id: string; name: string; kind: WorldEntryKind }
 
@@ -11,103 +13,85 @@ export type CopyItem = { id: string; name: string; kind: WorldEntryKind }
 // the first folder of the copies' files.
 export type CopyTarget = { campaignId: string | null; folder: string }
 
-export type CopyChoice = "pins" | "map-only"
-
-// Asks the person what to do with the pins of the maps picked. Resolves to
-// null if they back out.
-export type AskCopyChoice = (plan: PlanRow[], target: CopyTarget) => Promise<CopyChoice | null>
+// Asks which of the linked entries to bring along, when there are any that are
+// new: resolves to their ids (none, for "only what was picked"), or to null if
+// the person backs out.
+export type AskCopyChoice = (
+  plan: Plan,
+  target: CopyTarget,
+  picked: number
+) => Promise<string[] | null>
 
 export type CopyOutcome = {
   cancelled: boolean
   // The ids of the picked entries that were copied.
   copiedIds: string[]
-  // Entries copied only because a pin linked them.
+  // Entries copied only because something linked them.
   linked: number
-  pins: "none" | "copied" | "dropped"
-  failed: { name: string; message: string }[]
+  // Linked entries that were not brought along.
+  leftOut: number
+  // Why nothing was copied, naming the entry when it was one that failed.
+  error: string | null
 }
 
 // What a scope offers to copy library entries into it.
-export type AddFromLibrary = (items: CopyItem[], ask: AskCopyChoice, onProgress?: (done: number, total: number) => void) => Promise<CopyOutcome>
+export type AddFromLibrary = (items: CopyItem[], ask: AskCopyChoice) => Promise<CopyOutcome>
 
-export const copiedCount =(outcome: CopyOutcome) => outcome.copiedIds.length + outcome.linked
+export const copiedCount = (outcome: CopyOutcome) => outcome.copiedIds.length + outcome.linked
 
-// What to add to "Saved … " when pins were involved.
+const entries = (count: number) => `${count} linked ${count === 1 ? "entry" : "entries"}`
+
+// What to add to "Saved … " when other entries were linked.
 export function copyNote(outcome: CopyOutcome) {
-  if (outcome.pins === "dropped") return "Pins weren't copied."
-  if (outcome.pins === "copied") {
-    return outcome.linked > 0
-      ? `Pins and ${outcome.linked} linked ${outcome.linked === 1 ? "entry" : "entries"} came along.`
-      : "Pins came along."
-  }
-  return ""
+  const parts = []
+  if (outcome.linked > 0) parts.push(`${entries(outcome.linked)} came along.`)
+  if (outcome.leftOut > 0) parts.push(`${outcome.leftOut} left out.`)
+  return parts.join(" ")
 }
 
-// Copies the picked entries. Maps that have pins ask once, for all of them, what
-// to do with the pins. Maps copied with their pins go together in one
-// transaction, along with what their pins link; an entry that comes along that
-// way is not copied a second time if it was picked too. The rest are copied one
-// by one, and one that fails does not stop the others.
+const none: CopyOutcome = { cancelled: false, copiedIds: [], linked: 0, leftOut: 0, error: null }
+
+// Copies the picked entries with what they link: the plan is read first, and if
+// it holds linked entries the target does not have, the person chooses which
+// come along. Everything goes in one transaction, so it all happens or none of
+// it does. A link survives only if both its ends do.
 export async function copyEntries(
   items: CopyItem[],
   target: CopyTarget,
-  ask: AskCopyChoice,
-  onProgress?: (done: number, total: number) => void
+  ask: AskCopyChoice
 ): Promise<CopyOutcome> {
-  const outcome: CopyOutcome = { cancelled: false, copiedIds: [], linked: 0, pins: "none", failed: [] }
-  const maps = items.filter((item) => item.kind === "map")
-  const plan = maps.length > 0 ? await fetchCopyPlan(maps.map((map) => map.id), target.campaignId) : []
-  const pinned = plan.some((row) => row.isRoot && row.pinCount > 0)
-
-  let choice: CopyChoice = "map-only"
-  if (pinned) {
-    const answer = await ask(plan, target)
-    if (!answer) return { ...outcome, cancelled: true }
-    choice = answer
+  if (items.length > COPY_LIMIT) {
+    return { ...none, error: `Pick at most ${COPY_LIMIT} entries at a time.` }
   }
 
-  const withPins = pinned && choice === "pins"
-  outcome.pins = pinned ? (withPins ? "copied" : "dropped") : "none"
-  const together = new Set<string>()
+  try {
+    const plan = await fetchCopyPlan(
+      items.map((item) => item.id),
+      target.campaignId
+    )
+    const fresh = newEntries(plan).length
 
-  if (withPins) {
-    onProgress?.(0, items.length)
-    try {
-      const created = await copyMapsWithPins(
-        maps.map((map) => map.id),
-        target.folder,
-        target.campaignId,
-        plan
-      )
-      for (const sourceId of created.keys()) together.add(sourceId)
-      outcome.copiedIds.push(...maps.map((map) => map.id))
-      outcome.linked = created.size - maps.length
-    } catch (failure) {
-      outcome.pins = "none"
-      outcome.failed.push({ name: "the maps", message: errorMessage(failure) })
+    let keep: string[] = []
+    if (fresh > 0) {
+      const answer = await ask(plan, target, items.length)
+      if (!answer) return { ...none, cancelled: true }
+      keep = answer
     }
-  }
 
-  const rest = items.filter((item) => !together.has(item.id) && !(withPins && item.kind === "map"))
-  for (const [index, item] of rest.entries()) {
-    onProgress?.(index, rest.length)
-    try {
-      await copyEntry(item.id, target.folder, target.campaignId)
-      outcome.copiedIds.push(item.id)
-    } catch (failure) {
-      outcome.failed.push({ name: item.name, message: errorMessage(failure) })
+    await copyEntriesWithLinks(
+      items.map((item) => item.id),
+      keep,
+      target.folder,
+      target.campaignId,
+      plan
+    )
+    return {
+      ...none,
+      copiedIds: items.map((item) => item.id),
+      linked: keep.length,
+      leftOut: fresh - keep.length,
     }
+  } catch (failure) {
+    return { ...none, error: errorMessage(failure) }
   }
-
-  // A picked entry that was copied only because a pin linked it counts once,
-  // as linked, and is not in copiedIds.
-  const picked = new Set(items.map((item) => item.id))
-  for (const id of together) {
-    if (picked.has(id) && !outcome.copiedIds.includes(id)) {
-      outcome.copiedIds.push(id)
-      outcome.linked -= 1
-    }
-  }
-
-  return outcome
 }

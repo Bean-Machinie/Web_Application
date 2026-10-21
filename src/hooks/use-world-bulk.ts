@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useAuth } from "@/auth/useAuth"
 import { plural } from "@/lib/entry-selection"
 import { errorMessage } from "@/lib/campaigns"
-import { copiedCount, copyEntries, copyNote } from "@/lib/world-copy-flow"
+import { COPY_LIMIT, copiedCount, copyEntries, copyNote } from "@/lib/world-copy-flow"
 import { deleteWorldEntries, setWorldEntriesRevealed } from "@/lib/world-entries"
 import type { WorldEntry } from "@/lib/world-entries"
 import { deleteWorldImages } from "@/lib/world-images"
@@ -86,16 +86,12 @@ export function useWorldBulk({ entries, selection, reload, setError }: Options) 
       const outcome = await copyEntries(
         chosen,
         { campaignId: null, folder: userId },
-        copyChoice.ask,
-        (done, total) => setProgress(`Saving ${done + 1} of ${total}…`)
+        copyChoice.ask
       )
-      // Backing out of the pins question leaves everything as it was.
+      // Backing out of the question leaves everything as it was.
       if (outcome.cancelled) return undefined
-      const { failed } = outcome
-      if (failed.length > 0) {
-        setError(`Could not save ${failed.map((one) => `${one.name} (${one.message})`).join("; ")}.`)
-      }
-      if (copiedCount(outcome) === 0) return null
+      // All or nothing, so the selection stays to try again.
+      if (outcome.error) throw new Error(`Nothing was saved. ${outcome.error}`)
       const note = copyNote(outcome)
       return {
         text: `Saved ${plural(copiedCount(outcome))} to your library.${note ? ` ${note}` : ""}`,
@@ -112,7 +108,12 @@ export function useWorldBulk({ entries, selection, reload, setError }: Options) 
     // Which actions make sense for what is picked.
     canReveal: chosen.some((entry) => !entry.revealed),
     canHide: chosen.some((entry) => entry.revealed),
-    canSave: chosen.length > 0,
+    canSave: chosen.length > 0 && chosen.length <= COPY_LIMIT,
+    // Why saving is not offered, when it is the size of the selection.
+    saveHint:
+      chosen.length > COPY_LIMIT
+        ? `Pick at most ${COPY_LIMIT} entries to save at a time.`
+        : null,
     copyDialog: copyChoice.dialog,
     reveal,
     remove,

@@ -2,6 +2,7 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { MODIFIER_KEY } from "@/lib/selection-hint"
+import { COPY_LIMIT } from "@/lib/world-copy-flow"
 
 type Props = {
   // Says where the adding has got to; null when nothing is being added.
@@ -20,12 +21,18 @@ type Props = {
 export function AddFromLibraryFooter(props: Props) {
   const { progress, picked, shown, allShownPicked } = props
   const busy = progress !== null
+  const tooMany = picked > COPY_LIMIT
 
   return (
     <div className="flex shrink-0 items-center justify-between gap-3 border-t pt-3">
       <div className="flex min-w-0 items-center gap-2">
         <span className="text-muted-foreground text-sm">
-          {progress ?? (picked === 0 ? "Pick the entries to add. They start hidden." : `${picked} selected`)}
+          {progress ??
+            (tooMany
+              ? `${picked} selected. Pick at most ${COPY_LIMIT} to add at a time.`
+              : picked === 0
+                ? "Pick the entries to add. They start hidden."
+                : `${picked} selected`)}
         </span>
         {!busy && shown > 0 && (
           <Tooltip>
@@ -48,7 +55,7 @@ export function AddFromLibraryFooter(props: Props) {
         <Tooltip>
           <TooltipTrigger asChild>
             <span>
-              <Button onClick={props.onAdd} disabled={busy || picked === 0}>
+              <Button onClick={props.onAdd} disabled={busy || picked === 0 || tooMany}>
                 {busy && <Loader2 className="size-4 animate-spin" />}
                 {picked > 0 ? `Add ${picked}` : "Add"}
               </Button>

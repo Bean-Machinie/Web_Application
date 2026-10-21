@@ -8,14 +8,14 @@ import { useCopyChoice } from "./use-copy-choice"
 
 type Options = {
   add: AddFromLibrary
-  // How many were added, as soon as there are any, even if some fail, and what
-  // to say about their pins.
+  // How many were added, and what to say about the entries that came along.
   onAdded: (count: number, note: string) => void
   onClose: () => void
 }
 
-// The library's entries, and adding some of them. A map with pins asks what to
-// do with them first, through `copyDialog`. `entries` is null while they load.
+// The library's entries, and adding some of them. When they link to entries the
+// campaign does not have, it asks which to bring along first, through
+// `copyDialog`. `entries` is null while they load.
 export function useLibraryPicker({ add, onAdded, onClose }: Options) {
   const [entries, setEntries] = useState<WorldEntry[] | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -35,22 +35,17 @@ export function useLibraryPicker({ add, onAdded, onClose }: Options) {
     setError(null)
     setProgress("Adding…")
     try {
-      const outcome = await add(chosen, ask, (done, total) =>
-        setProgress(`Adding ${done + 1} of ${total}…`)
-      )
-      // Backing out of the pins question leaves everything picked.
+      const outcome = await add(chosen, ask)
+      // Backing out of the question leaves everything picked.
       if (outcome.cancelled) return
-      outcome.copiedIds.forEach(onEach)
-      const count = copiedCount(outcome)
-      if (count > 0) onAdded(count, copyNote(outcome))
-      if (outcome.failed.length === 0) {
-        onClose()
+      // All or nothing, so what was picked stays picked, to try again.
+      if (outcome.error) {
+        setError(`Nothing was added. ${outcome.error}`)
         return
       }
-      // What was added stays added; what failed stays picked, to try again.
-      setError(
-        `Could not add ${outcome.failed.map((one) => `${one.name} (${one.message})`).join("; ")}.`
-      )
+      outcome.copiedIds.forEach(onEach)
+      onAdded(copiedCount(outcome), copyNote(outcome))
+      onClose()
     } catch (failure) {
       setError(errorMessage(failure))
     } finally {

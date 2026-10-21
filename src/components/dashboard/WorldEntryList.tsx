@@ -15,7 +15,7 @@ import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
 import { rememberWorldKind } from "@/lib/world-tab"
 import type { Sort, VisibilityFilter } from "@/lib/world-list"
-import { CopyWithPinsDialog } from "./CopyWithPinsDialog"
+import { CopyWithLinksDialog } from "./CopyWithLinksDialog"
 import { useWorldScope } from "./useWorldScope"
 import { WorldBulkBar } from "./WorldBulkBar"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
@@ -111,7 +111,7 @@ export function WorldEntryList() {
           savedName={library.savedName}
           savedNote={library.note}
         />
-        <CopyWithPinsDialog {...library.dialog} />
+        <CopyWithLinksDialog {...library.dialog} />
         <LoadingGate
           loading={!entries && !error}
           className="bg-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-lg border border-b-0"

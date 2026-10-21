@@ -6,15 +6,14 @@ import { useLibraryView } from "@/hooks/use-library-view"
 import { useSelectionBox } from "@/hooks/use-selection-box"
 import type { AddFromLibrary } from "@/lib/world-copy-flow"
 import { AddFromLibraryFooter } from "./AddFromLibraryFooter"
-import { CopyWithPinsDialog } from "./CopyWithPinsDialog"
+import { CopyWithLinksDialog } from "./CopyWithLinksDialog"
 import { LibraryPickCard } from "./LibraryPickCard"
 import { LibraryWindow } from "./LibraryWindow"
 import { SelectionBox } from "./SelectionBox"
 
 type Props = {
   add: AddFromLibrary
-  // How many were added, as soon as there are any, even if some fail, and what
-  // to say about their pins.
+  // How many were added, and what to say about the entries that came along.
   onAdded: (count: number, note: string) => void
   onClose: () => void
   // Told whether entries are picked, so Escape lets go of them before it closes.
@@ -96,7 +95,7 @@ export function AddFromLibraryBody({ add, onAdded, onClose, onHold, compact }: P
             onCancel={onClose}
             onAdd={addSelected}
           />
-          <CopyWithPinsDialog {...copyDialog} />
+          <CopyWithLinksDialog {...copyDialog} />
         </>
       }
     />

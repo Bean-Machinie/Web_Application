@@ -1,8 +1,9 @@
 -- Library tests: policies and functions checked as a campaign GM, a player,
 -- a library owner and a stranger.
 --
--- HOW TO RUN: apply the library migrations first (through the one that adds
--- mentions, 20261029000000), then paste this whole
+-- HOW TO RUN: apply the library migrations first (through the one that copies
+-- entries with their links, 20261030000000, and the one that drops the mention
+-- delete trigger, 20261031000000), then paste this whole
 -- file into the Supabase SQL editor and run it once, on a development project.
 -- It runs inside one transaction that is rolled back at the end, so nothing is
 -- kept. The last statement returns one row per check (failures first) after a
@@ -630,23 +631,31 @@ select pg_temp.allowed(pg_temp.id('gm'), 'library pin: move', $$select public.mo
 select pg_temp.denied(pg_temp.id('owner'), 'library pin: another person cannot move it', 'not allowed', $$select public.move_map_marker((select id from public.world_map_markers where map_id = '{la}' and entry_id = '{ld}'), 26, 26)$$);
 
 -- The plan: la reaches lb and ld, and lb reaches lc, through the pin on lb.
-select pg_temp.may('plan a copy to a campaign', $$select * from public.plan_map_copy(array['{la}'::uuid], '{c1}')$$, true, false, false, false);
-select pg_temp.count_is(pg_temp.id('gm'), 'plan: reaches la, lb, lc and ld', $$select 1 from public.plan_map_copy(array['{la}'::uuid], '{c1}')$$, 4);
-select pg_temp.count_is(pg_temp.id('gm'), 'plan: nothing is there yet', $$select 1 from public.plan_map_copy(array['{la}'::uuid], '{c1}') where existing_id is not null$$, 0);
-select pg_temp.value_is(pg_temp.id('gm'), 'plan: la has two pins', $$select pin_count::text from public.plan_map_copy(array['{la}'::uuid], '{c1}') where source_id = '{la}'$$, '2');
-select pg_temp.denied(pg_temp.id('gm'), 'plan: a campaign map cannot go to a campaign', 'not allowed', $$select * from public.plan_map_copy(array['{emap}'::uuid], '{c1}')$$);
-select pg_temp.denied(pg_temp.id('gm'), 'plan: a library map cannot go to the library', 'not allowed', $$select * from public.plan_map_copy(array['{la}'::uuid], null)$$);
-select pg_temp.denied(pg_temp.id('gm'), 'plan: something that is not a map', 'not allowed', $$select * from public.plan_map_copy(array['{lc}'::uuid], '{c1}')$$);
+select pg_temp.may('plan a copy to a campaign', $$select public.plan_entry_copy(array['{la}'::uuid], '{c1}')$$, true, false, false, false);
+select pg_temp.count_is(pg_temp.id('gm'), 'plan: reaches la, lb, lc and ld', $$select jsonb_array_elements(public.plan_entry_copy(array['{la}'::uuid], '{c1}') -> 'nodes')$$, 4);
+select pg_temp.count_is(pg_temp.id('gm'), 'plan: nothing is there yet', $$select 1 from jsonb_array_elements(public.plan_entry_copy(array['{la}'::uuid], '{c1}') -> 'nodes') n where n ->> 'existing_id' is not null$$, 0);
+select pg_temp.value_is(pg_temp.id('gm'), 'plan: la has two links out', $$select count(*)::text from jsonb_array_elements(public.plan_entry_copy(array['{la}'::uuid], '{c1}') -> 'edges') e where e ->> 'source_id' = '{la}'$$, '2');
+select pg_temp.denied(pg_temp.id('gm'), 'plan: a campaign map cannot go to a campaign', 'not allowed', $$select public.plan_entry_copy(array['{emap}'::uuid], '{c1}')$$);
+select pg_temp.denied(pg_temp.id('gm'), 'plan: a library map cannot go to the library', 'not allowed', $$select public.plan_entry_copy(array['{la}'::uuid], null)$$);
+select pg_temp.denied(pg_temp.id('owner'), 'plan: not someone else''s entry', 'not allowed', $$select public.plan_entry_copy(array['{la}'::uuid], '{c1}')$$);
+select pg_temp.denied(pg_temp.id('gm'), 'plan: no more than 200 entries', 'Pick between 1 and 200',
+  $$select public.plan_entry_copy(array(select gen_random_uuid() from generate_series(1, 201)), '{c1}')$$);
 
--- Copying la with its pins: la, lb, lc and ld all come, and the pins follow the
+-- Copying la with its links: la, lb, lc and ld all come, and the pins follow the
 -- chain, including the pin on lb, a map that did not exist in the target
 -- until this same copy made it.
-select pg_temp.denied(pg_temp.id('gm'), 'copy with pins: ids must match the plan', 'changed while',
-  $$select * from public.copy_maps_with_pins(array['{la}'::uuid], '{c1}', '{"{la}": "{r1}", "{lb}": "{r2}"}'::jsonb)$$);
-select pg_temp.denied(pg_temp.id('owner'), 'copy with pins: not for another person''s library', 'not allowed',
-  $$select * from public.copy_maps_with_pins(array['{la}'::uuid], '{c1}', '{"{la}": "{r1}", "{lb}": "{r2}", "{lc}": "{r3}", "{ld}": "{r4}"}'::jsonb)$$);
-select pg_temp.allowed(pg_temp.id('gm'), 'copy a map with its pins to a campaign',
-  $$select * from public.copy_maps_with_pins(array['{la}'::uuid], '{c1}', '{"{la}": "{r1}", "{lb}": "{r2}", "{lc}": "{r3}", "{ld}": "{r4}"}'::jsonb)$$);
+select pg_temp.denied(pg_temp.id('gm'), 'copy: an entry that is not linked cannot be added', 'does not match',
+  $$select * from public.copy_entries_with_links(array['{la}'::uuid], '{c1}', '{"{la}": "{r1}", "{lb}": "{r2}", "{lc}": "{r3}", "{ld}": "{r4}", "{le}": "{n9}"}'::jsonb)$$);
+select pg_temp.denied(pg_temp.id('gm'), 'copy: an entry linked only through one left out cannot be added', 'does not match',
+  $$select * from public.copy_entries_with_links(array['{la}'::uuid], '{c1}', '{"{la}": "{r1}", "{lc}": "{r3}"}'::jsonb)$$);
+select pg_temp.denied(pg_temp.id('gm'), 'copy: the selected entry itself must be named', 'does not match',
+  $$select * from public.copy_entries_with_links(array['{la}'::uuid], '{c1}', '{"{lb}": "{r2}"}'::jsonb)$$);
+select pg_temp.denied(pg_temp.id('owner'), 'copy: not for another person''s library', 'not allowed',
+  $$select * from public.copy_entries_with_links(array['{la}'::uuid], '{c1}', '{"{la}": "{r1}", "{lb}": "{r2}", "{lc}": "{r3}", "{ld}": "{r4}"}'::jsonb)$$);
+select pg_temp.count_is(pg_temp.id('root'), 'copy: refused copies leave nothing behind',
+  $$select 1 from public.world_entries where id in ('{r1}', '{r2}', '{r3}', '{r4}', '{n9}')$$, 0);
+select pg_temp.allowed(pg_temp.id('gm'), 'copy a map with its links to a campaign',
+  $$select * from public.copy_entries_with_links(array['{la}'::uuid], '{c1}', '{"{la}": "{r1}", "{lb}": "{r2}", "{lc}": "{r3}", "{ld}": "{r4}"}'::jsonb)$$);
 select pg_temp.count_is(pg_temp.id('root'), 'copy with pins: four entries in the campaign',
   $$select 1 from public.world_entries where campaign_id = '{c1}' and source_entry_id in ('{la}', '{lb}', '{lc}', '{ld}')$$, 4);
 select pg_temp.count_is(pg_temp.id('root'), 'copy with pins: all start hidden',
@@ -669,9 +678,9 @@ select pg_temp.sees('a pin on a hidden copy follows the entry', $$select 1 from 
 
 -- Copying it again: la is copied again, but lb and ld already have copies, so
 -- the pins link those, and lc is not reached.
-select pg_temp.count_is(pg_temp.id('gm'), 'plan: lb and ld are already there', $$select 1 from public.plan_map_copy(array['{la}'::uuid], '{c1}') where existing_id is not null$$, 2);
+select pg_temp.count_is(pg_temp.id('gm'), 'plan: lb and ld are already there', $$select 1 from jsonb_array_elements(public.plan_entry_copy(array['{la}'::uuid], '{c1}') -> 'nodes') n where n ->> 'existing_id' is not null$$, 2);
 select pg_temp.allowed(pg_temp.id('gm'), 'copy it again: only the map is new',
-  $$select * from public.copy_maps_with_pins(array['{la}'::uuid], '{c1}', '{"{la}": "{r5}"}'::jsonb)$$);
+  $$select * from public.copy_entries_with_links(array['{la}'::uuid], '{c1}', '{"{la}": "{r5}"}'::jsonb)$$);
 select pg_temp.count_is(pg_temp.id('root'), 'copy again: one more entry, not four',
   $$select 1 from public.world_entries where campaign_id = '{c1}' and source_entry_id in ('{la}', '{lb}', '{lc}', '{ld}')$$, 5);
 select pg_temp.count_is(pg_temp.id('root'), 'copy again: its pins link the existing copies',
@@ -686,7 +695,7 @@ select pg_temp.allowed(pg_temp.id('root'), 'fixture: lf mentions le and ld',
   $$insert into public.world_entry_fields (entry_id, key, type, value, private) values ('{lf}', 'description', 'rich_text',
     '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{le}","label":"Ee"}},{"type":"mention","attrs":{"id":"{ld}","label":"Dee"}}]}]}'::jsonb, false)$$);
 select pg_temp.allowed(pg_temp.id('gm'), 'copy a cycle of maps',
-  $$select * from public.copy_maps_with_pins(array['{le}'::uuid], '{c1}', '{"{le}": "{r6}", "{lf}": "{r7}"}'::jsonb)$$);
+  $$select * from public.copy_entries_with_links(array['{le}'::uuid], '{c1}', '{"{le}": "{r6}", "{lf}": "{r7}"}'::jsonb)$$);
 select pg_temp.count_is(pg_temp.id('root'), 'cycle: le pins lf, and lf pins le',
   $$select 1 from public.world_map_markers where (map_id = '{r6}' and entry_id = '{r7}') or (map_id = '{r7}' and entry_id = '{r6}')$$, 2);
 select pg_temp.count_is(pg_temp.id('root'), 'cycle: the copies mention each other',
@@ -700,7 +709,7 @@ select pg_temp.count_is(pg_temp.id('root'), 'cycle: no mention still points at t
 -- already has (n1), and ech, which has none, is copied.
 insert into storage.objects (bucket_id, name) values ('world-maps', pg_temp.fill('{gm}/{r8}/m.webp'));
 select pg_temp.allowed(pg_temp.id('gm'), 'copy a campaign map with its pins to the library',
-  $$select * from public.copy_maps_with_pins(array['{emap}'::uuid], null, '{"{emap}": "{r8}", "{ech}": "{n12}"}'::jsonb, '{"{emap}": "{gm}/{r8}/m.webp"}'::jsonb)$$);
+  $$select * from public.copy_entries_with_links(array['{emap}'::uuid], null, '{"{emap}": "{r8}", "{ech}": "{n12}"}'::jsonb, '{"{emap}": "{gm}/{r8}/m.webp"}'::jsonb)$$);
 select pg_temp.count_is(pg_temp.id('root'), 'to the library: the pin links the copy that was there',
   $$select 1 from public.world_map_markers where map_id = '{r8}' and entry_id = '{n1}'$$, 1);
 select pg_temp.count_is(pg_temp.id('root'), 'to the library: the other pin links the new copy',
@@ -708,6 +717,81 @@ select pg_temp.count_is(pg_temp.id('root'), 'to the library: the other pin links
 select pg_temp.count_is(pg_temp.id('root'), 'to the library: no second copy of ec',
   $$select 1 from public.world_entries where owner_id = '{gm}' and source_entry_id = '{ec}'$$, 1);
 select pg_temp.count_is(pg_temp.id('gm'), 'to the library: scene copied', $$select 1 from public.world_map_scenes where map_id = '{r8}'$$, 1);
+
+-- Entries that are not maps, linked only by mentions: ca mentions cb, and cb
+-- mentions cc. A diamond: the map dr pins dx and mentions dy, and dx and dy
+-- both mention dz, so dz is reached by two paths. s1 to s7 are copy ids.
+insert into pg_temp.test_ids values
+  ('ca', 'e3000000-0000-0000-0000-000000000001'),
+  ('cb', 'e3000000-0000-0000-0000-000000000002'),
+  ('cc', 'e3000000-0000-0000-0000-000000000003'),
+  ('dr', 'e3000000-0000-0000-0000-000000000004'),
+  ('dx', 'e3000000-0000-0000-0000-000000000005'),
+  ('dy', 'e3000000-0000-0000-0000-000000000006'),
+  ('dz', 'e3000000-0000-0000-0000-000000000007'),
+  ('s1', 'f3000000-0000-0000-0000-000000000001'),
+  ('s2', 'f3000000-0000-0000-0000-000000000002'),
+  ('s3', 'f3000000-0000-0000-0000-000000000003'),
+  ('s4', 'f3000000-0000-0000-0000-000000000004'),
+  ('s5', 'f3000000-0000-0000-0000-000000000005'),
+  ('s6', 'f3000000-0000-0000-0000-000000000006'),
+  ('s7', 'f3000000-0000-0000-0000-000000000007');
+
+insert into public.world_entries (id, kind, name, owner_id, created_by, sort_order)
+select pg_temp.id(e.k), e.kind::public.world_entry_kind, e.k, pg_temp.id('gm'), pg_temp.id('gm'), e.pos
+from (values
+  ('ca', 'character', 40), ('cb', 'character', 41), ('cc', 'character', 42),
+  ('dr', 'map', 43), ('dx', 'character', 44), ('dy', 'character', 45), ('dz', 'character', 46)
+) as e (k, kind, pos);
+
+insert into public.world_entry_fields (entry_id, key, type, value, private) values
+  (pg_temp.id('ca'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{cb}","label":"Cb"}}]}]}')::jsonb, false),
+  (pg_temp.id('cb'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{cc}","label":"Cc"}}]}]}')::jsonb, false),
+  (pg_temp.id('dr'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{dy}","label":"Why"}}]}]}')::jsonb, false),
+  (pg_temp.id('dx'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{dz}","label":"Zee"}}]}]}')::jsonb, false),
+  (pg_temp.id('dy'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{dz}","label":"Zee"}}]}]}')::jsonb, false);
+
+select pg_temp.allowed(pg_temp.id('gm'), 'diamond: dr pins dx', $$select public.add_map_marker('{dr}', '{dx}', 10, 10)$$);
+
+-- A chain of mentions between entries that are not maps.
+select pg_temp.count_is(pg_temp.id('gm'), 'chain: plan reaches ca, cb and cc', $$select jsonb_array_elements(public.plan_entry_copy(array['{ca}'::uuid], '{c1}') -> 'nodes')$$, 3);
+select pg_temp.count_is(pg_temp.id('gm'), 'chain: two links', $$select jsonb_array_elements(public.plan_entry_copy(array['{ca}'::uuid], '{c1}') -> 'edges')$$, 2);
+select pg_temp.allowed(pg_temp.id('gm'), 'chain: copy ca with what it links',
+  $$select * from public.copy_entries_with_links(array['{ca}'::uuid], '{c1}', '{"{ca}": "{s1}", "{cb}": "{s2}", "{cc}": "{s3}"}'::jsonb)$$);
+select pg_temp.count_is(pg_temp.id('root'), 'chain: the copies mention each other in turn',
+  $$select 1 from public.world_entry_mentions where (source_entry_id = '{s1}' and target_entry_id = '{s2}') or (source_entry_id = '{s2}' and target_entry_id = '{s3}')$$, 2);
+select pg_temp.count_is(pg_temp.id('root'), 'chain: no mention points at the originals',
+  $$select 1 from public.world_entry_mentions where source_entry_id in ('{s1}', '{s2}', '{s3}') and target_entry_id in ('{ca}', '{cb}', '{cc}')$$, 0);
+
+-- The diamond: dr reaches dx by a pin and dy by a mention, and both reach dz.
+select pg_temp.count_is(pg_temp.id('gm'), 'diamond: plan reaches four entries', $$select jsonb_array_elements(public.plan_entry_copy(array['{dr}'::uuid], '{c1}') -> 'nodes')$$, 4);
+select pg_temp.count_is(pg_temp.id('gm'), 'diamond: and four links', $$select jsonb_array_elements(public.plan_entry_copy(array['{dr}'::uuid], '{c1}') -> 'edges')$$, 4);
+select pg_temp.denied(pg_temp.id('gm'), 'diamond: dz alone, with both paths to it left out', 'does not match',
+  $$select * from public.copy_entries_with_links(array['{dr}'::uuid], '{c1}', '{"{dr}": "{s4}", "{dz}": "{s6}"}'::jsonb)$$);
+-- dy is left out, and dz stays because dx still reaches it.
+select pg_temp.allowed(pg_temp.id('gm'), 'diamond: copy with one path left out',
+  $$select * from public.copy_entries_with_links(array['{dr}'::uuid], '{c1}', '{"{dr}": "{s4}", "{dx}": "{s5}", "{dz}": "{s6}"}'::jsonb)$$);
+select pg_temp.count_is(pg_temp.id('root'), 'diamond: three entries came, not dy',
+  $$select 1 from public.world_entries where campaign_id = '{c1}' and source_entry_id in ('{dr}', '{dx}', '{dy}', '{dz}')$$, 3);
+select pg_temp.count_is(pg_temp.id('root'), 'diamond: no copy of dy', $$select 1 from public.world_entries where source_entry_id = '{dy}'$$, 0);
+select pg_temp.count_is(pg_temp.id('root'), 'diamond: the pin on dx is kept',
+  $$select 1 from public.world_map_markers where map_id = '{s4}' and entry_id = '{s5}'$$, 1);
+select pg_temp.count_is(pg_temp.id('root'), 'diamond: dx mentions the copy of dz',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{s5}' and target_entry_id = '{s6}'$$, 1);
+select pg_temp.count_is(pg_temp.id('root'), 'diamond: the mention of dy is gone, so dr links nothing by mention',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{s4}'$$, 0);
+select pg_temp.value_is(pg_temp.id('root'), 'diamond: dy stays as its name, with no id',
+  $$select (value::text like '%Why%' and value::text not like '%{dy}%')::text from public.world_entry_fields where entry_id = '{s4}' and key = 'description'$$, 'true');
+
+-- A copy that fails says which entry it failed on, and leaves nothing behind.
+select pg_temp.denied(pg_temp.id('gm'), 'failure: names the entry', 'elg: Copy the image file first',
+  $$select * from public.copy_entries_with_links(array['{elg}'::uuid], '{c1}', '{"{elg}": "{s7}"}'::jsonb)$$);
+select pg_temp.count_is(pg_temp.id('root'), 'failure: nothing was copied', $$select 1 from public.world_entries where id = '{s7}'$$, 0);
 
 -- Mentions. Campaign c3 holds ma (revealed), mb (revealed), mc (hidden), md
 -- (revealed), mf and mg (revealed); c4 holds q1 to q3, to be deleted with their
@@ -829,19 +913,20 @@ select pg_temp.value_is(pg_temp.id('root'), 'copy: lz stays as its name, with no
 select pg_temp.count_is(pg_temp.id('root'), 'copy: the original keeps its mentions',
   $$select 1 from public.world_entry_mentions where source_entry_id = '{lm}'$$, 2);
 
--- Deleting an entry turns the mentions of it into plain text and leaves the
--- others.
+-- Deleting an entry removes the rows that point at it and leaves the documents
+-- alone. A player still gets its name as plain text, since no row lets them
+-- follow it.
 select pg_temp.allowed(pg_temp.id('gm'), 'delete a mentioned entry', $$select public.delete_world_entry('{md}')$$);
 select pg_temp.count_is(pg_temp.id('root'), 'delete: no row points at md', $$select 1 from public.world_entry_mentions where target_entry_id = '{md}'$$, 0);
-select pg_temp.value_is(pg_temp.id('root'), 'delete: the private field has no mention left',
-  $$select jsonb_path_exists(value, 'lax $.** ? (@.type == "mention")')::text from public.world_entry_fields where entry_id = '{ma}' and key = 'secrets'$$, 'false');
-select pg_temp.value_is(pg_temp.id('root'), 'delete: the name stays as plain text',
-  $$select (value::text like '%Dee%' and value::text not like '%{md}%')::text from public.world_entry_fields where entry_id = '{mb}' and key = 'description'$$, 'true');
+select pg_temp.value_is(pg_temp.id('player'), 'delete: a player gets the name as plain text',
+  $$select (f.value::text like '%Dee%' and f.value::text not like '%{md}%')::text from public.get_world_entry_fields('{mb}') f where f.key = 'description'$$, 'true');
+select pg_temp.value_is(pg_temp.id('gm'), 'delete: the GM''s document is left as it was',
+  $$select (f.value::text like '%{md}%')::text from public.get_world_entry_fields('{mb}') f where f.key = 'description'$$, 'true');
 select pg_temp.count_is(pg_temp.id('root'), 'delete: the other mentions stay',
   $$select 1 from public.world_entry_mentions where (source_entry_id = '{ma}' and target_entry_id = '{mb}') or (source_entry_id = '{mb}' and target_entry_id = '{ma}')$$, 2);
 
 -- Several entries that mention each other, deleted in one statement. mf
--- mentions both ma and mg: only the mention of ma goes.
+-- mentions both ma and mg: only its row for ma goes.
 select pg_temp.allowed(pg_temp.id('gm'), 'delete entries that mention each other, in one statement',
   $$select public.delete_world_entries(array['{ma}'::uuid, '{mb}'::uuid])$$);
 select pg_temp.count_is(pg_temp.id('root'), 'delete together: both are gone', $$select 1 from public.world_entries where id in ('{ma}', '{mb}')$$, 0);
@@ -849,8 +934,8 @@ select pg_temp.count_is(pg_temp.id('root'), 'delete together: no row left for ei
   $$select 1 from public.world_entry_mentions where source_entry_id in ('{ma}', '{mb}') or target_entry_id in ('{ma}', '{mb}')$$, 0);
 select pg_temp.count_is(pg_temp.id('root'), 'delete together: mf still mentions mg',
   $$select 1 from public.world_entry_mentions where source_entry_id = '{mf}' and target_entry_id = '{mg}'$$, 1);
-select pg_temp.value_is(pg_temp.id('root'), 'delete together: mf names ma without linking it',
-  $$select (value::text like '%Aye%' and value::text not like '%{ma}%')::text from public.world_entry_fields where entry_id = '{mf}' and key = 'description'$$, 'true');
+select pg_temp.value_is(pg_temp.id('player'), 'delete together: a player gets ma as a name, not a link',
+  $$select (f.value::text like '%Aye%' and f.value::text not like '%{ma}%')::text from public.get_world_entry_fields('{mf}') f where f.key = 'description'$$, 'true');
 
 -- A whole campaign whose entries mention each other, and one of them itself.
 select pg_temp.allowed(pg_temp.id('gm'), 'delete a campaign whose entries mention each other',
@@ -908,7 +993,7 @@ select pg_temp.count_is(pg_temp.id('root'), 'deleting a campaign removes its ent
 
 select pg_temp.allowed(pg_temp.id('root'), 'delete a user', $$delete from auth.users where id = '{owner}'$$);
 select pg_temp.count_is(pg_temp.id('root'), 'deleting a user removes their library', $$select 1 from public.world_entries where owner_id = '{owner}'$$, 0);
-select pg_temp.count_is(pg_temp.id('root'), 'deleting a user leaves campaign entries alone', $$select 1 from public.world_entries where campaign_id = '{c1}'$$, 17);
+select pg_temp.count_is(pg_temp.id('root'), 'deleting a user leaves campaign entries alone', $$select 1 from public.world_entries where campaign_id = '{c1}'$$, 23);
 
 rollback;
 

@@ -2,12 +2,13 @@ import { Eye, EyeOff, Library, Trash2 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
 import type { useWorldBulk } from "@/hooks/use-world-bulk"
 import { plural } from "@/lib/entry-selection"
 import { BottomNotice } from "./BottomNotice"
 import { ConfirmDialog } from "./ConfirmDialog"
-import { CopyWithPinsDialog } from "./CopyWithPinsDialog"
+import { CopyWithLinksDialog } from "./CopyWithLinksDialog"
 import { SelectionBar } from "./SelectionBar"
 import { useWorldScope } from "./useWorldScope"
 
@@ -21,10 +22,12 @@ function Action(props: {
   label: string
   disabled: boolean
   destructive?: boolean
+  // Why the action is not offered, said on hover.
+  reason?: string
   onClick: () => void
 }) {
-  const { icon: Icon, label, disabled, destructive, onClick } = props
-  return (
+  const { icon: Icon, label, disabled, destructive, reason, onClick } = props
+  const button = (
     <Button
       variant="ghost"
       size="sm"
@@ -36,6 +39,17 @@ function Action(props: {
       <Icon className="size-4" />
       <span className="max-sm:sr-only">{label}</span>
     </Button>
+  )
+  if (!reason) return button
+
+  // A disabled button gets no pointer events, so the span carries the tooltip.
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span tabIndex={0}>{button}</span>
+      </TooltipTrigger>
+      <TooltipContent>{reason}</TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -57,7 +71,13 @@ export function WorldBulkBar({ selection, bulk }: Props) {
             </>
           )}
           {scope.canSaveToLibrary && (
-            <Action icon={Library} label="Save to library" disabled={busy || !bulk.canSave} onClick={bulk.saveAll} />
+            <Action
+              icon={Library}
+              label="Save to library"
+              disabled={busy || !bulk.canSave}
+              reason={bulk.saveHint ?? undefined}
+              onClick={bulk.saveAll}
+            />
           )}
           <Action
             icon={Trash2}
@@ -81,7 +101,7 @@ export function WorldBulkBar({ selection, bulk }: Props) {
           />
         )
       )}
-      <CopyWithPinsDialog {...bulk.copyDialog} />
+      <CopyWithLinksDialog {...bulk.copyDialog} />
       <ConfirmDialog
         open={bulk.confirmingDelete}
         title={`Delete ${plural(bulk.chosen.length)}?`}

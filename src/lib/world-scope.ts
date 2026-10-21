@@ -53,8 +53,7 @@ export function campaignScope(campaignId: string, canManage: boolean): WorldScop
     kinds: worldKinds,
     hasVisibility: true,
     canSaveToLibrary: true,
-    addFromLibrary: (items, ask, onProgress) =>
-      copyEntries(items, { campaignId, folder: campaignId }, ask, onProgress),
+    addFromLibrary: (items, ask) => copyEntries(items, { campaignId, folder: campaignId }, ask),
     imageFolder: campaignId,
     fetchEntries: () => fetchWorldEntries(campaignId),
     createEntry: (kind, name) => createWorldEntry(campaignId, kind, name),

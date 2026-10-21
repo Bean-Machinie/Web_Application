@@ -7,8 +7,9 @@ import { useCopyChoice } from "./use-copy-choice"
 import { useNoticeTimeout } from "./use-notice-timeout"
 
 // Saving to the library, with what the page needs to say about it: whether it
-// is under way, the name of what was just saved, or what went wrong. A map with
-// pins asks what to do with them first, through `dialog`.
+// is under way, the name of what was just saved, or what went wrong. An entry that
+// links to others the library does not have asks which to bring along first,
+// through `dialog`.
 export function useSaveToLibrary() {
   const { session } = useAuth()
   const [busy, setBusy] = useState(false)
@@ -28,7 +29,7 @@ export function useSaveToLibrary() {
     try {
       const outcome = await copyEntries([entry], { campaignId: null, folder: userId }, ask)
       if (outcome.cancelled) return
-      if (outcome.failed.length > 0) throw new Error(outcome.failed[0].message)
+      if (outcome.error) throw new Error(outcome.error)
       setNote(copyNote(outcome))
       setSavedName(entry.name)
     } catch (failure) {
