@@ -1,8 +1,8 @@
 -- Library tests: policies and functions checked as a campaign GM, a player,
 -- a library owner and a stranger.
 --
--- HOW TO RUN: apply the library migrations first (through the one that copies
--- maps with their pins, 20261028000000), then paste this whole
+-- HOW TO RUN: apply the library migrations first (through the one that adds
+-- mentions, 20261029000000), then paste this whole
 -- file into the Supabase SQL editor and run it once, on a development project.
 -- It runs inside one transaction that is rolled back at the end, so nothing is
 -- kept. The last statement returns one row per check (failures first) after a
@@ -678,10 +678,23 @@ select pg_temp.count_is(pg_temp.id('root'), 'copy again: its pins link the exist
   $$select 1 from public.world_map_markers where map_id = '{r5}' and entry_id in ('{r2}', '{r4}')$$, 2);
 
 -- A cycle: le and lf pin each other, and the copy of lf pins the new copy of le.
+-- They also mention each other, and lf mentions ld, which already has a copy.
+select pg_temp.allowed(pg_temp.id('root'), 'fixture: le mentions lf',
+  $$insert into public.world_entry_fields (entry_id, key, type, value, private) values ('{le}', 'description', 'rich_text',
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{lf}","label":"Eff"}}]}]}'::jsonb, false)$$);
+select pg_temp.allowed(pg_temp.id('root'), 'fixture: lf mentions le and ld',
+  $$insert into public.world_entry_fields (entry_id, key, type, value, private) values ('{lf}', 'description', 'rich_text',
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{le}","label":"Ee"}},{"type":"mention","attrs":{"id":"{ld}","label":"Dee"}}]}]}'::jsonb, false)$$);
 select pg_temp.allowed(pg_temp.id('gm'), 'copy a cycle of maps',
   $$select * from public.copy_maps_with_pins(array['{le}'::uuid], '{c1}', '{"{le}": "{r6}", "{lf}": "{r7}"}'::jsonb)$$);
 select pg_temp.count_is(pg_temp.id('root'), 'cycle: le pins lf, and lf pins le',
   $$select 1 from public.world_map_markers where (map_id = '{r6}' and entry_id = '{r7}') or (map_id = '{r7}' and entry_id = '{r6}')$$, 2);
+select pg_temp.count_is(pg_temp.id('root'), 'cycle: the copies mention each other',
+  $$select 1 from public.world_entry_mentions where (source_entry_id = '{r6}' and target_entry_id = '{r7}') or (source_entry_id = '{r7}' and target_entry_id = '{r6}')$$, 2);
+select pg_temp.count_is(pg_temp.id('root'), 'cycle: a mention of an entry that already had a copy goes to that copy',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{r7}' and target_entry_id = '{r4}'$$, 1);
+select pg_temp.count_is(pg_temp.id('root'), 'cycle: no mention still points at the originals',
+  $$select 1 from public.world_entry_mentions where source_entry_id in ('{r6}', '{r7}') and target_entry_id in ('{le}', '{lf}', '{ld}')$$, 0);
 
 -- A campaign map to the library: the pin on ec links the copy the GM's library
 -- already has (n1), and ech, which has none, is copied.
@@ -695,6 +708,156 @@ select pg_temp.count_is(pg_temp.id('root'), 'to the library: the other pin links
 select pg_temp.count_is(pg_temp.id('root'), 'to the library: no second copy of ec',
   $$select 1 from public.world_entries where owner_id = '{gm}' and source_entry_id = '{ec}'$$, 1);
 select pg_temp.count_is(pg_temp.id('gm'), 'to the library: scene copied', $$select 1 from public.world_map_scenes where map_id = '{r8}'$$, 1);
+
+-- Mentions. Campaign c3 holds ma (revealed), mb (revealed), mc (hidden), md
+-- (revealed), mf and mg (revealed); c4 holds q1 to q3, to be deleted with their
+-- campaign. The GM's library holds lm and lz. r9 is a copy's id.
+insert into pg_temp.test_ids values
+  ('c3', 'c0000000-0000-0000-0000-000000000003'),
+  ('c4', 'c0000000-0000-0000-0000-000000000004'),
+  ('ma', 'e2000000-0000-0000-0000-000000000001'),
+  ('mb', 'e2000000-0000-0000-0000-000000000002'),
+  ('mc', 'e2000000-0000-0000-0000-000000000003'),
+  ('md', 'e2000000-0000-0000-0000-000000000004'),
+  ('mf', 'e2000000-0000-0000-0000-000000000005'),
+  ('mg', 'e2000000-0000-0000-0000-000000000006'),
+  ('q1', 'e2000000-0000-0000-0000-000000000007'),
+  ('q2', 'e2000000-0000-0000-0000-000000000008'),
+  ('q3', 'e2000000-0000-0000-0000-000000000009'),
+  ('lm', 'e2000000-0000-0000-0000-00000000000a'),
+  ('lz', 'e2000000-0000-0000-0000-00000000000b'),
+  ('r9', 'f2000000-0000-0000-0000-000000000009');
+
+insert into public.campaigns (id, name, created_by) values
+  (pg_temp.id('c3'), 'Mention campaign', pg_temp.id('gm')),
+  (pg_temp.id('c4'), 'Mention campaign two', pg_temp.id('gm'));
+
+insert into public.campaign_members (campaign_id, user_id, role) values
+  (pg_temp.id('c3'), pg_temp.id('gm'), 'gm'),
+  (pg_temp.id('c3'), pg_temp.id('player'), 'player'),
+  (pg_temp.id('c4'), pg_temp.id('gm'), 'gm');
+
+insert into public.world_entries (id, kind, name, campaign_id, owner_id, revealed, sort_order)
+select pg_temp.id(e.k), e.kind::public.world_entry_kind, e.k,
+  case when e.camp is not null then pg_temp.id(e.camp) end,
+  case when e.camp is null then pg_temp.id('gm') end,
+  e.revealed, e.pos
+from (values
+  ('ma', 'character', 'c3', true, 1), ('mb', 'location', 'c3', true, 2),
+  ('mc', 'lore', 'c3', false, 3), ('md', 'item', 'c3', true, 4),
+  ('mf', 'character', 'c3', true, 5), ('mg', 'character', 'c3', true, 6),
+  ('q1', 'character', 'c4', true, 1), ('q2', 'character', 'c4', true, 2),
+  ('q3', 'character', 'c4', true, 3),
+  ('lm', 'character', null, false, 30), ('lz', 'character', null, false, 31)
+) as e (k, kind, camp, revealed, pos);
+
+-- ma mentions mb, mc (hidden), md, an entry of another campaign, itself and
+-- something that is not an id; its private secrets mention md. mb mentions ma,
+-- mf mentions ma and mg, and q1, q2 and q3 mention each other in a ring.
+insert into public.world_entry_fields (entry_id, key, type, value, private) values
+  (pg_temp.id('ma'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"See "},{"type":"mention","attrs":{"id":"{mb}","label":"Bee"}},{"type":"mention","attrs":{"id":"{mc}","label":"Hidden one"}},{"type":"mention","attrs":{"id":"{md}","label":"Dee"}},{"type":"mention","attrs":{"id":"{ec}","label":"Elsewhere"}},{"type":"mention","attrs":{"id":"{ma}","label":"Self"}},{"type":"mention","attrs":{"id":"not-an-id","label":"Junk"}}]}]}')::jsonb, false),
+  (pg_temp.id('ma'), 'secrets', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{md}","label":"Dee"}}]}]}')::jsonb, true),
+  (pg_temp.id('mb'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{ma}","label":"Aye"}}]}]}')::jsonb, false),
+  (pg_temp.id('mf'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{ma}","label":"Aye"}},{"type":"mention","attrs":{"id":"{mg}","label":"Gee"}}]}]}')::jsonb, false),
+  (pg_temp.id('q1'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{q2}","label":"Q2"}},{"type":"mention","attrs":{"id":"{q1}","label":"Q1"}}]}]}')::jsonb, false),
+  (pg_temp.id('q2'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{q3}","label":"Q3"}}]}]}')::jsonb, false),
+  (pg_temp.id('q3'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{q1}","label":"Q1"}}]}]}')::jsonb, false),
+  (pg_temp.id('lm'), 'description', 'rich_text', pg_temp.fill(
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{lc}","label":"Cee"}},{"type":"mention","attrs":{"id":"{lz}","label":"Zed"}}]}]}')::jsonb, false);
+
+-- What becomes a row: only another entry of the same home.
+select pg_temp.count_is(pg_temp.id('root'), 'mentions: mb, mc and md from the description, md from the secrets',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{ma}'$$, 4);
+select pg_temp.count_is(pg_temp.id('root'), 'mentions: another campaign, itself and junk are no links',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{ma}' and target_entry_id in ('{ec}', '{ma}')$$, 0);
+select pg_temp.count_is(pg_temp.id('root'), 'mentions: a library entry mentions library entries',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{lm}'$$, 2);
+
+-- Who reads the rows: never those of a private field, nor of an entry they
+-- cannot see.
+select pg_temp.sees('mention rows follow what can be read', $$select 1 from public.world_entry_mentions where source_entry_id = '{ma}'$$, 4, 2, 0, 0);
+select pg_temp.sees('links view: mentions', $$select 1 from public.world_entry_links where link_type = 'mention' and source_id = '{ma}'$$, 4, 2, 0, 0);
+select pg_temp.sees('links view: pins', $$select 1 from public.world_entry_links where link_type = 'pin' and source_id = '{emap}'$$, 2, 0, 0, 0);
+
+-- The document a player gets: a link only to what is revealed to them.
+select pg_temp.sees('document: the mentions that come through',
+  $$select distinct v #>> '{}' from public.get_world_entry_fields('{ma}') f,
+      jsonb_path_query(f.value, 'lax $.** ? (@.type == "mention").attrs.id') v where f.key = 'description'$$, 6, 2, 0, 0);
+select pg_temp.value_is(pg_temp.id('player'), 'document: a hidden entry is plain text, without its id',
+  $$select (f.value::text like '%Hidden one%' and f.value::text not like '%{mc}%')::text from public.get_world_entry_fields('{ma}') f where f.key = 'description'$$, 'true');
+select pg_temp.value_is(pg_temp.id('gm'), 'document: the GM keeps every mention as written',
+  $$select (f.value::text like '%{mc}%')::text from public.get_world_entry_fields('{ma}') f where f.key = 'description'$$, 'true');
+select pg_temp.value_is(pg_temp.id('player'), 'document: a private field has no value for a player',
+  $$select (f.value is null)::text from public.get_world_entry_fields('{ma}') f where f.key = 'secrets'$$, 'true');
+
+-- Search text carries no ids, and still leaves private fields to the GM.
+select pg_temp.value_is(pg_temp.id('gm'), 'search text: mentions are plain names',
+  $$select (not jsonb_path_exists(value, 'lax $.** ? (@.type == "mention")') and value::text like '%Bee%')::text from public.get_world_search_text('{c3}') where entry_id = '{ma}' and key = 'description'$$, 'true');
+select pg_temp.sees('search text: private fields', $$select 1 from public.get_world_search_text('{c3}') where entry_id = '{ma}' and key = 'secrets'$$, 1, 0, 0, 0);
+
+-- Saving a field keeps the rows in step, and only the GM may save.
+select pg_temp.may('save a field with a mention',
+  $$select public.set_world_entry_field_value('{mb}', 'description', 'rich_text',
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{md}","label":"Dee"}}]}]}'::jsonb)$$,
+  true, false, false, false, 'not allowed');
+select pg_temp.count_is(pg_temp.id('root'), 'saving: the rows now say md and no longer ma',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{mb}' and target_entry_id = '{md}'$$, 1);
+select pg_temp.count_is(pg_temp.id('root'), 'saving: nothing left for ma',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{mb}' and target_entry_id = '{ma}'$$, 0);
+select pg_temp.allowed(pg_temp.id('root'), 'fixture: mb mentions ma and md',
+  $$update public.world_entry_fields set value =
+    '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"mention","attrs":{"id":"{ma}","label":"Aye"}},{"type":"mention","attrs":{"id":"{md}","label":"Dee"}}]}]}'::jsonb
+    where entry_id = '{mb}' and key = 'description'$$);
+
+-- Copying: a mention goes to the copy the target already has, and otherwise
+-- becomes plain text. lc has a copy in c1 (r3); lz has none.
+select pg_temp.allowed(pg_temp.id('gm'), 'copy an entry with mentions to a campaign',
+  $$select public.copy_world_entry('{lm}', '{r9}', '{c1}')$$);
+select pg_temp.count_is(pg_temp.id('root'), 'copy: the mention of lc goes to its copy',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{r9}' and target_entry_id = '{r3}'$$, 1);
+select pg_temp.count_is(pg_temp.id('root'), 'copy: nothing else is linked',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{r9}'$$, 1);
+select pg_temp.value_is(pg_temp.id('root'), 'copy: lz stays as its name, with no id',
+  $$select (value::text like '%Zed%' and value::text not like '%{lz}%' and value::text not like '%{lc}%')::text from public.world_entry_fields where entry_id = '{r9}' and key = 'description'$$, 'true');
+select pg_temp.count_is(pg_temp.id('root'), 'copy: the original keeps its mentions',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{lm}'$$, 2);
+
+-- Deleting an entry turns the mentions of it into plain text and leaves the
+-- others.
+select pg_temp.allowed(pg_temp.id('gm'), 'delete a mentioned entry', $$select public.delete_world_entry('{md}')$$);
+select pg_temp.count_is(pg_temp.id('root'), 'delete: no row points at md', $$select 1 from public.world_entry_mentions where target_entry_id = '{md}'$$, 0);
+select pg_temp.value_is(pg_temp.id('root'), 'delete: the private field has no mention left',
+  $$select jsonb_path_exists(value, 'lax $.** ? (@.type == "mention")')::text from public.world_entry_fields where entry_id = '{ma}' and key = 'secrets'$$, 'false');
+select pg_temp.value_is(pg_temp.id('root'), 'delete: the name stays as plain text',
+  $$select (value::text like '%Dee%' and value::text not like '%{md}%')::text from public.world_entry_fields where entry_id = '{mb}' and key = 'description'$$, 'true');
+select pg_temp.count_is(pg_temp.id('root'), 'delete: the other mentions stay',
+  $$select 1 from public.world_entry_mentions where (source_entry_id = '{ma}' and target_entry_id = '{mb}') or (source_entry_id = '{mb}' and target_entry_id = '{ma}')$$, 2);
+
+-- Several entries that mention each other, deleted in one statement. mf
+-- mentions both ma and mg: only the mention of ma goes.
+select pg_temp.allowed(pg_temp.id('gm'), 'delete entries that mention each other, in one statement',
+  $$select public.delete_world_entries(array['{ma}'::uuid, '{mb}'::uuid])$$);
+select pg_temp.count_is(pg_temp.id('root'), 'delete together: both are gone', $$select 1 from public.world_entries where id in ('{ma}', '{mb}')$$, 0);
+select pg_temp.count_is(pg_temp.id('root'), 'delete together: no row left for either',
+  $$select 1 from public.world_entry_mentions where source_entry_id in ('{ma}', '{mb}') or target_entry_id in ('{ma}', '{mb}')$$, 0);
+select pg_temp.count_is(pg_temp.id('root'), 'delete together: mf still mentions mg',
+  $$select 1 from public.world_entry_mentions where source_entry_id = '{mf}' and target_entry_id = '{mg}'$$, 1);
+select pg_temp.value_is(pg_temp.id('root'), 'delete together: mf names ma without linking it',
+  $$select (value::text like '%Aye%' and value::text not like '%{ma}%')::text from public.world_entry_fields where entry_id = '{mf}' and key = 'description'$$, 'true');
+
+-- A whole campaign whose entries mention each other, and one of them itself.
+select pg_temp.allowed(pg_temp.id('gm'), 'delete a campaign whose entries mention each other',
+  $$select public.delete_campaign('{c4}', 'Mention campaign two')$$);
+select pg_temp.count_is(pg_temp.id('root'), 'delete campaign: its entries are gone', $$select 1 from public.world_entries where campaign_id = '{c4}'$$, 0);
+select pg_temp.count_is(pg_temp.id('root'), 'delete campaign: no row left',
+  $$select 1 from public.world_entry_mentions where source_entry_id in ('{q1}', '{q2}', '{q3}') or target_entry_id in ('{q1}', '{q2}', '{q3}')$$, 0);
 
 -- Copies and sources live separate lives.
 select pg_temp.allowed(pg_temp.id('gm'), 'edit the copy', $$select public.rename_world_entry('{n1}', 'Copy only')$$);
@@ -745,7 +908,7 @@ select pg_temp.count_is(pg_temp.id('root'), 'deleting a campaign removes its ent
 
 select pg_temp.allowed(pg_temp.id('root'), 'delete a user', $$delete from auth.users where id = '{owner}'$$);
 select pg_temp.count_is(pg_temp.id('root'), 'deleting a user removes their library', $$select 1 from public.world_entries where owner_id = '{owner}'$$, 0);
-select pg_temp.count_is(pg_temp.id('root'), 'deleting a user leaves campaign entries alone', $$select 1 from public.world_entries where campaign_id = '{c1}'$$, 16);
+select pg_temp.count_is(pg_temp.id('root'), 'deleting a user leaves campaign entries alone', $$select 1 from public.world_entries where campaign_id = '{c1}'$$, 17);
 
 rollback;
 

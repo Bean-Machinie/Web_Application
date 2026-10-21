@@ -33,7 +33,7 @@ export async function fetchMapMarkers(mapId: string) {
   const { data, error } = await supabase
     .from("world_map_markers")
     .select(
-      "id, x, y, entry_id, entry:world_entries!entry_id(kind, name, revealed, world_entry_fields(key, value))"
+      "id, x, y, entry_id, entry:world_entries!entry_id(kind, name, revealed, world_entry_fields!entry_id(key, value))"
     )
     .eq("map_id", mapId)
     .eq("entry.world_entry_fields.key", COVER_FIELD)
@@ -105,7 +105,7 @@ type PlacementRow = {
 export async function fetchPlacements(entryId: string) {
   const { data, error } = await supabase
     .from("world_map_markers")
-    .select("id, x, y, map:world_entries!map_id(id, name, revealed, world_entry_fields(key, value))")
+    .select("id, x, y, map:world_entries!map_id(id, name, revealed, world_entry_fields!entry_id(key, value))")
     .eq("entry_id", entryId)
     .eq("map.world_entry_fields.key", COVER_FIELD)
     .order("created_at", { ascending: true })

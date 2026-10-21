@@ -55,7 +55,9 @@ function toEntry(row: Record<string, unknown>): WorldEntry {
 const listQuery = () =>
   supabase
     .from("world_entries")
-    .select(`${COLUMNS}, world_entry_fields(key, value)`)
+    // Named by its column: the mentions table is a second way to get from an
+    // entry to a field, and without the name the query is ambiguous.
+    .select(`${COLUMNS}, world_entry_fields!entry_id(key, value)`)
     // Filters the embedded rows, not the entries; row level security still
     // decides which fields each person gets.
     .in("world_entry_fields.key", LIST_FIELDS)

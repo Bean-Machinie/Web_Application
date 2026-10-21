@@ -21,21 +21,20 @@ function plainText(value: unknown): string {
   return `${own} ${inner}`
 }
 
-const searchQuery = () =>
-  supabase
-    .from("world_entry_fields")
-    .select("entry_id, key, value, world_entries!inner(campaign_id)")
-    .in("type", ["rich_text", "short_text", "select"])
+// A function, not the table: it turns mentions into their plain names, so no
+// entry id comes along with the text.
+const searchText = (campaignId: string | null) =>
+  supabase.rpc("get_world_search_text", { target_campaign: campaignId })
 
 // Every text field, so a search can look past the name. Players only receive
 // the fields they may read: the database leaves private ones out.
 export async function fetchSearchText(campaignId: string): Promise<SearchText> {
-  return toSearchText(await searchQuery().eq("world_entries.campaign_id", campaignId))
+  return toSearchText(await searchText(campaignId))
 }
 
 // The same for the signed-in person's library.
 export async function fetchLibrarySearchText(): Promise<SearchText> {
-  return toSearchText(await searchQuery().is("world_entries.campaign_id", null))
+  return toSearchText(await searchText(null))
 }
 
 function toSearchText({ data, error }: { data: unknown; error: unknown }): SearchText {
