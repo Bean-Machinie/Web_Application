@@ -17,7 +17,7 @@ type Props = {
 export function AddFromLibraryButton({ onAdded }: Props) {
   const { addFromLibrary } = useWorldScope()
   const [open, setOpen] = useState(false)
-  const [added, setAdded] = useState<number | null>(null)
+  const [added, setAdded] = useState<{ count: number; note: string } | null>(null)
   useNoticeTimeout(added !== null, () => setAdded(null))
 
   if (!addFromLibrary) return null
@@ -43,16 +43,16 @@ export function AddFromLibraryButton({ onAdded }: Props) {
         open={open}
         add={addFromLibrary}
         onClose={() => setOpen(false)}
-        onAdded={(count) => {
-          setAdded(count)
+        onAdded={(count, note) => {
+          setAdded({ count, note })
           void onAdded()
         }}
       />
       {added !== null && (
         <BottomNotice
-          text={`Added ${added === 1 ? "1 entry" : `${added} entries`} from your library. ${
-            added === 1 ? "It starts" : "They start"
-          } hidden.`}
+          text={`Added ${added.count === 1 ? "1 entry" : `${added.count} entries`} from your library. ${
+            added.count === 1 ? "It starts" : "They start"
+          } hidden.${added.note ? ` ${added.note}` : ""}`}
         />
       )}
     </>

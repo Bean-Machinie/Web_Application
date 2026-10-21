@@ -1,29 +1,35 @@
 import { useState } from "react"
 import { useAuth } from "@/auth/useAuth"
 import { errorMessage } from "@/lib/campaigns"
-import { PINS_NOT_SAVED, saveToLibrary } from "@/lib/world-copy"
+import { copyEntries, copyNote } from "@/lib/world-copy-flow"
+import type { CopyItem } from "@/lib/world-copy-flow"
+import { useCopyChoice } from "./use-copy-choice"
 import { useNoticeTimeout } from "./use-notice-timeout"
 
 // Saving to the library, with what the page needs to say about it: whether it
-// is under way, the name of what was just saved, or what went wrong.
+// is under way, the name of what was just saved, or what went wrong. A map with
+// pins asks what to do with them first, through `dialog`.
 export function useSaveToLibrary() {
   const { session } = useAuth()
   const [busy, setBusy] = useState(false)
   const [savedName, setSavedName] = useState<string | null>(null)
   const [note, setNote] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const { ask, dialog } = useCopyChoice()
 
   useNoticeTimeout(savedName !== null, () => setSavedName(null))
 
-  async function save(entry: { id: string; name: string }) {
+  async function save(entry: CopyItem) {
     const userId = session?.user.id
     if (!userId || busy) return
     setBusy(true)
     setSavedName(null)
     setError(null)
     try {
-      const { pinsDropped } = await saveToLibrary(entry.id, userId)
-      setNote(pinsDropped ? PINS_NOT_SAVED : null)
+      const outcome = await copyEntries([entry], { campaignId: null, folder: userId }, ask)
+      if (outcome.cancelled) return
+      if (outcome.failed.length > 0) throw new Error(outcome.failed[0].message)
+      setNote(copyNote(outcome))
       setSavedName(entry.name)
     } catch (failure) {
       setError(errorMessage(failure))
@@ -32,5 +38,5 @@ export function useSaveToLibrary() {
     }
   }
 
-  return { save, busy, savedName, note, error }
+  return { save, busy, savedName, note, error, dialog }
 }

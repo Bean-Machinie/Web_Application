@@ -31,7 +31,6 @@ import { MapViewerStatusBar } from "./MapViewerStatusBar"
 import { useWorldScope } from "./useWorldScope"
 
 type Props = {
-  campaignId: string
   mapId: string
   mapName: string
   image: { url: string; width: number; height: number; maxZoom?: number }
@@ -43,8 +42,8 @@ type Props = {
 // The map filling its space, with smooth pan and zoom, mouse or touch. Everyone can
 // click a marker for a preview. A GM adds markers, and switches to editing
 // mode to drag them, change what they link to, or remove them.
-export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDetails }: Props) {
-  const { basePath, canPin } = useWorldScope()
+export function MapViewer({ mapId, mapName, image, canManage, onDetails }: Props) {
+  const { basePath, hasVisibility } = useWorldScope()
   const size = useMemo(
     () => ({ width: image.width, height: image.height }),
     [image.width, image.height]
@@ -58,13 +57,16 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDeta
   const selection = useMapMarkerSelection(map, !phone)
   const { selectedId, clear } = selection
   const { placing, setPlacing, pending, setPending, landed } = useMapPlacing(map, size, clear)
-  const pinnable = canManage && canPin
-  const editing = pinnable && selection.editing
+  const editing = canManage && selection.editing
   // Entries opened from this map show it, and the maps above it, in their trail.
   const from = readBackTo(useLocation().state)
   const [relinkId, setRelinkId] = useState<string | null>(null)
 
-  const list = useMemo(() => markers ?? [], [markers])
+  // A library has no players, so every pin in it shows as a normal one.
+  const list = useMemo(
+    () => (markers ?? []).map((marker) => (hasVisibility ? marker : { ...marker, revealed: true })),
+    [markers, hasVisibility]
+  )
   const selected = list.find((marker) => marker.id === selectedId) ?? null
   // Where the open marker's pin is. Any pan or zoom closes it, so it never
   // needs to follow.
@@ -152,26 +154,23 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDeta
           <FormAlert tone="error">{error}</FormAlert>
         </div>
       )}
-      {canPin && (
-        <MarkerLinkDialog
-          open={landed || relinkId !== null}
-          campaignId={campaignId}
-          mapId={mapId}
-          onClose={() => {
-            setPending(null)
-            setRelinkId(null)
-          }}
-          onLink={async (entryId) => {
-            if (relinkId) await relink(relinkId, entryId)
-            else await add(entryId, pending!.x, pending!.y)
-            setPending(null)
-            setRelinkId(null)
-          }}
-        />
-      )}
+      <MarkerLinkDialog
+        open={landed || relinkId !== null}
+        mapId={mapId}
+        onClose={() => {
+          setPending(null)
+          setRelinkId(null)
+        }}
+        onLink={async (entryId) => {
+          if (relinkId) await relink(relinkId, entryId)
+          else await add(entryId, pending!.x, pending!.y)
+          setPending(null)
+          setRelinkId(null)
+        }}
+      />
       </div>
       <MapViewerStatusBar map={map} size={size}>
-        {pinnable && (
+        {canManage && (
           <MapEditBar
             placing={placing}
             editing={editing}

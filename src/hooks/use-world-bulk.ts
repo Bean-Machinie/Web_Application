@@ -2,10 +2,11 @@ import { useState } from "react"
 import { useAuth } from "@/auth/useAuth"
 import { plural } from "@/lib/entry-selection"
 import { errorMessage } from "@/lib/campaigns"
-import { PINS_NOT_SAVED, saveToLibrary } from "@/lib/world-copy"
+import { copiedCount, copyEntries, copyNote } from "@/lib/world-copy-flow"
 import { deleteWorldEntries, setWorldEntriesRevealed } from "@/lib/world-entries"
 import type { WorldEntry } from "@/lib/world-entries"
 import { deleteWorldImages } from "@/lib/world-images"
+import { useCopyChoice } from "./use-copy-choice"
 import type { EntrySelection } from "./use-entry-selection"
 import { useNoticeTimeout } from "./use-notice-timeout"
 
@@ -27,16 +28,19 @@ export function useWorldBulk({ entries, selection, reload, setError }: Options) 
   const [progress, setProgress] = useState<string | null>(null)
   const [notice, setNotice] = useState<BulkNotice | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const copyChoice = useCopyChoice()
   useNoticeTimeout(notice !== null, () => setNotice(null))
 
   const chosen = (entries ?? []).filter((entry) => selection.selected.has(entry.id))
 
-  async function run(label: string, task: () => Promise<BulkNotice | null>) {
+  // A task that resolves to undefined was called off: nothing changes.
+  async function run(label: string, task: () => Promise<BulkNotice | null | undefined>) {
     setError(null)
     setNotice(null)
     setProgress(label)
     try {
       const done = await task()
+      if (done === undefined) return
       selection.clear()
       await reload()
       setNotice(done)
@@ -79,23 +83,22 @@ export function useWorldBulk({ entries, selection, reload, setError }: Options) 
     run("Saving…", async () => {
       const userId = session?.user.id
       if (!userId) throw new Error("You must be signed in.")
-      const failed: string[] = []
-      let saved = 0
-      let pinsDropped = false
-      for (const [index, entry] of chosen.entries()) {
-        setProgress(`Saving ${index + 1} of ${chosen.length}…`)
-        try {
-          const result = await saveToLibrary(entry.id, userId)
-          pinsDropped ||= result.pinsDropped
-          saved += 1
-        } catch (failure) {
-          failed.push(`${entry.name} (${errorMessage(failure)})`)
-        }
+      const outcome = await copyEntries(
+        chosen,
+        { campaignId: null, folder: userId },
+        copyChoice.ask,
+        (done, total) => setProgress(`Saving ${done + 1} of ${total}…`)
+      )
+      // Backing out of the pins question leaves everything as it was.
+      if (outcome.cancelled) return undefined
+      const { failed } = outcome
+      if (failed.length > 0) {
+        setError(`Could not save ${failed.map((one) => `${one.name} (${one.message})`).join("; ")}.`)
       }
-      if (failed.length > 0) setError(`Could not save ${failed.join("; ")}.`)
-      if (saved === 0) return null
+      if (copiedCount(outcome) === 0) return null
+      const note = copyNote(outcome)
       return {
-        text: `Saved ${plural(saved)} to your library.${pinsDropped ? ` ${PINS_NOT_SAVED}` : ""}`,
+        text: `Saved ${plural(copiedCount(outcome))} to your library.${note ? ` ${note}` : ""}`,
         libraryLink: true,
       }
     })
@@ -110,6 +113,7 @@ export function useWorldBulk({ entries, selection, reload, setError }: Options) 
     canReveal: chosen.some((entry) => !entry.revealed),
     canHide: chosen.some((entry) => entry.revealed),
     canSave: chosen.length > 0,
+    copyDialog: copyChoice.dialog,
     reveal,
     remove,
     saveAll,

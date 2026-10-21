@@ -18,8 +18,10 @@ type Props = { group: PlacementGroup; entry: PlacedEntry }
 // layer hint keeps the picture from being redrawn, and jumping, when the hover
 // animation ends.
 export function MapPlacementCard({ group, entry }: Props) {
-  const { basePath } = useWorldScope()
-  const { id, x, y, mapId, mapName, mapRevealed } = group.first
+  const { basePath, hasVisibility } = useWorldScope()
+  const { id, x, y, mapId, mapName } = group.first
+  // A library has no players, so none of its maps is drawn as hidden.
+  const mapRevealed = group.first.mapRevealed || !hasVisibility
 
   return (
     <Link

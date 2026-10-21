@@ -9,7 +9,8 @@ import {
 import type { WorldEntry } from "./world-entries"
 import { fetchLibrarySearchText, fetchSearchText } from "./world-search"
 import type { SearchText } from "./world-search"
-import { addFromLibrary } from "./world-copy"
+import { copyEntries } from "./world-copy-flow"
+import type { AddFromLibrary } from "./world-copy-flow"
 import { campaignPath } from "./campaign-paths"
 import { worldKinds } from "./world-kinds"
 import type { WorldEntryKind } from "./world-kinds"
@@ -32,10 +33,8 @@ export type WorldScope = {
   hasVisibility: boolean
   // Whether its entries can be copied into the library.
   canSaveToLibrary: boolean
-  // Whether maps here can carry pins. A library map never does.
-  canPin: boolean
   // Copies a library entry into this scope. Absent where that makes no sense.
-  addFromLibrary?: (entryId: string) => Promise<void>
+  addFromLibrary?: AddFromLibrary
   // First folder of the files of this scope's entries in storage.
   imageFolder: string
   fetchEntries: () => Promise<WorldEntry[]>
@@ -54,10 +53,8 @@ export function campaignScope(campaignId: string, canManage: boolean): WorldScop
     kinds: worldKinds,
     hasVisibility: true,
     canSaveToLibrary: true,
-    canPin: true,
-    addFromLibrary: async (entryId) => {
-      await addFromLibrary(entryId, campaignId)
-    },
+    addFromLibrary: (items, ask, onProgress) =>
+      copyEntries(items, { campaignId, folder: campaignId }, ask, onProgress),
     imageFolder: campaignId,
     fetchEntries: () => fetchWorldEntries(campaignId),
     createEntry: (kind, name) => createWorldEntry(campaignId, kind, name),
@@ -76,7 +73,6 @@ export function libraryScope(userId: string): WorldScope {
     kinds: worldKinds,
     hasVisibility: false,
     canSaveToLibrary: false,
-    canPin: false,
     imageFolder: userId,
     fetchEntries: fetchLibraryEntries,
     createEntry: createLibraryEntry,

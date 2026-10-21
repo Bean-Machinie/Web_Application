@@ -3,11 +3,12 @@ import { AddFromLibraryBody } from "./AddFromLibraryBody"
 import { HelpHint } from "./HelpHint"
 import { LibraryShell } from "./LibraryShell"
 import { MODIFIER_KEY } from "@/lib/selection-hint"
+import type { AddFromLibrary } from "@/lib/world-copy-flow"
 
 type Props = {
   open: boolean
-  add: (entryId: string) => Promise<void>
-  onAdded: (count: number) => void
+  add: AddFromLibrary
+  onAdded: (count: number, note: string) => void
   onClose: () => void
 }
 

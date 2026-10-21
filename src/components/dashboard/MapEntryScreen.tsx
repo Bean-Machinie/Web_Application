@@ -52,8 +52,6 @@ export function MapEntryScreen(props: EntryProps) {
           <MapViewer
             // A new image starts a new map, with its own bounds.
             key={image.url}
-            // Only used for pins, which only a campaign map has.
-            campaignId={folder}
             mapId={entryId}
             mapName={name}
             image={{

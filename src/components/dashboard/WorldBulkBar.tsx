@@ -7,6 +7,7 @@ import type { useWorldBulk } from "@/hooks/use-world-bulk"
 import { plural } from "@/lib/entry-selection"
 import { BottomNotice } from "./BottomNotice"
 import { ConfirmDialog } from "./ConfirmDialog"
+import { CopyWithPinsDialog } from "./CopyWithPinsDialog"
 import { SelectionBar } from "./SelectionBar"
 import { useWorldScope } from "./useWorldScope"
 
@@ -80,6 +81,7 @@ export function WorldBulkBar({ selection, bulk }: Props) {
           />
         )
       )}
+      <CopyWithPinsDialog {...bulk.copyDialog} />
       <ConfirmDialog
         open={bulk.confirmingDelete}
         title={`Delete ${plural(bulk.chosen.length)}?`}

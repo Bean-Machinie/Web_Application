@@ -15,6 +15,7 @@ import { COVER_FIELD } from "@/lib/world-kinds"
 import { markWorldListReturn } from "@/lib/world-list-memory"
 import { worldListPath } from "@/lib/world-tab"
 import { ConfirmDialog } from "./ConfirmDialog"
+import { CopyWithPinsDialog } from "./CopyWithPinsDialog"
 import { MapEntryScreen } from "./MapEntryScreen"
 import { SavedToLibraryNotice } from "./SavedToLibraryNotice"
 import { usePageTrail } from "./usePageTrail"
@@ -83,6 +84,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
         <FormAlert tone="error">{(error || actionError || library.error)!}</FormAlert>
       )}
       {library.savedName && <SavedToLibraryNotice name={library.savedName} note={library.note} />}
+      <CopyWithPinsDialog {...library.dialog} />
       <LoadingGate
         // Fills the page, so a map can fill the screen.
         className="flex min-h-0 flex-1 flex-col"
@@ -127,7 +129,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                             setActionError(null)
                             // The notice is on the page behind the panel.
                             setDetailsOpen(false)
-                            library.save({ id: entryId, name: entry.name })
+                            library.save({ id: entryId, name: entry.name, kind: entry.kind })
                           }
                         : undefined,
                     detailsOpen,

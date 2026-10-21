@@ -4,15 +4,18 @@ import { useEntrySelection } from "@/hooks/use-entry-selection"
 import { useLibraryPicker } from "@/hooks/use-library-picker"
 import { useLibraryView } from "@/hooks/use-library-view"
 import { useSelectionBox } from "@/hooks/use-selection-box"
+import type { AddFromLibrary } from "@/lib/world-copy-flow"
 import { AddFromLibraryFooter } from "./AddFromLibraryFooter"
+import { CopyWithPinsDialog } from "./CopyWithPinsDialog"
 import { LibraryPickCard } from "./LibraryPickCard"
 import { LibraryWindow } from "./LibraryWindow"
 import { SelectionBox } from "./SelectionBox"
 
 type Props = {
-  add: (entryId: string) => Promise<void>
-  // How many were added, as soon as there are any, even if a later one fails.
-  onAdded: (count: number) => void
+  add: AddFromLibrary
+  // How many were added, as soon as there are any, even if some fail, and what
+  // to say about their pins.
+  onAdded: (count: number, note: string) => void
   onClose: () => void
   // Told whether entries are picked, so Escape lets go of them before it closes.
   onHold: (holding: boolean) => void
@@ -27,7 +30,7 @@ type Props = {
 export function AddFromLibraryBody({ add, onAdded, onClose, onHold, compact }: Props) {
   const root = useRef<HTMLDivElement>(null)
   const scroller = useRef<HTMLDivElement>(null)
-  const { entries, loadError, progress, error, addEntries } = useLibraryPicker({
+  const { entries, loadError, progress, error, addEntries, copyDialog } = useLibraryPicker({
     add,
     onAdded,
     onClose,
@@ -93,6 +96,7 @@ export function AddFromLibraryBody({ add, onAdded, onClose, onHold, compact }: P
             onCancel={onClose}
             onAdd={addSelected}
           />
+          <CopyWithPinsDialog {...copyDialog} />
         </>
       }
     />
