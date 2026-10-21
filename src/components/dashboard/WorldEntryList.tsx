@@ -108,6 +108,7 @@ export function WorldEntryList() {
         <WorldEntryNotices
           problem={error || actionError || library.error}
           savedName={library.savedName}
+          savedNote={library.note}
         />
         <LoadingGate
           loading={!entries && !error}

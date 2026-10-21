@@ -12,18 +12,18 @@ import type { LoadedScene } from "@/lib/world-map-scenes"
 import { MapBuilder } from "./MapBuilder"
 import { MapBuilderTooSmall } from "./MapBuilderTooSmall"
 import { MapLoader } from "./MapLoader"
-import { campaignPath } from "@/lib/campaign-paths"
-import { useCurrentCampaign } from "./useCurrentCampaign"
+import { useWorldScope } from "./useWorldScope"
 
-// Loads what the builder needs and lets in only a GM, for a map that has a
-// scene; anyone else lands back on the entry. Render with key={entryId}.
+// Loads what the builder needs and lets in only someone who manages the
+// scope (a GM, or the owner of a library), for a map that has a scene; anyone
+// else lands back on the entry. Render with key={entryId}.
 export function MapBuilderView({ entryId }: { entryId: string }) {
-  const { can, current } = useCurrentCampaign()
+  const { canManage, basePath, imageFolder } = useWorldScope()
   const { entry, error } = useWorldEntry(entryId)
   const state = useWorldFields(entryId, entry?.kind)
   const [loaded, setLoaded] = useState<LoadedScene | null | undefined>(undefined)
   const [sceneError, setSceneError] = useState<string | null>(null)
-  const allowed = can("manage_world") && entry?.kind === "map"
+  const allowed = canManage && entry?.kind === "map"
   const wide = useWideScreen()
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export function MapBuilderView({ entryId }: { entryId: string }) {
     )
   }
   if (entry === undefined) return <MapLoader fullScreen />
-  if (!allowed || loaded === null) return <Navigate to={campaignPath(current.id, `world/${entryId}`)} replace />
+  if (!allowed || loaded === null) return <Navigate to={`${basePath}/${entryId}`} replace />
   if (!loaded || !state.fields) return <MapLoader fullScreen />
 
   // On a small screen the builder is covered, not removed, so what is unsaved, the
@@ -51,7 +51,7 @@ export function MapBuilderView({ entryId }: { entryId: string }) {
     <>
       <div inert={!wide}>
         <MapBuilder
-          campaignId={current.id}
+          folder={imageFolder}
           mapId={entryId}
           name={entry!.name}
           loaded={loaded}

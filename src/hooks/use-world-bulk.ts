@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useAuth } from "@/auth/useAuth"
 import { plural } from "@/lib/entry-selection"
 import { errorMessage } from "@/lib/campaigns"
-import { isCopyable, saveToLibrary } from "@/lib/world-copy"
+import { PINS_NOT_SAVED, saveToLibrary } from "@/lib/world-copy"
 import { deleteWorldEntries, setWorldEntriesRevealed } from "@/lib/world-entries"
 import type { WorldEntry } from "@/lib/world-entries"
 import { deleteWorldImages } from "@/lib/world-images"
@@ -75,30 +75,27 @@ export function useWorldBulk({ entries, selection, reload, setError }: Options) 
     })
   }
 
-  const copyable = chosen.filter((entry) => isCopyable(entry.kind))
-
   const saveAll = () =>
     run("Saving…", async () => {
       const userId = session?.user.id
       if (!userId) throw new Error("You must be signed in.")
       const failed: string[] = []
       let saved = 0
-      for (const [index, entry] of copyable.entries()) {
-        setProgress(`Saving ${index + 1} of ${copyable.length}…`)
+      let pinsDropped = false
+      for (const [index, entry] of chosen.entries()) {
+        setProgress(`Saving ${index + 1} of ${chosen.length}…`)
         try {
-          await saveToLibrary(entry.id, userId)
+          const result = await saveToLibrary(entry.id, userId)
+          pinsDropped ||= result.pinsDropped
           saved += 1
         } catch (failure) {
           failed.push(`${entry.name} (${errorMessage(failure)})`)
         }
       }
       if (failed.length > 0) setError(`Could not save ${failed.join("; ")}.`)
-      const skipped = chosen.length - copyable.length
       if (saved === 0) return null
       return {
-        text: `Saved ${plural(saved)} to your library.${
-          skipped > 0 ? ` ${skipped} could not be copied.` : ""
-        }`,
+        text: `Saved ${plural(saved)} to your library.${pinsDropped ? ` ${PINS_NOT_SAVED}` : ""}`,
         libraryLink: true,
       }
     })
@@ -112,7 +109,7 @@ export function useWorldBulk({ entries, selection, reload, setError }: Options) 
     // Which actions make sense for what is picked.
     canReveal: chosen.some((entry) => !entry.revealed),
     canHide: chosen.some((entry) => entry.revealed),
-    canSave: copyable.length > 0,
+    canSave: chosen.length > 0,
     reveal,
     remove,
     saveAll,

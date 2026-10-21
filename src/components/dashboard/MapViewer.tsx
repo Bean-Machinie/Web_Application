@@ -44,7 +44,7 @@ type Props = {
 // click a marker for a preview. A GM adds markers, and switches to editing
 // mode to drag them, change what they link to, or remove them.
 export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDetails }: Props) {
-  const { basePath } = useWorldScope()
+  const { basePath, canPin } = useWorldScope()
   const size = useMemo(
     () => ({ width: image.width, height: image.height }),
     [image.width, image.height]
@@ -58,7 +58,8 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDeta
   const selection = useMapMarkerSelection(map, !phone)
   const { selectedId, clear } = selection
   const { placing, setPlacing, pending, setPending, landed } = useMapPlacing(map, size, clear)
-  const editing = canManage && selection.editing
+  const pinnable = canManage && canPin
+  const editing = pinnable && selection.editing
   // Entries opened from this map show it, and the maps above it, in their trail.
   const from = readBackTo(useLocation().state)
   const [relinkId, setRelinkId] = useState<string | null>(null)
@@ -151,24 +152,26 @@ export function MapViewer({ campaignId, mapId, mapName, image, canManage, onDeta
           <FormAlert tone="error">{error}</FormAlert>
         </div>
       )}
-      <MarkerLinkDialog
-        open={landed || relinkId !== null}
-        campaignId={campaignId}
-        mapId={mapId}
-        onClose={() => {
-          setPending(null)
-          setRelinkId(null)
-        }}
-        onLink={async (entryId) => {
-          if (relinkId) await relink(relinkId, entryId)
-          else await add(entryId, pending!.x, pending!.y)
-          setPending(null)
-          setRelinkId(null)
-        }}
-      />
+      {canPin && (
+        <MarkerLinkDialog
+          open={landed || relinkId !== null}
+          campaignId={campaignId}
+          mapId={mapId}
+          onClose={() => {
+            setPending(null)
+            setRelinkId(null)
+          }}
+          onLink={async (entryId) => {
+            if (relinkId) await relink(relinkId, entryId)
+            else await add(entryId, pending!.x, pending!.y)
+            setPending(null)
+            setRelinkId(null)
+          }}
+        />
+      )}
       </div>
       <MapViewerStatusBar map={map} size={size}>
-        {canManage && (
+        {pinnable && (
           <MapEditBar
             placing={placing}
             editing={editing}

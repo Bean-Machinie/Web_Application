@@ -6,7 +6,8 @@ import { deleteWorldImage, uploadWorldImage } from "@/lib/world-images"
 import type { WorldImage } from "@/lib/world-images"
 
 type Options = {
-  campaignId: string
+  // The first folder of the map's files: a campaign's id or a person's.
+  folder: string
   entryId: string
   current: WorldImage | null
   // Resolves to whether the new image was saved.
@@ -17,7 +18,7 @@ type Options = {
 // on the entry. The old file goes only once the entry points at the new one,
 // and a file the database refused is deleted again. Resolves to whether the
 // map now has the new image.
-export function useMapImageUpload({ campaignId, entryId, current, onSave }: Options) {
+export function useMapImageUpload({ folder, entryId, current, onSave }: Options) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -26,7 +27,7 @@ export function useMapImageUpload({ campaignId, entryId, current, onSave }: Opti
     setError(null)
     try {
       const prepared = await prepare()
-      const uploaded = await uploadWorldImage(campaignId, entryId, prepared.file, "map")
+      const uploaded = await uploadWorldImage(folder, entryId, prepared.file, "map")
       const saved = await onSave({
         ...uploaded,
         width: prepared.width,

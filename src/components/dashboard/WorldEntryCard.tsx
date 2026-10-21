@@ -2,7 +2,6 @@ import { Link } from "react-router-dom"
 import { TiltCard } from "@/components/TiltCard"
 import { tiltCardSkin } from "@/components/tilt-card-styles"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
-import { isCopyable } from "@/lib/world-copy"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { HiddenBadge } from "./HiddenBadge"
@@ -25,7 +24,7 @@ export function WorldEntryCard({ entry, manage, selection }: Props) {
   const save = manage?.onSaveToLibrary
   const actions = manage && [
     { label: "Rename", onSelect: () => manage.onRename(entry) },
-    ...(save && isCopyable(entry.kind)
+    ...(save
       ? [{ label: "Save to library", onSelect: () => save(entry) }]
       : []),
     {

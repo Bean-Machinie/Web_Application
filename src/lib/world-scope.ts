@@ -32,6 +32,8 @@ export type WorldScope = {
   hasVisibility: boolean
   // Whether its entries can be copied into the library.
   canSaveToLibrary: boolean
+  // Whether maps here can carry pins. A library map never does.
+  canPin: boolean
   // Copies a library entry into this scope. Absent where that makes no sense.
   addFromLibrary?: (entryId: string) => Promise<void>
   // First folder of the files of this scope's entries in storage.
@@ -52,7 +54,10 @@ export function campaignScope(campaignId: string, canManage: boolean): WorldScop
     kinds: worldKinds,
     hasVisibility: true,
     canSaveToLibrary: true,
-    addFromLibrary: (entryId) => addFromLibrary(entryId, campaignId),
+    canPin: true,
+    addFromLibrary: async (entryId) => {
+      await addFromLibrary(entryId, campaignId)
+    },
     imageFolder: campaignId,
     fetchEntries: () => fetchWorldEntries(campaignId),
     createEntry: (kind, name) => createWorldEntry(campaignId, kind, name),
@@ -61,20 +66,17 @@ export function campaignScope(campaignId: string, canManage: boolean): WorldScop
   }
 }
 
-// Maps are not supported in a library yet.
-export const libraryKinds = worldKinds.filter((kind) => kind !== "map")
-
-// A person's own library. They can always manage it, and maps are not
-// supported in it yet.
+// A person's own library. They can always manage it.
 export function libraryScope(userId: string): WorldScope {
   return {
     key: `library:${userId}`,
     basePath: "/app/library",
     label: "Your library",
     canManage: true,
-    kinds: libraryKinds,
+    kinds: worldKinds,
     hasVisibility: false,
     canSaveToLibrary: false,
+    canPin: false,
     imageFolder: userId,
     fetchEntries: fetchLibraryEntries,
     createEntry: createLibraryEntry,

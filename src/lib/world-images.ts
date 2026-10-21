@@ -58,9 +58,9 @@ export const uploadWorldImage = (
 export const deleteWorldImage = (path?: string | null, kind?: WorldEntryKind) =>
   deleteImage(bucketFor(kind), path)
 
-// Copies a portrait to a new path in the same bucket, inside storage.
-export async function copyWorldImage(fromPath: string, toPath: string) {
-  const { error } = await supabase.storage.from(PORTRAIT_BUCKET).copy(fromPath, toPath)
+// Copies an image to a new path in the same bucket, inside storage.
+export async function copyWorldImage(fromPath: string, toPath: string, kind?: WorldEntryKind) {
+  const { error } = await supabase.storage.from(bucketFor(kind)).copy(fromPath, toPath)
   if (error) throw error
 }
 

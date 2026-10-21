@@ -31,11 +31,9 @@ const MapViewer = lazy(() => import("./MapViewer").then((module) => ({ default: 
 // what floats over the map stays beneath the details panel and its overlay.
 export function MapEntryScreen(props: EntryProps) {
   const { entryId, folder, kind, name, revealed, canManage, state } = props
-  // A map is always in a campaign, whose files are in a folder named by its id.
-  const campaignId = folder
   const image = toWorldImage(state.fields?.[COVER_FIELD]?.value)
   const picker = useMapImageUpload({
-    campaignId,
+    folder,
     entryId,
     current: image,
     onSave: (value) => state.saveNow(COVER_FIELD, "image", value),
@@ -54,7 +52,8 @@ export function MapEntryScreen(props: EntryProps) {
           <MapViewer
             // A new image starts a new map, with its own bounds.
             key={image.url}
-            campaignId={campaignId}
+            // Only used for pins, which only a campaign map has.
+            campaignId={folder}
             mapId={entryId}
             mapName={name}
             image={{

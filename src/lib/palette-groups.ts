@@ -6,7 +6,6 @@ import { matchText } from "./palette-search"
 import type { PaletteGroup, PaletteItem, Recent } from "./palette-items"
 import type { SearchHit } from "./search-entries"
 import type { WorldEntryKind } from "./world-kinds"
-import { libraryKinds } from "./world-scope"
 import { WORLD_KINDS, worldKinds } from "./world-kinds"
 
 // Where the palette looks when something is typed.
@@ -79,7 +78,7 @@ function actions({ query, scope, current }: PaletteInput): PaletteItem[] {
       make(`New ${WORLD_KINDS[kind].label.toLowerCase()}`, `${base}?create=${kind}`, `new entry ${WORLD_KINDS[kind].label}`)
     )
   const inCampaign = current && can(current.role, "manage_world") ? newEntry(worldKinds, campaignPath(current.id, "world")) : []
-  const inLibrary = newEntry(libraryKinds, "/app/library")
+  const inLibrary = newEntry(worldKinds, "/app/library")
   const campaign = make("New campaign", "/app/campaigns/new", "create campaign")
 
   const chosen =

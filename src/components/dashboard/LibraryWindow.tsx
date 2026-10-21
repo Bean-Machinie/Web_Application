@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { WorldEntryKind } from "@/lib/world-kinds"
-import { libraryKinds } from "@/lib/world-scope"
+import { worldKinds } from "@/lib/world-kinds"
 import { MarkerKindTabs } from "./MarkerKindTabs"
 
 type Props = {
@@ -59,7 +59,7 @@ export function LibraryWindow(props: Props) {
           active={props.kind}
           onChange={props.onKind}
           compact={compact}
-          kinds={libraryKinds}
+          kinds={worldKinds}
         />
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
           <div className="flex shrink-0 items-center gap-2">

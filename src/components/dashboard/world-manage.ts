@@ -1,6 +1,5 @@
 import { Library, Pencil, Trash2 } from "lucide-react"
 import { errorMessage } from "@/lib/campaigns"
-import { isCopyable } from "@/lib/world-copy"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { MemberAction } from "./MemberMenu"
 
@@ -50,7 +49,7 @@ export function createWorldManage(handlers: Handlers): WorldManage {
     onSaveToLibrary: save,
     actionsFor: (entry) => [
       { label: "Rename", icon: Pencil, onSelect: () => onRename(entry) },
-      ...(save && isCopyable(entry.kind)
+      ...(save
         ? [{ label: "Save to library", icon: Library, onSelect: () => save(entry) }]
         : []),
       {

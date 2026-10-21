@@ -9,7 +9,6 @@ import { useWorldFields } from "@/hooks/use-world-fields"
 import { readBackTo } from "@/lib/back-link"
 import { entryTrail } from "@/lib/breadcrumbs"
 import { errorMessage } from "@/lib/campaigns"
-import { isCopyable } from "@/lib/world-copy"
 import { deleteWorldEntry, renameWorldEntry } from "@/lib/world-entries"
 import { deleteWorldImage, toWorldImage } from "@/lib/world-images"
 import { COVER_FIELD } from "@/lib/world-kinds"
@@ -83,7 +82,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
       {(error || actionError || library.error) && (
         <FormAlert tone="error">{(error || actionError || library.error)!}</FormAlert>
       )}
-      {library.savedName && <SavedToLibraryNotice name={library.savedName} />}
+      {library.savedName && <SavedToLibraryNotice name={library.savedName} note={library.note} />}
       <LoadingGate
         // Fills the page, so a map can fill the screen.
         className="flex min-h-0 flex-1 flex-col"
@@ -123,7 +122,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                     },
                     onDelete: () => setDeleting(true),
                     onSaveToLibrary:
-                      scope.canSaveToLibrary && isCopyable(entry.kind)
+                      scope.canSaveToLibrary
                         ? () => {
                             setActionError(null)
                             // The notice is on the page behind the panel.

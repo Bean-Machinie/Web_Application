@@ -58,6 +58,7 @@ export default function App() {
           <Route path="library" element={<LibraryWorldScope />}>
             <Route index element={<Library />} />
             <Route path=":entryId" element={<WorldEntry />} />
+            <Route path=":entryId/build" element={<MapBuild />} />
           </Route>
           <Route path="settings" element={<SettingsRedirect />} />
           <Route path="settings/:tab" element={<SettingsRedirect />} />

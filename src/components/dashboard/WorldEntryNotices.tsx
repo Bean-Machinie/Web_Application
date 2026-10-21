@@ -5,11 +5,13 @@ type Props = {
   problem: string | null
   // The name of an entry just saved to the library.
   savedName: string | null
+  // What was left out of the copy, when something was.
+  savedNote?: string | null
 }
 
 // What the list has to say about what just happened: a problem under the
 // toolbar, and a bar over the foot of the page after a save.
-export function WorldEntryNotices({ problem, savedName }: Props) {
+export function WorldEntryNotices({ problem, savedName, savedNote }: Props) {
   return (
     <>
       {problem && (
@@ -17,7 +19,7 @@ export function WorldEntryNotices({ problem, savedName }: Props) {
           <FormAlert tone="error">{problem}</FormAlert>
         </div>
       )}
-      {savedName && <SavedToLibraryNotice name={savedName} />}
+      {savedName && <SavedToLibraryNotice name={savedName} note={savedNote} />}
     </>
   )
 }

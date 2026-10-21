@@ -397,7 +397,7 @@ select pg_temp.count_is(pg_temp.id('owner'), 'deleted library entry is gone', $$
 -- Library creation: anyone signed in, in their own library only.
 select pg_temp.may('create library entry', $$select public.create_library_entry('character', 'Mine')$$, true, true, true, true);
 select pg_temp.denied(null, 'create library entry: signed out', 'permission denied', $$select public.create_library_entry('character', 'Mine')$$);
-select pg_temp.denied(pg_temp.id('owner'), 'create library entry: no maps', 'Maps cannot', $$select public.create_library_entry('map', 'World')$$);
+select pg_temp.may('create library map', $$select public.create_library_entry('map', 'World')$$, true, true, true, true);
 select pg_temp.denied(pg_temp.id('owner'), 'create library entry: needs a name', 'Give the entry a name', $$select public.create_library_entry('item', '   ')$$);
 select pg_temp.sees('new library entries stay private', $$select 1 from public.world_entries where name = 'Mine'$$, 1, 1, 1, 1);
 
@@ -422,8 +422,6 @@ select pg_temp.no_effect(pg_temp.id('gm'),       'direct field update, GM', $$up
 select pg_temp.no_effect(pg_temp.id('gm'),       'direct field insert, GM', $$insert into public.world_entry_fields (entry_id, key, type) values ('{ec}', 'zz', 'short_text')$$);
 
 -- Database rules a library entry can never break, even as the database owner.
-select pg_temp.denied(pg_temp.id('root'), 'a library cannot hold a map', 'world_entries_library_not_map',
-  $$insert into public.world_entries (kind, name, owner_id) values ('map', 'x', '{owner}')$$);
 select pg_temp.denied(pg_temp.id('root'), 'a library entry cannot be revealed', 'world_entries_library_not_revealed',
   $$update public.world_entries set revealed = true where id = '{el}'$$);
 select pg_temp.denied(pg_temp.id('root'), 'an entry has exactly one home', 'check',
@@ -436,7 +434,7 @@ select pg_temp.denied(null, 'signed out: fields',  'permission denied', $$select
 select pg_temp.denied(null, 'signed out: copy',    'permission denied', $$select public.copy_world_entry('{ec}', '{n9}')$$);
 select pg_temp.denied(null, 'signed out: folder check', 'permission denied', $$select public.has_world_folder_access('{c1}/x/1.webp')$$);
 
--- Map functions are unchanged: campaign maps only.
+-- Pins stay campaign-only: a library map can never have any.
 select pg_temp.may('add marker', $$select public.add_map_marker('{emap}', '{ech}', 20, 20)$$, true, false, false, false);
 select pg_temp.denied(pg_temp.id('gm'), 'marker cannot link a library entry', 'does not belong',
   $$select public.add_map_marker('{emap}', '{elg}', 30, 30)$$);
@@ -505,7 +503,6 @@ select pg_temp.denied(pg_temp.id('stranger'), 'stranger cannot copy a library en
 select pg_temp.denied(pg_temp.id('owner'),    'library to library', 'Add library entries', $$select public.copy_world_entry('{el}', '{n9}')$$);
 select pg_temp.denied(pg_temp.id('gm'),       'campaign to the same campaign', 'Save campaign entries', $$select public.copy_world_entry('{ec}', '{n9}', '{c1}')$$);
 select pg_temp.denied(pg_temp.id('gm'),       'campaign to another campaign', 'Save campaign entries', $$select public.copy_world_entry('{ec}', '{n9}', '{c2}')$$);
-select pg_temp.denied(pg_temp.id('gm'),       'maps are not copied yet', 'Maps cannot be copied', $$select public.copy_world_entry('{emap}', '{n9}')$$);
 select pg_temp.denied(pg_temp.id('gm'),       'new id already taken', 'already exists', $$select public.copy_world_entry('{ec}', '{ech}', null, '{gm}/{ech}/1.webp')$$);
 
 -- The image path is checked.
@@ -525,6 +522,73 @@ select pg_temp.denied(pg_temp.id('gm'), 'image: url that does not match the path
 select pg_temp.denied(pg_temp.id('gm'), 'image: a second image with a file', 'cannot be copied', $$select public.copy_world_entry('{emulti}', '{n7}', null, '{gm}/{n7}/1.webp')$$);
 select pg_temp.count_is(pg_temp.id('root'), 'refused copies leave nothing behind', $$select 1 from public.world_entries where id in ('{n9}', '{n6}', '{n7}')$$, 0);
 
+-- Maps: the image (in world-maps) and the scene are copied, the pins are not.
+-- emap gets an image and a published scene; n10 is its copy in the GM's
+-- library, n11 that copy added back to the campaign.
+insert into pg_temp.test_ids values
+  ('n10', 'f0000000-0000-0000-0000-00000000000a'),
+  ('n11', 'f0000000-0000-0000-0000-00000000000b');
+
+insert into public.world_entry_fields (entry_id, key, type, value, private)
+values (pg_temp.id('emap'), 'image', 'image', jsonb_build_object(
+  'url', 'https://x.supabase.co/storage/v1/object/public/world-maps/' || pg_temp.fill('{c1}/{emap}/m.webp'),
+  'path', pg_temp.fill('{c1}/{emap}/m.webp'), 'width', 100, 'height', 80), false);
+
+insert into public.world_map_scenes (map_id, scene, scene_version, rendered_at)
+values (pg_temp.id('emap'), '{"version":1}', 1, now());
+
+insert into storage.objects (bucket_id, name)
+select 'world-maps', pg_temp.fill(p)
+from unnest(array['{gm}/{n10}/m.webp', '{c1}/{n11}/m.webp']) as p;
+
+-- That file exists, but in world-images, and a map's image lives in world-maps.
+select pg_temp.denied(pg_temp.id('gm'), 'map image is looked for in world-maps', 'not found',
+  $$select public.copy_world_entry('{emap}', '{n9}', null, '{gm}/{n9}/1.webp')$$);
+
+select pg_temp.allowed(pg_temp.id('gm'), 'save a map to the library',
+  $$select public.copy_world_entry('{emap}', '{n10}', null, '{gm}/{n10}/m.webp')$$);
+select pg_temp.value_is(pg_temp.id('gm'), 'map copy: a map in the library, remembers its source',
+  $$select (kind = 'map' and owner_id = '{gm}' and source_entry_id = '{emap}')::text from public.world_entries where id = '{n10}'$$, 'true');
+select pg_temp.value_is(pg_temp.id('gm'), 'map copy: image path rewritten', $$select value ->> 'path' from public.world_entry_fields where entry_id = '{n10}' and key = 'image'$$, '{gm}/{n10}/m.webp');
+select pg_temp.value_is(pg_temp.id('gm'), 'map copy: image url rewritten', $$select value ->> 'url' from public.world_entry_fields where entry_id = '{n10}' and key = 'image'$$,
+  'https://x.supabase.co/storage/v1/object/public/world-maps/{gm}/{n10}/m.webp');
+select pg_temp.value_is(pg_temp.id('gm'), 'map copy: image size kept', $$select (value ->> 'width') || 'x' || (value ->> 'height') from public.world_entry_fields where entry_id = '{n10}' and key = 'image'$$, '100x80');
+select pg_temp.count_is(pg_temp.id('gm'), 'map copy: scene copied', $$select 1 from public.world_map_scenes where map_id = '{n10}'$$, 1);
+select pg_temp.value_is(pg_temp.id('gm'), 'map copy: scene is the same, and published',
+  $$select (scene = '{"version":1}'::jsonb and rendered_at is not null)::text from public.world_map_scenes where map_id = '{n10}'$$, 'true');
+select pg_temp.count_is(pg_temp.id('root'), 'map copy: pins left behind', $$select 1 from public.world_map_markers where map_id = '{n10}'$$, 0);
+select pg_temp.count_is(pg_temp.id('root'), 'map copy: source keeps its pins', $$select 1 from public.world_map_markers where map_id = '{emap}'$$, 2);
+select pg_temp.count_is(pg_temp.id('root'), 'map copy: source keeps its scene', $$select 1 from public.world_map_scenes where map_id = '{emap}'$$, 1);
+select pg_temp.sees('library map scene is private to its owner', $$select 1 from public.world_map_scenes where map_id = '{n10}'$$, 1, 0, 0, 0);
+select pg_temp.denied(pg_temp.id('gm'), 'a library map takes no pins', 'not allowed', $$select public.add_map_marker('{n10}', '{elg}', 20, 20)$$);
+
+-- A library map is changed like a campaign map, by its owner only.
+select pg_temp.allowed(pg_temp.id('gm'), 'library map: save the scene',
+  $$select public.save_map_scene('{n10}', '{"version":1,"a":1}'::jsonb, (select updated_at from public.world_map_scenes where map_id = '{n10}'), true)$$);
+select pg_temp.denied(pg_temp.id('owner'), 'library map: another person cannot save the scene', 'not allowed',
+  $$select public.save_map_scene('{n10}', '{"version":1}'::jsonb)$$);
+select pg_temp.denied(pg_temp.id('stranger'), 'library map: another person cannot discard the scene', 'not allowed',
+  $$select public.discard_map_scene('{n10}')$$);
+select pg_temp.denied(pg_temp.id('gm'), 'library map: a stale scene is refused', 'changed somewhere else',
+  $$select public.save_map_scene('{n10}', '{"version":1}'::jsonb, now() - interval '1 day')$$);
+select pg_temp.denied(pg_temp.id('gm'), 'library map: a non-map has no scene', 'not a map',
+  $$select public.save_map_scene('{elg}', '{"version":1}'::jsonb)$$);
+
+select pg_temp.allowed(pg_temp.id('gm'), 'add a library map to a campaign',
+  $$select public.copy_world_entry('{n10}', '{n11}', '{c1}', '{c1}/{n11}/m.webp')$$);
+select pg_temp.value_is(pg_temp.id('gm'), 'campaign map copy: in the campaign, hidden, remembers its source',
+  $$select (kind = 'map' and campaign_id = '{c1}' and owner_id is null and not revealed and source_entry_id = '{n10}')::text from public.world_entries where id = '{n11}'$$, 'true');
+select pg_temp.value_is(pg_temp.id('gm'), 'campaign map copy: image path rewritten', $$select value ->> 'path' from public.world_entry_fields where entry_id = '{n11}' and key = 'image'$$, '{c1}/{n11}/m.webp');
+select pg_temp.count_is(pg_temp.id('gm'), 'campaign map copy: scene copied', $$select 1 from public.world_map_scenes where map_id = '{n11}'$$, 1);
+select pg_temp.count_is(pg_temp.id('root'), 'campaign map copy: starts with no pins', $$select 1 from public.world_map_markers where map_id = '{n11}'$$, 0);
+select pg_temp.sees('campaign map copy stays hidden from players', $$select 1 from public.world_entries where id = '{n11}'$$, 1, 0, 0, 0);
+select pg_temp.allowed(pg_temp.id('gm'), 'campaign map copy: pins can be added', $$select public.add_map_marker('{n11}', '{ec}', 20, 20)$$);
+
+select pg_temp.allowed(pg_temp.id('gm'), 'library map: discard the scene', $$select public.discard_map_scene('{n10}')$$);
+select pg_temp.count_is(pg_temp.id('root'), 'library map: scene discarded', $$select 1 from public.world_map_scenes where map_id = '{n10}'$$, 0);
+select pg_temp.allowed(pg_temp.id('gm'), 'library map: delete it', $$select public.delete_world_entry('{n10}')$$);
+select pg_temp.count_is(pg_temp.id('root'), 'library map: deleting it removes its scene', $$select 1 from public.world_map_scenes where map_id = '{n10}'$$, 0);
+
 -- Copies and sources live separate lives.
 select pg_temp.allowed(pg_temp.id('gm'), 'edit the copy', $$select public.rename_world_entry('{n1}', 'Copy only')$$);
 select pg_temp.value_is(pg_temp.id('gm'), 'editing the copy leaves the source', $$select name from public.world_entries where id = '{ec}'$$, 'Renamed');
@@ -535,7 +599,7 @@ select pg_temp.value_is(pg_temp.id('gm'), 'deleting the source leaves the copy, 
   $$select (source_entry_id is null)::text from public.world_entries where id = '{n5}'$$, 'true');
 
 -- Image files. Library files live under "<user id>/", campaign files under
--- "<campaign id>/". Maps keep campaign-only folders.
+-- "<campaign id>/". Maps follow the same rule in world-maps.
 
 select pg_temp.may('upload to the campaign folder', $$insert into storage.objects (bucket_id, name) values ('world-images', '{c1}/{x1}/a.webp')$$,       true,  false, false, false, 'row-level security');
 select pg_temp.may('upload to another campaign',    $$insert into storage.objects (bucket_id, name) values ('world-images', '{c2}/{x1}/a.webp')$$,       false, false, false, true,  'row-level security');
@@ -544,7 +608,8 @@ select pg_temp.may('upload to the player''s own folder',   $$insert into storage
 select pg_temp.may('upload to the owner''s own folder',    $$insert into storage.objects (bucket_id, name) values ('world-images', '{owner}/{x1}/a.webp')$$,    false, false, true,  false, 'row-level security');
 select pg_temp.may('upload to the stranger''s own folder', $$insert into storage.objects (bucket_id, name) values ('world-images', '{stranger}/{x1}/a.webp')$$, false, false, false, true,  'row-level security');
 select pg_temp.may('upload a map to the campaign folder', $$insert into storage.objects (bucket_id, name) values ('world-maps', '{c1}/{x1}/m.webp')$$,   true,  false, false, false, 'row-level security');
-select pg_temp.may('upload a map to a personal folder',   $$insert into storage.objects (bucket_id, name) values ('world-maps', '{owner}/{x1}/m.webp')$$, false, false, false, false, 'row-level security');
+select pg_temp.may('upload a map to the owner''s own folder',   $$insert into storage.objects (bucket_id, name) values ('world-maps', '{owner}/{x1}/m.webp')$$, false, false, true, false, 'row-level security');
+select pg_temp.may('upload a map to another campaign',    $$insert into storage.objects (bucket_id, name) values ('world-maps', '{c2}/{x2}/m.webp')$$, false, false, false, true, 'row-level security');
 
 select pg_temp.sees('files are publicly readable', $$select 1 from storage.objects where bucket_id = 'world-images' and name = '{c1}/{x1}/a.webp'$$, 1, 1, 1, 1);
 
@@ -573,7 +638,7 @@ select pg_temp.count_is(pg_temp.id('root'), 'deleting a campaign removes its ent
 
 select pg_temp.allowed(pg_temp.id('root'), 'delete a user', $$delete from auth.users where id = '{owner}'$$);
 select pg_temp.count_is(pg_temp.id('root'), 'deleting a user removes their library', $$select 1 from public.world_entries where owner_id = '{owner}'$$, 0);
-select pg_temp.count_is(pg_temp.id('root'), 'deleting a user leaves campaign entries alone', $$select 1 from public.world_entries where campaign_id = '{c1}'$$, 8);
+select pg_temp.count_is(pg_temp.id('root'), 'deleting a user leaves campaign entries alone', $$select 1 from public.world_entries where campaign_id = '{c1}'$$, 9);
 
 rollback;
 
