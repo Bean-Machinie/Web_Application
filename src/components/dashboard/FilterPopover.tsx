@@ -1,5 +1,4 @@
 import { ListFilter } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -30,7 +29,11 @@ export function FilterPopover({ groups }: { groups: FilterGroup[] }) {
               without, and the row does not move when a count appears. */}
           <span className="ml-0.5 flex size-4 items-center justify-center">
             {active.length > 0 && (
-              <Badge className="size-4 justify-center p-0 text-[10px] tabular-nums">{active.length}</Badge>
+              // Not the Badge, whose padding and line height sit the digit off centre. In this font the
+              // digit sits a little above the middle of its line, so it is lowered half a pixel.
+              <span className="bg-primary text-primary-foreground flex size-4 items-center justify-center rounded-full pt-px text-[10px] leading-none font-medium tabular-nums">
+                {active.length}
+              </span>
             )}
           </span>
         </Button>
