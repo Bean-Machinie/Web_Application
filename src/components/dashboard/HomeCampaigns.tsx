@@ -10,19 +10,13 @@ import { LeaveCampaignDialog } from "@/components/dashboard/LeaveCampaignDialog"
 import { useCampaign } from "@/components/dashboard/useCampaign"
 import { useCampaignMembers } from "@/hooks/use-campaign-members"
 import { useCampaignListPrefs } from "@/hooks/use-campaign-list-prefs"
-import type { WorldEntryKind } from "@/lib/world-kinds"
 import { useCampaignViewMode } from "@/hooks/use-campaign-view-mode"
 import { viewCampaigns } from "@/lib/campaign-list"
 import type { Campaign } from "@/lib/campaigns"
 
-type Props = {
-  onMap: () => void
-  onEntry: (kind: WorldEntryKind) => void
-}
-
-// The main column of Home: the heading, the toolbar (with Join and New at its right end),
-// and every campaign you belong to as cards or a table. New also makes a map or an entry.
-export function HomeCampaigns({ onMap, onEntry }: Props) {
+// The main column of Home: the heading, the toolbar (with Join and New campaign at its
+// right end), and every campaign you belong to as cards or a table.
+export function HomeCampaigns() {
   const { campaigns, loading, error } = useCampaign()
   const members = useCampaignMembers(campaigns)
   const [mode, setMode] = useCampaignViewMode()
@@ -64,8 +58,6 @@ export function HomeCampaigns({ onMap, onEntry }: Props) {
             mode={mode}
             onMode={setMode}
             onJoin={() => setJoining(true)}
-            onMap={onMap}
-            onEntry={onEntry}
           />
           {shown.length === 0 ? (
             <p className="text-muted-foreground py-12 text-center text-sm">

@@ -12,7 +12,7 @@ import { LibraryAllView } from "./LibraryAllView"
 import { LibrarySearch } from "./LibrarySearch"
 import { LibrarySections } from "./LibrarySections"
 import { LibraryToolbar } from "./LibraryToolbar"
-import { NewLibraryMapDialog } from "./NewLibraryMapDialog"
+import { NewMapDialog } from "./NewMapDialog"
 import { useLibraryPage } from "./useLibraryPage"
 import { WorldBulkBar } from "./WorldBulkBar"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
@@ -111,7 +111,7 @@ export function LibraryPage() {
       {addTo.notice && <AddToCampaignNotice notice={addTo.notice} />}
       <AddToCampaignDialog target={addTo} />
       <CopyWithLinksDialog {...addTo.copyDialog} />
-      <NewLibraryMapDialog open={page.making} onClose={() => page.setMaking(false)} />
+      <NewMapDialog open={page.making} onClose={() => page.setMaking(false)} />
       <WorldEntryDialogs
         creating={page.creating}
         renaming={page.renaming}

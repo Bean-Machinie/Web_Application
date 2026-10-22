@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react"
 import { useNotificationsPanel } from "@/hooks/use-notifications-panel"
 import bell from "@/assets/icons/bell.svg"
+import type { IconHandle } from "@/components/AnimatedIcon"
+import { BellIcon } from "@/components/BellIcon"
 import { Icon } from "@/components/Icon"
+import { IconButton } from "@/components/IconButton"
 import { Button } from "@/components/ui/button"
 import {
   Popover,
@@ -49,13 +52,8 @@ export function NotificationBell() {
     document.addEventListener("pointerdown", onPress, true)
     return () => document.removeEventListener("pointerdown", onPress, true)
   }, [open])
-  // Counts up to swing the bell again: on a click, and when something new arrives.
-  const [rings, setRings] = useState(0)
-  const [seen, setSeen] = useState(unreadCount)
-  if (seen !== unreadCount) {
-    setSeen(unreadCount)
-    if (unreadCount > seen) setRings((n) => n + 1)
-  }
+  // The bell swings on a click, and only then.
+  const bell = useRef<IconHandle>(null)
 
   function viewAll() {
     setOpen(false)
@@ -72,29 +70,15 @@ export function NotificationBell() {
     // as the scrollbar goes and comes back.
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
+        <IconButton
           ref={trigger}
-          variant="ghost"
-          size="icon"
-          // Only the bell shows: no fill when hovered, pressed or open, and no ring. The
-          // button is wider than the bell so it is easy to hit; the margin keeps the bell
-          // where it was.
-          className="relative -mr-1 h-8 w-10 hover:bg-transparent focus-visible:border-transparent focus-visible:ring-0 active:bg-transparent data-[state=open]:bg-transparent dark:hover:bg-transparent"
-          onClick={() => setRings((n) => n + 1)}
-          aria-label={
-            unreadCount > 0
-              ? `Notifications, ${unreadCount} unread`
-              : "Notifications"
-          }
+          icon={BellIcon}
+          animateRef={bell}
+          label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
+          onClick={() => bell.current?.startAnimation()}
         >
-          <span
-            key={rings}
-            className={rings > 0 ? "inline-flex origin-top motion-safe:animate-[bell-ring_700ms_ease-in-out]" : "inline-flex"}
-          >
-            <Icon src={bell} className="size-6" />
-          </span>
           {unreadCount > 0 && <NotificationBadge count={unreadCount} />}
-        </Button>
+        </IconButton>
       </PopoverTrigger>
       <PopoverContent
         ref={content}
