@@ -1,8 +1,9 @@
-// The count over the bell. It pulses a few times when it appears or changes, then rests; people
-// who ask for less motion get no pulse.
+// The count on the corner of the bell, centred on the corner of its 20px drawing in the middle of
+// the 32px button, so it hangs off the bell instead of covering it. It pulses a few times when it
+// appears or changes, then rests; people who ask for less motion get no pulse.
 export function NotificationBadge({ count }: { count: number }) {
   return (
-    <span className="pointer-events-none absolute top-1.5 right-1.5 flex">
+    <span className="pointer-events-none absolute -top-0.5 -right-0.5 flex">
       <span
         key={count}
         aria-hidden
