@@ -1,24 +1,18 @@
-import { Search } from "lucide-react"
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { ClearSearchButton } from "./ClearSearchButton"
-import type { VisibilityFilter } from "@/lib/world-list"
+import type { CardSize } from "@/hooks/use-world-card-size"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import type { WorldEntryKind } from "@/lib/world-kinds"
+import type { VisibilityFilter } from "@/lib/world-list"
 import { AddFromLibraryButton } from "./AddFromLibraryButton"
+import { CardSizeControl } from "./CardSizeControl"
+import { ExpandingSearch } from "./ExpandingSearch"
 import { NewEntryButton } from "./NewEntryButton"
+import { WorldFilterPopover } from "./WorldFilterPopover"
 import { WorldViewToggle } from "./WorldViewToggle"
 
 type Props = {
   query: string
   onQuery: (query: string) => void
-  // Null for players, who only ever see revealed entries.
+  // Null for players, who only ever see revealed entries and have nothing to filter.
   visibility: VisibilityFilter | null
   onVisibility: (visibility: VisibilityFilter) => void
   onCreate: ((kind: WorldEntryKind) => void) | null
@@ -27,47 +21,30 @@ type Props = {
   onLibraryAdded: (() => Promise<unknown>) | null
   mode: WorldViewMode
   onMode: (mode: WorldViewMode) => void
+  cardSize: CardSize
+  onCardSize: (size: CardSize) => void
 }
 
+// The right of the toolbar: find, filter, how to look, and what to add.
 export function WorldToolbar(props: Props) {
   const { query, onQuery, visibility, onVisibility, onCreate, onLibraryAdded, mode, onMode } = props
 
   return (
-    <div className="flex shrink-0 items-center gap-2">
-      <InputGroup className="min-w-0 flex-1 sm:max-w-xs">
-        <InputGroupAddon>
-          <Search />
-        </InputGroupAddon>
-        <InputGroupInput
-          value={query}
-          onChange={(event) => onQuery(event.target.value)}
-          placeholder="Search entries"
-          aria-label="Search entries"
-        />
-        <ClearSearchButton value={query} onClear={() => onQuery("")} />
-      </InputGroup>
+    <>
+      <ExpandingSearch value={query} onChange={onQuery} label="Search entries" />
       {visibility && (
-        <Select
-          value={visibility}
-          onValueChange={(value) => onVisibility(value as VisibilityFilter)}
-        >
-          <SelectTrigger aria-label="Filter by visibility" className="w-32 sm:w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent position="popper" align="start">
-            <SelectItem value="all">All visibility</SelectItem>
-            <SelectItem value="hidden">Hidden</SelectItem>
-            <SelectItem value="revealed">Revealed</SelectItem>
-          </SelectContent>
-        </Select>
+        <WorldFilterPopover
+          visibility={visibility}
+          onVisibility={onVisibility}
+          active={visibility === "all" ? 0 : 1}
+        />
       )}
-      <div className="ml-auto flex items-center gap-2">
-        <div className="max-md:hidden">
-          <WorldViewToggle mode={mode} onChange={onMode} />
-        </div>
-        {onLibraryAdded && <AddFromLibraryButton onAdded={onLibraryAdded} />}
-        {onCreate && <NewEntryButton onPick={onCreate} />}
+      {mode === "grid" && <CardSizeControl value={props.cardSize} onChange={props.onCardSize} />}
+      <div className="max-md:hidden">
+        <WorldViewToggle mode={mode} onChange={onMode} />
       </div>
-    </div>
+      {onLibraryAdded && <AddFromLibraryButton onAdded={onLibraryAdded} />}
+      {onCreate && <NewEntryButton onPick={onCreate} />}
+    </>
   )
 }

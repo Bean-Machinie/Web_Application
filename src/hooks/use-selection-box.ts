@@ -18,6 +18,9 @@ type Options = {
   // and the items carry data-entry-id.
   container: RefObject<HTMLElement | null>
   enabled: boolean
+  // True when the page itself scrolls rather than the container; its bounds then
+  // move with the scroll, and the box grows with them.
+  pageScroll?: boolean
   selected: ReadonlySet<string>
   // Called while the box moves with what it touches (plus what was already
   // picked when Shift or Ctrl/Cmd was held).
@@ -40,20 +43,22 @@ export function useSelectionBox(options: Options) {
   useEffect(() => () => stop.current?.(), [])
 
   function onPointerDown(event: PointerEvent<HTMLElement>) {
-    const { container, enabled, selected } = latest.current
+    const { container, enabled, selected, pageScroll } = latest.current
     const element = container.current
     if (!enabled || !element || event.button !== 0 || event.pointerType === "touch") return
     if ((event.target as Element).closest(IGNORE)) return
 
+    const scrolled = () =>
+      pageScroll ? { x: 0, y: 0 } : { x: element.scrollLeft, y: element.scrollTop }
     const start = element.getBoundingClientRect()
     // Not on the scroll bar.
-    if (event.clientX >= start.left + element.clientWidth) return
+    if (!pageScroll && event.clientX >= start.left + element.clientWidth) return
 
     const additive = event.shiftKey || event.ctrlKey || event.metaKey
     const base = additive ? [...selected] : []
     const origin = {
-      x: event.clientX - start.left + element.scrollLeft,
-      y: event.clientY - start.top + element.scrollTop,
+      x: event.clientX - start.left + scrolled().x,
+      y: event.clientY - start.top + scrolled().y,
     }
     const pointer = { x: event.clientX, y: event.clientY }
     let moved = false
@@ -63,8 +68,9 @@ export function useSelectionBox(options: Options) {
 
     const update = () => {
       const bounds = element.getBoundingClientRect()
-      const x = pointer.x - bounds.left + element.scrollLeft
-      const y = pointer.y - bounds.top + element.scrollTop
+      const scroll = scrolled()
+      const x = pointer.x - bounds.left + scroll.x
+      const y = pointer.y - bounds.top + scroll.y
       const rect = {
         left: Math.min(origin.x, x),
         top: Math.min(origin.y, y),
@@ -81,10 +87,10 @@ export function useSelectionBox(options: Options) {
 
       // Items are compared where they are on screen, so the scroll counts.
       const view = {
-        left: rect.left - element.scrollLeft + bounds.left,
-        top: rect.top - element.scrollTop + bounds.top,
-        right: rect.left + rect.width - element.scrollLeft + bounds.left,
-        bottom: rect.top + rect.height - element.scrollTop + bounds.top,
+        left: rect.left - scroll.x + bounds.left,
+        top: rect.top - scroll.y + bounds.top,
+        right: rect.left + rect.width - scroll.x + bounds.left,
+        bottom: rect.top + rect.height - scroll.y + bounds.top,
       }
       const hits = [...element.querySelectorAll<HTMLElement>(ITEM)]
         .filter((item) => intersects(view, item.getBoundingClientRect()))
@@ -98,14 +104,13 @@ export function useSelectionBox(options: Options) {
     // Near the top or bottom edge the list scrolls, so a long list can be
     // swept in one go.
     const tick = () => {
-      const bounds = element.getBoundingClientRect()
+      const bounds = pageScroll ? { top: 0, bottom: window.innerHeight } : element.getBoundingClientRect()
       const intoTop = bounds.top + EDGE_PX - pointer.y
       const intoBottom = pointer.y - (bounds.bottom - EDGE_PX)
-      if (moved && intoTop > 0) {
-        element.scrollTop -= Math.min(intoTop / EDGE_PX, 1) * MAX_SCROLL_PX
-      } else if (moved && intoBottom > 0) {
-        element.scrollTop += Math.min(intoBottom / EDGE_PX, 1) * MAX_SCROLL_PX
-      }
+      const scrollBy = (delta: number) =>
+        pageScroll ? window.scrollBy(0, delta) : (element.scrollTop += delta)
+      if (moved && intoTop > 0) scrollBy(-Math.min(intoTop / EDGE_PX, 1) * MAX_SCROLL_PX)
+      else if (moved && intoBottom > 0) scrollBy(Math.min(intoBottom / EDGE_PX, 1) * MAX_SCROLL_PX)
       update()
       frame = requestAnimationFrame(tick)
     }

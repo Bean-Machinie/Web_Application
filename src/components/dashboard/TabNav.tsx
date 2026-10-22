@@ -7,6 +7,8 @@ type Props = {
   // `isActive` is for tabs that differ only by query string, which NavLink
   // cannot tell apart. Leave it out and the route decides.
   tabs: { label: string; to: string; badge?: ReactNode; isActive?: boolean }[]
+  // No baseline of its own, for a row that draws one.
+  bare?: boolean
 }
 
 function tabClass(active: boolean) {
@@ -18,13 +20,16 @@ function tabClass(active: boolean) {
   )
 }
 
-export function TabNav({ label, tabs }: Props) {
+export function TabNav({ label, tabs, bare }: Props) {
   return (
     <nav
       aria-label={label}
       // The baseline is an inset shadow, not a border the tabs overlap with a
     // negative margin: that overlap made the row 1px scrollable vertically.
-    className="no-scrollbar -mx-4 flex touch-pan-x gap-1 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4 shadow-[inset_0_-1px_0_var(--border)] md:mx-0 md:px-0"
+    className={cn(
+        "no-scrollbar -mx-4 flex touch-pan-x gap-1 overflow-x-auto overflow-y-hidden overscroll-x-contain px-4 md:mx-0 md:px-0",
+        !bare && "shadow-[inset_0_-1px_0_var(--border)]"
+      )}
     >
       {tabs.map((tab) => {
         const content = (

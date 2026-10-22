@@ -30,5 +30,5 @@ export function WorldTabs({ entries, active }: Props) {
     })),
   ]
 
-  return <TabNav label={scope.label} tabs={tabs} />
+  return <TabNav label={scope.label} tabs={tabs} bare />
 }

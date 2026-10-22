@@ -8,13 +8,10 @@ import {
   saveWorldList,
 } from "@/lib/world-list-memory"
 
-const SCROLL_SELECTOR = "[data-world-scroll]"
-
 // Owns the search text of the World list and keeps it, with the scroll
 // position, for when the list is opened again after an entry. The tab is in
-// the URL and the view mode is stored already. Put `wrapper` on the element
-// that holds the toolbar and the results; `ready` is true once the entries are
-// there to scroll.
+// the URL and the view mode is stored already. The page scrolls, so that is the
+// scroll that is kept; `ready` is true once the entries are there to scroll.
 export function useWorldListMemory(
   scopeKey: string,
   kind: WorldEntryKind | null,
@@ -23,7 +20,6 @@ export function useWorldListMemory(
 ) {
   const [saved] = useState(() => (isWorldListReturn() ? loadWorldList(scopeKey) : null))
   const [query, setQuery] = useState(saved?.query ?? "")
-  const wrapper = useRef<HTMLDivElement>(null)
   const signature = `${kind ?? "all"}|${mode}|${query}`
   const latest = useRef({ query, signature })
   useEffect(() => {
@@ -36,21 +32,16 @@ export function useWorldListMemory(
   }, [])
 
   useEffect(() => {
-    const element = wrapper.current
-    if (!element) return
     let frame = 0
-    const onScroll = (event: Event) => {
-      const target = event.target
-      if (!(target instanceof HTMLElement) || !target.matches(SCROLL_SELECTOR)) return
+    const onScroll = () => {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() =>
-        saveWorldList(scopeKey, { ...latest.current, scroll: target.scrollTop })
+        saveWorldList(scopeKey, { ...latest.current, scroll: window.scrollY })
       )
     }
-    // Scroll does not bubble, but it can be caught on the way down.
-    element.addEventListener("scroll", onScroll, true)
+    window.addEventListener("scroll", onScroll, { passive: true })
     return () => {
-      element.removeEventListener("scroll", onScroll, true)
+      window.removeEventListener("scroll", onScroll)
       cancelAnimationFrame(frame)
     }
   }, [scopeKey])
@@ -66,10 +57,12 @@ export function useWorldListMemory(
     if (!ready || !saved || saved.signature !== signature || saved.scroll === 0) return
     let frame = 0
     let tries = 0
+    // The page may not be tall enough yet while the entries are still laying out.
     const restore = () => {
-      const target = wrapper.current?.querySelector<HTMLElement>(SCROLL_SELECTOR)
-      if (target) target.scrollTop = saved.scroll
-      else if (tries++ < 20) frame = requestAnimationFrame(restore)
+      window.scrollTo(0, saved.scroll)
+      if (Math.abs(window.scrollY - saved.scroll) > 1 && tries++ < 20) {
+        frame = requestAnimationFrame(restore)
+      }
     }
     restore()
     return () => cancelAnimationFrame(frame)
@@ -77,5 +70,5 @@ export function useWorldListMemory(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready])
 
-  return { query, setQuery, wrapper }
+  return { query, setQuery }
 }

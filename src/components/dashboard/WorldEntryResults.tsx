@@ -1,3 +1,4 @@
+import type { CardSize } from "@/hooks/use-world-card-size"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import type { WorldEntry } from "@/lib/world-entries"
@@ -20,9 +21,12 @@ type Props = {
   selection: EntrySelection | null
   sort: Sort
   onSort: (sort: Sort) => void
+  cardSize: CardSize
+  // Null while they load, and not asked for unless the list is shown.
+  connections: ReadonlyMap<string, number> | null
 }
 
-export function WorldEntryResults({ entries, mode, kind, filtered, canManage, manage, selection, sort, onSort }: Props) {
+export function WorldEntryResults({ entries, mode, kind, filtered, canManage, manage, selection, sort, onSort, cardSize, connections }: Props) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {entries.length === 0 ? (
@@ -30,12 +34,13 @@ export function WorldEntryResults({ entries, mode, kind, filtered, canManage, ma
       ) : mode === "graph" ? (
         <WorldEntryGraph entries={entries} />
       ) : mode === "grid" ? (
-        <WorldEntryGrid entries={entries} manage={manage} selection={selection} />
+        <WorldEntryGrid entries={entries} manage={manage} selection={selection} size={cardSize} />
       ) : (
         <WorldEntryTable
           entries={entries}
           manage={manage}
           selection={selection}
+          connections={connections}
           sort={sort}
           onSort={onSort}
         />

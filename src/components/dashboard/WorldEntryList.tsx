@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 import { LoadingGate } from "@/components/LoadingGate"
 import { useEntrySelection } from "@/hooks/use-entry-selection"
@@ -6,7 +6,9 @@ import { useSaveToLibrary } from "@/hooks/use-save-to-library"
 import { useWorldBulk } from "@/hooks/use-world-bulk"
 import { useWorldEntries } from "@/hooks/use-world-entries"
 import { useWorldEntryDelete } from "@/hooks/use-world-entry-delete"
+import { useConnectionCounts } from "@/hooks/use-connection-counts"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { useWorldCardSize } from "@/hooks/use-world-card-size"
 import { useWorldListMemory } from "@/hooks/use-world-list-memory"
 import { useWorldSearchText } from "@/hooks/use-world-search-text"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
@@ -15,6 +17,7 @@ import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
 import { rememberWorldKind } from "@/lib/world-tab"
 import type { Sort, VisibilityFilter } from "@/lib/world-list"
+import { CollectionPage } from "./CollectionPage"
 import { CopyWithLinksDialog } from "./CopyWithLinksDialog"
 import { useWorldScope } from "./useWorldScope"
 import { WorldBulkBar } from "./WorldBulkBar"
@@ -59,18 +62,16 @@ export function WorldEntryList() {
       { replace: true }
     )
   }, [wanted, canManage, setParams])
-  const { query, setQuery, wrapper } = useWorldListMemory(scope.key, kind, mode, entries !== null)
+  const { query, setQuery } = useWorldListMemory(scope.key, kind, mode, entries !== null)
   useEffect(() => rememberWorldKind(scope.basePath, kind), [scope.basePath, kind])
 
   const searchText = useWorldSearchText(scope, query.trim() !== "")
-  const shown = entries && viewEntries(entries, {
-      kind,
-      query,
-      visibility,
-      // Only the list has column headers to sort by.
-      sort: mode === "list" ? sort : null,
-      searchText,
-    })
+  // Only the list has column headers to sort by.
+  const sortBy = mode === "list" ? sort : null
+  const shown = useMemo(
+    () => entries && viewEntries(entries, { kind, query, visibility, sort: sortBy, searchText }),
+    [entries, kind, query, visibility, sortBy, searchText]
+  )
 
   const selection = useEntrySelection({
     visibleIds: shown?.map((entry) => entry.id) ?? [],
@@ -91,21 +92,34 @@ export function WorldEntryList() {
       })
     : null
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <WorldTabs entries={entries} active={kind} />
-      <div ref={wrapper} className="flex min-h-0 flex-1 flex-col gap-3">
-        <WorldToolbar
-          query={query}
-          onQuery={setQuery}
-          visibility={canManage && scope.hasVisibility ? visibility : null}
-          onVisibility={setVisibility}
-          onCreate={canManage ? setCreating : null}
-          onLibraryAdded={canManage ? reload : null}
-          mode={mode}
-          onMode={setMode}
-        />
+  const [cardSize, setCardSize] = useWorldCardSize()
+  const connections = useConnectionCounts(entries, mode === "list")
+  const filtering = canManage && scope.hasVisibility && visibility !== "all"
+  const chips = filtering
+    ? [{ label: `Visibility: ${visibility}`, onRemove: () => setVisibility("all") }]
+    : []
 
+  return (
+    <>
+      <CollectionPage
+        bleed={mode === "graph"}
+        tabs={<WorldTabs entries={entries} active={kind} />}
+        chips={chips}
+        actions={
+          <WorldToolbar
+            query={query}
+            onQuery={setQuery}
+            visibility={canManage && scope.hasVisibility ? visibility : null}
+            onVisibility={setVisibility}
+            onCreate={canManage ? setCreating : null}
+            onLibraryAdded={canManage ? reload : null}
+            mode={mode}
+            onMode={setMode}
+            cardSize={cardSize}
+            onCardSize={setCardSize}
+          />
+        }
+      >
         <WorldEntryNotices
           problem={error || actionError || library.error}
           savedName={library.savedName}
@@ -114,7 +128,7 @@ export function WorldEntryList() {
         <CopyWithLinksDialog {...library.dialog} />
         <LoadingGate
           loading={!entries && !error}
-          className="bg-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-t-lg border border-b-0"
+          className="flex min-h-0 flex-1 flex-col"
           skeleton={
             mode === "grid" ? (
               <WorldGridSkeleton />
@@ -135,11 +149,13 @@ export function WorldEntryList() {
                 selection={canManage ? selection : null}
                 sort={sort}
                 onSort={setSort}
+                cardSize={cardSize}
+                connections={connections}
               />
             )
           }
         </LoadingGate>
-      </div>
+      </CollectionPage>
 
       {canManage && <WorldBulkBar selection={selection} bulk={bulk} />}
       <WorldEntryDialogs
@@ -153,6 +169,6 @@ export function WorldEntryList() {
         onCloseRename={() => setRenaming(null)}
         onCloseDelete={() => removal.setDeleting(null)}
       />
-    </div>
+    </>
   )
 }

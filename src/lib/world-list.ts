@@ -6,7 +6,7 @@ import type { SearchText } from "./world-search"
 
 export type VisibilityFilter = "all" | "hidden" | "revealed"
 
-export type SortKey = "name" | "type" | "visibility"
+export type SortKey = "name" | "type" | "visibility" | "updated"
 // Null is the order the GM arranged by hand.
 export type Sort = { by: SortKey; dir: "asc" | "desc" } | null
 
@@ -30,6 +30,8 @@ const COMPARE: Record<SortKey, (a: WorldEntry, b: WorldEntry) => number> = {
   type: (a, b) => WORLD_KINDS[a.kind].label.localeCompare(WORLD_KINDS[b.kind].label),
   // Ascending puts hidden entries first.
   visibility: (a, b) => Number(a.revealed) - Number(b.revealed),
+  // Ascending is the longest ago first.
+  updated: (a, b) => a.updatedAt.localeCompare(b.updatedAt),
 }
 
 // In the order the GM arranged them, unless a column sort is on. Entries that

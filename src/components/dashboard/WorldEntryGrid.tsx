@@ -1,30 +1,26 @@
 import { useRef } from "react"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
+import type { CardSize } from "@/hooks/use-world-card-size"
 import { useRowReorder } from "@/hooks/use-row-reorder"
 import { useSelectionBox } from "@/hooks/use-selection-box"
 import type { WorldEntry } from "@/lib/world-entries"
 import { SelectHint } from "./SelectHint"
 import { SelectionBox } from "./SelectionBox"
 import { WorldEntryCard } from "./WorldEntryCard"
+import { gridStyle } from "./world-grid-style"
 import type { WorldManage } from "./world-manage"
-
-export const gridClass =
-  "grid grid-cols-2 gap-3 p-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5"
-
-// Only the entries scroll; everything above stays put.
-export const scrollClass =
-  "min-h-0 flex-1 overflow-y-auto [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]"
 
 type Props = {
   entries: WorldEntry[]
   manage: WorldManage | null
   // Null where nothing can be picked, such as for players.
   selection: EntrySelection | null
+  size: CardSize
 }
 
 const NOTHING: ReadonlySet<string> = new Set()
 
-export function WorldEntryGrid({ entries, manage, selection }: Props) {
+export function WorldEntryGrid({ entries, manage, selection, size }: Props) {
   const scroller = useRef<HTMLDivElement>(null)
   const { rowProps } = useRowReorder({
     ids: entries.map((entry) => entry.id),
@@ -35,6 +31,7 @@ export function WorldEntryGrid({ entries, manage, selection }: Props) {
   const { onPointerDown, box } = useSelectionBox({
     container: scroller,
     enabled: selection !== null,
+    pageScroll: true,
     selected: selection?.selected ?? NOTHING,
     onSelect: (ids) => selection?.set(ids),
     onClear: () => selection?.clear(),
@@ -43,9 +40,9 @@ export function WorldEntryGrid({ entries, manage, selection }: Props) {
   return (
     <div
       ref={scroller}
-      data-world-scroll
       onPointerDown={onPointerDown}
-      className={`${scrollClass} ${gridClass} relative content-start [scrollbar-gutter:stable]`}
+      style={gridStyle(size)}
+      className="relative grid flex-1 content-start gap-4"
     >
       <SelectionBox box={box} />
       {entries.map((entry, index) => {
