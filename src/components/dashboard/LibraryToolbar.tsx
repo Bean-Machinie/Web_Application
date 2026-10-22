@@ -3,7 +3,7 @@ import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import type { Recency } from "@/lib/library-recency"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { CardSizeControl } from "./CardSizeControl"
-import { LibraryFilterPopover } from "./LibraryFilterPopover"
+import { FilterPopover } from "./FilterPopover"
 import { LibraryNewButton } from "./LibraryNewButton"
 import { WorldViewToggle } from "./WorldViewToggle"
 
@@ -27,7 +27,20 @@ export function LibraryToolbar(props: Props) {
 
   return (
     <>
-      <LibraryFilterPopover recency={props.recency} onRecency={props.onRecency} />
+      <FilterPopover
+        groups={[
+          {
+            label: "Last changed",
+            value: props.recency,
+            options: [
+              { value: "any", label: "Any time" },
+              { value: "week", label: "7 days" },
+              { value: "month", label: "30 days" },
+            ],
+            onChange: (value) => props.onRecency(value as Recency),
+          },
+        ]}
+      />
       {props.mode === "grid" && <CardSizeControl value={props.cardSize} onChange={props.onCardSize} />}
       <div className="max-md:hidden">
         <WorldViewToggle mode={props.mode} onChange={props.onMode} modes={modes} />

@@ -2,17 +2,11 @@ import { Search } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import type { CampaignViewMode } from "@/hooks/use-campaign-view-mode"
 import type { RoleFilter, Sort } from "@/lib/campaign-list"
 import { CampaignSortMenu } from "./CampaignSortMenu"
 import { CampaignViewToggle } from "./CampaignViewToggle"
+import { FilterPopover } from "./FilterPopover"
 
 type Props = {
   query: string
@@ -42,18 +36,20 @@ export function CampaignToolbar(props: Props) {
           aria-label="Search campaigns"
         />
       </InputGroup>
-      <div className="min-w-0 flex-1 sm:w-36 sm:flex-none">
-      <Select value={role} onValueChange={(value) => onRole(value as RoleFilter)}>
-        <SelectTrigger aria-label="Filter by role" className="w-full">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent position="popper" align="start">
-          <SelectItem value="all">All roles</SelectItem>
-          <SelectItem value="gm">Game master</SelectItem>
-          <SelectItem value="player">Player</SelectItem>
-        </SelectContent>
-      </Select>
-      </div>
+      <FilterPopover
+        groups={[
+          {
+            label: "Role",
+            value: role,
+            options: [
+              { value: "all", label: "All" },
+              { value: "gm", label: "GM" },
+              { value: "player", label: "Player" },
+            ],
+            onChange: (value) => onRole(value as RoleFilter),
+          },
+        ]}
+      />
       <CampaignSortMenu sort={sort} onSort={onSort} className="min-w-0 flex-1 sm:w-56 sm:flex-none" />
       <CampaignViewToggle mode={mode} onChange={onMode} />
       <div className="flex w-full gap-2 sm:ml-auto sm:w-auto">
