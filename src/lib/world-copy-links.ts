@@ -48,8 +48,9 @@ async function pinnedOnExistingMaps(copiedIds: string[]) {
 // failure anywhere leaves no entry behind; the files copied so far are then
 // removed again. A failure says which entry it was on. Anything in the plan that
 // is not picked and not in `keep` is left out: its pins are dropped and its
-// mentions wait, as plain text. Resolves to the names of the maps the target
-// already had that got a pin for a copied entry.
+// mentions wait, as plain text. Resolves to the new id of every copy by the id of
+// what it was copied from, and the names of the maps the target already had that
+// got a pin for a copied entry.
 export async function copyEntriesWithLinks(
   pickedIds: string[],
   keep: string[],
@@ -87,5 +88,5 @@ export async function copyEntriesWithLinks(
     throw failure
   }
 
-  return pinnedOnExistingMaps(Object.values(newIds))
+  return { newIds, pinnedOn: await pinnedOnExistingMaps(Object.values(newIds)) }
 }

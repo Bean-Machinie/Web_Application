@@ -1,4 +1,4 @@
-import { Library, Pencil, Trash2 } from "lucide-react"
+import { FolderPlus, Library, Pencil, Trash2 } from "lucide-react"
 import { errorMessage } from "@/lib/campaigns"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { MemberAction } from "./MemberMenu"
@@ -12,6 +12,8 @@ export type WorldManage = {
   onDelete: (entry: WorldEntry) => void
   // Absent where entries cannot be saved to the library.
   onSaveToLibrary?: (entry: WorldEntry) => void
+  // Only in the library: opens the picker of campaigns to add the entry to.
+  onAddToCampaign?: (entry: WorldEntry) => void
   // The shown entries' ids in their new order.
   onReorder: (ids: string[]) => void
   actionsFor: (entry: WorldEntry) => MemberAction[]
@@ -23,12 +25,13 @@ type Handlers = {
   onRename: (entry: WorldEntry) => void
   onDelete: (entry: WorldEntry) => void
   onSaveToLibrary?: (entry: WorldEntry) => void
+  onAddToCampaign?: (entry: WorldEntry) => void
   // Null clears the message before an action starts.
   setError: (message: string | null) => void
 }
 
 export function createWorldManage(handlers: Handlers): WorldManage {
-  const { setRevealed, reorder, onRename, onDelete, onSaveToLibrary, setError } = handlers
+  const { setRevealed, reorder, onRename, onDelete, onSaveToLibrary, onAddToCampaign, setError } = handlers
   const report = (failure: unknown) => setError(errorMessage(failure))
   const save = onSaveToLibrary && ((entry: WorldEntry) => {
     setError(null)
@@ -47,8 +50,12 @@ export function createWorldManage(handlers: Handlers): WorldManage {
     onRename,
     onDelete,
     onSaveToLibrary: save,
+    onAddToCampaign,
     actionsFor: (entry) => [
       { label: "Rename", icon: Pencil, onSelect: () => onRename(entry) },
+      ...(onAddToCampaign
+        ? [{ label: "Add to campaign…", icon: FolderPlus, onSelect: () => onAddToCampaign(entry) }]
+        : []),
       ...(save
         ? [{ label: "Save to library", icon: Library, onSelect: () => save(entry) }]
         : []),

@@ -6,16 +6,14 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import type { WorldEntry } from "@/lib/world-entries"
-import type { WorldEntryKind } from "@/lib/world-kinds"
-import { worldKinds } from "@/lib/world-kinds"
-import { MarkerKindTabs } from "./MarkerKindTabs"
+import { LibrarySections } from "./LibrarySections"
 
 type Props = {
   entries: WorldEntry[] | null
   // The entries the kind and search leave, or null while loading.
   shown: WorldEntry[] | null
-  kind: WorldEntryKind | null
-  onKind: (kind: WorldEntryKind | null) => void
+  section: string
+  onSection: (section: string) => void
   query: string
   onQuery: (query: string) => void
   loadError?: string | null
@@ -27,7 +25,8 @@ type Props = {
   // Under the entries, such as the buttons of a picker.
   footer?: ReactNode
   // How one entry looks, and where it stands in the list; the window lays them out.
-  renderEntry: (entry: WorldEntry, index: number) => ReactNode
+  // `wide` in the Maps section, whose entries are laid out as landscape tiles.
+  renderEntry: (entry: WorldEntry, index: number, wide: boolean) => ReactNode
   // Said when the library has no entries at all.
   emptyText: string
   rootRef?: Ref<HTMLDivElement>
@@ -38,14 +37,16 @@ type Props = {
 }
 
 const GRID = "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+const GRID_WIDE = "grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"
 const GRID_SMALL = "grid grid-cols-3 gap-2"
 
-// Your library as a window: the kinds in a column beside it, a search, and the
+// Your library as a window: the sections in a column beside it, a search, and the
 // entries as cards to scroll through. The height is fixed, so changing kind or
 // searching never makes it jump. The Library page and "Add from your library"
 // are both this; they differ in what a card does and what sits under it.
 export function LibraryWindow(props: Props) {
   const { shown, compact, scroller } = props
+  const wide = props.section === "maps"
 
   return (
     <div
@@ -56,12 +57,11 @@ export function LibraryWindow(props: Props) {
       )}
     >
       <div className={cn("flex min-h-0 min-w-0 flex-1 flex-col gap-3", !compact && "sm:flex-row sm:gap-5")}>
-        <MarkerKindTabs
+        <LibrarySections
           entries={props.entries}
-          active={props.kind}
-          onChange={props.onKind}
+          active={props.section}
+          onChange={props.onSection}
           compact={compact}
-          kinds={worldKinds}
         />
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
           <div className="flex shrink-0 items-center gap-2">
@@ -108,12 +108,12 @@ export function LibraryWindow(props: Props) {
               <p className="text-muted-foreground px-2 py-10 text-center text-sm">
                 {props.entries?.length === 0
                   ? props.emptyText
-                  : "No matches. Try a different name, or another kind."}
+                  : "No matches. Try a different name, or another section."}
               </p>
             ) : (
-              <div className={cn(compact ? GRID_SMALL : GRID, "select-none")}>
+              <div className={cn(compact ? GRID_SMALL : wide ? GRID_WIDE : GRID, "select-none")}>
                 {shown.map((entry, index) => (
-                  <Fragment key={entry.id}>{props.renderEntry(entry, index)}</Fragment>
+                  <Fragment key={entry.id}>{props.renderEntry(entry, index, wide)}</Fragment>
                 ))}
               </div>
             )}

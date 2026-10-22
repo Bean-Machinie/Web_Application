@@ -28,6 +28,8 @@ export type CopyOutcome = {
   cancelled: boolean
   // The ids of the picked entries that were copied.
   copiedIds: string[]
+  // The id of the copy, by the id of the entry it was copied from.
+  newIds: Record<string, string>
   // Entries copied only because something linked them.
   linked: number
   // Linked entries that were not brought along.
@@ -61,6 +63,7 @@ export function copyNote(outcome: CopyOutcome) {
 const none: CopyOutcome = {
   cancelled: false,
   copiedIds: [],
+  newIds: {},
   linked: 0,
   leftOut: 0,
   skipped: 0,
@@ -120,7 +123,7 @@ export async function copyEntries(
       keep = answer
     }
 
-    const pinnedOn = await copyEntriesWithLinks(
+    const { pinnedOn, newIds } = await copyEntriesWithLinks(
       picked.map((item) => item.id),
       keep,
       target.folder,
@@ -130,6 +133,7 @@ export async function copyEntries(
     return {
       ...none,
       copiedIds: picked.map((item) => item.id),
+      newIds,
       linked: keep.length,
       leftOut: fresh - keep.length,
       skipped,

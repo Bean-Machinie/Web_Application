@@ -31,7 +31,7 @@ export const campaignSettingsNav = (id: string): NavItem[] => [
 
 // What the sidebar shows outside a campaign.
 export const homeNav: NavItem[] = [
-  { title: "Campaigns", to: "/app", icon: globe, exact: true },
+  { title: "Home", to: "/app", icon: globe, exact: true },
   { title: "Your library", to: "/app/library", icon: box },
 ]
 

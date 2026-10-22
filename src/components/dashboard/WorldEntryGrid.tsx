@@ -16,11 +16,13 @@ type Props = {
   // Null where nothing can be picked, such as for players.
   selection: EntrySelection | null
   size: CardSize
+  // Landscape cards, for maps.
+  wide?: boolean
 }
 
 const NOTHING: ReadonlySet<string> = new Set()
 
-export function WorldEntryGrid({ entries, manage, selection, size }: Props) {
+export function WorldEntryGrid({ entries, manage, selection, size, wide }: Props) {
   const scroller = useRef<HTMLDivElement>(null)
   const { rowProps } = useRowReorder({
     ids: entries.map((entry) => entry.id),
@@ -41,7 +43,7 @@ export function WorldEntryGrid({ entries, manage, selection, size }: Props) {
     <div
       ref={scroller}
       onPointerDown={onPointerDown}
-      style={gridStyle(size)}
+      style={gridStyle(size, wide)}
       className="relative grid flex-1 content-start gap-4"
     >
       <SelectionBox box={box} />
@@ -54,7 +56,7 @@ export function WorldEntryGrid({ entries, manage, selection, size }: Props) {
             className="rounded-lg select-none [-webkit-touch-callout:none] data-lifted:*:border-ring data-lifted:*:shadow-[0_24px_28px_rgb(16_24_40/0.18),0_8px_10px_rgb(16_24_40/0.12)]"
             {...rowProps(entry.id, index)}
           >
-            <WorldEntryCard entry={entry} manage={manage} selection={selection} />
+            <WorldEntryCard entry={entry} manage={manage} selection={selection} wide={wide} />
           </div>
         )
         return selection ? (

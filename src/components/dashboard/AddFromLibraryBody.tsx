@@ -41,7 +41,7 @@ export function AddFromLibraryBody({ add, onAdded, onClose, onHold, compact }: P
   const selection = useEntrySelection({
     visibleIds: shown?.map((entry) => entry.id) ?? [],
     allIds: entries?.map((entry) => entry.id) ?? [],
-    // Never starts over: picks made under one kind stay while looking at another.
+    // Never starts over: picks made under one section stay while looking at another.
     viewKey: "",
     container: root,
   })
@@ -67,17 +67,18 @@ export function AddFromLibraryBody({ add, onAdded, onClose, onHold, compact }: P
       rootRef={root}
       entries={entries}
       shown={shown}
-      kind={view.kind}
-      onKind={view.setKind}
+      section={view.section}
+      onSection={view.setSection}
       query={view.query}
       onQuery={view.setQuery}
       loadError={loadError}
       compact={compact}
       emptyText="Your library is empty. Save entries from a campaign's World to reuse them here."
       scroller={{ ref: scroller, onPointerDown, overlay: <SelectionBox box={box} /> }}
-      renderEntry={(entry) => (
+      renderEntry={(entry, _index, wide) => (
         <LibraryPickCard
           entry={entry}
+          wide={wide}
           selected={selection.isSelected(entry.id)}
           disabled={busy}
           onToggle={(picked, event) => selection.click(picked.id, event)}

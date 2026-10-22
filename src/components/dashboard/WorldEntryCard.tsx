@@ -12,9 +12,15 @@ import { StatusMarker } from "./StatusMarker"
 import { useWorldScope } from "./useWorldScope"
 import type { WorldManage } from "./world-manage"
 
-type Props = { entry: WorldEntry; manage: WorldManage | null; selection: EntrySelection | null }
+type Props = {
+  entry: WorldEntry
+  manage: WorldManage | null
+  selection: EntrySelection | null
+  // A landscape picture, for maps in the library.
+  wide?: boolean
+}
 
-export function WorldEntryCard({ entry, manage, selection }: Props) {
+export function WorldEntryCard({ entry, manage, selection, wide }: Props) {
   const selected = selection?.isSelected(entry.id) ?? false
   const { basePath, hasVisibility } = useWorldScope()
   // A library has no visibility, so nothing in it is drawn as hidden.
@@ -24,6 +30,9 @@ export function WorldEntryCard({ entry, manage, selection }: Props) {
   const save = manage?.onSaveToLibrary
   const actions = manage && [
     { label: "Rename", onSelect: () => manage.onRename(entry) },
+    ...(manage.onAddToCampaign
+      ? [{ label: "Add to campaign…", onSelect: () => manage.onAddToCampaign!(entry) }]
+      : []),
     ...(save
       ? [{ label: "Save to library", onSelect: () => save(entry) }]
       : []),
@@ -40,7 +49,11 @@ export function WorldEntryCard({ entry, manage, selection }: Props) {
         hidden ? "border-dashed" : ""
       } ${selected ? "border-primary ring-primary ring-2" : ""}`}>
       <div className="overflow-hidden rounded-[inherit]">
-      <div className="bg-muted text-muted-foreground relative flex aspect-square items-center justify-center overflow-hidden">
+      <div
+        className={`bg-muted text-muted-foreground relative flex items-center justify-center overflow-hidden ${
+          wide ? "aspect-video" : "aspect-square"
+        }`}
+      >
         {entry.imageUrl ? (
           <img
             src={entry.imageUrl}

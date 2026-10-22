@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Library, Trash2 } from "lucide-react"
+import { Eye, EyeOff, FolderPlus, Library, Trash2 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,8 @@ import { useWorldScope } from "./useWorldScope"
 type Props = {
   selection: EntrySelection
   bulk: ReturnType<typeof useWorldBulk>
+  // Only in the library: adds the picked entries to a campaign, through its picker.
+  onAddToCampaign?: () => void
 }
 
 function Action(props: {
@@ -56,7 +58,7 @@ function Action(props: {
 // What can be done to the picked entries: in a campaign's world reveal, hide,
 // save to the library and delete; in the library only delete. Once an action
 // is done the bar gives way to a short confirmation.
-export function WorldBulkBar({ selection, bulk }: Props) {
+export function WorldBulkBar({ selection, bulk, onAddToCampaign }: Props) {
   const scope = useWorldScope()
   const busy = bulk.progress !== null
 
@@ -69,6 +71,9 @@ export function WorldBulkBar({ selection, bulk }: Props) {
               <Action icon={Eye} label="Reveal" disabled={busy || !bulk.canReveal} onClick={() => bulk.reveal(true)} />
               <Action icon={EyeOff} label="Hide" disabled={busy || !bulk.canHide} onClick={() => bulk.reveal(false)} />
             </>
+          )}
+          {onAddToCampaign && (
+            <Action icon={FolderPlus} label="Add to campaign…" disabled={busy} onClick={onAddToCampaign} />
           )}
           {scope.canSaveToLibrary && (
             <Action

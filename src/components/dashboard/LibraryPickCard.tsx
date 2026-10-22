@@ -11,13 +11,15 @@ type Props = {
   entry: WorldEntry
   selected: boolean
   disabled: boolean
+  // A landscape picture, for maps.
+  wide?: boolean
   // Shift-click takes a range, so the click is passed on.
   onToggle: (entry: WorldEntry, event: ClickModifiers) => void
 }
 
 // A library entry as in the world page's grid, a square picture over its name
 // and kind. A click picks it or puts it back, so several can be added at once.
-export function LibraryPickCard({ entry, selected, disabled, onToggle }: Props) {
+export function LibraryPickCard({ entry, selected, disabled, wide, onToggle }: Props) {
   const { icon: KindIcon } = WORLD_KINDS[entry.kind]
 
   const card = (
@@ -29,7 +31,12 @@ export function LibraryPickCard({ entry, selected, disabled, onToggle }: Props) 
       onClick={(event) => onToggle(entry, event)}
       className="focus-visible:ring-ring flex size-full flex-col overflow-hidden rounded-[inherit] text-left outline-none focus-visible:ring-2 disabled:opacity-60"
     >
-      <span className="bg-muted text-muted-foreground relative flex aspect-square items-center justify-center overflow-hidden">
+      <span
+        className={cn(
+          "bg-muted text-muted-foreground relative flex items-center justify-center overflow-hidden",
+          wide ? "aspect-video" : "aspect-square"
+        )}
+      >
         {entry.imageUrl ? (
           <img src={entry.imageUrl} alt="" loading="lazy" className="size-full object-cover" />
         ) : (

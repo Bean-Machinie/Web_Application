@@ -38,9 +38,9 @@ export function usePageCrumbs(): Crumb[] {
 
   if (trail) return trail
   if (inCampaign) {
-    return [{ label: campaign ? campaignPageTitle(campaign.id, pathname) : "Campaigns" }]
+    return [{ label: campaign ? campaignPageTitle(campaign.id, pathname) : "Home" }]
   }
 
   const page = userPages.find((item) => pathname.startsWith(item.to))
-  return [{ label: page?.title ?? "Campaigns" }]
+  return [{ label: page?.title ?? "Home" }]
 }
