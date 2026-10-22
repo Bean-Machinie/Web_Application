@@ -1,12 +1,14 @@
+import { Search } from "lucide-react"
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { CardSize } from "@/hooks/use-world-card-size"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import type { VisibilityFilter } from "@/lib/world-list"
 import { AddFromLibraryButton } from "./AddFromLibraryButton"
 import { CardSizeControl } from "./CardSizeControl"
-import { ExpandingSearch } from "./ExpandingSearch"
+import { ClearSearchButton } from "./ClearSearchButton"
 import { NewEntryButton } from "./NewEntryButton"
-import { WorldFilterPopover } from "./WorldFilterPopover"
 import { WorldViewToggle } from "./WorldViewToggle"
 
 type Props = {
@@ -25,19 +27,36 @@ type Props = {
   onCardSize: (size: CardSize) => void
 }
 
-// The right of the toolbar: find, filter, how to look, and what to add.
+// The right of the toolbar, laid out like the campaigns on Home: a search field and a
+// select to filter by, then how to look, then what to add.
 export function WorldToolbar(props: Props) {
   const { query, onQuery, visibility, onVisibility, onCreate, onLibraryAdded, mode, onMode } = props
 
   return (
     <>
-      <ExpandingSearch value={query} onChange={onQuery} label="Search entries" />
-      {visibility && (
-        <WorldFilterPopover
-          visibility={visibility}
-          onVisibility={onVisibility}
-          active={visibility === "all" ? 0 : 1}
+      <InputGroup className="w-40 sm:w-56">
+        <InputGroupAddon>
+          <Search />
+        </InputGroupAddon>
+        <InputGroupInput
+          value={query}
+          onChange={(event) => onQuery(event.target.value)}
+          placeholder="Search entries"
+          aria-label="Search entries"
         />
+        <ClearSearchButton value={query} onClear={() => onQuery("")} />
+      </InputGroup>
+      {visibility && (
+        <Select value={visibility} onValueChange={(value) => onVisibility(value as VisibilityFilter)}>
+          <SelectTrigger aria-label="Filter by visibility" className="w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent position="popper" align="start">
+            <SelectItem value="all">All visibility</SelectItem>
+            <SelectItem value="hidden">Hidden</SelectItem>
+            <SelectItem value="revealed">Revealed</SelectItem>
+          </SelectContent>
+        </Select>
       )}
       {mode === "grid" && <CardSizeControl value={props.cardSize} onChange={props.onCardSize} />}
       <div className="max-md:hidden">

@@ -136,6 +136,18 @@
   html:hover {
     scrollbar-color: var(--border) transparent;
     }
+  /* Menus, selects and dialogs lock the page scroll, and the lock adds a margin the width of
+     the scroll bar so the page does not move. The gutter above already keeps that room, so
+     the margin moves the page by a scroll bar's width the moment one opens. Not here. */
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+    }
+  html .right-scroll-bar-position {
+    right: 0 !important;
+    }
+  html .width-before-scroll-bar {
+    margin-right: 0 !important;
+    }
   /* Tailwind 4 leaves buttons with the arrow cursor; things that can be pressed show
      the hand, unless they are disabled. */
   button:not(:disabled),
