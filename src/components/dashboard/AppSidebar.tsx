@@ -22,8 +22,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      {/* No padding above or below: the row is the brand button's 52px, as tall as the top bar. */}
-      <SidebarHeader className="px-1.5 py-0">
+      <SidebarHeader className="px-1.5 py-2">
         <SidebarBrand />
       </SidebarHeader>
 

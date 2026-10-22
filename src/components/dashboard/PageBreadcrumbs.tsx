@@ -41,9 +41,10 @@ export function PageBreadcrumbs() {
   const tail = fold ? crumbs.slice(-2, -1) : []
 
   return (
-    <Breadcrumb className="min-w-0">
+    <Breadcrumb className="flex min-w-0 items-center">
       <h1 className="sr-only">{last.label}</h1>
-      <BreadcrumbList className="flex-nowrap gap-1 text-[15px] sm:gap-1.5">
+      {/* leading-none: no extra line height above or below the text, so its middle is the middle of the bar. */}
+      <BreadcrumbList className="flex-nowrap gap-1 text-[15px] leading-none sm:gap-1.5">
         {head.map((crumb) => (
           <Fragment key={crumb.label + crumb.to}>
             <CrumbLink crumb={crumb} />

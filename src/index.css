@@ -124,9 +124,8 @@
     @apply bg-background text-foreground;
     }
   html {
-    /* The top bar is as tall as the sidebar's logo row (the 52px brand button) where
-       the sidebar is beside the page. */
-    --header-height: 3rem;
+    /* The height of the top bar, which the sticky toolbars sit under. */
+    --header-height: 2.75rem;
     @apply font-sans;
     /* The page keeps its width when a scroll bar comes or goes. The bar is thin and
        quiet, like the command palette's. */
@@ -134,13 +133,19 @@
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
     }
-  @media (min-width: 48rem) {
-    html {
-      --header-height: 3.25rem;
-      }
-    }
   html:hover {
     scrollbar-color: var(--border) transparent;
+    }
+  /* Tailwind 4 leaves buttons with the arrow cursor; things that can be pressed show
+     the hand, unless they are disabled. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="menuitem"],
+  [role="switch"],
+  [role="checkbox"],
+  summary {
+    cursor: pointer;
     }
   /* Logos and icons are artwork, not content: no highlighting or dragging. */
   img,

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNotificationsPanel } from "@/hooks/use-notifications-panel"
 import bell from "@/assets/icons/bell.svg"
 import { Icon } from "@/components/Icon"
@@ -35,6 +35,20 @@ export function NotificationBell() {
   const settingsWindow = useSettingsWindow()
   const { unreadCount } = useCampaign()
   const [open, setOpen] = useState(false)
+  const trigger = useRef<HTMLButtonElement>(null)
+  const content = useRef<HTMLDivElement>(null)
+  // The popover closes on a press outside it, but the graph's canvas swallows presses
+  // before they reach the page, so while it is open they are watched on the way down.
+  useEffect(() => {
+    if (!open) return
+    const onPress = (event: PointerEvent) => {
+      const target = event.target as Node
+      if (content.current?.contains(target) || trigger.current?.contains(target)) return
+      setOpen(false)
+    }
+    document.addEventListener("pointerdown", onPress, true)
+    return () => document.removeEventListener("pointerdown", onPress, true)
+  }, [open])
   // Counts up to swing the bell again: on a click, and when something new arrives.
   const [rings, setRings] = useState(0)
   const [seen, setSeen] = useState(unreadCount)
@@ -59,9 +73,13 @@ export function NotificationBell() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          ref={trigger}
           variant="ghost"
           size="icon"
-          className="data-[state=open]:bg-accent relative size-11"
+          // Only the bell shows: no fill when hovered, pressed or open, and no ring. The
+          // button is wider than the bell so it is easy to hit; the margin keeps the bell
+          // where it was.
+          className="relative -mr-1 h-8 w-10 hover:bg-transparent focus-visible:border-transparent focus-visible:ring-0 active:bg-transparent data-[state=open]:bg-transparent dark:hover:bg-transparent"
           onClick={() => setRings((n) => n + 1)}
           aria-label={
             unreadCount > 0
@@ -79,6 +97,7 @@ export function NotificationBell() {
         </Button>
       </PopoverTrigger>
       <PopoverContent
+        ref={content}
         align="end"
         sideOffset={8}
         className="w-[min(26rem,calc(100vw-2rem))] gap-0 overflow-hidden rounded-xl p-0"

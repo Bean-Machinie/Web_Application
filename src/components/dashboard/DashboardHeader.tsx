@@ -7,7 +7,7 @@ export function DashboardHeader() {
   return (
     <header className="bg-background/80 sticky top-0 z-10 flex h-(--header-height) shrink-0 items-center gap-2 border-b backdrop-blur-sm transition-[width,height] ease-linear">
       {/* The side padding of the page below, so the trail lines up with its content. */}
-      <div className="flex w-full min-w-0 items-center gap-2 px-4 md:px-6">
+      <div className="flex h-full w-full min-w-0 items-center gap-2 px-4 md:px-6">
         {/* On desktop the sidebar's brand button toggles it; this is for the mobile drawer. */}
         <SidebarTrigger className="-ml-1 md:hidden" />
         <Separator

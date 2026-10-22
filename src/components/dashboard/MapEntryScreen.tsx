@@ -44,8 +44,8 @@ export function MapEntryScreen(props: EntryProps) {
 
   return (
     // On a phone it is as tall as the visible screen (dvh follows Safari's address bar;
-    // 3rem is the header) and nothing scrolls behind it.
-    <div className="bg-muted relative isolate -m-4 min-h-96 flex-1 overflow-hidden overscroll-none max-md:h-[calc(100dvh-3rem)] max-md:flex-none md:-m-6">
+    // --header-height is the header) and nothing scrolls behind it.
+    <div className="bg-muted relative isolate -m-4 min-h-96 flex-1 overflow-hidden overscroll-none max-md:h-[calc(100dvh-var(--header-height))] max-md:flex-none md:-m-6">
       {!state.fields ? (
         <MapLoader />
       ) : image?.width && image.height ? (
