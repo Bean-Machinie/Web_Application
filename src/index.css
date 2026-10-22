@@ -125,6 +125,14 @@
     }
   html {
     @apply font-sans;
+    /* The page keeps its width when a scroll bar comes or goes. The bar is thin and
+       quiet, like the command palette's. */
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    }
+  html:hover {
+    scrollbar-color: var(--border) transparent;
     }
   /* Logos and icons are artwork, not content: no highlighting or dragging. */
   img,

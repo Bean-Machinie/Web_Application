@@ -17,6 +17,7 @@ import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
 import { rememberWorldKind } from "@/lib/world-tab"
 import type { Sort, VisibilityFilter } from "@/lib/world-list"
+import { CollectionFilterPill } from "./CollectionFilterPill"
 import { CollectionPage } from "./CollectionPage"
 import { CopyWithLinksDialog } from "./CopyWithLinksDialog"
 import { useWorldScope } from "./useWorldScope"
@@ -95,16 +96,12 @@ export function WorldEntryList() {
   const [cardSize, setCardSize] = useWorldCardSize()
   const connections = useConnectionCounts(entries, mode === "list")
   const filtering = canManage && scope.hasVisibility && visibility !== "all"
-  const chips = filtering
-    ? [{ label: `Visibility: ${visibility}`, onRemove: () => setVisibility("all") }]
-    : []
 
   return (
     <>
       <CollectionPage
         bleed={mode === "graph"}
         tabs={<WorldTabs entries={entries} active={kind} />}
-        chips={chips}
         actions={
           <WorldToolbar
             query={query}
@@ -157,6 +154,14 @@ export function WorldEntryList() {
         </LoadingGate>
       </CollectionPage>
 
+      {filtering && (
+        <CollectionFilterPill
+          text={`Showing ${visibility} only`}
+          // Out of the way of the bar of picked entries, and of a notice.
+          raised={selection.active || library.savedName !== null}
+          onClear={() => setVisibility("all")}
+        />
+      )}
       {canManage && <WorldBulkBar selection={selection} bulk={bulk} />}
       <WorldEntryDialogs
         creating={creating}

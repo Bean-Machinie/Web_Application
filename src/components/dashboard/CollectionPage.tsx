@@ -1,16 +1,12 @@
 import type { CSSProperties, ReactNode } from "react"
 import { useElementSize } from "@/hooks/use-element-size"
 import { cn } from "@/lib/utils"
-import { CollectionFilterChips } from "./CollectionFilterChips"
-import type { FilterChip } from "./CollectionFilterChips"
 
 type Props = {
   // On the left of the toolbar: usually tabs.
   tabs: ReactNode
   // On the right: search, filter, view switch and the buttons that add.
   actions: ReactNode
-  // The filters that are on; the row for them only exists while there are any.
-  chips: FilterChip[]
   // The content fills the window below the toolbar, edge to edge, and the page
   // does not scroll: a graph or a map. Otherwise the content flows and the page scrolls.
   bleed?: boolean
@@ -21,7 +17,7 @@ type Props = {
 // the whole width beside the sidebar with the dashboard's side padding, one toolbar
 // that stays under the header, and no box round the content. It cancels the
 // dashboard's padding to span the width, and gives it back inside.
-export function CollectionPage({ tabs, actions, chips, bleed, children }: Props) {
+export function CollectionPage({ tabs, actions, bleed, children }: Props) {
   const { ref, size } = useElementSize<HTMLDivElement>()
 
   return (
@@ -34,20 +30,17 @@ export function CollectionPage({ tabs, actions, chips, bleed, children }: Props)
         bleed ? "h-[calc(100svh-3rem)] flex-none" : "flex-1"
       )}
     >
-      <div ref={ref} className="bg-background sticky top-12 z-10 shrink-0">
+      {/* Above the content, whatever that lifts (a hovered card), and solid. */}
+      <div ref={ref} className="bg-background sticky top-12 z-30 shrink-0">
         <div className="flex flex-col gap-2 border-b px-4 pt-2 md:h-12 md:flex-row md:items-end md:justify-between md:gap-4 md:px-6 md:pt-0">
           <div className="min-w-0 md:flex-1">{tabs}</div>
           <div className="flex items-center gap-2 pb-2 md:self-center md:pb-0">{actions}</div>
         </div>
-        {chips.length > 0 && (
-          <div className="bg-muted/30 border-b px-4 py-2 md:px-6">
-            <CollectionFilterChips chips={chips} />
-          </div>
-        )}
       </div>
       <div
         className={cn(
-          "flex min-h-0 min-w-0 flex-1 flex-col",
+          // Its own stacking context: nothing inside can rise over the toolbar.
+          "isolate flex min-h-0 min-w-0 flex-1 flex-col",
           !bleed && "gap-3 px-4 py-4 md:px-6 md:py-6"
         )}
       >

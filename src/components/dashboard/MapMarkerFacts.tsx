@@ -17,7 +17,8 @@ type Props = {
 // A GM sees every value, with a lock on the private ones. A player sees the
 // same as on the entry's page: private fields with something in them show as
 // "Undisclosed", and empty ones are left out.
-function Value({ def, stored, canManage }: { def: FieldDef; stored: StoredField; canManage: boolean }) {
+// Also used by the graph's preview card.
+export function Value({ def, stored, canManage }: { def: FieldDef; stored: StoredField; canManage: boolean }) {
   if (stored.private && !canManage) return <Undisclosed />
   const { View } = FIELD_TYPES[def.type]
   return (
