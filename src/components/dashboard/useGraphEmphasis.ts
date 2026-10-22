@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import type { RefObject } from "react"
+import type { ThemeColors } from "@/hooks/use-theme-colors"
 import type { Graph } from "@/lib/world-graph"
+import { drawGrid } from "./graph-backdrop"
+import type { Spot } from "./graph-backdrop"
 import { createEmphasis } from "./graph-emphasis"
 import type { Aim } from "./graph-emphasis"
 import { createFrame } from "./graph-frame"
@@ -12,6 +15,8 @@ export function useGraphEmphasis(
   graphRef: RefObject<GraphMethods | undefined>,
   graph: Graph,
   size: { width: number; height: number },
+  colors: ThemeColors,
+  spot: RefObject<Spot>,
   goals: Pick<Aim, "selected" | "focus" | "matches" | "hiddenKinds">
 ) {
   const [emphasis] = useState(createEmphasis)
@@ -52,7 +57,7 @@ export function useGraphEmphasis(
 
   // Runs before each frame: the fades move on, and what is on screen is worked out.
   const beforeFrame = useCallback(
-    (_ctx: CanvasRenderingContext2D, scale: number) => {
+    (ctx: CanvasRenderingContext2D, scale: number) => {
       emphasis.step(graph.nodes, graph.near, performance.now())
       const instance = graphRef.current
       if (!instance) return
@@ -60,8 +65,9 @@ export function useGraphEmphasis(
       const to = instance.screen2GraphCoords(size.width, size.height)
       // Room for the names, which hang outside the dots.
       frame.set(from.x, from.y, to.x, to.y, 120 / scale)
+      drawGrid(ctx, scale, { left: from.x, top: from.y, right: to.x, bottom: to.y }, colors, spot.current, performance.now())
     },
-    [emphasis, frame, graph, graphRef, size.width, size.height]
+    [emphasis, frame, graph, graphRef, size.width, size.height, colors, spot]
   )
 
   return { emphasis, frame, refresh, hover, beforeFrame }

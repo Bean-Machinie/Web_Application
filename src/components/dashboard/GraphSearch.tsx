@@ -1,5 +1,6 @@
 import { Search } from "lucide-react"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
+import { ClearSearchButton } from "./ClearSearchButton"
 
 type Props = {
   value: string
@@ -29,6 +30,7 @@ export function GraphSearch({ value, onChange, onSubmit }: Props) {
         placeholder="Find in graph"
         aria-label="Find in graph"
       />
+      <ClearSearchButton value={value} onClear={() => onChange("")} />
     </InputGroup>
   )
 }

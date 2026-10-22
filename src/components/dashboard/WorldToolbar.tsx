@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ClearSearchButton } from "./ClearSearchButton"
 import type { VisibilityFilter } from "@/lib/world-list"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import type { WorldEntryKind } from "@/lib/world-kinds"
@@ -43,6 +44,7 @@ export function WorldToolbar(props: Props) {
           placeholder="Search entries"
           aria-label="Search entries"
         />
+        <ClearSearchButton value={query} onClear={() => onQuery("")} />
       </InputGroup>
       {visibility && (
         <Select

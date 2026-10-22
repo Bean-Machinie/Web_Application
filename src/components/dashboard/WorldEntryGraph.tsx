@@ -11,12 +11,14 @@ import { useWorldLinks } from "@/hooks/use-world-links"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { GraphLink, GraphNode } from "@/lib/world-graph"
 import type { WorldEntryKind } from "@/lib/world-kinds"
+import type { Spot } from "./graph-backdrop"
 import { drawLink, drawNode, radiusOf } from "./graph-draw"
 import type { GraphMethods } from "./graph-types"
 import { GraphFocusControls } from "./GraphFocusControls"
 import { GraphPreviewCard } from "./GraphPreviewCard"
 import { GraphSearch } from "./GraphSearch"
 import { GraphSettingsPanel } from "./GraphSettingsPanel"
+import { useGraphBackdrop } from "./useGraphBackdrop"
 import { useGraphCamera } from "./useGraphCamera"
 import { useGraphEmphasis } from "./useGraphEmphasis"
 import { useGraphForces } from "./useGraphForces"
@@ -57,12 +59,14 @@ export function WorldEntryGraph({ entries }: { entries: WorldEntry[] }) {
   const selection = useGraphSelection(graph, hiddenKinds, camera)
   const { selected, focus } = selection
   const { matches, best } = useGraphSearch(graph, hiddenKinds, query, camera.reveal)
-  const { emphasis, frame, refresh, hover, beforeFrame } = useGraphEmphasis(graphRef, graph, size, {
+  const spot = useRef<Spot>({ x: 0, y: 0, on: false })
+  const { emphasis, frame, refresh, hover, beforeFrame } = useGraphEmphasis(graphRef, graph, size, colors, spot, {
     selected: selected?.id ?? null,
     focus,
     matches,
     hiddenKinds,
   })
+  const pointer = useGraphBackdrop(graphRef, refresh, spot, reduced)
   const data = useGraphForces(graphRef, graph, settings, showGraph, reduced, camera.fit)
 
   useGraphKeys(camera.fit, selection.clear)
@@ -84,7 +88,19 @@ export function WorldEntryGraph({ entries }: { entries: WorldEntry[] }) {
     })
 
   return (
-    <div ref={ref} className="relative min-h-[28rem] min-w-0 flex-1 overflow-hidden">
+    <div
+      ref={ref}
+      onPointerMove={pointer.onPointerMove}
+      onPointerLeave={pointer.onPointerLeave}
+      // A hand over the whole graph, closed while pressed: you pan the ground and drag
+      // the entries alike.
+      className="relative min-h-[28rem] min-w-0 flex-1 overflow-hidden [&_canvas]:cursor-grab! [&_canvas:active]:cursor-grabbing!"
+    >
+      {/* A soft pool of light in the middle, darker toward the edges, under the grid. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,var(--muted)_100%)]"
+      />
       {error ? (
         <div className="p-4">
           <FormAlert tone="error">{error}</FormAlert>
