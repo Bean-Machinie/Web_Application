@@ -124,12 +124,20 @@
     @apply bg-background text-foreground;
     }
   html {
+    /* The top bar is as tall as the sidebar's logo row (the 52px brand button) where
+       the sidebar is beside the page. */
+    --header-height: 3rem;
     @apply font-sans;
     /* The page keeps its width when a scroll bar comes or goes. The bar is thin and
        quiet, like the command palette's. */
     scrollbar-gutter: stable;
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
+    }
+  @media (min-width: 48rem) {
+    html {
+      --header-height: 3.25rem;
+      }
     }
   html:hover {
     scrollbar-color: var(--border) transparent;

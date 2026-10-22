@@ -1,10 +1,15 @@
-import { PlaceholderSection } from "@/components/dashboard/PlaceholderSection"
+import { User } from "lucide-react"
+import { CollectionEmptyState } from "@/components/dashboard/CollectionEmptyState"
+import { CollectionPage } from "@/components/dashboard/CollectionPage"
 
 export function Characters() {
   return (
-    <PlaceholderSection
-      title="Characters"
-      description="Player characters and NPCs."
-    />
+    <CollectionPage tabs={null} actions={null}>
+      <CollectionEmptyState
+        icon={User}
+        title="No characters yet"
+        description="Player characters and NPCs will show up here."
+      />
+    </CollectionPage>
   )
 }

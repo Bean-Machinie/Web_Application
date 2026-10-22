@@ -23,15 +23,15 @@ export function CollectionPage({ tabs, actions, bleed, children }: Props) {
   return (
     <div
       // What a sticky header inside the content sticks under: the page header
-      // (3rem) and this toolbar.
-      style={{ "--collection-top": `calc(3rem + ${size.height}px)` } as CSSProperties}
+      // (--header-height) and this toolbar.
+      style={{ "--collection-top": `calc(var(--header-height) + ${size.height}px)` } as CSSProperties}
       className={cn(
         "-m-4 flex flex-col md:-m-6",
-        bleed ? "h-[calc(100svh-3rem)] flex-none" : "flex-1"
+        bleed ? "h-[calc(100svh-var(--header-height))] flex-none" : "flex-1"
       )}
     >
       {/* Above the content, whatever that lifts (a hovered card), and solid. */}
-      <div ref={ref} className="bg-background sticky top-12 z-30 shrink-0">
+      <div ref={ref} className="bg-background sticky top-(--header-height) z-30 shrink-0">
         <div className="flex flex-col gap-2 border-b px-4 pt-2 md:h-12 md:flex-row md:items-end md:justify-between md:gap-4 md:px-6 md:pt-0">
           <div className="min-w-0 md:flex-1">{tabs}</div>
           <div className="flex items-center gap-2 pb-2 md:self-center md:pb-0">{actions}</div>
