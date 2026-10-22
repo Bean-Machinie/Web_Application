@@ -9,6 +9,7 @@ import { CollectionPage } from "./CollectionPage"
 import { CollectionFilterPill } from "./CollectionFilterPill"
 import { CopyWithLinksDialog } from "./CopyWithLinksDialog"
 import { LibraryAllView } from "./LibraryAllView"
+import { LibrarySearch } from "./LibrarySearch"
 import { LibrarySections } from "./LibrarySections"
 import { LibraryToolbar } from "./LibraryToolbar"
 import { NewLibraryMapDialog } from "./NewLibraryMapDialog"
@@ -18,8 +19,8 @@ import { WorldEntryDialogs } from "./WorldEntryDialogs"
 import { WorldEntryResults } from "./WorldEntryResults"
 import { WorldGridSkeleton } from "./WorldGridSkeleton"
 
-// The library as a page, unlike a campaign's World: one sticky row with its title on the
-// left and the search, filters, views and New for the open section on the right, and
+// The library as a page, unlike a campaign's World: one sticky row with the search on the
+// left and the filters, views and New for the open section on the right, and
 // below it a sticky column of sections (All, Maps, World entries and its kinds) beside the
 // entries. Maps are landscape tiles. "All" is the newest of each section.
 export function LibraryPage() {
@@ -32,15 +33,9 @@ export function LibraryPage() {
   return (
     <>
       <CollectionPage
-        tabs={
-          <div className="flex items-center md:h-12">
-            <h2 className="text-xl font-semibold tracking-tight">Your library</h2>
-          </div>
-        }
+        tabs={<LibrarySearch query={page.query} onQuery={page.setQuery} />}
         actions={
           <LibraryToolbar
-            query={page.query}
-            onQuery={page.setQuery}
             recency={page.recency}
             onRecency={page.setRecency}
             mode={mode}

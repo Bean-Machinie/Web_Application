@@ -30,7 +30,7 @@ const LIST_FIELDS = [COVER_FIELD, "role", "status"]
 
 const COLUMNS = "id, kind, name, revealed, sort_order, created_at, updated_at"
 
-function toEntry(row: Record<string, unknown>): WorldEntry {
+export function toEntry(row: Record<string, unknown>): WorldEntry {
   const fields = (row.world_entry_fields as { key: string; value: unknown }[] | undefined) ?? []
   const valueOf = (key: string) => fields.find((field) => field.key === key)?.value
   const text = (key: string) => {

@@ -20,8 +20,8 @@ type Props = {
   onEntry: (kind: WorldEntryKind) => void
 }
 
-// Home: every campaign you belong to, with the cards, toolbar and buttons it has
-// always had, except that New also makes a map or an entry.
+// The main column of Home: the heading, the toolbar (with Join and New at its right end),
+// and every campaign you belong to as cards or a table. New also makes a map or an entry.
 export function HomeCampaigns({ onMap, onEntry }: Props) {
   const { campaigns, loading, error } = useCampaign()
   const members = useCampaignMembers(campaigns)
@@ -42,8 +42,11 @@ export function HomeCampaigns({ onMap, onEntry }: Props) {
   const shown = viewCampaigns(campaigns, { query, role, sort })
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <h2 className="text-3xl font-semibold tracking-tight">Campaigns</h2>
+    <div className="flex w-full flex-col gap-4">
+      {/* A section heading, not a page title: the breadcrumb names the page. */}
+      <div className="flex h-9 items-center">
+        <h2 className="text-xl font-semibold tracking-tight">Campaigns</h2>
+      </div>
 
       {error && <FormAlert tone="error">{error}</FormAlert>}
 
