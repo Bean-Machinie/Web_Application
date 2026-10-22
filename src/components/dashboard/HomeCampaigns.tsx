@@ -10,13 +10,19 @@ import { LeaveCampaignDialog } from "@/components/dashboard/LeaveCampaignDialog"
 import { useCampaign } from "@/components/dashboard/useCampaign"
 import { useCampaignMembers } from "@/hooks/use-campaign-members"
 import { useCampaignListPrefs } from "@/hooks/use-campaign-list-prefs"
+import type { WorldEntryKind } from "@/lib/world-kinds"
 import { useCampaignViewMode } from "@/hooks/use-campaign-view-mode"
 import { viewCampaigns } from "@/lib/campaign-list"
 import type { Campaign } from "@/lib/campaigns"
 
-// "Campaigns" on Home: every campaign you belong to, with the cards, toolbar and
-// buttons it has always had.
-export function HomeCampaigns() {
+type Props = {
+  onMap: () => void
+  onEntry: (kind: WorldEntryKind) => void
+}
+
+// Home: every campaign you belong to, with the cards, toolbar and buttons it has
+// always had, except that New also makes a map or an entry.
+export function HomeCampaigns({ onMap, onEntry }: Props) {
   const { campaigns, loading, error } = useCampaign()
   const members = useCampaignMembers(campaigns)
   const [mode, setMode] = useCampaignViewMode()
@@ -36,8 +42,8 @@ export function HomeCampaigns() {
   const shown = viewCampaigns(campaigns, { query, role, sort })
 
   return (
-    <section className="flex flex-col gap-6">
-      <h2 className="text-xl font-semibold tracking-tight">Campaigns</h2>
+    <div className="flex w-full flex-col gap-6">
+      <h2 className="text-3xl font-semibold tracking-tight">Campaigns</h2>
 
       {error && <FormAlert tone="error">{error}</FormAlert>}
 
@@ -55,6 +61,8 @@ export function HomeCampaigns() {
             mode={mode}
             onMode={setMode}
             onJoin={() => setJoining(true)}
+            onMap={onMap}
+            onEntry={onEntry}
           />
           {shown.length === 0 ? (
             <p className="text-muted-foreground py-12 text-center text-sm">
@@ -76,6 +84,6 @@ export function HomeCampaigns() {
 
       <JoinCampaignDialog open={joining} onOpenChange={setJoining} />
       <LeaveCampaignDialog campaign={leaving} onClose={() => setLeaving(null)} />
-    </section>
+    </div>
   )
 }

@@ -1,5 +1,4 @@
 import { Search } from "lucide-react"
-import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import {
@@ -9,10 +8,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import type { WorldEntryKind } from "@/lib/world-kinds"
 import type { CampaignViewMode } from "@/hooks/use-campaign-view-mode"
 import type { RoleFilter, Sort } from "@/lib/campaign-list"
 import { CampaignSortMenu } from "./CampaignSortMenu"
 import { CampaignViewToggle } from "./CampaignViewToggle"
+import { NewMenu } from "./NewMenu"
 
 type Props = {
   query: string
@@ -24,6 +25,9 @@ type Props = {
   mode: CampaignViewMode
   onMode: (mode: CampaignViewMode) => void
   onJoin: () => void
+  // What the New menu makes besides a campaign.
+  onMap: () => void
+  onEntry: (kind: WorldEntryKind) => void
 }
 
 export function CampaignToolbar(props: Props) {
@@ -60,9 +64,7 @@ export function CampaignToolbar(props: Props) {
         <Button variant="outline" className="flex-1 sm:flex-none" onClick={onJoin}>
           Join with invite link
         </Button>
-        <Button asChild className="flex-1 sm:flex-none">
-          <Link to="/app/campaigns/new">New campaign</Link>
-        </Button>
+        <NewMenu onMap={props.onMap} onEntry={props.onEntry} className="flex-1 sm:flex-none" />
       </div>
     </div>
   )

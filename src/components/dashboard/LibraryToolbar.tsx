@@ -26,14 +26,14 @@ type Props = {
   onNew: (kind: WorldEntryKind) => void
 }
 
-// Under the library's title: search, filter, how to look, and New for the section.
-// Unlike a campaign's World, the search is always a field.
+// The right of the library's toolbar row, after its title: search, filter, how to
+// look, and New for the section. Unlike a campaign's World, the search is always a field.
 export function LibraryToolbar(props: Props) {
   const modes: WorldViewMode[] = props.graph ? ["list", "grid", "graph"] : ["list", "grid"]
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <InputGroup className="min-w-0 flex-1 sm:max-w-sm">
+    <>
+      <InputGroup className="w-40 sm:w-56">
         <InputGroupAddon>
           <Search />
         </InputGroupAddon>
@@ -45,14 +45,12 @@ export function LibraryToolbar(props: Props) {
         />
         <ClearSearchButton value={props.query} onClear={() => props.onQuery("")} />
       </InputGroup>
-      <div className="ml-auto flex items-center gap-2">
-        <LibraryFilterPopover recency={props.recency} onRecency={props.onRecency} />
-        {props.mode === "grid" && <CardSizeControl value={props.cardSize} onChange={props.onCardSize} />}
-        <div className="max-md:hidden">
-          <WorldViewToggle mode={props.mode} onChange={props.onMode} modes={modes} />
-        </div>
-        <LibraryNewButton kinds={props.makes} onPick={props.onNew} />
+      <LibraryFilterPopover recency={props.recency} onRecency={props.onRecency} />
+      {props.mode === "grid" && <CardSizeControl value={props.cardSize} onChange={props.onCardSize} />}
+      <div className="max-md:hidden">
+        <WorldViewToggle mode={props.mode} onChange={props.onMode} modes={modes} />
       </div>
-    </div>
+      <LibraryNewButton kinds={props.makes} onPick={props.onNew} />
+    </>
   )
 }
