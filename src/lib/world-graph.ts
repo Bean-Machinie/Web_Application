@@ -46,13 +46,20 @@ export type Graph = {
   links: GraphLink[]
   // The entries each entry is joined to.
   near: Map<string, Set<string>>
+  byId: Map<string, GraphNode>
   // How many lines there are among all the entries shown, whether or not loose
   // entries are hidden.
   connections: number
 }
 
-// The graph of the entries shown. Only links between two of them count.
-export function buildGraph(entries: WorldEntry[], links: RawLink[], hideLoose: boolean): Graph {
+// The graph of the entries shown. Only links between two of them count. A node
+// already in `previous` is reused, so it keeps its place in the layout.
+export function buildGraph(
+  entries: WorldEntry[],
+  links: RawLink[],
+  hideLoose: boolean,
+  previous?: ReadonlyMap<string, GraphNode>
+): Graph {
   const shown = new Set(entries.map((entry) => entry.id))
   const merged = new Map<string, GraphLink>()
 
@@ -74,7 +81,15 @@ export function buildGraph(entries: WorldEntry[], links: RawLink[], hideLoose: b
 
   const nodes = entries
     .filter((entry) => !hideLoose || near.has(entry.id))
-    .map((entry): GraphNode => ({ id: entry.id, entry, degree: near.get(entry.id)?.size ?? 0 }))
+    .map((entry): GraphNode => {
+      const degree = near.get(entry.id)?.size ?? 0
+      const node = previous?.get(entry.id)
+      if (!node) return { id: entry.id, entry, degree }
+      node.entry = entry
+      node.degree = degree
+      return node
+    })
 
-  return { nodes, links: [...merged.values()], near, connections: merged.size }
+  const byId = new Map(nodes.map((node) => [node.id, node]))
+  return { nodes, links: [...merged.values()], near, byId, connections: merged.size }
 }

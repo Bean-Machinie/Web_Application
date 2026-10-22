@@ -2,13 +2,14 @@ import { useState } from "react"
 import { Maximize, SlidersHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { RANGES } from "@/lib/graph-settings"
 import type { GraphSettings } from "@/lib/graph-settings"
+import { GraphKindLegend } from "./GraphKindLegend"
+import type { Legend } from "./GraphKindLegend"
 import { GraphSliderRow } from "./GraphSliderRow"
+import { GraphSwitchRow } from "./GraphSwitchRow"
 import { THIN_SCROLL } from "./entry-layout"
 
 type Props = {
@@ -16,6 +17,9 @@ type Props = {
   onChange: (patch: Partial<GraphSettings>) => void
   onReset: () => void
   onFit: () => void
+  legend: Legend
+  // For a GM: look at the graph as a player would. Null for everyone else.
+  player: { on: boolean; onChange: (on: boolean) => void } | null
 }
 
 type SliderName = keyof typeof RANGES
@@ -42,9 +46,9 @@ const SECTIONS: { title: string; sliders: { name: SliderName; label: string }[] 
 
 // In the top right corner of the graph, like the settings of Obsidian's graph: a
 // button that frames everything and one that opens the panel. Its sections are
-// Filters, Display and Forces. Every change applies at once, and the settings are
-// remembered in this browser.
-export function GraphSettingsPanel({ settings, onChange, onReset, onFit }: Props) {
+// Filters, Kinds, Display and Forces. Every change applies at once, and the settings
+// are remembered in this browser.
+export function GraphSettingsPanel({ settings, onChange, onReset, onFit, legend, player }: Props) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -96,17 +100,25 @@ export function GraphSettingsPanel({ settings, onChange, onReset, onFit }: Props
         <Separator />
         <section className="grid gap-3 px-3 py-3">
           <h4 className="text-muted-foreground text-xs font-medium">Filters</h4>
-          <div className="flex items-center justify-between gap-2">
-            <Label htmlFor="graph-show-loose" className="text-xs font-normal">
-              Show unconnected entries
-            </Label>
-            <Switch
-              id="graph-show-loose"
-              size="sm"
-              checked={settings.showLoose}
-              onCheckedChange={(showLoose) => onChange({ showLoose })}
+          <GraphSwitchRow
+            id="graph-show-loose"
+            label="Show unconnected entries"
+            checked={settings.showLoose}
+            onChange={(showLoose) => onChange({ showLoose })}
+          />
+          {player && (
+            <GraphSwitchRow
+              id="graph-view-as-player"
+              label="View as player"
+              checked={player.on}
+              onChange={player.onChange}
             />
-          </div>
+          )}
+        </section>
+        <Separator />
+        <section className="grid gap-3 px-3 py-3">
+          <h4 className="text-muted-foreground text-xs font-medium">Kinds</h4>
+          <GraphKindLegend {...legend} />
         </section>
         {SECTIONS.map((section) => (
           <div key={section.title}>
