@@ -1,12 +1,12 @@
 import type { ThemeColors } from "@/hooks/use-theme-colors"
 
-// Dots of a grid, in graph units. They move and scale with the graph, like a table
-// the entries lie on.
+// Dots of a grid, in graph units at zoom 1. They move and scale with the graph, like a
+// table the entries lie on. The grid is halved or doubled as you zoom, so that on
+// screen the dots are always between NEAR and twice NEAR apart, however far in or out.
 const SPACING = 28
-// Every fifth dot is a little bigger, which gives the grid a sense of scale.
-const MAJOR = 5
-// On screen, the grid fades out below this spacing and is fully there at twice it.
-const FADE_FROM = 10
+const NEAR = 24
+// Every fourth dot of the grid is a little bigger, which gives it a sense of scale.
+const MAJOR = 4
 const DOT_ALPHA = 0.5
 // Past this many dots the grid is not worth drawing.
 const MAX_DOTS = 6000
@@ -32,12 +32,14 @@ export function drawGrid(
   spot: Spot,
   time: number
 ) {
-  const fade = clamp((SPACING * scale - FADE_FROM) / FADE_FROM)
-  if (fade === 0) return
-  const first = Math.floor(area.left / SPACING)
-  const last = Math.ceil(area.right / SPACING)
-  const above = Math.floor(area.top / SPACING)
-  const below = Math.ceil(area.bottom / SPACING)
+  const step = SPACING * 2 ** Math.floor(Math.log2((2 * NEAR) / (SPACING * scale)))
+  // Dots that are not on the next coarser grid fade in as the zoom spreads them out,
+  // so the grid never jumps when it is halved.
+  const finer = clamp((step * scale - NEAR) / NEAR)
+  const first = Math.floor(area.left / step)
+  const last = Math.ceil(area.right / step)
+  const above = Math.floor(area.top / step)
+  const below = Math.ceil(area.bottom / step)
   if ((last - first) * (below - above) > MAX_DOTS) return
 
   const minor = 1.8 / scale
@@ -48,8 +50,9 @@ export function drawGrid(
   ctx.fillStyle = colors.mutedForeground
   for (let column = first; column <= last; column += 1) {
     for (let row = above; row <= below; row += 1) {
-      const x = column * SPACING
-      const y = row * SPACING
+      const x = column * step
+      const y = row * step
+      const onCoarser = column % 2 === 0 && row % 2 === 0
       const band = Math.max(0, Math.sin((x + y) * WAVE_WIDTH - drift)) ** 3
       let size = (column % MAJOR === 0 && row % MAJOR === 0 ? minor * 1.7 : minor) * (1 + 0.4 * band)
       let alpha = DOT_ALPHA * (0.55 + 0.45 * band)
@@ -64,7 +67,7 @@ export function drawGrid(
         accent = !accent
         ctx.fillStyle = accent ? colors.primary : colors.mutedForeground
       }
-      ctx.globalAlpha = alpha * fade
+      ctx.globalAlpha = alpha * (onCoarser ? 1 : finer)
       ctx.fillRect(x - size / 2, y - size / 2, size, size)
     }
   }

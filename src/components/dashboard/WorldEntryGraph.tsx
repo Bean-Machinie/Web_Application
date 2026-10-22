@@ -12,7 +12,7 @@ import type { WorldEntry } from "@/lib/world-entries"
 import type { GraphLink, GraphNode } from "@/lib/world-graph"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import type { Spot } from "./graph-backdrop"
-import { drawLink, drawNode, radiusOf } from "./graph-draw"
+import { drawLink, drawNode, drawnRadius } from "./graph-draw"
 import type { GraphMethods } from "./graph-types"
 import { GraphFocusControls } from "./GraphFocusControls"
 import { GraphPreviewCard } from "./GraphPreviewCard"
@@ -146,12 +146,12 @@ export function WorldEntryGraph({ entries }: { entries: WorldEntry[] }) {
                 onRenderFramePre={beforeFrame}
                 nodeCanvasObjectMode={replace}
                 nodeCanvasObject={(node, ctx, scale) => drawNode(node, ctx, scale, view)}
-                nodePointerAreaPaint={(node, color, ctx) => {
+                nodePointerAreaPaint={(node, color, ctx, scale) => {
                   // What is faded out cannot be pointed at.
                   if (emphasis.look(node.id).alpha < 0.1) return
                   ctx.fillStyle = color
                   ctx.beginPath()
-                  ctx.arc(node.x ?? 0, node.y ?? 0, radiusOf(node, settings.nodeSize) + 3, 0, 2 * Math.PI)
+                  ctx.arc(node.x ?? 0, node.y ?? 0, drawnRadius(node, settings.nodeSize, scale) + 3, 0, 2 * Math.PI)
                   ctx.fill()
                 }}
                 linkCanvasObjectMode={replace}

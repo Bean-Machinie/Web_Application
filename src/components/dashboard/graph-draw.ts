@@ -26,6 +26,18 @@ export type GraphView = {
 export const radiusOf = (node: GraphNode, size: number) =>
   (5 + Math.min(node.degree, 10) * 0.4) * size
 
+// Zoomed in, dots grow with the graph. Zoomed out they shrink only by the 0.2th power
+// of the zoom, so they stay visible and still differ in size by their connections;
+// they are never smaller than this on screen.
+const FAR_SHRINK = 0.2
+const MIN_SCREEN_RADIUS = 4
+
+export const drawnRadius = (node: GraphNode, size: number, scale: number) =>
+  Math.max(
+    radiusOf(node, size) * (scale < 1 ? scale ** (FAR_SHRINK - 1) : 1),
+    MIN_SCREEN_RADIUS / scale
+  )
+
 function disc(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string) {
   ctx.beginPath()
   ctx.arc(x, y, r, 0, 2 * Math.PI)
@@ -68,7 +80,7 @@ export function drawNode(node: GraphNode, ctx: CanvasRenderingContext2D, scale: 
   const look = emphasis.look(node.id)
   if (look.alpha < 0.01 || !view.frame.sees(x, y)) return
 
-  const r = radiusOf(node, settings.nodeSize)
+  const r = drawnRadius(node, settings.nodeSize, scale)
   const tint = WORLD_KINDS[node.entry.kind].tint
   const hidden = view.marksHidden && !node.entry.revealed
   const alpha = look.alpha * (hidden ? 0.6 : 1)
