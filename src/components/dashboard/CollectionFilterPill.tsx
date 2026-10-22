@@ -23,7 +23,7 @@ export function CollectionFilterPill({ text, onClear, raised }: Props) {
         state === "collapsed" ? "md:left-(--sidebar-width-icon)" : "md:left-(--sidebar-width)"
       )}
     >
-      <div className="bg-popover animate-in fade-in-0 slide-in-from-bottom-4 pointer-events-auto flex items-center gap-2 rounded-full border py-1.5 pr-1.5 pl-4 text-sm shadow-lg duration-200 ease-out">
+      <div className="bg-popover animate-in fade-in-0 slide-in-from-bottom-4 pointer-events-auto flex items-center gap-2 rounded-md border py-1.5 pr-1.5 pl-4 text-sm shadow-lg duration-200 ease-out">
         <span className="font-medium">{text}</span>
         <span aria-hidden className="text-muted-foreground">
           ·
@@ -31,7 +31,7 @@ export function CollectionFilterPill({ text, onClear, raised }: Props) {
         <button
           type="button"
           onClick={onClear}
-          className="text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-ring rounded-full px-2.5 py-1 font-medium outline-none focus-visible:ring-2"
+          className="text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-ring rounded-sm px-2.5 py-1 font-medium outline-none focus-visible:ring-2"
         >
           Clear
         </button>
