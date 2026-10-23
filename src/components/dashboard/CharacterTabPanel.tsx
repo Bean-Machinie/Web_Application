@@ -1,96 +1,82 @@
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
-import { isPinned } from "@/lib/character-sheet"
+import { sectionStarted, tabContents } from "@/lib/character-sheet"
 import type { SheetField } from "@/lib/character-sheet"
-import type { CharacterFieldType, FieldConfig, TemplateTab } from "@/lib/character-templates/types"
-import type { StoredValue } from "@/lib/characters"
+import type { CharacterFieldType, CharacterTemplate, TemplateTab } from "@/lib/character-templates/types"
 import { AddFieldMenu } from "./AddFieldMenu"
-import { CharacterFieldRow } from "./CharacterFieldRow"
-import { CharacterFieldValue } from "./CharacterFieldValue"
+import type { SheetActions } from "./character-actions"
+import { CharacterRows } from "./CharacterRows"
+import { CharacterSection } from "./CharacterSection"
 import { CharacterTextSection } from "./CharacterTextSection"
+import { CharacterTiles } from "./CharacterTiles"
 
 type Props = {
-  characterId: string
-  folder: string
+  template: CharacterTemplate
   tab: TemplateTab
   fields: SheetField[]
-  values: Record<string, StoredValue>
-  // The field just added, whose name is waiting to be typed.
-  freshId: string | null
+  actions: SheetActions
+  // The sections the player opened before they had anything in them.
+  opened: ReadonlySet<string>
+  onOpen: (sectionId: string) => void
   onAdd: (type: CharacterFieldType) => void
-  onValue: (fieldId: string, value: unknown, typing?: boolean) => void
-  onField: (field: SheetField, label: string, config: FieldConfig) => void
-  onPin: (fieldId: string, pinned: boolean) => void
-  onRemove: (fieldId: string) => void
 }
 
-// One tab. With nothing in it, a short empty state with the way to add; otherwise the
-// facts card (stats, resources, tracks, lists) and the text sections below it, and a quiet
-// Add after them.
-export function CharacterTabPanel(props: Props) {
-  const { tab, fields, values } = props
-  const add = (
-    <AddFieldMenu onAdd={props.onAdd}>
-      <Button variant="outline">
-        <Plus />
-        Add…
-      </Button>
-    </AddFieldMenu>
-  )
+// One tab: the template's sections (each a collapsed row until set up), then the fields
+// that are in none, as a card of rows and the text fields as sections, then a quiet Add.
+// With nothing at all, a short empty state with the way to add.
+export function CharacterTabPanel({ template, tab, fields, actions, opened, onOpen, onAdd }: Props) {
+  const { sections, loose } = tabContents(template, tab, fields)
+  const plain = loose.filter((field) => field.type !== "text")
+  const texts = loose.filter((field) => field.type === "text")
 
-  if (fields.length === 0) {
+  if (sections.length === 0 && loose.length === 0) {
     return (
       <Empty className="border py-12">
         <EmptyHeader>
           <EmptyTitle>{tab.empty}</EmptyTitle>
         </EmptyHeader>
-        {add}
+        <AddFieldMenu onAdd={onAdd}>
+          <Button variant="outline">
+            <Plus />
+            Add…
+          </Button>
+        </AddFieldMenu>
       </Empty>
     )
   }
 
-  const facts = fields.filter((field) => field.type !== "text")
-  const texts = fields.filter((field) => field.type === "text")
-  const show = (field: SheetField) => values[field.id]?.value ?? null
-
   return (
     <div className="flex flex-col gap-4">
-      {facts.length > 0 && (
-        <dl className="bg-card flex min-w-0 flex-col divide-y rounded-lg border shadow-xs">
-          {facts.map((field) => (
-            <CharacterFieldRow
-              key={field.id}
-              field={field}
-              pinned={isPinned(field, values)}
-              fresh={field.id === props.freshId}
-              onLabel={(label) => props.onField(field, label, field.config)}
-              onPin={(pinned) => props.onPin(field.id, pinned)}
-              onRemove={() => props.onRemove(field.id)}
-            >
-              <CharacterFieldValue
-                field={field}
-                value={show(field)}
-                onValue={(value) => props.onValue(field.id, value)}
-                onLength={(length) => props.onField(field, field.label, { ...field.config, length })}
-              />
-            </CharacterFieldRow>
-          ))}
-        </dl>
-      )}
+      {sections.map(({ section, fields: inSection }) => (
+        <CharacterSection
+          key={section.id}
+          section={section}
+          count={inSection.length}
+          open={opened.has(section.id) || sectionStarted(inSection, actions.values)}
+          onOpen={() => onOpen(section.id)}
+        >
+          {section.layout === "grid" ? (
+            <CharacterTiles fields={inSection} columns={section.columns ?? 3} actions={actions} />
+          ) : (
+            <CharacterRows fields={inSection} actions={actions} />
+          )}
+        </CharacterSection>
+      ))}
+      {plain.length > 0 && <CharacterRows fields={plain} actions={actions} />}
       {texts.map((field) => (
         <CharacterTextSection
           key={field.id}
           field={field}
-          value={show(field)}
-          fresh={field.id === props.freshId}
-          context={{ folder: props.folder, entryId: props.characterId }}
-          onLabel={(label) => props.onField(field, label, field.config)}
-          onValue={(value) => props.onValue(field.id, value, true)}
-          onRemove={() => props.onRemove(field.id)}
+          value={actions.values[field.id]?.value ?? null}
+          fresh={field.id === actions.freshId}
+          context={{ folder: actions.folder, entryId: actions.characterId }}
+          onLabel={(label) => actions.onField(field, label, field.config)}
+          onValue={(value) => actions.onValue(field.id, value, true)}
+          onRemove={() => actions.onRemove(field.id)}
         />
       ))}
-      <AddFieldMenu onAdd={props.onAdd}>
+      <AddFieldMenu onAdd={onAdd}>
         <Button variant="ghost" size="sm" className="text-muted-foreground w-fit">
           <Plus />
           Add

@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react"
-import { useCreateCharacter } from "@/hooks/use-create-character"
 import { useCreateEntry } from "@/hooks/use-create-entry"
 import { useWorldEntries } from "@/hooks/use-world-entries"
 import { MAP_BUILDER_IMAGE } from "@/lib/tool-images"
 import { CreateEntries } from "./CreateEntries"
 import { CreateTools } from "./CreateTools"
 import { NewMapDialog } from "./NewMapDialog"
+import { useNewCharacter } from "./useNewCharacter"
 import { useWorldScope } from "./useWorldScope"
 
 // Where things are made. What is made ends up in the library, which is the scope the
@@ -14,7 +14,7 @@ export function CreatePage() {
   const scope = useWorldScope()
   const { entries } = useWorldEntries(scope)
   const createEntry = useCreateEntry(scope)
-  const createCharacter = useCreateCharacter()
+  const newCharacter = useNewCharacter()
   const [makingMap, setMakingMap] = useState(false)
 
   // Until the builder has a picture of its own, the newest map that has one.
@@ -27,9 +27,10 @@ export function CreatePage() {
 
   return (
     <div className="mx-auto flex w-[1104px] max-w-full flex-col gap-10">
-      <CreateTools image={toolImage} onNewMap={() => setMakingMap(true)} onNewCharacter={createCharacter} />
+      <CreateTools image={toolImage} onNewMap={() => setMakingMap(true)} onNewCharacter={newCharacter.open} />
       <CreateEntries kinds={scope.kinds.filter((kind) => kind !== "map")} onPick={createEntry} />
       <NewMapDialog open={makingMap} onClose={() => setMakingMap(false)} />
+      {newCharacter.dialog}
     </div>
   )
 }

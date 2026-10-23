@@ -39,8 +39,14 @@ export function isEmptyValue(type: CharacterFieldType, value: unknown) {
       return readList(value).length === 0
     case "text":
       return value == null
+    case "toggle":
+      return value !== true
+    case "line":
+      return readLine(value) === ""
   }
 }
+
+export const readLine = (value: unknown) => (typeof value === "string" ? value : "")
 
 // A number typed by hand: whole, or nothing.
 export function toWhole(text: string) {
@@ -50,6 +56,8 @@ export function toWhole(text: string) {
 
 // What a pill in the header says for a field.
 export function pillValue(type: CharacterFieldType, value: unknown, length: number) {
+  if (type === "toggle") return value === true ? "On" : "Off"
+  if (type === "line") return readLine(value) || "—"
   if (type === "stat") return readStat(value)?.toString() ?? "—"
   if (type === "resource") {
     const resource = readResource(value)

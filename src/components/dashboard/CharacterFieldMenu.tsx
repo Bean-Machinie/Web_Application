@@ -14,12 +14,15 @@ type Props = {
   pinned: boolean
   onPin: (pinned: boolean) => void
   onRemove: () => void
+  className?: string
 }
 
 // What can be done to a field: show it in the header (numbers and boxes only), and for
 // one the player added, take it away.
-export function CharacterFieldMenu({ field, pinned, onPin, onRemove }: Props) {
-  const pinnable = field.type === "stat" || field.type === "resource" || field.type === "track"
+export function CharacterFieldMenu({ field, pinned, onPin, onRemove, className }: Props) {
+  const pinnable =
+    !field.derived &&
+    (field.type === "stat" || field.type === "resource" || field.type === "track" || field.type === "toggle")
   if (!pinnable && !field.custom) return null
 
   return (
@@ -28,7 +31,7 @@ export function CharacterFieldMenu({ field, pinned, onPin, onRemove }: Props) {
         <Button
           variant="ghost"
           size="icon"
-          className="size-7 shrink-0 opacity-0 transition-opacity focus-visible:opacity-100 data-[state=open]:opacity-100 group-hover/field:opacity-100"
+          className={`size-7 shrink-0 opacity-0 transition-opacity focus-visible:opacity-100 data-[state=open]:opacity-100 group-hover/field:opacity-100 ${className ?? ""}`}
           aria-label={`${field.label} options`}
         >
           <MoreHorizontal />

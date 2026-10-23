@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { AlignLeft, Gauge, Hash, List, Square } from "lucide-react"
+import { AlignLeft, Gauge, Hash, List, Minus, Square, ToggleLeft } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { FIELD_KINDS } from "@/lib/character-sheet"
@@ -11,6 +11,8 @@ const ICONS: Record<CharacterFieldType, LucideIcon> = {
   track: Square,
   list: List,
   text: AlignLeft,
+  toggle: ToggleLeft,
+  line: Minus,
 }
 
 // The short menu of what a field can be, like a block menu: an icon, a name and a line

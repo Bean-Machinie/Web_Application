@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { deriveAll } from "@/lib/character-derive"
 import { templateFor } from "@/lib/character-templates"
 import type { CharacterFieldType, FieldConfig } from "@/lib/character-templates/types"
 import { sheetFields } from "@/lib/character-sheet"
@@ -52,6 +53,8 @@ export function useCharacter(id: string) {
     [character]
   )
   const fields = useMemo(() => (template ? sheetFields(template, custom) : []), [template, custom])
+  // Worked out from the values on every change; never stored.
+  const derived = useMemo(() => deriveAll(fields, values), [fields, values])
 
   const track = useCallback(async (save: Promise<unknown>) => {
     inFlight.current += 1
@@ -145,6 +148,7 @@ export function useCharacter(id: string) {
     template,
     fields,
     values,
+    derived,
     loaded,
     error,
     saveState,

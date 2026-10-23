@@ -10,5 +10,6 @@ export const FREEFORM: CharacterTemplate = {
     { id: "inventory", label: "Inventory", empty: "No items yet" },
     { id: "notes", label: "Notes", empty: "No notes yet" },
   ],
+  sections: [],
   fields: [],
 }

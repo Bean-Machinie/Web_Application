@@ -1,8 +1,10 @@
 import { readStat, toWhole } from "@/lib/character-values"
 import { InlineText } from "./InlineText"
 
+type Props = { value: unknown; onChange: (value: number | null) => void; className?: string }
+
 // A number, read as text and typed over when clicked.
-export function CharacterStatValue({ value, onChange }: { value: unknown; onChange: (value: number | null) => void }) {
+export function CharacterStatValue({ value, onChange, className }: Props) {
   return (
     <InlineText
       value={readStat(value)?.toString() ?? ""}
@@ -11,7 +13,7 @@ export function CharacterStatValue({ value, onChange }: { value: unknown; onChan
       allowEmpty
       maxLength={7}
       onSave={(text) => onChange(toWhole(text))}
-      className="tabular-nums"
+      className={className ?? "tabular-nums"}
     />
   )
 }

@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react"
 import { Link, useMatch } from "react-router-dom"
-import { Users } from "lucide-react"
+import { User, Users } from "lucide-react"
 import { useAuth } from "@/auth/useAuth"
 import { useCreateEntry } from "@/hooks/use-create-entry"
 import type { IconHandle } from "@/components/AnimatedIcon"
@@ -21,6 +21,7 @@ import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { NewMapDialog } from "./NewMapDialog"
 import { useRouteCampaign } from "./useCurrentCampaign"
+import { useNewCharacter } from "./useNewCharacter"
 import { WorldScopeContext } from "./WorldScopeContext"
 
 // The "+" in the top bar, on every page: make something. The first group, under a label
@@ -46,6 +47,7 @@ export function CreateMenu() {
     return userId ? libraryScope(userId) : null
   }, [inCampaign, campaign, userId])
   const createEntry = useCreateEntry(scope)
+  const newCharacter = useNewCharacter()
   const destination = inCampaign ? (campaign?.name ?? "") : "Library"
   // The map first, then the kinds of entry.
   const kinds: WorldEntryKind[] = scope ? ["map", ...scope.kinds.filter((kind) => kind !== "map")] : []
@@ -95,6 +97,12 @@ export function CreateMenu() {
                   </DropdownMenuItem>
                 )
               })}
+              {!inCampaign && (
+                <DropdownMenuItem onSelect={newCharacter.open}>
+                  <User />
+                  Character
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
             </>
           )}
@@ -106,6 +114,7 @@ export function CreateMenu() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      {newCharacter.dialog}
       {scope && (
         <WorldScopeContext.Provider value={scope}>
           <NewMapDialog open={makingMap} onClose={() => setMakingMap(false)} />

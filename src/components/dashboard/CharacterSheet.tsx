@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { useCharacter } from "@/hooks/use-character"
 import { isPinned, NEW_FIELD_LABEL } from "@/lib/character-sheet"
+import { isEmptyValue } from "@/lib/character-values"
 import type { SheetField } from "@/lib/character-sheet"
 import type { CharacterFieldType } from "@/lib/character-templates/types"
 import type { Character } from "@/lib/characters"
@@ -16,6 +17,7 @@ import { ConfirmDialog } from "./ConfirmDialog"
 import { CharacterHeader } from "./CharacterHeader"
 import { CharacterPill } from "./CharacterPill"
 import { CharacterTabPanel } from "./CharacterTabPanel"
+import type { SheetActions } from "./character-actions"
 import { SaveIndicator } from "./SaveIndicator"
 
 type Props = {
@@ -31,6 +33,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
   const userId = useAuth().session!.user.id
   const [params, setParams] = useSearchParams()
   const [freshField, setFreshField] = useState<string | null>(null)
+  const [opened, setOpened] = useState<ReadonlySet<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
   const { template, fields, values } = sheet
@@ -50,8 +53,30 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
     }
   }
 
+  // A pill the template pinned waits for a value; one the player pinned is always there.
+  const showsPill = (field: SheetField) =>
+    !field.derived &&
+    field.type !== "list" &&
+    field.type !== "text" &&
+    field.type !== "line" &&
+    isPinned(field, values) &&
+    (values[field.id]?.pinned === true || !isEmptyValue(field.type, values[field.id]?.value))
+
+  const actions: SheetActions = {
+    characterId: character.id,
+    folder: userId,
+    values,
+    derived: sheet.derived,
+    byId: new Map(fields.map((field) => [field.id, field])),
+    freshId: freshField,
+    onValue: sheet.setValue,
+    onField: (field, label, config) => sheet.changeField(field.id, label, config),
+    onPin: (fieldId, pinned) => sheet.setPinned(fieldId, pinned),
+    onRemove: (fieldId) => sheet.removeField(fieldId),
+  }
+
   const pills = fields
-    .filter((field) => field.type !== "list" && field.type !== "text" && isPinned(field, values))
+    .filter(showsPill)
     .map((field) => (
       <CharacterPill
         key={field.id}
@@ -108,18 +133,17 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
         {(sheet.error || failure) && <p className="text-destructive mb-4 text-sm">{sheet.error ?? failure}</p>}
         <CharacterTabPanel
           key={tab.id}
-          characterId={character.id}
-          folder={userId}
+          template={template!}
           tab={tab}
-          fields={fields.filter((field) => field.tab === tab.id)}
-          values={values}
-          freshId={freshField}
+          fields={fields}
+          actions={actions}
+          opened={opened}
+          onOpen={(sectionId) => setOpened((old) => new Set(old).add(sectionId))}
           onAdd={async (type: CharacterFieldType) => setFreshField(await sheet.addField(tab.id, type, NEW_FIELD_LABEL[type]))}
-          onValue={sheet.setValue}
-          onField={(field, label, config) => sheet.changeField(field.id, label, config)}
-          onPin={(fieldId, pinned) => sheet.setPinned(fieldId, pinned)}
-          onRemove={(fieldId) => sheet.removeField(fieldId)}
         />
+        {template!.attribution && (
+          <p className="text-muted-foreground mt-10 max-w-3xl text-xs leading-relaxed">{template!.attribution}</p>
+        )}
       </div>
       <ConfirmDialog
         open={deleting}

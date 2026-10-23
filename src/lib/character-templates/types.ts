@@ -1,4 +1,6 @@
-export type CharacterFieldType = "stat" | "resource" | "track" | "list" | "text"
+import type { Formula } from "./formulas"
+
+export type CharacterFieldType = "stat" | "resource" | "track" | "list" | "text" | "toggle" | "line"
 
 // Settings that belong to a field and not to its value.
 export type FieldConfig = {
@@ -9,6 +11,18 @@ export type FieldConfig = {
 // A tab of the sheet, and what its empty state says.
 export type TemplateTab = { id: string; label: string; empty: string }
 
+// A named part of a tab. It starts as one collapsed row, "Label · summary · Set up", and
+// opens to its fields, as a list of rows or as a grid of tiles.
+export type TemplateSection = {
+  id: string
+  tab: string
+  label: string
+  layout?: "list" | "grid"
+  columns?: number
+  // What the collapsed row says is inside, like "6 scores"; by default the number of fields.
+  summary?: string
+}
+
 // A field the template itself has. Its id is code, never changed or reused: values are
 // stored under it.
 export type TemplateField = {
@@ -17,9 +31,18 @@ export type TemplateField = {
   section?: string
   type: CharacterFieldType
   label: string
-  // Starts as a pill in the header.
+  // Small muted text beside the label, like the ability a skill uses.
+  hint?: string
+  // Starts as a pill in the header (once it has a value).
   pinned?: boolean
   config?: FieldConfig
+  // Worked out from other fields: read-only, never stored.
+  derived?: Formula
+  // How a number reads: "signed" shows +2 and -1.
+  format?: "signed"
+  // Another field shown inside this one's tile or row (and nowhere else): a score's
+  // modifier, a skill's total.
+  secondary?: string
 }
 
 // What a kind of character sheet looks like. A released version is never edited: a change
@@ -28,5 +51,8 @@ export type CharacterTemplate = {
   id: string
   version: number
   tabs: TemplateTab[]
+  sections: TemplateSection[]
   fields: TemplateField[]
+  // The licence notice the sheet must carry, shown at its foot.
+  attribution?: string
 }

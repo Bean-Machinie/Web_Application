@@ -1,8 +1,10 @@
 import { trackLength } from "@/lib/character-sheet"
 import type { SheetField } from "@/lib/character-sheet"
+import { CharacterLineValue } from "./CharacterLineValue"
 import { CharacterListValue } from "./CharacterListValue"
 import { CharacterResourceValue } from "./CharacterResourceValue"
 import { CharacterStatValue } from "./CharacterStatValue"
+import { CharacterToggleValue } from "./CharacterToggleValue"
 import { CharacterTrackValue } from "./CharacterTrackValue"
 
 type Props = {
@@ -11,20 +13,32 @@ type Props = {
   onValue: (value: unknown) => void
   // A track's length is part of the field, not of its value.
   onLength: (length: number) => void
+  // Bigger and centred, for a tile.
+  tile?: boolean
 }
 
 // How a field's value is shown and changed, by its type. Text is not here: it is a
 // section of its own, drawn by the tab.
-export function CharacterFieldValue({ field, value, onValue, onLength }: Props) {
+export function CharacterFieldValue({ field, value, onValue, onLength, tile }: Props) {
   switch (field.type) {
     case "stat":
-      return <CharacterStatValue value={value} onChange={onValue} />
+      return (
+        <CharacterStatValue
+          value={value}
+          onChange={onValue}
+          className={tile ? "text-center text-xl font-semibold tabular-nums" : undefined}
+        />
+      )
     case "resource":
       return <CharacterResourceValue value={value} onChange={onValue} />
     case "track":
       return <CharacterTrackValue value={value} length={trackLength(field)} onChange={onValue} onLength={onLength} />
     case "list":
       return <CharacterListValue value={value} onChange={onValue} />
+    case "toggle":
+      return <CharacterToggleValue value={value} label={field.label} onChange={onValue} />
+    case "line":
+      return <CharacterLineValue value={value} label={field.label} onChange={onValue} />
     case "text":
       return null
   }

@@ -3,7 +3,6 @@ import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
 import { Button } from "@/components/ui/button"
 import { useCharacters } from "@/hooks/use-characters"
-import { useCreateCharacter } from "@/hooks/use-create-character"
 import { RECENCY_TEXT } from "@/lib/library-recency"
 import { CHARACTERS_SECTION, hasGraph } from "@/lib/library-sections"
 import { cn } from "@/lib/utils"
@@ -19,6 +18,7 @@ import { LibrarySections } from "./LibrarySections"
 import { LibraryToolbar } from "./LibraryToolbar"
 import { NewMapDialog } from "./NewMapDialog"
 import { useLibraryPage } from "./useLibraryPage"
+import { useNewCharacter } from "./useNewCharacter"
 import { WorldBulkBar } from "./WorldBulkBar"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
 import { WorldEntryResults } from "./WorldEntryResults"
@@ -32,7 +32,7 @@ export function LibraryPage() {
   const page = useLibraryPage()
   const { section, mode, selection, addTo } = page
   const { characters } = useCharacters()
-  const createCharacter = useCreateCharacter()
+  const newCharacter = useNewCharacter()
   const onCharacters = section.id === CHARACTERS_SECTION.id
   const searching = page.query.trim() !== "" || page.recency !== "any"
   const problem = page.error ?? page.actionError
@@ -44,7 +44,7 @@ export function LibraryPage() {
         tabs={<LibrarySearch query={page.query} onQuery={page.setQuery} />}
         actions={
           onCharacters ? (
-            <Button onClick={createCharacter}>
+            <Button onClick={newCharacter.open}>
               <Plus className="size-4" />
               New character
             </Button>
@@ -75,7 +75,7 @@ export function LibraryPage() {
           <div className="flex min-w-0 flex-1 flex-col gap-5">
             {problem && <FormAlert tone="error">{problem}</FormAlert>}
             {onCharacters ? (
-              <LibraryCharacters characters={characters} query={page.query} onNew={createCharacter} />
+              <LibraryCharacters characters={characters} query={page.query} onNew={newCharacter.open} />
             ) : (
             <LoadingGate
               loading={!page.entries && !page.error}
@@ -136,6 +136,7 @@ export function LibraryPage() {
       <AddToCampaignDialog target={addTo} />
       <CopyWithLinksDialog {...addTo.copyDialog} />
       <NewMapDialog open={page.making} onClose={() => page.setMaking(false)} />
+      {newCharacter.dialog}
       <WorldEntryDialogs
         renaming={page.renaming}
         deleting={page.removal.deleting}
