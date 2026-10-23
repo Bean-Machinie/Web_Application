@@ -16,6 +16,7 @@ type Props<T extends string> = {
   options: Option<T>[]
   "aria-label": string
   className?: string
+  disabled?: boolean
 }
 
 // A segmented control: a few options side by side, one of them always chosen. The chosen
@@ -25,7 +26,7 @@ type Props<T extends string> = {
 // by aria-checked, not data-state, which a tooltip around an option takes for its own. It is a Radix toggle group,
 // so the arrow keys move the choice and a screen reader hears a radio group. Two to five
 // options with short labels; the thumb does not slide for someone who asks for less motion.
-function SegmentedControl<T extends string>({ value, onValueChange, options, className, ...props }: Props<T>) {
+function SegmentedControl<T extends string>({ value, onValueChange, options, className, disabled, ...props }: Props<T>) {
   const index = Math.max(
     options.findIndex((option) => option.value === value),
     0
@@ -38,9 +39,10 @@ function SegmentedControl<T extends string>({ value, onValueChange, options, cla
       // Pressing the chosen option again would clear a toggle group: here it stays chosen.
       onValueChange={(next) => next && onValueChange(next as T)}
       aria-label={props["aria-label"]}
+      disabled={disabled}
       data-slot="segmented-control"
       style={{ "--count": options.length, "--index": index } as React.CSSProperties}
-      className={cn("bg-muted relative grid grid-flow-col auto-cols-fr rounded-lg p-0.5", className)}
+      className={cn("bg-muted relative grid grid-flow-col auto-cols-fr rounded-lg p-0.5 data-[disabled]:opacity-50", className)}
     >
       <span
         aria-hidden

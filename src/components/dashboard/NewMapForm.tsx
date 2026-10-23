@@ -11,8 +11,7 @@ import { errorMessage } from "@/lib/campaigns"
 import { createScene } from "@/lib/map-scene"
 import { untitledName } from "@/lib/untitled-entry"
 import { saveMapScene } from "@/lib/world-map-scenes"
-import { MapPresetSelect } from "./MapPresetSelect"
-import { MapSizeFields } from "./MapSizeFields"
+import { LABEL, MapCanvasFields } from "./MapCanvasFields"
 import { MapSizePreview } from "./MapSizePreview"
 import { useWorldScope } from "./useWorldScope"
 
@@ -52,10 +51,12 @@ export function NewMapForm({ mapId, onClose }: Props) {
     <form onSubmit={handleSubmit} className="grid gap-6">
       <DialogDescription className="sr-only">Choose the size of the canvas.</DialogDescription>
       <div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_16rem]">
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4">
           {!mapId && (
             <div className="grid gap-2">
-              <Label htmlFor="new-map-name">Name</Label>
+              <Label htmlFor="new-map-name" className={LABEL}>
+                Name
+              </Label>
               <Input
                 id="new-map-name"
                 autoFocus
@@ -65,25 +66,11 @@ export function NewMapForm({ mapId, onClose }: Props) {
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 disabled={busy}
+                className="h-9"
               />
             </div>
           )}
-          <MapPresetSelect value={size.preset} onPick={size.pick} />
-          <div className="grid gap-2">
-            <MapSizeFields
-              width={size.width}
-              height={size.height}
-              invalid={size.problem !== null}
-              locked={size.locked}
-              onWidth={size.editWidth}
-              onHeight={size.editHeight}
-              onLock={size.setLocked}
-              onSwap={size.swap}
-            />
-            <p className={size.problem ? "text-destructive text-xs" : "text-muted-foreground text-xs"}>
-              {size.problem ?? "1024–8192 px per side"}
-            </p>
-          </div>
+          <MapCanvasFields size={size} />
         </div>
         <MapSizePreview width={size.w} height={size.h} />
       </div>

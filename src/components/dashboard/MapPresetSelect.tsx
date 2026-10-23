@@ -1,41 +1,49 @@
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ratioText } from "@/lib/map-canvas-size"
-import { CANVAS_PRESETS } from "@/lib/map-scene"
-import type { CanvasPreset } from "@/lib/map-scene"
+import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { PRESETS, presetSize } from "@/lib/map-shapes"
+import type { PresetKey } from "@/lib/map-shapes"
 
 type Props = {
-  value: CanvasPreset | "custom"
-  onPick: (preset: CanvasPreset) => void
+  value: PresetKey | "custom"
+  portrait: boolean
+  onPick: (preset: PresetKey) => void
 }
 
-const presets = Object.keys(CANVAS_PRESETS) as CanvasPreset[]
+const ITEM = "rounded-md *:[span]:last:flex-1"
 
-// The sizes worth starting from. "Custom" is only what shows when the size typed is none
-// of them; choosing it changes nothing.
-export function MapPresetSelect({ value, onPick }: Props) {
+// The sizes worth starting from, each with its pixels at the right in the orientation they
+// would be filled in. Made like the builder's category list: it opens just under its
+// trigger at the trigger's width. "Custom" is what shows once a number is typed;
+// choosing it changes nothing.
+export function MapPresetSelect({ value, portrait, onPick }: Props) {
   return (
-    <div className="grid gap-2">
-      <Label htmlFor="new-map-preset">Preset</Label>
-      <Select value={value} onValueChange={(next) => next !== "custom" && onPick(next as CanvasPreset)}>
-        <SelectTrigger id="new-map-preset" className="w-full">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {presets.map((preset) => {
-            const { label, width, height } = CANVAS_PRESETS[preset]
+    <Select value={value} onValueChange={(next) => next !== "custom" && onPick(next as PresetKey)}>
+      <SelectTrigger aria-label="Preset" className="w-full *:data-[slot=select-value]:w-full data-[size=default]:h-9">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent
+        position="popper"
+        sideOffset={2}
+        align="start"
+        className="w-(--radix-select-trigger-width) overflow-hidden shadow-lg"
+      >
+        <div className="p-1">
+          {PRESETS.map((preset) => {
+            const { width, height } = presetSize(preset.key, portrait)
             return (
-              <SelectItem key={preset} value={preset}>
-                {label}
-                <span className="text-muted-foreground ml-1.5 text-xs">
-                  {width} × {height} · {ratioText(width, height)}
+              <SelectItem key={preset.key} value={preset.key} className={ITEM}>
+                <span className="truncate">{preset.label}</span>
+                <span className="text-muted-foreground ml-auto pl-3 text-xs tabular-nums">
+                  {width} × {height}
                 </span>
               </SelectItem>
             )
           })}
-          <SelectItem value="custom">Custom</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
+          <SelectSeparator />
+          <SelectItem value="custom" className={ITEM}>
+            <span className="truncate">Custom</span>
+          </SelectItem>
+        </div>
+      </SelectContent>
+    </Select>
   )
 }

@@ -14,7 +14,7 @@ type Props = {
 export function NewMapDialog({ open, onClose, mapId }: Props) {
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-[640px]">
+      <DialogContent className="sm:max-w-[720px]">
         <DialogHeader>
           <DialogTitle>{mapId ? "Build this map" : "New map"}</DialogTitle>
         </DialogHeader>

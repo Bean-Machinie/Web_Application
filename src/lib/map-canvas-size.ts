@@ -4,16 +4,18 @@
 // RENDER_PIXELS in map-scene.ts) whatever the canvas is.
 export const MIN_SIDE = 1024
 export const MAX_SIDE = 8192
-export const MAX_AREA = 25_000_000
+// 6144 × 4096, the largest 3:2 canvas.
+export const MAX_AREA = 25_165_824
 export const MAX_RATIO = 4
+
+// Whether one side, by itself, is not allowed.
+export const sideInvalid = (side: number) => !Number.isInteger(side) || side < MIN_SIDE || side > MAX_SIDE
 
 // Why a size is not allowed, or null if it is.
 export function sizeProblem(width: number, height: number): string | null {
   if (!Number.isInteger(width) || !Number.isInteger(height)) return "Enter a whole width and height."
-  if (width < MIN_SIDE || height < MIN_SIDE || width > MAX_SIDE || height > MAX_SIDE) {
-    return `Each side must be ${MIN_SIDE}–${MAX_SIDE} px.`
-  }
-  if (width * height > MAX_AREA) return "The area can be at most 25 million px."
+  if (sideInvalid(width) || sideInvalid(height)) return `Each side must be ${MIN_SIDE}–${MAX_SIDE} px.`
+  if (width * height > MAX_AREA) return "The area can be at most 25,165,824 px (6144 × 4096)."
   if (Math.max(width, height) / Math.min(width, height) > MAX_RATIO) {
     return `The ratio can be at most ${MAX_RATIO}:1.`
   }
