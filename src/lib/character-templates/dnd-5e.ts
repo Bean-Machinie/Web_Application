@@ -81,13 +81,15 @@ export const DND_5E: CharacterTemplate = {
     { id: "spells", label: "Spells", empty: "No spells yet" },
     { id: "notes", label: "Notes", empty: "No notes yet" },
   ],
+  // Identity is in the profile column; the scores are tiles three across, the combat
+  // numbers small tiles, and the skills compact rows in two columns.
   sections: [
-    { id: "identity", tab: "overview", label: "Identity", summary: "4 details" },
+    { id: "identity", tab: "overview", label: "Identity", profile: true },
     { id: "abilities", tab: "overview", label: "Ability scores", layout: "grid", columns: 3, summary: "6 scores" },
-    { id: "combat", tab: "overview", label: "Combat", summary: "Armor Class, Initiative, Speed" },
+    { id: "combat", tab: "overview", label: "Combat", layout: "grid", columns: 5, summary: "Armor Class, Initiative, Speed" },
     { id: "hit-points", tab: "overview", label: "Hit points", summary: "Hit Points, Hit Dice, Death Saves" },
-    { id: "saving-throws", tab: "skills", label: "Saving throws", summary: "6 saves" },
-    { id: "skills", tab: "skills", label: "Skills", summary: "18 skills" },
+    { id: "saving-throws", tab: "skills", label: "Saving throws", columns: 2, summary: "6 saves" },
+    { id: "skills", tab: "skills", label: "Skills", columns: 2, summary: "18 skills" },
   ],
   fields: [
     line("class", "Class and level"),
@@ -102,8 +104,9 @@ export const DND_5E: CharacterTemplate = {
     { id: "inspiration", tab: "overview", section: "combat", type: "toggle", label: "Inspiration" },
     { id: "hp", tab: "overview", section: "hit-points", type: "resource", label: "Hit Points", pinned: true },
     { id: "hit-dice", tab: "overview", section: "hit-points", type: "resource", label: "Hit Dice" },
-    { id: "death-saves.successes", tab: "overview", section: "hit-points", type: "track", label: "Death Saves: Successes", config: { length: 3 } },
-    { id: "death-saves.failures", tab: "overview", section: "hit-points", type: "track", label: "Death Saves: Failures", config: { length: 3 } },
+    // The two tracks share one row.
+    { id: "death-saves.successes", tab: "overview", section: "hit-points", type: "track", label: "Death Saves", caption: "Successes", config: { length: 3 }, secondary: "death-saves.failures" },
+    { id: "death-saves.failures", tab: "overview", section: "hit-points", type: "track", label: "Failures", caption: "Failures", config: { length: 3 } },
     ...ABILITIES.flatMap(([ability, label]) => proficiencyRow("saving-throws", `save.${ability}`, label, ability)),
     ...SKILLS.flatMap(([id, label, ability]) => proficiencyRow("skills", `skill.${id}`, label, ability)),
     { id: "inventory", tab: "inventory", type: "list", label: "Inventory" },

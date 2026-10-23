@@ -8,12 +8,11 @@ type Props = {
   field: SheetField
   value: unknown
   onValue: (value: unknown) => void
-  onLength: (length: number) => void
 }
 
 // A pinned field in the header, as a compact pill: "HP 24/31". Clicking it opens the same
 // control the field has on its tab, so a resource can be spent without leaving the top.
-export function CharacterPill({ field, value, onValue, onLength }: Props) {
+export function CharacterPill({ field, value, onValue }: Props) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -27,7 +26,7 @@ export function CharacterPill({ field, value, onValue, onLength }: Props) {
       </PopoverTrigger>
       <PopoverContent align="start" className="w-auto min-w-48 p-3">
         <p className="text-muted-foreground mb-2 text-xs font-medium">{field.label}</p>
-        <CharacterFieldValue field={field} value={value} onValue={onValue} onLength={onLength} />
+        <CharacterFieldValue field={field} value={value} onValue={onValue} />
       </PopoverContent>
     </Popover>
   )

@@ -22,9 +22,9 @@ type Props = {
   onAdd: (type: CharacterFieldType) => void
 }
 
-// One tab: the template's sections (each a collapsed row until set up), then the fields
-// that are in none, as a card of rows and the text fields as sections, then a quiet Add.
-// With nothing at all, a short empty state with the way to add.
+// One tab: the template's sections stacked as cards, each a compact card until set up.
+// Then the fields that are in no section, and a quiet Add. With nothing at all, a short
+// empty state with the way to add.
 export function CharacterTabPanel({ template, tab, fields, actions, opened, onOpen, onAdd }: Props) {
   const { sections, loose } = tabContents(template, tab, fields)
   const plain = loose.filter((field) => field.type !== "text")
@@ -59,7 +59,7 @@ export function CharacterTabPanel({ template, tab, fields, actions, opened, onOp
           {section.layout === "grid" ? (
             <CharacterTiles fields={inSection} columns={section.columns ?? 3} actions={actions} />
           ) : (
-            <CharacterRows fields={inSection} actions={actions} />
+            <CharacterRows fields={inSection} actions={actions} columns={section.columns} />
           )}
         </CharacterSection>
       ))}

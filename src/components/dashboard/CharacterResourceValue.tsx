@@ -4,16 +4,19 @@ import { readResource, toWhole } from "@/lib/character-values"
 import type { ResourceValue } from "@/lib/character-values"
 import { InlineText } from "./InlineText"
 
-type Props = { value: unknown; onChange: (value: ResourceValue) => void }
+type Props = { value: unknown; label: string; onChange: (value: ResourceValue) => void }
 
-// Current and maximum, each typed over when clicked, with steppers to spend and gain.
-export function CharacterResourceValue({ value, onChange }: Props) {
-  const resource = readResource(value) ?? { current: 0, max: 0 }
+// Current and maximum, each typed over when clicked (a muted dash while empty), with
+// steppers to spend and gain.
+export function CharacterResourceValue({ value, label, onChange }: Props) {
+  const stored = readResource(value)
+  const resource = stored ?? { current: 0, max: 0 }
   const change = (next: Partial<ResourceValue>) => onChange({ ...resource, ...next })
   const step = (by: number) => change({ current: Math.max(0, resource.current + by) })
   const number = (key: keyof ResourceValue) => ({
-    value: resource[key].toString(),
-    placeholder: "0",
+    value: stored ? resource[key].toString() : "",
+    placeholder: "—",
+    label: `${label}, ${key === "current" ? "current" : "maximum"}`,
     inputMode: "numeric" as const,
     maxLength: 6,
     className: "w-12 tabular-nums",

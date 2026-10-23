@@ -1,36 +1,37 @@
 import type { ReactNode } from "react"
-import { ChevronRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import type { TemplateSection } from "@/lib/character-templates/types"
 
 type Props = {
   section: TemplateSection
-  // How many fields it has, for the summary when the template gives none.
+  // How many fields it has, for the preview when the template gives none.
   count: number
   open: boolean
   onOpen: () => void
   children: ReactNode
 }
 
-// A part of a tab. Until something is in it, it is one row, "Ability scores · 6 scores ·
-// Set up", and the whole row opens it. Once it has a value it stays open as its heading
-// over its fields.
+// A part of a tab. Until something is in it, it is a compact card: the title, a muted
+// line on what is inside ("6 scores"), and a Set up button on the right; the card as a
+// whole opens it too. Once it has a value it stays open, in place, as its heading over its
+// fields.
 export function CharacterSection({ section, count, open, onOpen, children }: Props) {
   if (!open) {
     return (
-      <button
-        type="button"
+      <div
         onClick={onOpen}
-        className="bg-card hover:bg-accent/50 focus-visible:ring-ring flex min-h-12 w-full items-center gap-2 rounded-lg border px-4 py-3 text-left shadow-xs outline-none focus-visible:ring-2 sm:px-5"
+        className="bg-card hover:bg-accent/30 flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 shadow-xs transition-colors"
       >
-        <span className="text-sm font-medium">{section.label}</span>
-        <span className="text-muted-foreground min-w-0 flex-1 truncate text-sm">
-          · {section.summary ?? `${count} ${count === 1 ? "field" : "fields"}`}
-        </span>
-        <span className="text-muted-foreground flex shrink-0 items-center gap-1 text-sm">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="text-sm font-medium">{section.label}</span>
+          <span className="text-muted-foreground truncate text-xs">
+            {section.summary ?? `${count} ${count === 1 ? "field" : "fields"}`}
+          </span>
+        </div>
+        <Button variant="outline" size="sm" className="shrink-0">
           Set up
-          <ChevronRight className="size-4" />
-        </span>
-      </button>
+        </Button>
+      </div>
     )
   }
 

@@ -18,6 +18,7 @@ export type SheetField = {
   type: CharacterFieldType
   label: string
   hint?: string
+  caption?: string
   config: FieldConfig
   custom: boolean
   pinnedByTemplate: boolean
@@ -36,6 +37,7 @@ export function sheetFields(template: CharacterTemplate, custom: CustomField[]):
       type: field.type,
       label: field.label,
       hint: field.hint,
+      caption: field.caption,
       config: field.config ?? {},
       custom: false,
       pinnedByTemplate: field.pinned ?? false,
@@ -56,6 +58,12 @@ export function sheetFields(template: CharacterTemplate, custom: CustomField[]):
   ]
 }
 
+// The fields of the sections that live in the profile column, in order.
+export function profileFields(template: CharacterTemplate, fields: SheetField[]) {
+  const ids = new Set(template.sections.filter((section) => section.profile).map((section) => section.id))
+  return fields.filter((field) => field.section !== null && ids.has(field.section))
+}
+
 // A tab's contents: its sections with their fields, and the fields in none (the player's,
 // and the template's own that stand alone). Fields shown inside another's tile or row are
 // left out of both.
@@ -70,7 +78,7 @@ export function tabContents(template: CharacterTemplate, tab: TemplateTab, field
   const shown = inTab.filter((field) => !nested.has(field.id))
   return {
     sections: template.sections
-      .filter((section) => section.tab === tab.id)
+      .filter((section) => section.tab === tab.id && !section.profile)
       .map((section) => ({ section, fields: shown.filter((field) => field.section === section.id) })),
     loose: shown.filter((field) => field.section === null),
   }

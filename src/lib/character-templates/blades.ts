@@ -28,7 +28,7 @@ const attributeSections: TemplateSection[] = ATTRIBUTES.map(([id, label]) => ({
   tab: "actions",
   label,
   layout: "grid",
-  columns: 4,
+  columns: 3,
   summary: "4 actions",
 }))
 
@@ -64,7 +64,7 @@ export const BLADES: CharacterTemplate = {
     { id: "notes", label: "Notes", empty: "No notes yet" },
   ],
   sections: [
-    { id: "identity", tab: "overview", label: "Identity", summary: "Playbook, heritage, background, vice" },
+    { id: "identity", tab: "overview", label: "Identity", profile: true },
     { id: "stress", tab: "overview", label: "Stress & trauma", summary: "Stress, trauma" },
     { id: "harm", tab: "overview", label: "Harm", summary: "3 levels" },
     { id: "armor", tab: "overview", label: "Armor", summary: "3 kinds" },

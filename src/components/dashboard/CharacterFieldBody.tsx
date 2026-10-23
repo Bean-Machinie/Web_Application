@@ -22,7 +22,6 @@ export function CharacterFieldBody({ field, actions, tile }: Props) {
       tile={tile}
       value={actions.values[field.id]?.value ?? null}
       onValue={(value) => actions.onValue(field.id, value)}
-      onLength={(length) => actions.onField(field, field.label, { ...field.config, length })}
     />
   )
 }

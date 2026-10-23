@@ -18,9 +18,13 @@ export type TemplateSection = {
   tab: string
   label: string
   layout?: "list" | "grid"
+  // A grid's tiles across; for a list, how many columns of rows. More than one makes the
+  // section as wide as the tab.
   columns?: number
-  // What the collapsed row says is inside, like "6 scores"; by default the number of fields.
+  // What the collapsed card says is inside, like "6 scores"; by default the number of fields.
   summary?: string
+  // Shown in the profile column beside the tabs (always open), not in its tab.
+  profile?: boolean
 }
 
 // A field the template itself has. Its id is code, never changed or reused: values are
@@ -33,6 +37,8 @@ export type TemplateField = {
   label: string
   // Small muted text beside the label, like the ability a skill uses.
   hint?: string
+  // Small text before the control, for a pair sharing a row: "Successes", "Failures".
+  caption?: string
   // Starts as a pill in the header (once it has a value).
   pinned?: boolean
   config?: FieldConfig

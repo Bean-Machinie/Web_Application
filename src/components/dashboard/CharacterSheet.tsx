@@ -1,21 +1,20 @@
 import { useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { MoreHorizontal, Trash2 } from "lucide-react"
 import { useAuth } from "@/auth/useAuth"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { useCharacter } from "@/hooks/use-character"
-import { isPinned, NEW_FIELD_LABEL } from "@/lib/character-sheet"
-import { isEmptyValue } from "@/lib/character-values"
+import { isPinned, NEW_FIELD_LABEL, profileFields } from "@/lib/character-sheet"
 import type { SheetField } from "@/lib/character-sheet"
+import { isEmptyValue } from "@/lib/character-values"
 import type { CharacterFieldType } from "@/lib/character-templates/types"
-import type { Character } from "@/lib/characters"
 import { deleteCharacter } from "@/lib/characters"
+import type { Character } from "@/lib/characters"
 import { errorMessage } from "@/lib/campaigns"
 import { ConfirmDialog } from "./ConfirmDialog"
-import { CharacterHeader } from "./CharacterHeader"
+import { CharacterMenu } from "./CharacterMenu"
 import { CharacterPill } from "./CharacterPill"
+import { CharacterProfile } from "./CharacterProfile"
+import { CharacterRows } from "./CharacterRows"
 import { CharacterTabPanel } from "./CharacterTabPanel"
 import type { SheetActions } from "./character-actions"
 import { SaveIndicator } from "./SaveIndicator"
@@ -26,8 +25,10 @@ type Props = {
   fresh: boolean
 }
 
-// The sheet: a header that stays on screen (portrait, name, concept, pinned pills) over
-// the tabs, and below them the one tab that is open. The open tab is in the address.
+// The sheet in two columns that scroll with the page, about 1050px in all: the profile
+// on the left (portrait, name, concept, pills, identity), and on the right the tabs with
+// the open tab's sections stacked under them. The open tab is in the address. Under
+// 1000px the profile is above the sheet.
 export function CharacterSheet({ sheet, character, fresh }: Props) {
   const navigate = useNavigate()
   const userId = useAuth().session!.user.id
@@ -39,9 +40,6 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
   const { template, fields, values } = sheet
   const tabs = template!.tabs
   const tab = tabs.find((candidate) => candidate.id === params.get("tab")) ?? tabs[0]
-
-  const lengthOf = (field: SheetField) => (length: number) =>
-    sheet.changeField(field.id, field.label, { ...field.config, length })
 
   async function remove() {
     try {
@@ -75,62 +73,40 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
     onRemove: (fieldId) => sheet.removeField(fieldId),
   }
 
-  const pills = fields
-    .filter(showsPill)
-    .map((field) => (
-      <CharacterPill
-        key={field.id}
-        field={field}
-        value={values[field.id]?.value ?? null}
-        onValue={(value) => sheet.setValue(field.id, value)}
-        onLength={lengthOf(field)}
-      />
-    ))
+  const pills = fields.filter(showsPill).map((field) => (
+    <CharacterPill key={field.id} field={field} value={values[field.id]?.value ?? null} onValue={(value) => sheet.setValue(field.id, value)} />
+  ))
+  const identity = profileFields(template!, fields)
 
   return (
-    <div className="-m-4 flex flex-col md:-m-6">
-      <div className="bg-background sticky top-(--header-height) z-30 border-b">
-        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 px-4 pt-4 md:px-6 md:pt-6">
-          <CharacterHeader
-            character={character}
-            userId={userId}
-            fresh={fresh}
-            onName={async (name) => void (await sheet.edit("name", name))}
-            onConcept={(concept) => void sheet.edit("concept", concept)}
-            onPortrait={(portrait) => sheet.edit("portrait", portrait)}
-            pills={pills.length > 0 ? pills : null}
-            aside={
-              <>
-                <SaveIndicator state={sheet.saveState} />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" aria-label="Character options">
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem variant="destructive" onSelect={() => setDeleting(true)}>
-                      <Trash2 />
-                      Delete character
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            }
-          />
-          <Tabs value={tab.id} onValueChange={(next) => setParams({ tab: next }, { replace: true })}>
-            <TabsList variant="line" className="h-10 w-full justify-start">
-              {tabs.map((candidate) => (
-                <TabsTrigger key={candidate.id} value={candidate.id} className="flex-none px-3">
-                  {candidate.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-      </div>
-      <div className="mx-auto w-full max-w-[1200px] px-4 py-4 md:px-6 md:py-6">
-        {(sheet.error || failure) && <p className="text-destructive mb-4 text-sm">{sheet.error ?? failure}</p>}
+    <div className="mx-auto flex w-[1052px] max-w-full flex-col gap-6 min-[1000px]:flex-row min-[1000px]:items-start min-[1000px]:gap-8">
+      <CharacterProfile
+        character={character}
+        userId={userId}
+        fresh={fresh}
+        onName={async (name) => void (await sheet.edit("name", name))}
+        onConcept={(concept) => void sheet.edit("concept", concept)}
+        onPortrait={(portrait) => sheet.edit("portrait", portrait)}
+        pills={pills.length > 0 ? pills : null}
+        identity={identity.length > 0 && <CharacterRows fields={identity} actions={actions} narrow />}
+        aside={
+          <>
+            <SaveIndicator state={sheet.saveState} />
+            <CharacterMenu onDelete={() => setDeleting(true)} />
+          </>
+        }
+      />
+      <div className="flex min-w-0 flex-1 flex-col gap-4">
+        <Tabs value={tab.id} onValueChange={(next) => setParams({ tab: next }, { replace: true })}>
+          <TabsList variant="line" className="h-10 w-full justify-start">
+            {tabs.map((candidate) => (
+              <TabsTrigger key={candidate.id} value={candidate.id} className="flex-none px-3">
+                {candidate.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+        {(sheet.error || failure) && <p className="text-destructive text-sm">{sheet.error ?? failure}</p>}
         <CharacterTabPanel
           key={tab.id}
           template={template!}
@@ -142,7 +118,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
           onAdd={async (type: CharacterFieldType) => setFreshField(await sheet.addField(tab.id, type, NEW_FIELD_LABEL[type]))}
         />
         {template!.attribution && (
-          <p className="text-muted-foreground mt-10 max-w-3xl text-xs leading-relaxed">{template!.attribution}</p>
+          <p className="text-muted-foreground mt-6 text-[11px] leading-relaxed">{template!.attribution}</p>
         )}
       </div>
       <ConfirmDialog
