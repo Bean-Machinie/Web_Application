@@ -1,3 +1,5 @@
+import { PencilRuler } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import box from "@/assets/icons/box.svg"
 import characters from "@/assets/icons/menu-profile.svg"
 import desktop from "@/assets/icons/desktop.svg"
@@ -11,7 +13,8 @@ import { campaignPath } from "@/lib/campaign-paths"
 export type NavItem = {
   title: string
   to: string
-  icon: string
+  // An icon file, or a Lucide icon.
+  icon: string | LucideIcon
   badge?: string
   // Only the page itself lights the item, not the pages below it.
   exact?: boolean
@@ -32,6 +35,7 @@ export const campaignSettingsNav = (id: string): NavItem[] => [
 // What the sidebar shows outside a campaign.
 export const homeNav: NavItem[] = [
   { title: "Home", to: "/app", icon: globe, exact: true },
+  { title: "Create", to: "/app/create", icon: PencilRuler },
   { title: "Your library", to: "/app/library", icon: box },
 ]
 

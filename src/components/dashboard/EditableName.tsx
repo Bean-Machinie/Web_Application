@@ -6,6 +6,8 @@ type Props = {
   onSave: ((name: string) => Promise<void>) | null
   // For a title inside a small card.
   small?: boolean
+  // Opens ready to type over the name, as for an entry that was just made.
+  autoEdit?: boolean
 }
 
 const HEADING = "text-2xl font-semibold tracking-tight break-words"
@@ -13,11 +15,11 @@ const HEADING_SMALL = "text-base font-semibold tracking-tight break-words"
 
 // The page title. For a GM it is click-to-rename in place, like renaming a
 // file: Enter or leaving the box saves, Escape cancels.
-export function EditableName({ name, onSave, small }: Props) {
+export function EditableName({ name, onSave, small, autoEdit }: Props) {
   const HEADING_CLASS = small ? HEADING_SMALL : HEADING
   // Shared by the title and its edit box, so swapping them moves nothing.
   const BOX = `${HEADING_CLASS} -mx-2 block w-[calc(100%+1rem)] rounded-md border px-2 py-0.5 ${small ? "leading-6" : "leading-8"} outline-none`
-  const [draft, setDraft] = useState<string | null>(null)
+  const [draft, setDraft] = useState<string | null>(autoEdit ? name : null)
 
   if (!onSave) return <h2 className={`${HEADING_CLASS} min-w-0 flex-1`}>{name}</h2>
 

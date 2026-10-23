@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 import { LoadingGate } from "@/components/LoadingGate"
+import { useCreateEntry } from "@/hooks/use-create-entry"
 import { useEntrySelection } from "@/hooks/use-entry-selection"
 import { useSaveToLibrary } from "@/hooks/use-save-to-library"
 import { useWorldBulk } from "@/hooks/use-world-bulk"
@@ -19,6 +20,7 @@ import { rememberWorldKind } from "@/lib/world-tab"
 import type { Sort, VisibilityFilter } from "@/lib/world-list"
 import { CollectionPage } from "./CollectionPage"
 import { CopyWithLinksDialog } from "./CopyWithLinksDialog"
+import { NewMapDialog } from "./NewMapDialog"
 import { useWorldScope } from "./useWorldScope"
 import { WorldBulkBar } from "./WorldBulkBar"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
@@ -42,7 +44,9 @@ export function WorldEntryList() {
   const mode = useIsMobile() ? "grid" : chosenMode
   const [visibility, setVisibility] = useState<VisibilityFilter>("all")
   const [sort, setSort] = useState<Sort>(null)
-  const [creating, setCreating] = useState<WorldEntryKind | null>(null)
+  const createEntry = useCreateEntry(scope)
+  const [makingMap, setMakingMap] = useState(false)
+  const create = (kind: WorldEntryKind) => (kind === "map" ? setMakingMap(true) : createEntry(kind))
   const [renaming, setRenaming] = useState<WorldEntry | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const removal = useWorldEntryDelete(reload, setActionError)
@@ -51,9 +55,13 @@ export function WorldEntryList() {
   const kind = scope.kinds.find((option) => option === params.get("kind")) ?? null
   // The command palette's "New ..." actions arrive as ?create=<kind>.
   const wanted = scope.kinds.find((option) => option === params.get("create")) ?? null
+  const asked = useRef(false)
   useEffect(() => {
-    if (!wanted || !canManage) return
-    setCreating(wanted)
+    if (!wanted) asked.current = false
+    // Once per link: a development double run must not make two.
+    if (!wanted || !canManage || asked.current) return
+    asked.current = true
+    create(wanted)
     setParams(
       (current) => {
         current.delete("create")
@@ -61,6 +69,8 @@ export function WorldEntryList() {
       },
       { replace: true }
     )
+    // create only starts the making.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wanted, canManage, setParams])
   const { query, setQuery } = useWorldListMemory(scope.key, kind, mode, entries !== null)
   useEffect(() => rememberWorldKind(scope.basePath, kind), [scope.basePath, kind])
@@ -106,7 +116,7 @@ export function WorldEntryList() {
             onQuery={setQuery}
             visibility={canManage && scope.hasVisibility ? visibility : null}
             onVisibility={setVisibility}
-            onCreate={canManage ? setCreating : null}
+            onCreate={canManage ? create : null}
             onLibraryAdded={canManage ? reload : null}
             mode={mode}
             onMode={setMode}
@@ -153,14 +163,13 @@ export function WorldEntryList() {
       </CollectionPage>
 
       {canManage && <WorldBulkBar selection={selection} bulk={bulk} />}
+      <NewMapDialog open={makingMap} onClose={() => setMakingMap(false)} />
       <WorldEntryDialogs
-        creating={creating}
         renaming={renaming}
         deleting={removal.deleting}
         busy={removal.busy}
         reload={reload}
         onDelete={removal.confirm}
-        onCloseCreate={() => setCreating(null)}
         onCloseRename={() => setRenaming(null)}
         onCloseDelete={() => removal.setDeleting(null)}
       />

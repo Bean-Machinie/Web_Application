@@ -29,6 +29,9 @@ export function WorldEntryCard({ entry, manage, selection, wide }: Props) {
 
   const save = manage?.onSaveToLibrary
   const actions = manage && [
+    ...(manage.onOpenBuilder && manage.isBuilt?.(entry)
+      ? [{ label: "Open in builder", onSelect: () => manage.onOpenBuilder!(entry) }]
+      : []),
     { label: "Rename", onSelect: () => manage.onRename(entry) },
     ...(manage.onAddToCampaign
       ? [{ label: "Add to campaign…", onSelect: () => manage.onAddToCampaign!(entry) }]

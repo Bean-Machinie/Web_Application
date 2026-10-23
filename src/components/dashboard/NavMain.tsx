@@ -38,7 +38,11 @@ export function NavMain({ items, className }: Props) {
                 isActive={isActive(item.to, item.exact)}
               >
                 <NavLink to={item.to} onClick={closeOnMobile}>
-                  <Icon src={item.icon} className="size-[18px]" />
+                  {typeof item.icon === "string" ? (
+                    <Icon src={item.icon} className="size-[18px]" />
+                  ) : (
+                    <item.icon className="size-[18px]" />
+                  )}
                   <span>{item.title}</span>
                 </NavLink>
               </SidebarMenuButton>

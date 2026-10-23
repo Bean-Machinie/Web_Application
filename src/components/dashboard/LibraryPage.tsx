@@ -113,13 +113,11 @@ export function LibraryPage() {
       <CopyWithLinksDialog {...addTo.copyDialog} />
       <NewMapDialog open={page.making} onClose={() => page.setMaking(false)} />
       <WorldEntryDialogs
-        creating={page.creating}
         renaming={page.renaming}
         deleting={page.removal.deleting}
         busy={page.removal.busy}
         reload={page.reload}
         onDelete={page.removal.confirm}
-        onCloseCreate={() => page.setCreating(null)}
         onCloseRename={() => page.setRenaming(null)}
         onCloseDelete={() => page.removal.setDeleting(null)}
       />

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useDiscardUntitled } from "@/hooks/use-discard-untitled"
 import { useSaveToLibrary } from "@/hooks/use-save-to-library"
 import { useWorldEntry } from "@/hooks/use-world-entry"
 import { useWorldFields } from "@/hooks/use-world-fields"
@@ -30,11 +31,16 @@ import { WorldEntryPage } from "./WorldEntryPage"
 export function WorldEntryView({ entryId }: { entryId: string }) {
   const navigate = useNavigate()
   // Set when this entry was opened from somewhere other than the World list.
-  const from = readBackTo(useLocation().state)
+  const location = useLocation()
+  const from = readBackTo(location.state)
   const scope = useWorldScope()
   const { canManage } = scope
   const { entry, error, reload, setRevealed } = useWorldEntry(entryId)
   const fieldsState = useWorldFields(entryId, entry?.kind)
+  // Set by the quick create: the title opens for typing, and the entry goes again if it
+  // is left unnamed and empty.
+  const fresh = canManage && (location.state as { justCreated?: boolean } | null)?.justCreated === true
+  useDiscardUntitled(fresh, entry, fieldsState.fields)
   // While the entry loads, the steps already known stay put and only the name
   // is filled in after, so the trail does not blink away and back.
   const loading = from
@@ -108,6 +114,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                     // A library has no visibility, so nothing in it is drawn as hidden.
                     revealed: entry.revealed || !scope.hasVisibility,
                     canManage,
+                    fresh,
                     state: fieldsState,
                     onRename: async (name: string) => {
                       try {

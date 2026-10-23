@@ -1,32 +1,23 @@
 import { renameWorldEntry } from "@/lib/world-entries"
 import type { WorldEntry } from "@/lib/world-entries"
-import type { WorldEntryKind } from "@/lib/world-kinds"
 import { ConfirmDialog } from "./ConfirmDialog"
 import { EntryNameDialog } from "./EntryNameDialog"
-import { NewEntryDialog } from "./NewEntryDialog"
 
 type Props = {
-  creating: WorldEntryKind | null
   renaming: WorldEntry | null
   deleting: WorldEntry | null
   busy: boolean
   reload: () => Promise<unknown>
   onDelete: () => void
-  onCloseCreate: () => void
   onCloseRename: () => void
   onCloseDelete: () => void
 }
 
 export function WorldEntryDialogs(props: Props) {
-  const { creating, renaming, deleting, busy, reload } = props
+  const { renaming, deleting, busy, reload } = props
 
   return (
     <>
-      <NewEntryDialog
-        kind={creating}
-        reload={reload}
-        onClose={props.onCloseCreate}
-      />
       <EntryNameDialog
         open={renaming !== null}
         title="Rename entry"

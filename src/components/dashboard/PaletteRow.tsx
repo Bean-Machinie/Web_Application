@@ -25,12 +25,14 @@ function Leading({ visual }: { visual: Visual }) {
         </span>
       )
     }
-    case "page":
+    case "page": {
+      const PageIcon = visual.icon
       return (
         <span className={tile}>
-          <Icon src={visual.icon} />
+          {typeof PageIcon === "string" ? <Icon src={PageIcon} /> : <PageIcon className="size-4" />}
         </span>
       )
+    }
     case "action":
       return (
         <span className={tile}>

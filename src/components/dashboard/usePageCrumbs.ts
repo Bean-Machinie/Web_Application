@@ -8,6 +8,7 @@ import { useRouteCampaign } from "./useCurrentCampaign"
 // Pages outside a campaign that are not the campaigns home.
 const userPages = [
   { title: "Support", to: "/app/support" },
+  { title: "Create", to: "/app/create" },
   { title: "Your library", to: "/app/library" },
   { title: "New campaign", to: "/app/campaigns/new" },
   { title: "Join campaign", to: "/app/campaigns/join" },

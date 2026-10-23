@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { useCreateEntry } from "@/hooks/use-create-entry"
 import { useEntrySelection } from "@/hooks/use-entry-selection"
+import { useLibraryScenes } from "@/hooks/use-library-scenes"
 import { useWorldBulk } from "@/hooks/use-world-bulk"
 import { useWorldCardSize } from "@/hooks/use-world-card-size"
 import { useWorldEntries } from "@/hooks/use-world-entries"
@@ -31,12 +33,14 @@ export function useLibraryPage() {
   const [chosenMode, setMode] = useWorldViewMode()
   const [cardSize, setCardSize] = useWorldCardSize()
   const [sort, setSort] = useState<Sort>(null)
-  const [creating, setCreating] = useState<WorldEntryKind | null>(null)
+  const createEntry = useCreateEntry(scope)
   const [making, setMaking] = useState(false)
   const [renaming, setRenaming] = useState<WorldEntry | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const removal = useWorldEntryDelete(reload, setActionError)
   const addTo = useAddToCampaign()
+  const navigate = useNavigate()
+  const scenes = useLibraryScenes(entries)
 
   // The graph is only for world entries; elsewhere the cards are shown instead.
   const mode = chosenMode === "graph" && !hasGraph(section) ? "grid" : chosenMode
@@ -67,14 +71,20 @@ export function useLibraryPage() {
     onRename: setRenaming,
     onDelete: removal.setDeleting,
     onAddToCampaign: (entry) => addTo.open([entry]),
+    isBuilt: (entry) => scenes?.has(entry.id) ?? false,
+    onOpenBuilder: (entry) => navigate(`${scope.basePath}/${entry.id}/build`, { state: { fromMap: true } }),
     setError: setActionError,
   })
 
-  const make = (kind: WorldEntryKind) => (kind === "map" ? setMaking(true) : setCreating(kind))
+  const make = (kind: WorldEntryKind) => (kind === "map" ? setMaking(true) : createEntry(kind))
   // The command palette's "New ..." actions arrive as ?create=<kind>.
   const wanted = scope.kinds.find((option) => option === params.get("create")) ?? null
+  const asked = useRef(false)
   useEffect(() => {
-    if (!wanted) return
+    if (!wanted) asked.current = false
+    // Once per link: a development double run must not make two.
+    if (!wanted || asked.current) return
+    asked.current = true
     make(wanted)
     setParams(
       (current) => {
@@ -90,7 +100,7 @@ export function useLibraryPage() {
   return {
     entries, error, reload, section, mode, setMode, cardSize, setCardSize, sort, setSort,
     query, setQuery, recency, setRecency, shown, selection, bulk, manage, addTo, removal,
-    creating, setCreating, making, setMaking, renaming, setRenaming, actionError, make,
+    making, setMaking, renaming, setRenaming, actionError, make,
     setSection: (id: string) => setParams(id === "all" ? {} : { section: id }, { replace: true }),
   }
 }

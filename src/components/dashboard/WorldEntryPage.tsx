@@ -41,6 +41,7 @@ export function WorldEntryPage(props: EntryProps) {
             saveState={state.saveState}
             onRename={props.onRename}
             onOpenDetails={() => props.onDetailsOpenChange(true)}
+            fresh={props.fresh}
           />
         </div>
         <WorldEntryHeader

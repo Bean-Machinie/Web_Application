@@ -37,6 +37,24 @@ export async function hasMapScene(mapId: string) {
   return (count ?? 0) > 0
 }
 
+// When a built map was last saved and last published.
+export type SceneState = { mapId: string; updatedAt: string; renderedAt: string | null }
+
+// The state of each of these maps that has a scene; the others are left out.
+export async function fetchSceneStates(mapIds: string[]): Promise<SceneState[]> {
+  if (mapIds.length === 0) return []
+  const { data, error } = await supabase
+    .from("world_map_scenes")
+    .select("map_id, updated_at, rendered_at")
+    .in("map_id", mapIds)
+  if (error) throw error
+  return data.map((row) => ({ mapId: row.map_id, updatedAt: row.updated_at, renderedAt: row.rendered_at }))
+}
+
+// Saved after the last publish, or never published.
+export const inProgress = (state: SceneState) =>
+  state.renderedAt === null || Date.parse(state.updatedAt) > Date.parse(state.renderedAt)
+
 // The most a scene may hold, as the database counts it: the length of its text
 // form, which spaces out every comma and colon. The save is refused past it.
 export const SCENE_LIMIT_BYTES = 8 * 1024 * 1024

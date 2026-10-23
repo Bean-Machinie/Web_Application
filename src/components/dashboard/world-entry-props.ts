@@ -9,6 +9,8 @@ export type EntryProps = {
   name: string
   revealed: boolean
   canManage: boolean
+  // Just made, and not yet left: the name is ready to be typed over.
+  fresh: boolean
   state: WorldFieldsState
   onRename: (name: string) => Promise<void>
   onRevealedChange: (revealed: boolean) => void

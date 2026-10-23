@@ -7,6 +7,7 @@ import { CampaignTable } from "@/components/dashboard/CampaignTable"
 import { CampaignToolbar } from "@/components/dashboard/CampaignToolbar"
 import { JoinCampaignDialog } from "@/components/dashboard/JoinCampaignDialog"
 import { LeaveCampaignDialog } from "@/components/dashboard/LeaveCampaignDialog"
+import { SectionHeading } from "@/components/dashboard/SectionHeading"
 import { useCampaign } from "@/components/dashboard/useCampaign"
 import { useCampaignMembers } from "@/hooks/use-campaign-members"
 import { useCampaignListPrefs } from "@/hooks/use-campaign-list-prefs"
@@ -37,10 +38,7 @@ export function HomeCampaigns() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      {/* A section heading, not a page title: the breadcrumb names the page. */}
-      <div className="flex h-9 items-center">
-        <h2 className="text-xl font-semibold tracking-tight">Campaigns</h2>
-      </div>
+      <SectionHeading>Campaigns</SectionHeading>
 
       {error && <FormAlert tone="error">{error}</FormAlert>}
 

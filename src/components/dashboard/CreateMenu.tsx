@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react"
 import { Link, useMatch } from "react-router-dom"
 import { Users } from "lucide-react"
 import { useAuth } from "@/auth/useAuth"
+import { useCreateEntry } from "@/hooks/use-create-entry"
 import type { IconHandle } from "@/components/AnimatedIcon"
 import { IconButton } from "@/components/IconButton"
 import { PlusIcon } from "@/components/PlusIcon"
@@ -18,7 +19,6 @@ import { can } from "@/lib/campaign-permissions"
 import { campaignScope, libraryScope } from "@/lib/world-scope"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
-import { NewEntryDialog } from "./NewEntryDialog"
 import { NewMapDialog } from "./NewMapDialog"
 import { useRouteCampaign } from "./useCurrentCampaign"
 import { WorldScopeContext } from "./WorldScopeContext"
@@ -32,7 +32,6 @@ export function CreateMenu() {
   const campaign = useRouteCampaign()
   const inCampaign = useMatch("/app/c/:campaignId/*") !== null
   const [makingMap, setMakingMap] = useState(false)
-  const [creating, setCreating] = useState<WorldEntryKind | null>(null)
   const [open, setOpen] = useState(false)
   const [tip, setTip] = useState(false)
   const plus = useRef<IconHandle>(null)
@@ -46,6 +45,7 @@ export function CreateMenu() {
     }
     return userId ? libraryScope(userId) : null
   }, [inCampaign, campaign, userId])
+  const createEntry = useCreateEntry(scope)
   const destination = inCampaign ? (campaign?.name ?? "") : "Library"
   // The map first, then the kinds of entry.
   const kinds: WorldEntryKind[] = scope ? ["map", ...scope.kinds.filter((kind) => kind !== "map")] : []
@@ -88,7 +88,7 @@ export function CreateMenu() {
                 return (
                   <DropdownMenuItem
                     key={kind}
-                    onSelect={() => (kind === "map" ? setMakingMap(true) : setCreating(kind))}
+                    onSelect={() => (kind === "map" ? setMakingMap(true) : createEntry(kind))}
                   >
                     <KindIcon />
                     {label}
@@ -109,7 +109,6 @@ export function CreateMenu() {
       {scope && (
         <WorldScopeContext.Provider value={scope}>
           <NewMapDialog open={makingMap} onClose={() => setMakingMap(false)} />
-          <NewEntryDialog kind={creating} reload={async () => {}} onClose={() => setCreating(null)} />
         </WorldScopeContext.Provider>
       )}
     </>

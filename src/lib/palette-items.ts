@@ -1,10 +1,11 @@
+import type { LucideIcon } from "lucide-react"
 import type { WorldEntryKind } from "./world-kinds"
 
 // What a row shows in front of its name.
 export type Visual =
   | { type: "campaign"; name: string; imageUrl: string | null }
   | { type: "entry"; kind: WorldEntryKind; imageUrl: string | null }
-  | { type: "page"; icon: string }
+  | { type: "page"; icon: string | LucideIcon }
   | { type: "action" }
 
 // Something that was opened lately, kept in this browser.
