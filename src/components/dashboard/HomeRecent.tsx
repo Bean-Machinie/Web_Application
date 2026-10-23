@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { LoadingGate } from "@/components/LoadingGate"
+import { useHadRecent } from "@/hooks/use-had-recent"
 import { useRecentEntries } from "@/hooks/use-recent-entries"
 import { can } from "@/lib/campaign-permissions"
 import { dayGroup } from "@/lib/time"
@@ -12,6 +13,9 @@ import { useCampaign } from "./useCampaign"
 const SHOWN = 10
 // What the skeleton shows before anything has loaded.
 const FIRST_LOAD = [3, 4]
+// Beside the campaigns its top lines up with the toolbar: under the heading row
+// (2.25rem) and the gap below it (1rem).
+const SIDE = "xl:mt-[3.25rem] xl:w-[340px] xl:shrink-0"
 
 // Rows are grouped by the day they are dated by, in the order they come.
 function groupByDay(items: RecentEntry[], by: RecentBy) {
@@ -29,7 +33,8 @@ function groupByDay(items: RecentEntry[], by: RecentBy) {
 // campaign cards: the newest entries in your library and in the campaigns you run, by
 // when they were changed or made, grouped by day. The card stays put when the sort
 // changes: the rows turn into a skeleton of the same shape while the new ones load.
-// Nothing at all while there is nothing to show.
+// Whether room is made for it before loading follows what it held last time, so the
+// campaigns beside it do not shift. With nothing to show it takes no room at all.
 export function HomeRecent() {
   const { campaigns } = useCampaign()
   const [by, setBy] = useState<RecentBy>("updated")
@@ -45,13 +50,18 @@ export function HomeRecent() {
   const names = useMemo(() => new Map(running.map((campaign) => [campaign.id, campaign.name])), [running])
   // Of what is on screen, which stands in for the rows while others load.
   const groups = useMemo(() => (entries ? groupByDay(entries, by) : []), [entries, by])
+  const [hadRecent, rememberHadRecent] = useHadRecent()
+
+  useEffect(() => {
+    if (entries) rememberHadRecent(entries.length > 0)
+  }, [entries, rememberHadRecent])
 
   return (
     <LoadingGate
       loading={entries === null}
-      // Beside the campaigns its top lines up with the toolbar: under the heading row
-      // (2.25rem) and the gap below it (1rem).
-      className="xl:mt-[3.25rem] xl:w-[340px] xl:shrink-0"
+      className={
+        entries ? (entries.length > 0 ? SIDE : "hidden") : hadRecent ? SIDE : "hidden"
+      }
       skeleton={
         <RecentCard by={by} onBy={setBy}>
           <RecentRowsSkeleton groups={FIRST_LOAD} />
