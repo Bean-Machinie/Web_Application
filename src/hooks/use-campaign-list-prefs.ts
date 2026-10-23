@@ -9,7 +9,7 @@ const ROLES = ["all", "gm", "player"]
 const SORT_KEYS = ["name", "created"]
 const SORT_DIRS = ["asc", "desc"]
 
-const DEFAULTS: Prefs = { role: "all", sort: defaultSort("name") }
+const DEFAULTS: Prefs = { role: "all", sort: defaultSort("created") }
 
 // Anything stored that is not a known value falls back to the default.
 function parse(text: string | null): Prefs {
