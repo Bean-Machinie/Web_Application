@@ -26,7 +26,7 @@ export function CollectionPage({ tabs, actions, bleed, children }: Props) {
       // (--header-height) and this toolbar.
       style={{ "--collection-top": `calc(var(--header-height) + ${size.height}px)` } as CSSProperties}
       className={cn(
-        "-m-4 flex flex-col md:-m-6",
+        "-m-4 flex min-w-0 flex-col md:-m-6",
         bleed ? "h-[calc(100svh-var(--header-height))] flex-none" : "flex-1"
       )}
     >

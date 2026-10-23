@@ -93,8 +93,8 @@ export function WorldEntryGraph({ entries }: { entries: WorldEntry[] }) {
       onPointerMove={pointer.onPointerMove}
       onPointerLeave={pointer.onPointerLeave}
       // A hand over the whole graph, closed while pressed: you pan the ground and drag
-      // the entries alike.
-      className="relative min-h-[28rem] min-w-0 flex-1 overflow-hidden [&_canvas]:cursor-grab! [&_canvas:active]:cursor-grabbing!"
+      // the entries alike. Over an entry it is the pointing hand until pressed.
+      className="relative min-h-[28rem] min-w-0 flex-1 overflow-hidden [&_canvas]:cursor-grab! [&[data-over]_canvas]:cursor-pointer! [&_canvas:active]:cursor-grabbing! [&[data-over]_canvas:active]:cursor-grabbing!"
     >
       {/* A soft pool of light in the middle, darker toward the edges, under the grid. */}
       <div
@@ -156,7 +156,11 @@ export function WorldEntryGraph({ entries }: { entries: WorldEntry[] }) {
                 }}
                 linkCanvasObjectMode={replace}
                 linkCanvasObject={(link, ctx, scale) => drawLink(link, ctx, scale, view)}
-                onNodeHover={(node) => hover(node ? node.id : null)}
+                onNodeHover={(node) => {
+                  // Read by the cursor classes below; no render for a hover.
+                  ref.current?.toggleAttribute("data-over", !!node)
+                  hover(node ? node.id : null)
+                }}
                 onNodeClick={selection.onNodeClick}
                 onBackgroundClick={() => selection.choose(null)}
                 // Dragging is the library's own: the node follows the pointer, the
