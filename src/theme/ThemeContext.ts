@@ -9,7 +9,7 @@ export type ThemeState = {
 }
 
 export const ThemeContext = createContext<ThemeState>({
-  theme: "system",
+  theme: "dark",
   setTheme: () => {},
-  resolved: "light",
+  resolved: "dark",
 })
