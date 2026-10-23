@@ -6,34 +6,42 @@ import { Button } from "@/components/ui/button"
 import { DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useMapSize } from "@/hooks/use-map-size"
 import { errorMessage } from "@/lib/campaigns"
 import { createScene } from "@/lib/map-scene"
-import type { CanvasChoice } from "@/lib/map-scene"
+import { untitledName } from "@/lib/untitled-entry"
 import { saveMapScene } from "@/lib/world-map-scenes"
-import { MapBackgroundChoice } from "./MapBackgroundChoice"
-import { MapShapeChoice } from "./MapShapeChoice"
+import { MapPresetSelect } from "./MapPresetSelect"
+import { MapSizeFields } from "./MapSizeFields"
+import { MapSizePreview } from "./MapSizePreview"
 import { useWorldScope } from "./useWorldScope"
 
-const FIRST_CANVAS: CanvasChoice = { preset: "3:2", background: "ocean" }
+type Props = {
+  // Builds on a map that exists (and so asks no name) instead of making one.
+  mapId?: string
+  onClose: () => void
+}
 
-// Only mounted while the dialog is open, so it starts fresh every time.
-export function NewMapForm({ onClose }: { onClose: () => void }) {
+// Only mounted while the dialog is open, so it starts fresh every time. The sea is the
+// only background there is, so none is asked for.
+export function NewMapForm({ mapId, onClose }: Props) {
   const navigate = useNavigate()
   const scope = useWorldScope()
+  const size = useMapSize()
   const [name, setName] = useState("")
-  const [canvas, setCanvas] = useState(FIRST_CANVAS)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
+    if (size.problem) return
     setBusy(true)
     setError(null)
     try {
-      const map = await scope.createEntry("map", name.trim())
-      await saveMapScene(map.id, createScene(canvas), null)
+      const id = mapId ?? (await scope.createEntry("map", name.trim() || untitledName("map"))).id
+      await saveMapScene(id, createScene({ width: size.w, height: size.h, background: "ocean" }), null)
       onClose()
-      navigate(`${scope.basePath}/${map.id}/build`)
+      navigate(`${scope.basePath}/${id}/build`)
     } catch (failure) {
       setError(errorMessage(failure))
       setBusy(false)
@@ -41,38 +49,51 @@ export function NewMapForm({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-5">
-      <DialogDescription className="sr-only">
-        Name the map and choose its canvas. The canvas shape cannot change later.
-      </DialogDescription>
-      <div className="grid gap-2">
-        <Label htmlFor="new-map-name">Name</Label>
-        <Input
-          id="new-map-name"
-          autoFocus
-          autoComplete="off"
-          maxLength={80}
-          placeholder="The Sword Coast"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          disabled={busy}
-        />
-      </div>
-      <div className="grid gap-2">
-        <Label>Canvas shape</Label>
-        <MapShapeChoice value={canvas.preset} onChange={(preset) => setCanvas({ ...canvas, preset })} />
-        <p className="text-muted-foreground text-xs">The shape cannot be changed later.</p>
-      </div>
-      <div className="grid gap-2">
-        <Label>Background</Label>
-        <MapBackgroundChoice value={canvas.background} onChange={(background) => setCanvas({ ...canvas, background })} />
+    <form onSubmit={handleSubmit} className="grid gap-6">
+      <DialogDescription className="sr-only">Choose the size of the canvas.</DialogDescription>
+      <div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_16rem]">
+        <div className="flex flex-col gap-5">
+          {!mapId && (
+            <div className="grid gap-2">
+              <Label htmlFor="new-map-name">Name</Label>
+              <Input
+                id="new-map-name"
+                autoFocus
+                autoComplete="off"
+                maxLength={80}
+                placeholder="Untitled map"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                disabled={busy}
+              />
+            </div>
+          )}
+          <MapPresetSelect value={size.preset} onPick={size.pick} />
+          <div className="grid gap-2">
+            <MapSizeFields
+              width={size.width}
+              height={size.height}
+              invalid={size.problem !== null}
+              locked={size.locked}
+              onWidth={size.editWidth}
+              onHeight={size.editHeight}
+              onLock={size.setLocked}
+              onSwap={size.swap}
+            />
+            <p className={size.problem ? "text-destructive text-xs" : "text-muted-foreground text-xs"}>
+              {size.problem ?? "1024–8192 px per side"}
+            </p>
+          </div>
+        </div>
+        <MapSizePreview width={size.w} height={size.h} />
       </div>
       {error && <FormAlert tone="error">{error}</FormAlert>}
-      <DialogFooter>
+      <DialogFooter className="sm:items-center">
+        <p className="text-muted-foreground text-xs sm:mr-auto">The size can't be changed later.</p>
         <Button type="button" variant="outline" onClick={onClose} disabled={busy}>
           Cancel
         </Button>
-        <Button type="submit" disabled={busy || name.trim() === ""}>
+        <Button type="submit" disabled={busy || size.problem !== null}>
           {busy && <Loader2 className="size-4 animate-spin" />}
           Create
         </Button>

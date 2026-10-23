@@ -1,18 +1,24 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { NewMapForm } from "./NewMapForm"
 
-type Props = { open: boolean; onClose: () => void }
+type Props = {
+  open: boolean
+  onClose: () => void
+  // Builds on this map, which has no scene yet, instead of making a new one.
+  mapId?: string
+}
 
-// The one way to start a map: a name and a canvas, made in the place the World components
-// are looking at (a campaign's world, or your library), then opened in the map builder.
-export function NewMapDialog({ open, onClose }: Props) {
+// The one way to start a map: a name (when there is no map yet) and a size, in the place
+// the World components are looking at (a campaign's world, or your library), then the
+// map builder opens on it.
+export function NewMapDialog({ open, onClose, mapId }: Props) {
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[640px]">
         <DialogHeader>
-          <DialogTitle>New map</DialogTitle>
+          <DialogTitle>{mapId ? "Build this map" : "New map"}</DialogTitle>
         </DialogHeader>
-        <NewMapForm onClose={onClose} />
+        <NewMapForm mapId={mapId} onClose={onClose} />
       </DialogContent>
     </Dialog>
   )

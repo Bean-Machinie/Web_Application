@@ -15,7 +15,7 @@ export function MapSettings({ canvas, style, onPreviewStyle, onCommitStyle }: Pr
   return (
     <>
       <p className="text-muted-foreground text-xs">
-        {CANVAS_PRESETS[canvas.preset].label} · {canvas.width} × {canvas.height} px
+        {canvas.preset === "custom" ? "Custom" : CANVAS_PRESETS[canvas.preset].label} · {canvas.width} × {canvas.height} px
       </p>
       <MapStyleSliders style={style} onPreview={onPreviewStyle} onCommit={onCommitStyle} />
     </>

@@ -1,4 +1,3 @@
-import { mixRgb } from "./colour"
 import type { Rgb } from "./colour"
 import type { Biome } from "./biomes/biomes"
 import type { SceneBackground } from "./map-scene"
@@ -72,23 +71,6 @@ const BIOMES: Biomes & { volcanic: { accent: Rgb } } = {
   swamp: { fill: [93, 89, 45], ink: [48, 46, 22] },
   desert: { fill: [200, 148, 97], ink: [120, 70, 28] },
   volcanic: { fill: [89, 76, 67], ink: [34, 26, 22], accent: [196, 70, 30] },
-}
-
-// On paper the biome colours are drawn toward the land's own, where saturated
-// ground looks out of place.
-const MUTED = 0.25
-
-function muted(land: { fill: Rgb; ink: Rgb }): MapTheme["biomes"] {
-  const toward = ({ fill, ink }: { fill: Rgb; ink: Rgb }) => ({
-    fill: mixRgb(fill, land.fill, MUTED),
-    ink: mixRgb(ink, land.ink, MUTED),
-  })
-  return {
-    ice: toward(BIOMES.ice),
-    swamp: toward(BIOMES.swamp),
-    desert: toward(BIOMES.desert),
-    volcanic: { ...toward(BIOMES.volcanic), accent: BIOMES.volcanic.accent },
-  }
 }
 
 // The same colours on every background: the grade, below, is what makes them sit.
@@ -270,20 +252,7 @@ const PAINT = {
 
 const SHADOW = { colour: "#000", blur: 16, offsetY: 5, opacity: 0.3 }
 
-const PARCHMENT_LAND = { fill: [239, 227, 189] as Rgb, ink: [52, 38, 26] as Rgb }
-
 const THEMES: Record<SceneBackground, MapTheme> = {
-  parchment: {
-    ink: PARCHMENT_LAND.ink,
-    land: { fill: PARCHMENT_LAND.fill, shadow: SHADOW },
-    biomes: muted(PARCHMENT_LAND),
-    water: { dark: [96, 66, 36], darkAlpha: 0.42, light: [255, 252, 240], lightAlpha: 0.95 },
-    paint: {
-      ...PAINT,
-      grade: { saturation: 0.92, contrast: 1.03, brightness: 0, tint: [255, 232, 190], tintAmount: 0.1 },
-      terrainTint: { tint: [255, 238, 205], amount: 0.06 },
-    },
-  },
   ocean: {
     ink: [34, 34, 30],
     land: { fill: [129, 119, 80], shadow: SHADOW },
