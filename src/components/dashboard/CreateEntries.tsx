@@ -1,7 +1,8 @@
-import { ChevronRight } from "lucide-react"
+import { TiltCard } from "@/components/TiltCard"
+import { tiltCardSkin } from "@/components/tilt-card-styles"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
-import { CreateCard } from "./CreateCard"
+import { SectionHeading } from "./SectionHeading"
 
 type Props = { kinds: WorldEntryKind[]; onPick: (kind: WorldEntryKind) => void }
 
@@ -13,30 +14,34 @@ const BLURB: Partial<Record<WorldEntryKind, string>> = {
   lore: "History, myths and notes",
 }
 
-// One row per kind of entry; clicking makes one at once.
+// One card per kind of entry, in a grid that fits as many as the width allows, made like
+// the campaign cards. The whole card makes one.
 export function CreateEntries({ kinds, onPick }: Props) {
   return (
-    <CreateCard title="Entries">
-      {kinds.map((kind) => {
-        const { label, icon: KindIcon } = WORLD_KINDS[kind]
-        return (
-          <button
-            key={kind}
-            type="button"
-            onClick={() => onPick(kind)}
-            className="hover:bg-accent/50 focus-visible:ring-ring flex items-center gap-3 rounded-md px-2 py-2 text-left outline-none focus-visible:ring-2"
-          >
-            <span className="bg-muted text-muted-foreground flex size-9 shrink-0 items-center justify-center rounded-lg">
-              <KindIcon className="size-4" />
-            </span>
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-sm font-medium">{label}</span>
-              <span className="text-muted-foreground truncate text-xs">{BLURB[kind]}</span>
-            </span>
-            <ChevronRight className="text-muted-foreground size-4 shrink-0" />
-          </button>
-        )
-      })}
-    </CreateCard>
+    <section className="flex flex-col gap-4">
+      <SectionHeading>Entries</SectionHeading>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
+        {kinds.map((kind) => {
+          const { label, icon: KindIcon } = WORLD_KINDS[kind]
+          return (
+            <TiltCard key={kind} className={`bg-card flex rounded-lg border ${tiltCardSkin()}`}>
+              <button
+                type="button"
+                onClick={() => onPick(kind)}
+                className="focus-visible:after:ring-ring flex w-full flex-col gap-3 p-4 text-left outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:rounded-lg focus-visible:after:ring-2"
+              >
+                <span className="bg-muted text-muted-foreground flex size-9 items-center justify-center rounded-lg">
+                  <KindIcon className="size-4" />
+                </span>
+                <span className="flex flex-col">
+                  <span className="font-medium">{label}</span>
+                  <span className="text-muted-foreground text-sm">{BLURB[kind]}</span>
+                </span>
+              </button>
+            </TiltCard>
+          )
+        })}
+      </div>
+    </section>
   )
 }

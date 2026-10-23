@@ -22,7 +22,7 @@ export function ToolTile({ name, description, icon: ToolIcon, image, onOpen }: P
         <button
           type="button"
           onClick={onOpen}
-          className="group/tile bg-muted focus-visible:border-primary focus-visible:ring-primary hover:border-primary hover:ring-primary relative block aspect-square w-[220px] max-w-full overflow-hidden rounded-lg border text-left outline-none transition-[border-color,box-shadow] duration-150 hover:ring-1 focus-visible:ring-1"
+          className="group/tile bg-muted focus-visible:border-primary focus-visible:ring-primary hover:border-primary hover:ring-primary relative block aspect-square w-[280px] max-w-full overflow-hidden rounded-lg border text-left outline-none transition-[border-color,box-shadow] duration-150 hover:ring-1 focus-visible:ring-1"
         >
           {image && (
             <img
