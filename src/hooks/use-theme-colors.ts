@@ -8,6 +8,7 @@ export type ThemeColors = {
   background: string
   // The accent: what is highlighted.
   primary: string
+  dark: boolean
 }
 
 function read(): ThemeColors {
@@ -18,6 +19,7 @@ function read(): ThemeColors {
     mutedForeground: value("--muted-foreground"),
     background: value("--background"),
     primary: value("--primary"),
+    dark: document.documentElement.classList.contains("dark"),
   }
 }
 

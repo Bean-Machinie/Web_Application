@@ -5,9 +5,9 @@ import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { Emphasis } from "./graph-emphasis"
 import type { Frame } from "./graph-frame"
 import { drawLabel, labelFade } from "./graph-label"
+import { graphTone } from "./graph-tone"
 import { coverOf, iconOf, spriteAt } from "./graph-sprites"
 
-const LINK_ALPHA = 0.45
 // The icon of a kind, as a share of the dot's radius.
 const ICON_SIZE = 1.3
 
@@ -83,7 +83,7 @@ export function drawNode(node: GraphNode, ctx: CanvasRenderingContext2D, scale: 
   const r = drawnRadius(node, settings.nodeSize, scale)
   const tint = WORLD_KINDS[node.entry.kind].tint
   const hidden = view.marksHidden && !node.entry.revealed
-  const alpha = look.alpha * (hidden ? 0.6 : 1)
+  const alpha = look.alpha * (hidden ? graphTone(colors.dark).hidden : 1)
 
   ctx.save()
   ctx.globalAlpha = alpha
@@ -154,8 +154,9 @@ export function drawLink(
   ctx.lineTo(to.x, by)
   ctx.lineWidth = (0.8 * view.settings.lineThickness) / scale
   if (!link.mention) ctx.setLineDash(dashFor(scale))
-  ctx.globalAlpha = LINK_ALPHA * alpha
-  ctx.strokeStyle = view.colors.mutedForeground
+  const tone = graphTone(view.colors.dark)
+  ctx.globalAlpha = tone.linkAlpha * alpha
+  ctx.strokeStyle = view.colors[tone.linkColor]
   ctx.stroke()
   if (lit > 0) {
     ctx.globalAlpha = alpha * lit

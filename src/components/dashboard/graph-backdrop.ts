@@ -1,4 +1,5 @@
 import type { ThemeColors } from "@/hooks/use-theme-colors"
+import { graphTone } from "./graph-tone"
 
 // Dots of a grid, in graph units at zoom 1. They move and scale with the graph, like a
 // table the entries lie on. The grid is halved or doubled as you zoom, so that on
@@ -7,7 +8,6 @@ const SPACING = 28
 const NEAR = 24
 // Every fourth dot of the grid is a little bigger, which gives it a sense of scale.
 const MAJOR = 4
-const DOT_ALPHA = 0.5
 // Past this many dots the grid is not worth drawing.
 const MAX_DOTS = 6000
 // How far the pointer's glow reaches, on screen.
@@ -45,9 +45,11 @@ export function drawGrid(
   const minor = 1.8 / scale
   const reach = SPOT_REACH / scale
   const drift = time * WAVE_SPEED
+  const tone = graphTone(colors.dark)
+  const dotColor = colors[tone.dotColor]
   let accent = false
   ctx.save()
-  ctx.fillStyle = colors.mutedForeground
+  ctx.fillStyle = dotColor
   for (let column = first; column <= last; column += 1) {
     for (let row = above; row <= below; row += 1) {
       const x = column * step
@@ -55,7 +57,7 @@ export function drawGrid(
       const onCoarser = column % 2 === 0 && row % 2 === 0
       const band = Math.max(0, Math.sin((x + y) * WAVE_WIDTH - drift)) ** 3
       let size = (column % MAJOR === 0 && row % MAJOR === 0 ? minor * 1.7 : minor) * (1 + 0.4 * band)
-      let alpha = DOT_ALPHA * (0.55 + 0.45 * band)
+      let alpha = tone.dotAlpha *(0.55 + 0.45 * band)
 
       const near = spot.on ? 1 - Math.hypot(x - spot.x, y - spot.y) / reach : 0
       const glow = near > 0 ? near * near : 0
@@ -65,7 +67,7 @@ export function drawGrid(
       }
       if ((glow > 0.02) !== accent) {
         accent = !accent
-        ctx.fillStyle = accent ? colors.primary : colors.mutedForeground
+        ctx.fillStyle = accent ? colors.primary : dotColor
       }
       ctx.globalAlpha = alpha * (onCoarser ? 1 : finer)
       ctx.fillRect(x - size / 2, y - size / 2, size, size)

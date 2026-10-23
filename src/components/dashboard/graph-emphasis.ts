@@ -1,12 +1,10 @@
 import type { GraphNode } from "@/lib/world-graph"
 import type { WorldEntryKind } from "@/lib/world-kinds"
+import type { GraphTone } from "./graph-tone"
 
 // The time constant of every fade: a change is about done after three of them, so
 // about 150 ms.
 const TAU_MS = 50
-// How far the entries and lines that are not the point are dimmed.
-const DIMMED = 0.2
-const OUT_OF_FOCUS = 0.06
 const SNAP = 0.005
 
 // How an entry is drawn right now, each part between 0 and 1.
@@ -35,15 +33,15 @@ type Near = ReadonlyMap<string, ReadonlySet<string>>
 const PLAIN: Look = { lit: 0, core: 0, alpha: 1, pick: 0, match: 0 }
 const PARTS = ["lit", "core", "alpha", "pick", "match"] as const
 
-function aimAt(aim: Aim, node: GraphNode, near: Near, out: Look) {
+function aimAt(aim: Aim, node: GraphNode, near: Near, tone: GraphTone, out: Look) {
   const core = aim.hover === node.id
   const lit = core || (aim.hover !== null && !!near.get(aim.hover)?.has(node.id))
   let alpha = 1
   if (aim.hiddenKinds.has(node.entry.kind)) alpha = 0
   else if (!core) {
-    if (aim.focus && !aim.focus.has(node.id)) alpha = OUT_OF_FOCUS
-    if (aim.hover !== null && !lit) alpha = Math.min(alpha, DIMMED)
-    if (aim.matches && !aim.matches.has(node.id)) alpha = Math.min(alpha, DIMMED)
+    if (aim.focus && !aim.focus.has(node.id)) alpha = tone.outOfFocus
+    if (aim.hover !== null && !lit) alpha = Math.min(alpha, tone.dimmed)
+    if (aim.matches && !aim.matches.has(node.id)) alpha = Math.min(alpha, tone.dimmed)
   }
   out.lit = lit ? 1 : 0
   out.core = core ? 1 : 0
@@ -78,6 +76,8 @@ export function createEmphasis() {
   const link = { lit: 0, alpha: 1 }
   // How far the graph is dimmed by a hover, for the lines.
   let veil = 0
+  // Set by each step, from the theme.
+  let dimmed = 1
   let last = 0
   let moving = false
 
@@ -90,12 +90,13 @@ export function createEmphasis() {
       moving = true
     },
     animating: () => moving,
-    step(nodes: readonly GraphNode[], near: Near, time: number) {
+    step(nodes: readonly GraphNode[], near: Near, time: number, tone: GraphTone) {
+      dimmed = tone.dimmed
       const k = 1 - Math.exp(-Math.min(time - last, 64) / TAU_MS)
       last = time
       let still = false
       for (const node of nodes) {
-        aimAt(aim, node, near, goal)
+        aimAt(aim, node, near, tone, goal)
         const current = looks.get(node.id)
         if (!current) looks.set(node.id, { ...goal })
         else if (approach(current, goal, k)) still = true
@@ -114,7 +115,7 @@ export function createEmphasis() {
       const from = look(a)
       const to = look(b)
       link.lit = Math.max(from.core, to.core)
-      link.alpha = Math.min(from.alpha, to.alpha, 1 - veil * (1 - DIMMED) * (1 - link.lit))
+      link.alpha = Math.min(from.alpha, to.alpha, 1 - veil * (1 - dimmed) * (1 - link.lit))
       return link
     },
   }

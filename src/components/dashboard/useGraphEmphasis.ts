@@ -7,6 +7,7 @@ import type { Spot } from "./graph-backdrop"
 import { createEmphasis } from "./graph-emphasis"
 import type { Aim } from "./graph-emphasis"
 import { createFrame } from "./graph-frame"
+import { graphTone } from "./graph-tone"
 import type { GraphMethods } from "./graph-types"
 
 // The canvas is redrawn on demand, so a fade needs a frame asked for until it ends.
@@ -58,7 +59,7 @@ export function useGraphEmphasis(
   // Runs before each frame: the fades move on, and what is on screen is worked out.
   const beforeFrame = useCallback(
     (ctx: CanvasRenderingContext2D, scale: number) => {
-      emphasis.step(graph.nodes, graph.near, performance.now())
+      emphasis.step(graph.nodes, graph.near, performance.now(), graphTone(colors.dark))
       const instance = graphRef.current
       if (!instance) return
       const from = instance.screen2GraphCoords(0, 0)
