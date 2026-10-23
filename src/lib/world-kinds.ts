@@ -6,7 +6,7 @@ import type { WorldFieldType } from "./world-fields"
 // fields) and one more value in the world_entry_kind enum; the tabs, lists,
 // pages and create buttons read this and need no other change.
 export type WorldEntryKind =
-  | "character"
+  | "npc"
   | "creature"
   | "location"
   | "item"
@@ -34,6 +34,11 @@ export type FieldDef = {
 type KindDef = {
   label: string
   plural: string
+  // The same in running text: lowercase, except where it is an acronym ("NPC").
+  noun: string
+  nouns: string
+  // One line on what it is, for where kinds are chosen from.
+  description: string
   icon: LucideIcon
   // Example in the name box of the create dialog.
   namePlaceholder: string
@@ -109,9 +114,12 @@ function select(
 }
 
 export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
-  character: {
-    label: "Character",
-    plural: "Characters",
+  npc: {
+    label: "NPC",
+    plural: "NPCs",
+    noun: "NPC",
+    nouns: "NPCs",
+    description: "A non-player character",
     icon: User,
     namePlaceholder: "e.g. Bram the innkeeper",
     tint: "oklch(0.72 0.15 55)",
@@ -145,6 +153,9 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
   creature: {
     label: "Creature",
     plural: "Creatures",
+    noun: "creature",
+    nouns: "creatures",
+    description: "A beast or monster",
     icon: PawPrint,
     namePlaceholder: "e.g. Mossback troll",
     tint: "oklch(0.65 0.2 25)",
@@ -163,6 +174,9 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
   location: {
     label: "Location",
     plural: "Locations",
+    noun: "location",
+    nouns: "locations",
+    description: "A place",
     icon: MapPin,
     namePlaceholder: "e.g. The Gilded Stag",
     tint: "oklch(0.7 0.15 150)",
@@ -179,6 +193,9 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
   item: {
     label: "Item",
     plural: "Items",
+    noun: "item",
+    nouns: "items",
+    description: "An object",
     icon: Package,
     namePlaceholder: "e.g. Sword of Dawn",
     tint: "oklch(0.65 0.18 300)",
@@ -196,6 +213,9 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
   lore: {
     label: "Lore",
     plural: "Lore",
+    noun: "lore",
+    nouns: "lore",
+    description: "History, myths and notes",
     icon: BookOpen,
     namePlaceholder: "e.g. The Sundering",
     tint: "oklch(0.68 0.13 245)",
@@ -212,6 +232,9 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
   map: {
     label: "Map",
     plural: "Maps",
+    noun: "map",
+    nouns: "maps",
+    description: "A map you draw or upload",
     icon: MapIcon,
     namePlaceholder: "e.g. The Northern Marches",
     tint: "oklch(0.7 0.11 195)",

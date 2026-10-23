@@ -9,6 +9,7 @@ import { useWorldEntries } from "@/hooks/use-world-entries"
 import { useWorldEntryDelete } from "@/hooks/use-world-entry-delete"
 import { useWorldSearchText } from "@/hooks/use-world-search-text"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
+import { currentKindName } from "@/lib/legacy-kinds"
 import { changedWithin } from "@/lib/library-recency"
 import type { Recency } from "@/lib/library-recency"
 import { findSection, hasGraph } from "@/lib/library-sections"
@@ -27,7 +28,7 @@ export function useLibraryPage() {
   const scope = useWorldScope()
   const { entries, error, reload, setRevealed, reorder } = useWorldEntries(scope)
   const [params, setParams] = useSearchParams()
-  const section = findSection(params.get("section") ?? "all")
+  const section = findSection(currentKindName(params.get("section")) ?? "all")
   const [query, setQuery] = useState("")
   const [recency, setRecency] = useState<Recency>("any")
   const [chosenMode, setMode] = useWorldViewMode()
@@ -78,7 +79,7 @@ export function useLibraryPage() {
 
   const make = (kind: WorldEntryKind) => (kind === "map" ? setMaking(true) : createEntry(kind))
   // The command palette's "New ..." actions arrive as ?create=<kind>.
-  const wanted = scope.kinds.find((option) => option === params.get("create")) ?? null
+  const wanted = scope.kinds.find((option) => option === currentKindName(params.get("create"))) ?? null
   const asked = useRef(false)
   useEffect(() => {
     if (!wanted) asked.current = false

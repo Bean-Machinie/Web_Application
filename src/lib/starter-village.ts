@@ -1,4 +1,4 @@
-import { character, entry, fact, statBlock } from "./campaign-template-types"
+import { npc, entry, fact, statBlock } from "./campaign-template-types"
 import type { CampaignTemplate } from "./campaign-template-types"
 
 // Generic and system-agnostic on purpose. Everything starts hidden.
@@ -8,7 +8,7 @@ export const STARTER_VILLAGE: CampaignTemplate = {
   description: "A small village with a handful of people, places and a local legend.",
   portraits: "/templates/starter-village",
   entries: [
-    character(
+    npc(
       "Bram Hollis",
       { role: "Innkeeper", species: "Human", age: "67", status: "alive", attitude: "friendly" },
       {
@@ -18,7 +18,7 @@ export const STARTER_VILLAGE: CampaignTemplate = {
         secret: "Owes a dangerous debt to someone in the next town.",
       }
     ),
-    character(
+    npc(
       "Tessa Vale",
       { role: "Traveling merchant", species: "Witch", age: "152", status: "alive", attitude: "neutral" },
       {
@@ -28,7 +28,7 @@ export const STARTER_VILLAGE: CampaignTemplate = {
         secret: "Some of her stock was stolen.",
       }
     ),
-    character(
+    npc(
       "Captain Mara Dorn",
       { role: "Guard captain", species: "Human", age: "41", status: "alive", attitude: "neutral" },
       {
@@ -38,7 +38,7 @@ export const STARTER_VILLAGE: CampaignTemplate = {
         secret: "Quietly looks away from the smugglers on the Forest Road.",
       }
     ),
-    character(
+    npc(
       "Elder Osric",
       { role: "Village elder", species: "Human", age: "82", status: "alive", attitude: "friendly" },
       {
@@ -48,7 +48,7 @@ export const STARTER_VILLAGE: CampaignTemplate = {
         secret: "Knows the truth behind the Lantern of Willowbrook.",
       }
     ),
-    character(
+    npc(
       "Kestrel",
       { role: "Mysterious stranger", species: "Human", age: "40", status: "alive", attitude: "neutral" },
       {

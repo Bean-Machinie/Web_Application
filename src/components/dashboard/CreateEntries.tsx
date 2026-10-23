@@ -6,14 +6,6 @@ import { SectionHeading } from "./SectionHeading"
 
 type Props = { kinds: WorldEntryKind[]; onPick: (kind: WorldEntryKind) => void }
 
-const BLURB: Partial<Record<WorldEntryKind, string>> = {
-  character: "A person in your world",
-  creature: "A beast or monster",
-  location: "A place",
-  item: "An object",
-  lore: "History, myths and notes",
-}
-
 // One card per kind of entry, in a grid that fits as many as the width allows, made like
 // the campaign cards. The whole card makes one.
 export function CreateEntries({ kinds, onPick }: Props) {
@@ -22,7 +14,7 @@ export function CreateEntries({ kinds, onPick }: Props) {
       <SectionHeading>Entries</SectionHeading>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3">
         {kinds.map((kind) => {
-          const { label, icon: KindIcon } = WORLD_KINDS[kind]
+          const { label, description, icon: KindIcon } = WORLD_KINDS[kind]
           return (
             <TiltCard key={kind} className={`bg-card flex rounded-lg border ${tiltCardSkin()}`}>
               <button
@@ -35,7 +27,7 @@ export function CreateEntries({ kinds, onPick }: Props) {
                 </span>
                 <span className="flex flex-col">
                   <span className="font-medium">{label}</span>
-                  <span className="text-muted-foreground text-sm">{BLURB[kind]}</span>
+                  <span className="text-muted-foreground text-sm">{description}</span>
                 </span>
               </button>
             </TiltCard>

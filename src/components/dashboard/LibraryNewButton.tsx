@@ -17,7 +17,7 @@ export function LibraryNewButton({ kinds, onPick }: Props) {
     return (
       <Button onClick={() => onPick(kinds[0])}>
         <Plus className="size-4" />
-        New {WORLD_KINDS[kinds[0]].label.toLowerCase()}
+        New {WORLD_KINDS[kinds[0]].noun}
       </Button>
     )
   }

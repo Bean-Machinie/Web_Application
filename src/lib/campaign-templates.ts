@@ -11,8 +11,8 @@ export function templateKinds(template: CampaignTemplate): WorldEntryKind[] {
   return worldKinds.filter((kind) => template.entries.some((entry) => entry.kind === kind))
 }
 
-// "13 entries · characters, creatures, locations"
+// "13 entries · NPCs, creatures, locations"
 export function summarize(template: CampaignTemplate) {
-  const kinds = templateKinds(template).map((kind) => WORLD_KINDS[kind].plural.toLowerCase())
+  const kinds = templateKinds(template).map((kind) => WORLD_KINDS[kind].nouns)
   return `${template.entries.length} entries · ${kinds.join(", ")}`
 }

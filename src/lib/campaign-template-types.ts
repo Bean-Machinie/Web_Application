@@ -37,7 +37,7 @@ export const describe = (text: string): TemplateField => ({
   value: paragraph(text),
 })
 
-type CharacterText = {
+type NpcText = {
   description: string
   motivation: string
   // A roleplay cue; private, like secrets.
@@ -45,13 +45,13 @@ type CharacterText = {
   secret: string
 }
 
-export function character(
+export function npc(
   name: string,
   facts: { role: string; species: string; age: string; status: string; attitude: string },
-  text: CharacterText
+  text: NpcText
 ): TemplateEntry {
   return {
-    kind: "character",
+    kind: "npc",
     name,
     fields: [
       { key: "role", type: "short_text", value: facts.role },

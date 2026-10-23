@@ -13,6 +13,7 @@ import { useWorldCardSize } from "@/hooks/use-world-card-size"
 import { useWorldListMemory } from "@/hooks/use-world-list-memory"
 import { useWorldSearchText } from "@/hooks/use-world-search-text"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
+import { currentKindName } from "@/lib/legacy-kinds"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
@@ -52,9 +53,9 @@ export function WorldEntryList() {
   const removal = useWorldEntryDelete(reload, setActionError)
 
   // An unknown ?kind= falls back to All.
-  const kind = scope.kinds.find((option) => option === params.get("kind")) ?? null
+  const kind = scope.kinds.find((option) => option === currentKindName(params.get("kind"))) ?? null
   // The command palette's "New ..." actions arrive as ?create=<kind>.
-  const wanted = scope.kinds.find((option) => option === params.get("create")) ?? null
+  const wanted = scope.kinds.find((option) => option === currentKindName(params.get("create"))) ?? null
   const asked = useRef(false)
   useEffect(() => {
     if (!wanted) asked.current = false

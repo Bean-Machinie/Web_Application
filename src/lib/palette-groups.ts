@@ -76,7 +76,7 @@ function actions({ query, scope, current }: PaletteInput): PaletteItem[] {
   }
   const newEntry = (kinds: typeof worldKinds, base: string) =>
     kinds.map((kind) =>
-      make(`New ${WORLD_KINDS[kind].label.toLowerCase()}`, `${base}?create=${kind}`, `new entry ${WORLD_KINDS[kind].label}`)
+      make(`New ${WORLD_KINDS[kind].noun}`, `${base}?create=${kind}`, `new entry ${WORLD_KINDS[kind].label}`)
     )
   const inCampaign = current && can(current.role, "manage_world") ? newEntry(worldKinds, campaignPath(current.id, "world")) : []
   const inLibrary = newEntry(worldKinds, "/app/library")

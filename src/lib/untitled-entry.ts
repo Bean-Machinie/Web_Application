@@ -2,7 +2,7 @@ import { WORLD_KINDS } from "./world-kinds"
 import type { WorldEntryKind } from "./world-kinds"
 
 // What a new entry is called until it is named.
-export const untitledName = (kind: WorldEntryKind) => `Untitled ${WORLD_KINDS[kind].label.toLowerCase()}`
+export const untitledName = (kind: WorldEntryKind) => `Untitled ${WORLD_KINDS[kind].noun}`
 
 // Whether a saved field holds nothing: never filled in, or cleared again.
 export const isEmptyValue = (value: unknown) =>

@@ -261,17 +261,17 @@ select pg_temp.id(e.k), e.kind::public.world_entry_kind, e.k,
   case when e.lib is not null then pg_temp.id(e.lib) end,
   e.revealed, e.pos
 from (values
-  ('ec',     'character', 'c1', null,    true,  1),
-  ('ech',    'character', 'c1', null,    false, 2),
-  ('ect',    'character', 'c1', null,    true,  3),
+  ('ec',     'npc', 'c1', null,    true,  1),
+  ('ech',    'npc', 'c1', null,    false, 2),
+  ('ect',    'npc', 'c1', null,    true,  3),
   ('dc',     'location',  'c1', null,    false, 4),
   ('emap',   'map',       'c1', null,    false, 5),
   ('ebad',   'item',      'c1', null,    false, 6),
   ('emulti', 'item',      'c1', null,    false, 7),
-  ('ed',     'character', 'c2', null,    false, 1),
-  ('el',     'character', null, 'owner', false, 1),
-  ('dl',     'character', null, 'owner', false, 2),
-  ('elg',    'character', null, 'gm',    false, 7)
+  ('ed',     'npc', 'c2', null,    false, 1),
+  ('el',     'npc', null, 'owner', false, 1),
+  ('dl',     'npc', null, 'owner', false, 2),
+  ('elg',    'npc', null, 'gm',    false, 7)
 ) as e (k, kind, camp, lib, revealed, pos);
 
 -- A public field, a private one with content, a private empty one, a stat
@@ -398,8 +398,8 @@ select pg_temp.count_is(pg_temp.id('gm'), 'deleted campaign entry is gone', $$se
 select pg_temp.count_is(pg_temp.id('owner'), 'deleted library entry is gone', $$select 1 from public.world_entries where id = '{dl}'$$, 0);
 
 -- Library creation: anyone signed in, in their own library only.
-select pg_temp.may('create library entry', $$select public.create_library_entry('character', 'Mine')$$, true, true, true, true);
-select pg_temp.denied(null, 'create library entry: signed out', 'permission denied', $$select public.create_library_entry('character', 'Mine')$$);
+select pg_temp.may('create library entry', $$select public.create_library_entry('npc', 'Mine')$$, true, true, true, true);
+select pg_temp.denied(null, 'create library entry: signed out', 'permission denied', $$select public.create_library_entry('npc', 'Mine')$$);
 select pg_temp.may('create library map', $$select public.create_library_entry('map', 'World')$$, true, true, true, true);
 select pg_temp.denied(pg_temp.id('owner'), 'create library entry: needs a name', 'Give the entry a name', $$select public.create_library_entry('item', '   ')$$);
 select pg_temp.sees('new library entries stay private', $$select 1 from public.world_entries where name = 'Mine'$$, 1, 1, 1, 1);
@@ -616,8 +616,8 @@ insert into pg_temp.test_ids values
 insert into public.world_entries (id, kind, name, owner_id, created_by, sort_order)
 select pg_temp.id(e.k), e.kind::public.world_entry_kind, e.k, pg_temp.id('gm'), pg_temp.id('gm'), e.pos
 from (values
-  ('la', 'map', 20), ('lb', 'map', 21), ('lc', 'character', 22),
-  ('ld', 'character', 23), ('le', 'map', 24), ('lf', 'map', 25)
+  ('la', 'map', 20), ('lb', 'map', 21), ('lc', 'npc', 22),
+  ('ld', 'npc', 23), ('le', 'map', 24), ('lf', 'map', 25)
 ) as e (k, kind, pos);
 
 select pg_temp.allowed(pg_temp.id('gm'), 'library pin: la to lb', $$select public.add_map_marker('{la}', '{lb}', 10, 10)$$);
@@ -742,8 +742,8 @@ insert into pg_temp.test_ids values
 insert into public.world_entries (id, kind, name, owner_id, created_by, sort_order)
 select pg_temp.id(e.k), e.kind::public.world_entry_kind, e.k, pg_temp.id('gm'), pg_temp.id('gm'), e.pos
 from (values
-  ('ca', 'character', 40), ('cb', 'character', 41), ('cc', 'character', 42),
-  ('dr', 'map', 43), ('dx', 'character', 44), ('dy', 'character', 45), ('dz', 'character', 46)
+  ('ca', 'npc', 40), ('cb', 'npc', 41), ('cc', 'npc', 42),
+  ('dr', 'map', 43), ('dx', 'npc', 44), ('dy', 'npc', 45), ('dz', 'npc', 46)
 ) as e (k, kind, pos);
 
 insert into public.world_entry_fields (entry_id, key, type, value, private) values
@@ -845,12 +845,12 @@ select pg_temp.id(e.k), e.kind::public.world_entry_kind, e.k,
   case when e.camp is null then pg_temp.id('gm') end,
   e.revealed, e.pos
 from (values
-  ('ma', 'character', 'c3', true, 1), ('mb', 'location', 'c3', true, 2),
+  ('ma', 'npc', 'c3', true, 1), ('mb', 'location', 'c3', true, 2),
   ('mc', 'lore', 'c3', false, 3), ('md', 'item', 'c3', true, 4),
-  ('mf', 'character', 'c3', true, 5), ('mg', 'character', 'c3', true, 6),
-  ('q1', 'character', 'c4', true, 1), ('q2', 'character', 'c4', true, 2),
-  ('q3', 'character', 'c4', true, 3),
-  ('lm', 'character', null, false, 30), ('lz', 'character', null, false, 31)
+  ('mf', 'npc', 'c3', true, 5), ('mg', 'npc', 'c3', true, 6),
+  ('q1', 'npc', 'c4', true, 1), ('q2', 'npc', 'c4', true, 2),
+  ('q3', 'npc', 'c4', true, 3),
+  ('lm', 'npc', null, false, 30), ('lz', 'npc', null, false, 31)
 ) as e (k, kind, camp, revealed, pos);
 
 -- ma mentions mb, mc (hidden), md, an entry of another campaign, itself and
@@ -993,7 +993,7 @@ insert into public.campaign_members (campaign_id, user_id, role) values
   (pg_temp.id('c6'), pg_temp.id('gm'), 'gm');
 
 insert into public.world_entries (id, kind, name, campaign_id, revealed, sort_order)
-select pg_temp.id(e.k), 'character', e.k, pg_temp.id('c5'), true, e.pos
+select pg_temp.id(e.k), 'npc', e.k, pg_temp.id('c5'), true, e.pos
 from (values ('kk', 1), ('mm', 2), ('k2', 3), ('cx', 4)) as e (k, pos);
 
 insert into public.world_entry_fields (entry_id, key, type, value, private) values
@@ -1078,11 +1078,11 @@ insert into pg_temp.test_ids values
   ('z2', 'f4000000-0000-0000-0000-000000000008');
 
 insert into public.world_entries (id, kind, name, campaign_id, revealed, sort_order)
-values (pg_temp.id('kz'), 'character', 'kz', pg_temp.id('c5'), true, 5);
+values (pg_temp.id('kz'), 'npc', 'kz', pg_temp.id('c5'), true, 5);
 
 insert into public.world_entries (id, kind, name, owner_id, created_by, sort_order) values
-  (pg_temp.id('lzn'), 'character', 'OLD ZED', pg_temp.id('gm'), pg_temp.id('gm'), 50),
-  (pg_temp.id('lzo'), 'character', 'Someone else', pg_temp.id('gm'), pg_temp.id('gm'), 51);
+  (pg_temp.id('lzn'), 'npc', 'OLD ZED', pg_temp.id('gm'), pg_temp.id('gm'), 50),
+  (pg_temp.id('lzo'), 'npc', 'Someone else', pg_temp.id('gm'), pg_temp.id('gm'), 51);
 
 insert into public.world_entry_fields (entry_id, key, type, value, private) values
   (pg_temp.id('kz'), 'description', 'rich_text', pg_temp.fill(
@@ -1150,7 +1150,7 @@ select pg_temp.changes(pg_temp.id('gm'),       'delete: GM removes a campaign fi
 -- Campaigns behave as before, and library data goes away with its owner.
 
 select pg_temp.allowed(pg_temp.id('player'), 'create a campaign with starter entries',
-  $$select public.create_campaign('Regression', '[{"kind":"character","name":"Bram","fields":[{"key":"role","type":"short_text","value":"Cook","private":false}]}]'::jsonb)$$);
+  $$select public.create_campaign('Regression', '[{"kind":"npc","name":"Bram","fields":[{"key":"role","type":"short_text","value":"Cook","private":false}]}]'::jsonb)$$);
 select pg_temp.count_is(pg_temp.id('player'), 'starter entry arrives hidden, with its field',
   $$select 1 from public.world_entries e join public.world_entry_fields f on f.entry_id = e.id
     where e.name = 'Bram' and not e.revealed and f.key = 'role'$$, 1);

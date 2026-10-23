@@ -14,7 +14,7 @@ type Props = {
 export function WorldEmptyState({ kind, filtered, canManage }: Props) {
   const { hasVisibility } = useWorldScope()
   const Icon = filtered ? SearchX : Globe2
-  const what = kind ? WORLD_KINDS[kind].plural.toLowerCase() : "entries"
+  const what = kind ? WORLD_KINDS[kind].nouns : "entries"
 
   const title = filtered
     ? "No matches"
@@ -24,7 +24,7 @@ export function WorldEmptyState({ kind, filtered, canManage }: Props) {
   const body = filtered
     ? "Try a different name, or clear the filter."
     : canManage
-      ? `Create your first ${kind ? WORLD_KINDS[kind].label.toLowerCase() : "entry"} to start building ${hasVisibility ? "the world" : "your library"}.`
+      ? `Create your first ${kind ? WORLD_KINDS[kind].noun : "entry"} to start building ${hasVisibility ? "the world" : "your library"}.`
       : "What your GM reveals will show up here."
 
   return (
