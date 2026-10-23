@@ -29,7 +29,7 @@ export function CreatePage() {
   return (
     <div className="mx-auto flex w-[1104px] max-w-full flex-col gap-10">
       <CreateTools image={toolImage} onNewMap={() => setMakingMap(true)} />
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid items-start gap-3 md:grid-cols-2">
         <CreateEntries kinds={scope.kinds.filter((kind) => kind !== "map")} onPick={createEntry} />
         <CreateDrafts drafts={drafts} />
       </div>
