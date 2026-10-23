@@ -6,25 +6,23 @@ import { CharacterFieldRow } from "./CharacterFieldRow"
 
 type Props = { fields: SheetField[]; actions: SheetActions; columns?: number; narrow?: boolean }
 
-// What sits beside a row's value: a pair's second track with its caption ("Failures"),
-// or a derived number (a skill's total).
-function Beside({ field, actions }: { field: SheetField; actions: SheetActions }) {
-  const body = <CharacterFieldBody field={field} actions={actions} />
-  if (field.type !== "track") return <span className="inline-block min-w-8 text-right">{body}</span>
+// A pair's second track with its caption ("Failures"), which stays right after the first.
+function Pair({ field, actions }: { field: SheetField; actions: SheetActions }) {
   return (
-    <span className="flex items-center gap-2">
-      <span className="text-muted-foreground text-xs font-normal">{field.caption}</span>
-      {body}
+    <span className="ml-4 flex items-center gap-2">
+      <span className="text-muted-foreground text-xs">{field.caption}</span>
+      <CharacterFieldBody field={field} actions={actions} />
     </span>
   )
 }
 
 // Fields as the rows of one card, the label on the left. With several columns the rows
 // are ruled cells of a grid, as compact as they go. A field with a secondary shows it beside
-// its value (a skill and its total, one death save track and the other).
+// its value (a skill's total at the right; a death save's other track right after the first).
 export function CharacterRows({ fields, actions, columns = 1, narrow }: Props) {
   const rows = fields.map((field) => {
     const second = field.secondary ? actions.byId.get(field.secondary) : undefined
+    const paired = second?.type === "track"
     return (
       <CharacterFieldRow
         key={field.id}
@@ -32,7 +30,14 @@ export function CharacterRows({ fields, actions, columns = 1, narrow }: Props) {
         pinned={isPinned(field, actions.values)}
         fresh={field.id === actions.freshId}
         size={columns > 1 ? "compact" : narrow ? "narrow" : "wide"}
-        secondary={second && <Beside field={second} actions={actions} />}
+        secondary={
+          second &&
+          !paired && (
+            <span className="inline-block min-w-8 text-right">
+              <CharacterFieldBody field={second} actions={actions} />
+            </span>
+          )
+        }
         onLabel={(label) => actions.onField(field, label, field.config)}
         onPin={(pinned) => actions.onPin(field.id, pinned)}
         onLength={(length) => actions.onField(field, field.label, { ...field.config, length })}
@@ -41,6 +46,7 @@ export function CharacterRows({ fields, actions, columns = 1, narrow }: Props) {
         <span className="flex items-center gap-2">
           {field.caption && <span className="text-muted-foreground text-xs">{field.caption}</span>}
           <CharacterFieldBody field={field} actions={actions} />
+          {second && paired && <Pair field={second} actions={actions} />}
         </span>
       </CharacterFieldRow>
     )

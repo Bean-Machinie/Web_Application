@@ -18,11 +18,14 @@ export function CharacterTiles({ fields, columns, actions }: Props) {
       {fields.map((field) => {
         const second = field.secondary ? actions.byId.get(field.secondary) : undefined
         return (
-          <div key={field.id} className="group/field bg-card relative flex min-h-22 flex-col items-center justify-center gap-1 px-2 py-2">
-            <span className="text-muted-foreground max-w-full truncate text-xs font-medium" title={field.label}>
+          <div key={field.id} className="group/field bg-card relative flex min-h-22 flex-col items-center gap-1 px-2 py-3">
+            <span className="text-muted-foreground max-w-full truncate text-xs font-medium" title={field.title ?? field.label}>
               {field.label}
             </span>
-            <CharacterFieldBody field={field} actions={actions} tile />
+            {/* One height for every kind of value, so they all sit on the same line. */}
+            <div className="flex h-8 w-full items-center justify-center">
+              <CharacterFieldBody field={field} actions={actions} tile />
+            </div>
             {second && (
               <span className="text-muted-foreground text-sm tabular-nums">
                 <CharacterFieldBody field={second} actions={actions} />

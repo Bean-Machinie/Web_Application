@@ -26,7 +26,7 @@ type Props = {
 const LABEL = {
   wide: "w-36 shrink-0",
   compact: "min-w-0 flex-1",
-  narrow: "w-24 shrink-0",
+  narrow: "w-28 shrink-0",
 }
 
 export function CharacterFieldRow({ field, pinned, fresh, size, secondary, onLabel, onPin, onLength, onRemove, children }: Props) {
@@ -38,7 +38,7 @@ export function CharacterFieldRow({ field, pinned, fresh, size, secondary, onLab
         {field.custom ? (
           <InlineText value={field.label} placeholder="Name" maxLength={60} autoEdit={fresh} onSave={onLabel} />
         ) : (
-          <span className="block truncate" title={field.hint ? `${field.label} (${field.hint})` : field.label}>
+          <span className="block truncate" title={field.hint ? `${field.title ?? field.label} (${field.hint})` : (field.title ?? field.label)}>
             {field.label}
             {field.hint && <span className="ml-1.5 text-xs opacity-70">{field.hint}</span>}
           </span>

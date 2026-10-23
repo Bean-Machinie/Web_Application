@@ -18,6 +18,7 @@ export type SheetField = {
   type: CharacterFieldType
   label: string
   hint?: string
+  title?: string
   caption?: string
   config: FieldConfig
   custom: boolean
@@ -37,6 +38,7 @@ export function sheetFields(template: CharacterTemplate, custom: CustomField[]):
       type: field.type,
       label: field.label,
       hint: field.hint,
+      title: field.title,
       caption: field.caption,
       config: field.config ?? {},
       custom: false,

@@ -19,7 +19,7 @@ export function CharacterResourceValue({ value, label, onChange }: Props) {
     label: `${label}, ${key === "current" ? "current" : "maximum"}`,
     inputMode: "numeric" as const,
     maxLength: 6,
-    className: "w-12 tabular-nums",
+    className: "text-center tabular-nums",
     onSave: (text: string) => change({ [key]: Math.max(0, toWhole(text) ?? 0) }),
   })
 
@@ -28,11 +28,11 @@ export function CharacterResourceValue({ value, label, onChange }: Props) {
       <Button variant="ghost" size="icon" className="size-6" aria-label="Spend one" onClick={() => step(-1)}>
         <Minus />
       </Button>
-      <div className="w-12">
+      <div className="w-9">
         <InlineText {...number("current")} />
       </div>
       <span className="text-muted-foreground">/</span>
-      <div className="w-12">
+      <div className="w-9">
         <InlineText {...number("max")} />
       </div>
       <Button variant="ghost" size="icon" className="size-6" aria-label="Gain one" onClick={() => step(1)}>

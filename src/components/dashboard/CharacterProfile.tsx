@@ -17,8 +17,6 @@ type Props = {
   pills: ReactNode
   // The template's identity rows, as a card.
   identity: ReactNode
-  // The save state and the menu, at the top right.
-  aside: ReactNode
 }
 
 // The profile column: the portrait, the name, a line on the concept, the pinned fields as
@@ -26,7 +24,7 @@ type Props = {
 // stays on screen with a portrait as wide as the column; below that it is above the sheet,
 // with a small portrait beside the name. The portrait's files are kept under the owner's
 // folder in the images bucket, which the existing storage rule lets them write.
-export function CharacterProfile({ character, userId, fresh, onName, onConcept, onPortrait, pills, identity, aside }: Props) {
+export function CharacterProfile({ character, userId, fresh, onName, onConcept, onPortrait, pills, identity }: Props) {
   return (
     <aside className="relative flex w-full flex-col gap-4 min-[1000px]:sticky min-[1000px]:top-[calc(var(--header-height)+1.5rem)] min-[1000px]:w-[300px] min-[1000px]:shrink-0">
       <div className="flex items-start gap-4 min-[1000px]:flex-col">
@@ -39,7 +37,7 @@ export function CharacterProfile({ character, userId, fresh, onName, onConcept, 
             onChange={(value) => onPortrait(value as Character["portrait"])}
           />
         </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-1.5 pr-20 min-[1000px]:w-full min-[1000px]:flex-none min-[1000px]:pr-0">
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5 min-[1000px]:w-full min-[1000px]:flex-none">
           <EditableName name={character.name} onSave={onName} autoEdit={fresh} />
           <InlineText
             value={character.concept}
@@ -53,9 +51,6 @@ export function CharacterProfile({ character, userId, fresh, onName, onConcept, 
       </div>
       {pills && <div className="flex flex-wrap gap-2">{pills}</div>}
       {identity}
-      <div className="absolute top-0 right-0 flex items-center gap-2 min-[1000px]:bg-background/80 min-[1000px]:rounded-md min-[1000px]:p-1 min-[1000px]:backdrop-blur-sm">
-        {aside}
-      </div>
     </aside>
   )
 }

@@ -37,6 +37,8 @@ export type TemplateField = {
   label: string
   // Small muted text beside the label, like the ability a skill uses.
   hint?: string
+  // The full name when the label is a shortened one; shown as a tooltip.
+  title?: string
   // Small text before the control, for a pair sharing a row: "Successes", "Failures".
   caption?: string
   // Starts as a pill in the header (once it has a value).

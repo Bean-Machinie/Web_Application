@@ -25,7 +25,7 @@ type Props = {
   fresh: boolean
 }
 
-// The sheet in two columns that scroll with the page, about 1050px in all: the profile
+// The sheet in two columns that scroll with the page, about 1280px in all: the profile
 // on the left (portrait, name, concept, pills, identity), and on the right the tabs with
 // the open tab's sections stacked under them. The open tab is in the address. Under
 // 1000px the profile is above the sheet.
@@ -79,7 +79,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
   const identity = profileFields(template!, fields)
 
   return (
-    <div className="mx-auto flex w-[1052px] max-w-full flex-col gap-6 min-[1000px]:flex-row min-[1000px]:items-start min-[1000px]:gap-8">
+    <div className="mx-auto flex w-[1280px] max-w-full flex-col gap-6 min-[1000px]:flex-row min-[1000px]:items-start min-[1000px]:gap-8">
       <CharacterProfile
         character={character}
         userId={userId}
@@ -89,23 +89,24 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
         onPortrait={(portrait) => sheet.edit("portrait", portrait)}
         pills={pills.length > 0 ? pills : null}
         identity={identity.length > 0 && <CharacterRows fields={identity} actions={actions} narrow />}
-        aside={
-          <>
-            <SaveIndicator state={sheet.saveState} />
-            <CharacterMenu onDelete={() => setDeleting(true)} />
-          </>
-        }
       />
       <div className="flex min-w-0 flex-1 flex-col gap-4">
-        <Tabs value={tab.id} onValueChange={(next) => setParams({ tab: next }, { replace: true })}>
-          <TabsList variant="line" className="h-10 w-full justify-start">
-            {tabs.map((candidate) => (
-              <TabsTrigger key={candidate.id} value={candidate.id} className="flex-none px-3">
-                {candidate.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        {/* The tabs, and at the right end of their row the save state and the menu. */}
+        <div className="flex items-center justify-between gap-3">
+          <Tabs value={tab.id} onValueChange={(next) => setParams({ tab: next }, { replace: true })}>
+            <TabsList variant="line" className="h-10 justify-start">
+              {tabs.map((candidate) => (
+                <TabsTrigger key={candidate.id} value={candidate.id} className="flex-none px-3">
+                  {candidate.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          <div className="flex shrink-0 items-center gap-2">
+            <SaveIndicator state={sheet.saveState} />
+            <CharacterMenu onDelete={() => setDeleting(true)} />
+          </div>
+        </div>
         {(sheet.error || failure) && <p className="text-destructive text-sm">{sheet.error ?? failure}</p>}
         <CharacterTabPanel
           key={tab.id}
@@ -118,7 +119,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
           onAdd={async (type: CharacterFieldType) => setFreshField(await sheet.addField(tab.id, type, NEW_FIELD_LABEL[type]))}
         />
         {template!.attribution && (
-          <p className="text-muted-foreground mt-6 text-[11px] leading-relaxed">{template!.attribution}</p>
+          <p className="text-muted-foreground mt-6 text-[11px] leading-relaxed font-normal">{template!.attribution}</p>
         )}
       </div>
       <ConfirmDialog

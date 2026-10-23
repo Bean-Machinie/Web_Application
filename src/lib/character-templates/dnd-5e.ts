@@ -85,7 +85,7 @@ export const DND_5E: CharacterTemplate = {
   // numbers small tiles, and the skills compact rows in two columns.
   sections: [
     { id: "identity", tab: "overview", label: "Identity", profile: true },
-    { id: "abilities", tab: "overview", label: "Ability scores", layout: "grid", columns: 3, summary: "6 scores" },
+    { id: "abilities", tab: "overview", label: "Ability scores", layout: "grid", columns: 6, summary: "6 scores" },
     { id: "combat", tab: "overview", label: "Combat", layout: "grid", columns: 5, summary: "Armor Class, Initiative, Speed" },
     { id: "hit-points", tab: "overview", label: "Hit points", summary: "Hit Points, Hit Dice, Death Saves" },
     { id: "saving-throws", tab: "skills", label: "Saving throws", columns: 2, summary: "6 saves" },
@@ -100,7 +100,7 @@ export const DND_5E: CharacterTemplate = {
     { id: "ac", tab: "overview", section: "combat", type: "stat", label: "Armor Class" },
     { id: "initiative", tab: "overview", section: "combat", type: "stat", label: "Initiative", format: "signed", derived: field("dex.mod") },
     { id: "speed", tab: "overview", section: "combat", type: "stat", label: "Speed" },
-    { id: "proficiency-bonus", tab: "overview", section: "combat", type: "stat", label: "Proficiency Bonus", format: "signed" },
+    { id: "proficiency-bonus", tab: "overview", section: "combat", type: "stat", label: "Proficiency", title: "Proficiency Bonus", format: "signed" },
     { id: "inspiration", tab: "overview", section: "combat", type: "toggle", label: "Inspiration" },
     { id: "hp", tab: "overview", section: "hit-points", type: "resource", label: "Hit Points", pinned: true },
     { id: "hit-dice", tab: "overview", section: "hit-points", type: "resource", label: "Hit Dice" },
