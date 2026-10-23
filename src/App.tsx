@@ -9,6 +9,7 @@ import { CampaignSettingsAdvanced } from "@/pages/CampaignSettingsAdvanced"
 import { CampaignSettingsGeneral } from "@/pages/CampaignSettingsGeneral"
 import { CampaignSettingsMembers } from "@/pages/CampaignSettingsMembers"
 import { Campaigns } from "@/pages/Campaigns"
+import { CharacterSheetPage } from "@/pages/CharacterSheet"
 import { Characters } from "@/pages/Characters"
 import { Create } from "@/pages/Create"
 import { Home } from "@/pages/Home"
@@ -56,6 +57,7 @@ export default function App() {
               <Route path="advanced" element={<CampaignSettingsAdvanced />} />
             </Route>
           </Route>
+          <Route path="characters/:characterId" element={<CharacterSheetPage />} />
           <Route path="create" element={<LibraryWorldScope />}>
             <Route index element={<Create />} />
           </Route>

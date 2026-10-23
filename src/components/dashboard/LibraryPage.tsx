@@ -1,7 +1,11 @@
+import { Plus } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
+import { Button } from "@/components/ui/button"
+import { useCharacters } from "@/hooks/use-characters"
+import { useCreateCharacter } from "@/hooks/use-create-character"
 import { RECENCY_TEXT } from "@/lib/library-recency"
-import { hasGraph } from "@/lib/library-sections"
+import { CHARACTERS_SECTION, hasGraph } from "@/lib/library-sections"
 import { cn } from "@/lib/utils"
 import { AddToCampaignDialog } from "./AddToCampaignDialog"
 import { AddToCampaignNotice } from "./AddToCampaignNotice"
@@ -9,6 +13,7 @@ import { CollectionPage } from "./CollectionPage"
 import { CollectionFilterPill } from "./CollectionFilterPill"
 import { CopyWithLinksDialog } from "./CopyWithLinksDialog"
 import { LibraryAllView } from "./LibraryAllView"
+import { LibraryCharacters } from "./LibraryCharacters"
 import { LibrarySearch } from "./LibrarySearch"
 import { LibrarySections } from "./LibrarySections"
 import { LibraryToolbar } from "./LibraryToolbar"
@@ -26,6 +31,9 @@ import { WorldGridSkeleton } from "./WorldGridSkeleton"
 export function LibraryPage() {
   const page = useLibraryPage()
   const { section, mode, selection, addTo } = page
+  const { characters } = useCharacters()
+  const createCharacter = useCreateCharacter()
+  const onCharacters = section.id === CHARACTERS_SECTION.id
   const searching = page.query.trim() !== "" || page.recency !== "any"
   const problem = page.error ?? page.actionError
   const grouped = section.id === "all" && mode === "grid" && !searching
@@ -35,25 +43,40 @@ export function LibraryPage() {
       <CollectionPage
         tabs={<LibrarySearch query={page.query} onQuery={page.setQuery} />}
         actions={
-          <LibraryToolbar
-            recency={page.recency}
-            onRecency={page.setRecency}
-            mode={mode}
-            onMode={page.setMode}
-            graph={hasGraph(section)}
-            cardSize={page.cardSize}
-            onCardSize={page.setCardSize}
-            makes={section.makes}
-            onNew={page.make}
-          />
+          onCharacters ? (
+            <Button onClick={createCharacter}>
+              <Plus className="size-4" />
+              New character
+            </Button>
+          ) : (
+            <LibraryToolbar
+              recency={page.recency}
+              onRecency={page.setRecency}
+              mode={mode}
+              onMode={page.setMode}
+              graph={hasGraph(section)}
+              cardSize={page.cardSize}
+              onCardSize={page.setCardSize}
+              makes={section.makes}
+              onNew={page.make}
+            />
+          )
         }
       >
         <div className="flex flex-1 flex-col gap-4 md:flex-row md:gap-8">
           <aside className="md:sticky md:top-[calc(var(--collection-top)+1.5rem)] md:self-start">
-            <LibrarySections entries={page.entries} active={section.id} onChange={page.setSection} />
+            <LibrarySections
+              entries={page.entries}
+              active={section.id}
+              onChange={page.setSection}
+              extra={[{ section: CHARACTERS_SECTION, count: characters?.length ?? null }]}
+            />
           </aside>
           <div className="flex min-w-0 flex-1 flex-col gap-5">
             {problem && <FormAlert tone="error">{problem}</FormAlert>}
+            {onCharacters ? (
+              <LibraryCharacters characters={characters} query={page.query} onNew={createCharacter} />
+            ) : (
             <LoadingGate
               loading={!page.entries && !page.error}
               className="flex min-h-0 flex-1 flex-col"
@@ -96,6 +119,7 @@ export function LibraryPage() {
                 )
               }
             </LoadingGate>
+            )}
           </div>
         </div>
       </CollectionPage>

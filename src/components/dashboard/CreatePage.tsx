@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react"
+import { useCreateCharacter } from "@/hooks/use-create-character"
 import { useCreateEntry } from "@/hooks/use-create-entry"
 import { useWorldEntries } from "@/hooks/use-world-entries"
 import { MAP_BUILDER_IMAGE } from "@/lib/tool-images"
@@ -13,6 +14,7 @@ export function CreatePage() {
   const scope = useWorldScope()
   const { entries } = useWorldEntries(scope)
   const createEntry = useCreateEntry(scope)
+  const createCharacter = useCreateCharacter()
   const [makingMap, setMakingMap] = useState(false)
 
   // Until the builder has a picture of its own, the newest map that has one.
@@ -25,7 +27,7 @@ export function CreatePage() {
 
   return (
     <div className="mx-auto flex w-[1104px] max-w-full flex-col gap-10">
-      <CreateTools image={toolImage} onNewMap={() => setMakingMap(true)} />
+      <CreateTools image={toolImage} onNewMap={() => setMakingMap(true)} onNewCharacter={createCharacter} />
       <CreateEntries kinds={scope.kinds.filter((kind) => kind !== "map")} onPick={createEntry} />
       <NewMapDialog open={makingMap} onClose={() => setMakingMap(false)} />
     </div>

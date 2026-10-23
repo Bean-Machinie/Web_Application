@@ -5,6 +5,7 @@ import type { WorldEntryKind } from "./world-kinds"
 export type Visual =
   | { type: "campaign"; name: string; imageUrl: string | null }
   | { type: "entry"; kind: WorldEntryKind; imageUrl: string | null }
+  | { type: "character"; imageUrl: string | null }
   | { type: "page"; icon: string | LucideIcon }
   | { type: "action" }
 

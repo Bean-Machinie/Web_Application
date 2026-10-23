@@ -9,9 +9,13 @@ type Props = {
   onChange: (id: string) => void
   // On a phone: one row of chips to swipe along, nested sections flattened.
   compact?: boolean
+  // Sections of things that are not entries, listed after the others with their own counts.
+  extra?: { section: LibrarySection; count: number | null }[]
 }
 
-function Row({ section, entries, active, onChange, depth }: Props & { section: LibrarySection; depth: number }) {
+type RowProps = Props & { section: LibrarySection; depth: number; count?: number | null }
+
+function Row({ section, entries, active, onChange, depth, count }: RowProps) {
   const Icon = section.icon
   const selected = active === section.id
 
@@ -31,7 +35,7 @@ function Row({ section, entries, active, onChange, depth }: Props & { section: L
     >
       <Icon className="size-4 shrink-0" />
       {section.label}
-      <span className="ml-auto pl-2 text-xs tabular-nums opacity-70">{countIn(section, entries)}</span>
+      <span className="ml-auto pl-2 text-xs tabular-nums opacity-70">{count !== undefined ? count : countIn(section, entries)}</span>
     </button>
   )
 }
@@ -45,6 +49,9 @@ export function LibrarySections(props: Props) {
       <div role="tablist" aria-label="Section" className="no-scrollbar -m-1 flex min-w-0 gap-1 overflow-x-auto p-1">
         {LIBRARY_SECTIONS.flatMap((section) => [section, ...(section.children ?? [])]).map((section) => (
           <Row key={section.id} {...props} section={section} depth={0} />
+        ))}
+        {props.extra?.map(({ section, count }) => (
+          <Row key={section.id} {...props} section={section} depth={0} count={count} />
         ))}
       </div>
     )
@@ -63,6 +70,9 @@ export function LibrarySections(props: Props) {
             </div>
           )}
         </div>
+      ))}
+      {props.extra?.map(({ section, count }) => (
+        <Row key={section.id} {...props} section={section} depth={0} count={count} />
       ))}
     </div>
   )

@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react"
+import { Plus, User } from "lucide-react"
 import { Icon } from "@/components/Icon"
 import { CommandItem } from "@/components/ui/command"
 import type { PaletteItem, Visual } from "@/lib/palette-items"
@@ -25,6 +25,16 @@ function Leading({ visual }: { visual: Visual }) {
         </span>
       )
     }
+    case "character":
+      return (
+        <span className={tile}>
+          {visual.imageUrl ? (
+            <img src={visual.imageUrl} alt="" className="size-full object-cover" />
+          ) : (
+            <User className="size-4" />
+          )}
+        </span>
+      )
     case "page": {
       const PageIcon = visual.icon
       return (

@@ -12,7 +12,7 @@ import { useWorldViewMode } from "@/hooks/use-world-view-mode"
 import { currentKindName } from "@/lib/legacy-kinds"
 import { changedWithin } from "@/lib/library-recency"
 import type { Recency } from "@/lib/library-recency"
-import { findSection, hasGraph } from "@/lib/library-sections"
+import { CHARACTERS_SECTION, findSection, hasGraph } from "@/lib/library-sections"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
@@ -28,7 +28,8 @@ export function useLibraryPage() {
   const scope = useWorldScope()
   const { entries, error, reload, setRevealed, reorder } = useWorldEntries(scope)
   const [params, setParams] = useSearchParams()
-  const section = findSection(currentKindName(params.get("section")) ?? "all")
+  const sectionId = currentKindName(params.get("section")) ?? "all"
+  const section = sectionId === CHARACTERS_SECTION.id ? CHARACTERS_SECTION : findSection(sectionId)
   const [query, setQuery] = useState("")
   const [recency, setRecency] = useState<Recency>("any")
   const [chosenMode, setMode] = useWorldViewMode()

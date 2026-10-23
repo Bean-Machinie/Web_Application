@@ -1,4 +1,4 @@
-import { Box, LayoutGrid, Map as MapIcon } from "lucide-react"
+import { Box, LayoutGrid, Map as MapIcon, User } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import type { WorldEntry } from "./world-entries"
 import { WORLD_KINDS, worldKinds } from "./world-kinds"
@@ -39,7 +39,17 @@ export const LIBRARY_SECTIONS: LibrarySection[] = [
   },
 ]
 
-export const flatSections = LIBRARY_SECTIONS.flatMap((section) => [section, ...(section.children ?? [])])
+// Player characters are not world entries, so they are not among the sections that
+// filter entries; the library page lists this one beside them, with its own contents.
+export const CHARACTERS_SECTION: LibrarySection = {
+  id: "characters",
+  label: "Characters",
+  icon: User,
+  matches: () => false,
+  makes: [],
+}
+
+export const flatSections =LIBRARY_SECTIONS.flatMap((section) => [section, ...(section.children ?? [])])
 
 export const findSection = (id: string) =>
   flatSections.find((section) => section.id === id) ?? LIBRARY_SECTIONS[0]

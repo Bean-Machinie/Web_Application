@@ -3,6 +3,8 @@ import { campaignPath } from "./campaign-paths"
 import { roleLabel } from "./campaign-list"
 import { can } from "./campaign-permissions"
 import type { Campaign } from "./campaigns"
+import { characterPath } from "./characters"
+import type { Character } from "./characters"
 import { matchText } from "./palette-search"
 import type { PaletteGroup, PaletteItem, Recent } from "./palette-items"
 import type { SearchHit } from "./search-entries"
@@ -22,6 +24,8 @@ export type PaletteInput = {
   current: Campaign | null
   // What the database found by name, in its own order.
   hits: SearchHit[]
+  // Your characters, matched by name here.
+  characters: Character[]
   recents: Recent[]
   campaignPages: Page[]
   mainPages: Page[]
@@ -161,7 +165,17 @@ export function buildGroups(input: PaletteInput): PaletteGroup[] {
   }
 
   if (scope === "library" || everywhere) {
-    groups.push({ heading: "Library", items: hitItems("library", () => "Library") })
+    const characters = best(input.characters, query, (character) => character.name, (character, matched) =>
+      withRecent({
+        id: `character:${character.id}`,
+        name: character.name,
+        context: "Character · Library",
+        path: characterPath(character.id),
+        visual: { type: "character", imageUrl: character.portrait?.url ?? null },
+        matched,
+      })
+    )
+    groups.push({ heading: "Library", items: [...hitItems("library", () => "Library"), ...characters] })
   }
 
   groups.push({ heading: "Actions", items: actions(input) })

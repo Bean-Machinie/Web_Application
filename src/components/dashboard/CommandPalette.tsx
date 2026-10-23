@@ -8,6 +8,7 @@ import {
   CommandInput,
 } from "@/components/ui/command"
 import { KeyChips } from "@/components/ui/key-chips"
+import { usePaletteCharacters } from "@/hooks/use-palette-characters"
 import { buildGroups } from "@/lib/palette-groups"
 import type { SearchSource } from "@/lib/search-entries"
 import type { PaletteScope } from "@/lib/palette-groups"
@@ -49,6 +50,7 @@ export function CommandPalette({ open, onOpenChange }: Props) {
   const sources: SearchSource[] =
     scope === "library" ? ["library"] : scope === "campaign" ? ["current"] : scope === "campaigns" ? ["current", "other"] : ["current", "other", "library"]
   const hits = useEntrySearch(open, query, current?.id ?? null, sources)
+  const characters = usePaletteCharacters(open)
 
   // Each opening, and a move into or out of a campaign, starts at the default scope.
   const defaultScope = scopes[0]
@@ -65,8 +67,9 @@ export function CommandPalette({ open, onOpenChange }: Props) {
         campaignPages: current ? [...campaignNav(current.id), ...campaignSettingsNav(current.id)] : [],
         mainPages,
         hits,
+        characters,
       }),
-    [query, scope, campaigns, current, recents, hits]
+    [query, scope, campaigns, current, recents, hits, characters]
   )
   const shown = groups.map((group) => ({
     ...group,
