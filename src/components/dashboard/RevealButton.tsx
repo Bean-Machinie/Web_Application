@@ -1,6 +1,4 @@
-import { Eye } from "lucide-react"
-import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
-import { HoverIcon } from "@/components/icons/HoverIcon"
+import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
@@ -12,7 +10,7 @@ type Props = {
 
 // An open eye means players can see the entry; closing it hides it again.
 export function RevealButton({ revealed, name, onChange }: Props) {
-  const Icon = revealed ? Eye : EyeOffIcon
+  const Icon = revealed ? Eye : EyeOff
   const action = revealed ? "Hide from players" : "Reveal to players"
 
   return (
@@ -26,7 +24,7 @@ export function RevealButton({ revealed, name, onChange }: Props) {
           aria-pressed={!revealed}
           onClick={() => onChange(!revealed)}
         >
-          <HoverIcon icon={Icon} size={16} />
+          <Icon className="size-4" />
         </Button>
       </TooltipTrigger>
       <TooltipContent>{action}</TooltipContent>
