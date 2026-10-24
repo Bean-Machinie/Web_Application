@@ -1,4 +1,4 @@
-import { EyeIcon } from "@/components/icons/EyeIcon"
+import { Eye } from "lucide-react"
 import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
 import { HoverIcon } from "@/components/icons/HoverIcon"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ type Props = {
 
 // An open eye means players can see the entry; closing it hides it again.
 export function RevealButton({ revealed, name, onChange }: Props) {
-  const Icon = revealed ? EyeIcon : EyeOffIcon
+  const Icon = revealed ? Eye : EyeOffIcon
   const action = revealed ? "Hide from players" : "Reveal to players"
 
   return (

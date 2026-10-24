@@ -1,6 +1,5 @@
-import { FolderPlus, Library } from "lucide-react"
+import { Eye, FolderPlus, Library } from "lucide-react"
 import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
-import { EyeIcon } from "@/components/icons/EyeIcon"
 import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
 import { HoverIcon } from "@/components/icons/HoverIcon"
 import { Trash2Icon } from "@/components/icons/Trash2Icon"
@@ -73,7 +72,7 @@ export function WorldBulkBar({ selection, bulk, onAddToCampaign }: Props) {
         <SelectionBar selection={selection} progress={bulk.progress}>
           {scope.hasVisibility && (
             <>
-              <Action icon={EyeIcon} label="Reveal" disabled={busy || !bulk.canReveal} onClick={() => bulk.reveal(true)} />
+              <Action icon={Eye} label="Reveal" disabled={busy || !bulk.canReveal} onClick={() => bulk.reveal(true)} />
               <Action icon={EyeOffIcon} label="Hide" disabled={busy || !bulk.canHide} onClick={() => bulk.reveal(false)} />
             </>
           )}
