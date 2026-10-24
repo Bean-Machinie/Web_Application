@@ -42,12 +42,13 @@ function SegmentedControl<T extends string>({ value, onValueChange, options, cla
       disabled={disabled}
       data-slot="segmented-control"
       style={{ "--count": options.length, "--index": index } as React.CSSProperties}
-      className={cn("bg-muted relative grid grid-flow-col auto-cols-fr rounded-lg p-0.5 data-[disabled]:opacity-50", className)}
+      // Sunk into the surface: darker than what is around it, with its top edge in shadow and a faint lip of light along the bottom.
+      className={cn("bg-muted dark:bg-black/30 relative grid grid-flow-col auto-cols-fr rounded-lg p-0.5 shadow-[inset_0_1px_3px_rgb(0_0_0/0.25),0_1px_0_rgb(255_255_255/0.5)] dark:shadow-[inset_0_2px_5px_rgb(0_0_0/0.6),0_1px_0_rgb(255_255_255/0.06)] data-[disabled]:opacity-50", className)}
     >
       <span
         aria-hidden
         style={{ width: "calc((100% - 0.25rem) / var(--count))", transform: "translateX(calc(var(--index) * 100%))" }}
-        className="bg-primary pointer-events-none absolute inset-y-0.5 left-0.5 rounded-md shadow-sm transition-transform duration-250 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
+        className="bg-primary pointer-events-none absolute inset-y-0.5 left-0.5 rounded-md shadow-[0_1px_2px_rgb(0_0_0/0.35),0_3px_6px_rgb(0_0_0/0.2),inset_0_1px_0_rgb(255_255_255/0.35)] transition-transform duration-250 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none"
       />
       {options.map((option) => {
         const item = (
