@@ -1,5 +1,4 @@
-import { HoverIcon } from "@/components/icons/HoverIcon"
-import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
+import { EyeOff } from "lucide-react"
 import type { WorldFieldsState } from "./WorldFields"
 import { SaveIndicator } from "./SaveIndicator"
 
@@ -17,7 +16,7 @@ export function EntryStatus({ canManage, revealed, saveState }: Props) {
       {canManage && <SaveIndicator state={saveState} />}
       {!revealed && (
         <span className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
-          <HoverIcon icon={EyeOffIcon} size={14} />
+          <EyeOff className="size-3.5" />
           Hidden
         </span>
       )}

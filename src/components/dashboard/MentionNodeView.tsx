@@ -1,5 +1,4 @@
-import { HoverIcon } from "@/components/icons/HoverIcon"
-import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
+import { EyeOff } from "lucide-react"
 import { NodeViewWrapper } from "@tiptap/react"
 import type { NodeViewProps } from "@tiptap/react"
 import { Link, useNavigate } from "react-router-dom"
@@ -64,7 +63,7 @@ export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
   const content = (
     <>
       {hidden ? (
-        <HoverIcon icon={EyeOffIcon} size={12} className="shrink-0" aria-label="Hidden from players" />
+        <EyeOff className="size-3 shrink-0" aria-label="Hidden from players" />
       ) : (
         Icon && <Icon className="size-3 shrink-0" />
       )}

@@ -1,5 +1,4 @@
-import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
-import { HoverIcon } from "@/components/icons/HoverIcon"
+import { EyeOff } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // Marks what players cannot see, as an icon alone. Only GMs ever see hidden entries, so it
@@ -12,7 +11,7 @@ export function HiddenBadge({ className }: { className?: string }) {
       title="Hidden from players"
       className={cn("inline-flex drop-shadow-sm", className)}
     >
-      <HoverIcon icon={EyeOffIcon} size={16} />
+      <EyeOff className="size-4" />
     </span>
   )
 }
