@@ -16,7 +16,7 @@ export function GraphSearch({ value, onChange, onSubmit }: Props) {
   return (
     <InputGroup className="bg-card/90 backdrop-blur-sm">
       <InputGroupAddon>
-        <HoverIcon icon={SearchIcon} />
+        <HoverIcon icon={SearchIcon} size={16} />
       </InputGroupAddon>
       <InputGroupInput
         value={value}

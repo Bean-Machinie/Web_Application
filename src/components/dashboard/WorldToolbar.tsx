@@ -37,7 +37,7 @@ export function WorldToolbar(props: Props) {
     <>
       <InputGroup className="w-40 sm:w-56">
         <InputGroupAddon>
-          <HoverIcon icon={SearchIcon} />
+          <HoverIcon icon={SearchIcon} size={16} />
         </InputGroupAddon>
         <InputGroupInput
           value={query}

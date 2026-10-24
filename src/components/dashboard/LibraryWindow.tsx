@@ -68,7 +68,7 @@ export function LibraryWindow(props: Props) {
           <div className="flex shrink-0 items-center gap-2">
             <InputGroup className="min-w-0 flex-1 pointer-coarse:h-11">
               <InputGroupAddon>
-                <HoverIcon icon={SearchIcon} />
+                <HoverIcon icon={SearchIcon} size={16} />
               </InputGroupAddon>
               <InputGroupInput
                 autoFocus={props.autoFocus ?? !compact}

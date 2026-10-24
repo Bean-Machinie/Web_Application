@@ -1,14 +1,18 @@
-import { HoverIcon } from "@/components/icons/HoverIcon"
 import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
-import { Badge } from "@/components/ui/badge"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { cn } from "@/lib/utils"
 
-// The loudest badge we have, on purpose: a GM must see at a glance what
-// players cannot. Only GMs ever see hidden entries, so it needs no check.
+// Marks what players cannot see, as an icon alone. Only GMs ever see hidden entries, so it
+// needs no check. The shadow keeps it readable when it sits over a picture.
 export function HiddenBadge({ className }: { className?: string }) {
   return (
-    <Badge className={className}>
-      <HoverIcon icon={EyeOffIcon} size={12} />
-      Hidden
-    </Badge>
+    <span
+      role="img"
+      aria-label="Hidden from players"
+      title="Hidden from players"
+      className={cn("inline-flex drop-shadow-sm", className)}
+    >
+      <HoverIcon icon={EyeOffIcon} size={16} />
+    </span>
   )
 }

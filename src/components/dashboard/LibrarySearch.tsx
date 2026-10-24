@@ -12,7 +12,7 @@ export function LibrarySearch({ query, onQuery }: Props) {
     <div className="flex items-center md:h-12">
       <InputGroup className="w-full sm:w-64">
         <InputGroupAddon>
-          <HoverIcon icon={SearchIcon} />
+          <HoverIcon icon={SearchIcon} size={16} />
         </InputGroupAddon>
         <InputGroupInput
           value={query}

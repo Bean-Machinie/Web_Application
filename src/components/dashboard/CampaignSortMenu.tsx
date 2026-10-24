@@ -1,4 +1,5 @@
-import { ArrowUpDown } from "lucide-react"
+import { ArrowDownUpIcon } from "@/components/icons/ArrowDownUpIcon"
+import { HoverIcon } from "@/components/icons/HoverIcon"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,7 +29,7 @@ export function CampaignSortMenu({ sort, onSort, className }: Props) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" aria-label="Sort campaigns" className={cn("justify-start", className)}>
-          <ArrowUpDown />
+          <HoverIcon icon={ArrowDownUpIcon} />
           <span className="truncate">Sorted by {current.label}</span>
         </Button>
       </DropdownMenuTrigger>

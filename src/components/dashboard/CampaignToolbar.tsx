@@ -28,7 +28,7 @@ export function CampaignToolbar(props: Props) {
     <div className="flex flex-wrap items-center gap-2">
       <InputGroup className="w-full sm:w-56 sm:flex-none">
         <InputGroupAddon>
-          <HoverIcon icon={SearchIcon} />
+          <HoverIcon icon={SearchIcon} size={16} />
         </InputGroupAddon>
         <InputGroupInput
           value={query}
