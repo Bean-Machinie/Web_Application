@@ -33,12 +33,12 @@ export function NavMain({ items, className }: Props) {
             <SidebarMenuItem key={item.to}>
               <SidebarMenuButton
                 asChild
-                className="h-12 pl-[15px] text-[14.5px] group-data-[collapsible=icon]:size-12! group-data-[collapsible=icon]:px-[15px]!"
+                className="h-12 pl-[13px] text-[14.5px] group-data-[collapsible=icon]:size-12! group-data-[collapsible=icon]:px-[13px]!"
                 tooltip={item.title}
                 isActive={isActive(item.to, item.exact)}
               >
                 <NavLink to={item.to} onClick={closeOnMobile}>
-                  <HoverIcon icon={item.icon} size={18} />
+                  <HoverIcon icon={item.icon} size={22} delay={200} />
                   <span>{item.title}</span>
                 </NavLink>
               </SidebarMenuButton>

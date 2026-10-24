@@ -12,11 +12,13 @@ type Props = Omit<IconProps, "size"> & {
   icon: AnimatedIconComponent | LucideIcon
   // Leave out to take the size its button gives its icons.
   size?: number
+  // Milliseconds the pointer must stay before the icon plays.
+  delay?: number
 }
 
 // An icon that plays while the button, link or menu row around it is hovered, through the
 // icon's handle. Reduced motion is the icon's own business: it does not play.
-export function HoverIcon({ icon, size, className, style, ...props }: Props) {
+export function HoverIcon({ icon, size, delay = 0, className, style, ...props }: Props) {
   const Icon = icon as AnimatedIconComponent
   const mark = useRef<HTMLSpanElement>(null)
   const handle = useRef<IconHandle>(null)
@@ -24,15 +26,22 @@ export function HoverIcon({ icon, size, className, style, ...props }: Props) {
   useEffect(() => {
     const host = mark.current?.closest(HOST) ?? mark.current?.firstElementChild
     if (!host) return
-    const play = () => handle.current?.startAnimation?.()
-    const rest = () => handle.current?.stopAnimation?.()
+    let timer: number | undefined
+    const play = () => {
+      timer = window.setTimeout(() => handle.current?.startAnimation?.(), delay)
+    }
+    const rest = () => {
+      window.clearTimeout(timer)
+      handle.current?.stopAnimation?.()
+    }
     host.addEventListener("mouseenter", play)
     host.addEventListener("mouseleave", rest)
     return () => {
+      window.clearTimeout(timer)
       host.removeEventListener("mouseenter", play)
       host.removeEventListener("mouseleave", rest)
     }
-  }, [])
+  }, [delay])
 
   return (
     <span ref={mark} className="contents">
