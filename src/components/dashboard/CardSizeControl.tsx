@@ -1,22 +1,34 @@
-import { SegmentedControl } from "@/components/ui/segmented-control"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { CardSize } from "@/hooks/use-world-card-size"
 
 type Props = { value: CardSize; onChange: (size: CardSize) => void }
 
-// How big the cards of the grid are.
+const SIZES: { size: CardSize; short: string; label: string }[] = [
+  { size: "small", short: "S", label: "Small cards" },
+  { size: "medium", short: "M", label: "Medium cards" },
+  { size: "large", short: "L", label: "Large cards" },
+]
+
+// Marked by what the group sets on the chosen item, as the view toggle next to it is.
+const CHOSEN = "aria-checked:bg-muted"
+
+// How big the cards of the grid are. It looks like the list, grid and graph toggle beside it.
 export function CardSizeControl({ value, onChange }: Props) {
   return (
-    <SegmentedControl
-      aria-label="Card size"
-      // The Filter button's outline and corners, drawn as a ring so the height stays the same.
-      className="rounded-md ring-1 ring-border ring-inset dark:ring-input"
+    <ToggleGroup
+      type="single"
+      variant="outline"
       value={value}
-      onValueChange={onChange}
-      options={[
-        { value: "small", label: "S" },
-        { value: "medium", label: "M" },
-        { value: "large", label: "L" },
-      ]}
-    />
+      // Pressing the chosen size again would clear the group; keep it chosen.
+      onValueChange={(next) => next && onChange(next as CardSize)}
+      aria-label="Card size"
+      spacing={0}
+    >
+      {SIZES.map(({ size, short, label }) => (
+        <ToggleGroupItem key={size} value={size} aria-label={label} className={CHOSEN}>
+          {short}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
   )
 }
