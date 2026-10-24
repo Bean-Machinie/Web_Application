@@ -8,6 +8,8 @@ export function CardSizeControl({ value, onChange }: Props) {
   return (
     <SegmentedControl
       aria-label="Card size"
+      // The Filter button's outline and corners, drawn as a ring so the height stays the same.
+      className="rounded-md ring-1 ring-border ring-inset dark:ring-input"
       value={value}
       onValueChange={onChange}
       options={[
