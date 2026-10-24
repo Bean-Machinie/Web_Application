@@ -1,5 +1,7 @@
 import { useState } from "react"
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { PanelLeftCloseIcon } from "@/components/icons/PanelLeftCloseIcon"
+import { PanelLeftOpenIcon } from "@/components/icons/PanelLeftOpenIcon"
 import blackName from "@/assets/logo/Black/HELIOSYN_Name_Black.png"
 import whiteName from "@/assets/logo/White/HELIOSYN_Name_White.png"
 import { LogoMark } from "@/components/LogoMark"
@@ -40,9 +42,11 @@ export function SidebarBrand() {
                   "group-data-[collapsible=icon]:group-hover/menu-button:opacity-0"
               )}
             />
-            <PanelLeftOpen
+            <HoverIcon
+              icon={PanelLeftOpenIcon}
+              size={16}
               className={cn(
-                "absolute size-4 opacity-0 transition-opacity",
+                "absolute opacity-0 transition-opacity",
                 !justCollapsed &&
                   "group-data-[collapsible=icon]:group-hover/menu-button:opacity-100"
               )}
@@ -61,7 +65,7 @@ export function SidebarBrand() {
               className="hidden h-[37px] max-w-none shrink-0 dark:block"
             />
           </div>
-          <PanelLeftClose className="text-muted-foreground ml-auto size-4 shrink-0" />
+          <HoverIcon icon={PanelLeftCloseIcon} size={16} className="text-muted-foreground ml-auto" />
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>

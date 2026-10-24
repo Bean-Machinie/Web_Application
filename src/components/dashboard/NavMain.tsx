@@ -8,7 +8,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { Icon } from "@/components/Icon"
+import { HoverIcon } from "@/components/icons/HoverIcon"
 import { cn } from "@/lib/utils"
 import type { NavItem } from "./nav-items"
 import { useIsActiveRoute } from "./useIsActiveRoute"
@@ -38,11 +38,7 @@ export function NavMain({ items, className }: Props) {
                 isActive={isActive(item.to, item.exact)}
               >
                 <NavLink to={item.to} onClick={closeOnMobile}>
-                  {typeof item.icon === "string" ? (
-                    <Icon src={item.icon} className="size-[18px]" />
-                  ) : (
-                    <item.icon className="size-[18px]" />
-                  )}
+                  <HoverIcon icon={item.icon} size={18} />
                   <span>{item.title}</span>
                 </NavLink>
               </SidebarMenuButton>

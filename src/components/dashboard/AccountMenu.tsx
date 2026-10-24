@@ -9,21 +9,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import desktop from "@/assets/icons/desktop.svg"
-import file from "@/assets/icons/file.svg"
-import lifeBuoy from "@/assets/icons/life-buoy.svg"
-import logout from "@/assets/icons/menu-logout.svg"
-import settings from "@/assets/icons/settings.svg"
-import { Icon } from "@/components/Icon"
+import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
+import { CreditCardIcon } from "@/components/icons/CreditCardIcon"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { LifeBuoyIcon } from "@/components/icons/LifeBuoyIcon"
+import { LogOutIcon } from "@/components/icons/LogOutIcon"
+import { PaletteIcon } from "@/components/icons/PaletteIcon"
+import { SettingsIcon } from "@/components/icons/SettingsIcon"
 import { useSettingsWindow } from "@/hooks/use-settings-window"
 import { supabase } from "@/lib/supabase"
 import { AccountIdentity } from "./AccountIdentity"
 import type { SettingsTab } from "./settings-tabs"
 
-const menuItems: { label: string; tab: SettingsTab; icon: string }[] = [
-  { label: "Settings", tab: "profile", icon: settings },
-  { label: "Appearance", tab: "appearance", icon: desktop },
-  { label: "Billing", tab: "billing", icon: file },
+const menuItems: { label: string; tab: SettingsTab; icon: AnimatedIconComponent }[] = [
+  { label: "Settings", tab: "profile", icon: SettingsIcon },
+  { label: "Appearance", tab: "appearance", icon: PaletteIcon },
+  { label: "Billing", tab: "billing", icon: CreditCardIcon },
 ]
 
 type Props = {
@@ -71,14 +72,14 @@ export function AccountMenu({ children, side, align, onChoose, beforeLeave }: Pr
         <DropdownMenuGroup>
           {menuItems.map((item) => (
             <DropdownMenuItem key={item.label} onClick={choose(() => settingsWindow.open(item.tab))}>
-              <Icon src={item.icon} />
+              <HoverIcon icon={item.icon} size={16} />
               {item.label}
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={leaveTo(() => navigate("/app/support"))}>
-          <Icon src={lifeBuoy} />
+          <HoverIcon icon={LifeBuoyIcon} size={16} />
           Support
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -89,7 +90,7 @@ export function AccountMenu({ children, side, align, onChoose, beforeLeave }: Pr
             navigate("/login", { replace: true })
           })}
         >
-          <Icon src={logout} />
+          <HoverIcon icon={LogOutIcon} size={16} />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -4,6 +4,8 @@ import bell from "@/assets/icons/bell.svg"
 import type { IconHandle } from "@/components/AnimatedIcon"
 import { BellIcon } from "@/components/BellIcon"
 import { Icon } from "@/components/Icon"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { SettingsIcon } from "@/components/icons/SettingsIcon"
 import { IconButton } from "@/components/IconButton"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,7 +16,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSettingsWindow } from "@/hooks/use-settings-window"
 import { BELL_PAGE_SIZE } from "@/lib/notifications"
-import settings from "@/assets/icons/settings.svg"
 import { NotificationBadge } from "./NotificationBadge"
 import { NotificationList } from "./NotificationList"
 import { useCampaign } from "./useCampaign"
@@ -110,7 +111,7 @@ export function NotificationBell() {
             aria-label="Notification settings"
             onClick={openPreferences}
           >
-            <Icon src={settings} />
+            <HoverIcon icon={SettingsIcon} size={16} />
           </Button>
         </div>
       </PopoverContent>
