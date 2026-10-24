@@ -1,5 +1,7 @@
-import { useState } from "react"
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { useRef, useState } from "react"
+import type { IconHandle } from "@/components/AnimatedIcon"
+import { PanelLeftCloseIcon } from "@/components/PanelLeftCloseIcon"
+import { PanelLeftOpenIcon } from "@/components/PanelLeftOpenIcon"
 import blackName from "@/assets/logo/Black/HELIOSYN_Name_Black.png"
 import whiteName from "@/assets/logo/White/HELIOSYN_Name_White.png"
 import { LogoMark } from "@/components/LogoMark"
@@ -17,6 +19,9 @@ export function SidebarBrand() {
   // After clicking to collapse, the pointer is still over the button. The
   // expand icon should wait until the pointer has left and come back.
   const [justCollapsed, setJustCollapsed] = useState(false)
+  // Whichever of the two shows plays while the button is hovered.
+  const openIcon = useRef<IconHandle>(null)
+  const closeIcon = useRef<IconHandle>(null)
 
   return (
     <SidebarMenu>
@@ -26,7 +31,15 @@ export function SidebarBrand() {
             if (!collapsed) setJustCollapsed(true)
             toggleSidebar()
           }}
-          onMouseLeave={() => setJustCollapsed(false)}
+          onMouseEnter={() => {
+            openIcon.current?.startAnimation()
+            closeIcon.current?.startAnimation()
+          }}
+          onMouseLeave={() => {
+            setJustCollapsed(false)
+            openIcon.current?.stopAnimation()
+            closeIcon.current?.stopAnimation()
+          }}
           tooltip="Expand sidebar"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className="h-[52px] cursor-pointer pr-2.5 pl-[7.5px] group-data-[collapsible=icon]:size-[52px]! group-data-[collapsible=icon]:px-[7.5px]!"
@@ -40,9 +53,11 @@ export function SidebarBrand() {
                   "group-data-[collapsible=icon]:group-hover/menu-button:opacity-0"
               )}
             />
-            <PanelLeftOpen
+            <PanelLeftOpenIcon
+              ref={openIcon}
+              size={16}
               className={cn(
-                "absolute size-4 opacity-0 transition-opacity",
+                "absolute opacity-0 transition-opacity",
                 !justCollapsed &&
                   "group-data-[collapsible=icon]:group-hover/menu-button:opacity-100"
               )}
@@ -61,7 +76,7 @@ export function SidebarBrand() {
               className="hidden h-[37px] max-w-none shrink-0 dark:block"
             />
           </div>
-          <PanelLeftClose className="text-muted-foreground ml-auto size-4 shrink-0" />
+          <PanelLeftCloseIcon ref={closeIcon} size={16} className="text-muted-foreground ml-auto shrink-0" />
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>

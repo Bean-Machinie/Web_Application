@@ -1,5 +1,4 @@
 import { Plus, User } from "lucide-react"
-import { Icon } from "@/components/Icon"
 import { CommandItem } from "@/components/ui/command"
 import type { PaletteItem, Visual } from "@/lib/palette-items"
 import { WORLD_KINDS } from "@/lib/world-kinds"
@@ -39,7 +38,7 @@ function Leading({ visual }: { visual: Visual }) {
       const PageIcon = visual.icon
       return (
         <span className={tile}>
-          {typeof PageIcon === "string" ? <Icon src={PageIcon} /> : <PageIcon className="size-4" />}
+          <PageIcon size={16} />
         </span>
       )
     }

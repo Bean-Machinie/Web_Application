@@ -1,43 +1,42 @@
-import { PencilRuler } from "lucide-react"
-import type { LucideIcon } from "lucide-react"
-import box from "@/assets/icons/box.svg"
-import characters from "@/assets/icons/menu-profile.svg"
-import desktop from "@/assets/icons/desktop.svg"
-import file from "@/assets/icons/file.svg"
-import globe from "@/assets/icons/globe.svg"
-import lifeBuoy from "@/assets/icons/life-buoy.svg"
-import settings from "@/assets/icons/settings.svg"
-import userGroup from "@/assets/icons/user-group.svg"
+import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
+import { BoxIcon } from "@/components/BoxIcon"
+import { FileIcon } from "@/components/FileIcon"
+import { GlobeIcon } from "@/components/GlobeIcon"
+import { LifeBuoyIcon } from "@/components/LifeBuoyIcon"
+import { MonitorIcon } from "@/components/MonitorIcon"
+import { PencilRulerIcon } from "@/components/PencilRulerIcon"
+import { SettingsIcon } from "@/components/SettingsIcon"
+import { UserIcon } from "@/components/UserIcon"
+import { UsersIcon } from "@/components/UsersIcon"
 import { campaignPath } from "@/lib/campaign-paths"
 
 export type NavItem = {
   title: string
   to: string
-  // An icon file, or a Lucide icon.
-  icon: string | LucideIcon
+  icon: AnimatedIconComponent
   badge?: string
   // Only the page itself lights the item, not the pages below it.
   exact?: boolean
 }
 
 export const campaignNav = (id: string): NavItem[] => [
-  { title: "Overview", to: campaignPath(id), icon: desktop, exact: true },
-  { title: "World", to: campaignPath(id, "world"), icon: globe },
-  { title: "Sessions", to: campaignPath(id, "sessions"), icon: file },
-  { title: "Characters", to: campaignPath(id, "characters"), icon: characters },
-  { title: "Party", to: campaignPath(id, "party"), icon: userGroup },
+  { title: "Overview", to: campaignPath(id), icon: MonitorIcon, exact: true },
+  { title: "World", to: campaignPath(id, "world"), icon: GlobeIcon },
+  { title: "Sessions", to: campaignPath(id, "sessions"), icon: FileIcon },
+  { title: "Characters", to: campaignPath(id, "characters"), icon: UserIcon },
+  { title: "Party", to: campaignPath(id, "party"), icon: UsersIcon },
 ]
 
 export const campaignSettingsNav = (id: string): NavItem[] => [
-  { title: "Campaign settings", to: campaignPath(id, "campaign-settings"), icon: settings },
+  { title: "Campaign settings", to: campaignPath(id, "campaign-settings"), icon: SettingsIcon },
 ]
 
 // What the sidebar shows outside a campaign.
 export const homeNav: NavItem[] = [
-  { title: "Home", to: "/app", icon: globe, exact: true },
-  { title: "Create", to: "/app/create", icon: PencilRuler },
-  { title: "Your library", to: "/app/library", icon: box },
+  { title: "Home", to: "/app", icon: GlobeIcon, exact: true },
+  { title: "Create", to: "/app/create", icon: PencilRulerIcon },
+  { title: "Your library", to: "/app/library", icon: BoxIcon },
 ]
 
 // The pages the command palette offers everywhere.
-export const mainPages = [...homeNav, { title: "Support", to: "/app/support", icon: lifeBuoy }]
+export const mainPages = [...homeNav, { title: "Support", to: "/app/support", icon: LifeBuoyIcon }]
