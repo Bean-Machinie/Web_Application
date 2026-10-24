@@ -16,12 +16,13 @@ import {
  useRef,
  type HTMLAttributes,
 } from "react";
-export interface MapIconHandle {
+
+export interface FilterIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
 }
 
-interface MapIconProps extends Omit<
+interface FilterIconProps extends Omit<
  HTMLAttributes<HTMLDivElement>,
  | "color"
  | "onDrag"
@@ -37,7 +38,7 @@ interface MapIconProps extends Omit<
  color?: string;
 }
 
-const MapIcon = forwardRef<MapIconHandle, MapIconProps>(
+const FilterIcon = forwardRef<FilterIconHandle, FilterIconProps>(
  (
   {
    onMouseEnter,
@@ -81,11 +82,16 @@ const MapIcon = forwardRef<MapIconHandle, MapIconProps>(
    [controls, onMouseLeave],
   );
 
-  const mapVariants: Variants = {
-   normal: { skewX: 0 },
+  const funnelVariants: Variants = {
+   normal: { scaleX: 1, scaleY: 1 },
    animate: {
-    skewX: [0, -8, 6, -3, 0],
-    transition: { duration: 0.8 * duration, ease: "easeInOut" },
+    scaleX: [1, 0.8, 1.06, 1],
+    scaleY: [1, 1.06, 0.98, 1],
+    transition: {
+     duration: 0.6 * duration,
+     ease: "easeInOut",
+     times: [0, 0.35, 0.7, 1],
+    },
    },
   };
 
@@ -111,14 +117,11 @@ const MapIcon = forwardRef<MapIconHandle, MapIconProps>(
       animate={controls}
       initial="normal"
      >
-      <m.g
-       variants={mapVariants}
+      <m.path
+       d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"
+       variants={funnelVariants}
        style={{ transformBox: "view-box", originX: "12px", originY: "12px" }}
-      >
-       <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" />
-       <path d="M15 5.764v15" />
-       <path d="M9 3.236v15" />
-      </m.g>
+      />
      </m.svg>
     </m.div>
    </LazyMotion>
@@ -126,5 +129,5 @@ const MapIcon = forwardRef<MapIconHandle, MapIconProps>(
  },
 );
 
-MapIcon.displayName = "MapIcon";
-export { MapIcon };
+FilterIcon.displayName = "FilterIcon";
+export { FilterIcon };

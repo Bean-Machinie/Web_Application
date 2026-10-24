@@ -1,5 +1,6 @@
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { SearchIcon } from "@/components/icons/SearchIcon"
 import { useMemo, useState } from "react"
-import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { MAP_ASSETS } from "@/lib/map-assets"
 import { cn } from "@/lib/utils"
@@ -37,7 +38,7 @@ export function MapAssetPanel({ armed, onArm, tileSize, viewScale, disabled }: P
     >
       <div className="bg-background sticky top-0 z-10 flex flex-col gap-2 p-3 pb-2">
         <div className="relative">
-          <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+          <HoverIcon icon={SearchIcon} size={16} hoverParent className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2" />
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}

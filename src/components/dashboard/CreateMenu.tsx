@@ -5,7 +5,6 @@ import { useCreateEntry } from "@/hooks/use-create-entry"
 import type { IconHandle } from "@/components/AnimatedIcon"
 import { IconButton } from "@/components/IconButton"
 import { HoverIcon } from "@/components/icons/HoverIcon"
-import { KIND_MENU_ICONS } from "@/components/icons/kind-menu-icons"
 import { PlusIcon } from "@/components/icons/PlusIcon"
 import { UserRoundIcon } from "@/components/icons/UserRoundIcon"
 import { UsersRoundIcon } from "@/components/icons/UsersRoundIcon"
@@ -90,13 +89,13 @@ export function CreateMenu() {
                 {destination}
               </DropdownMenuLabel>
               {kinds.map((kind) => {
-                const { label } = WORLD_KINDS[kind]
+                const { label, icon: KindIcon } = WORLD_KINDS[kind]
                 return (
                   <DropdownMenuItem
                     key={kind}
                     onSelect={() => (kind === "map" ? setMakingMap(true) : createEntry(kind))}
                   >
-                    <HoverIcon icon={KIND_MENU_ICONS[kind]} size={16} />
+                    <KindIcon />
                     {label}
                   </DropdownMenuItem>
                 )

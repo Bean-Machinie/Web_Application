@@ -1,4 +1,5 @@
-import { Search } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { SearchIcon } from "@/components/icons/SearchIcon"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import type { CardSize } from "@/hooks/use-world-card-size"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
@@ -36,7 +37,7 @@ export function WorldToolbar(props: Props) {
     <>
       <InputGroup className="w-40 sm:w-56">
         <InputGroupAddon>
-          <Search />
+          <HoverIcon icon={SearchIcon} />
         </InputGroupAddon>
         <InputGroupInput
           value={query}

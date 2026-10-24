@@ -1,4 +1,5 @@
-import { Search } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { SearchIcon } from "@/components/icons/SearchIcon"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { ClearSearchButton } from "./ClearSearchButton"
 
@@ -15,7 +16,7 @@ export function GraphSearch({ value, onChange, onSubmit }: Props) {
   return (
     <InputGroup className="bg-card/90 backdrop-blur-sm">
       <InputGroupAddon>
-        <Search />
+        <HoverIcon icon={SearchIcon} />
       </InputGroupAddon>
       <InputGroupInput
         value={value}

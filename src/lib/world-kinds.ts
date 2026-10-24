@@ -1,4 +1,4 @@
-import { BookOpen, Map as MapIcon, MapPin, Package, PawPrint, User } from "lucide-react"
+import { BookOpen, Box, Map as MapIcon, Pin, PawPrint, UserStar } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import type { WorldFieldType } from "./world-fields"
 
@@ -120,7 +120,7 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
     noun: "NPC",
     nouns: "NPCs",
     description: "A non-player character",
-    icon: User,
+    icon: UserStar,
     namePlaceholder: "e.g. Bram the innkeeper",
     tint: "oklch(0.72 0.15 55)",
     previewFacts: ["role", "attitude"],
@@ -177,7 +177,7 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
     noun: "location",
     nouns: "locations",
     description: "A place",
-    icon: MapPin,
+    icon: Pin,
     namePlaceholder: "e.g. The Gilded Stag",
     tint: "oklch(0.7 0.15 150)",
     previewFacts: ["type"],
@@ -196,7 +196,7 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
     noun: "item",
     nouns: "items",
     description: "An object",
-    icon: Package,
+    icon: Box,
     namePlaceholder: "e.g. Sword of Dawn",
     tint: "oklch(0.65 0.18 300)",
     previewFacts: ["type", "value"],

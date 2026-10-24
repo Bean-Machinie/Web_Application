@@ -1,4 +1,5 @@
-import { FolderPlus, Hammer, Library, Pencil } from "lucide-react"
+import { FolderPlus, Library, Pencil } from "lucide-react"
+import { HammerIcon } from "@/components/icons/HammerIcon"
 import { Trash2Icon } from "@/components/icons/Trash2Icon"
 import { errorMessage } from "@/lib/campaigns"
 import type { WorldEntry } from "@/lib/world-entries"
@@ -61,7 +62,7 @@ export function createWorldManage(handlers: Handlers): WorldManage {
     isBuilt,
     actionsFor: (entry) => [
       ...(onOpenBuilder && isBuilt?.(entry)
-        ? [{ label: "Open in builder", icon: Hammer, onSelect: () => onOpenBuilder(entry) }]
+        ? [{ label: "Open in builder", icon: HammerIcon, onSelect: () => onOpenBuilder(entry) }]
         : []),
       { label: "Rename", icon: Pencil, onSelect: () => onRename(entry) },
       ...(onAddToCampaign

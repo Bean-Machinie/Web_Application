@@ -3,7 +3,8 @@
 import * as React from "react"
 import { cn } from "cn"
 import { Command as CommandPrimitive } from "cmdk"
-import { SearchIcon } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { SearchIcon } from "@/components/icons/SearchIcon"
 import { Dialog as DialogPrimitive } from "radix-ui"
 import { DialogOverlay } from "@/components/ui/dialog"
 
@@ -69,7 +70,7 @@ function CommandInput({
 }) {
   return (
     <div data-slot="command-input-wrapper" className="flex h-14 items-center gap-3 border-b px-4">
-      <SearchIcon className="size-[18px] shrink-0 text-muted-foreground" />
+      <HoverIcon icon={SearchIcon} size={18} className="text-muted-foreground" />
       <CommandPrimitive.Input
         data-slot="command-input"
         className={cn(

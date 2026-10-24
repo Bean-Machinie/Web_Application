@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react"
-import { Plus, Search } from "lucide-react"
+import { Plus } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { SearchIcon } from "@/components/icons/SearchIcon"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -62,7 +64,7 @@ export function MarkerEntryPicker({ exceptId, disabled, onPick, onCreate, compac
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
         <div className="flex shrink-0 items-center gap-2">
           <div className="relative min-w-0 flex-1">
-            <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+            <HoverIcon icon={SearchIcon} size={16} hoverParent className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2" />
             <Input
               autoFocus={!compact}
               autoComplete="off"

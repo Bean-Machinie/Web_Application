@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react"
-import { Upload } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { ImagePlusIcon } from "@/components/icons/ImagePlusIcon"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { buttonVariants } from "@/components/ui/button"
 import { useMapImageUpload } from "@/hooks/use-map-image-upload"
@@ -137,7 +138,7 @@ export function MapEntryScreen(props: EntryProps) {
               onPick={upload.pick}
               className={cn(buttonVariants({ variant: "outline" }), "w-fit")}
             >
-              <Upload />
+              <HoverIcon icon={ImagePlusIcon} />
               {upload.busy ? "Uploading…" : "Replace map"}
             </MapImageInput>
             {upload.error && <FormAlert tone="error">{upload.error}</FormAlert>}

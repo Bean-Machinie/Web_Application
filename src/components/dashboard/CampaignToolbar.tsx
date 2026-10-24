@@ -1,4 +1,5 @@
-import { Search } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { SearchIcon } from "@/components/icons/SearchIcon"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
@@ -27,7 +28,7 @@ export function CampaignToolbar(props: Props) {
     <div className="flex flex-wrap items-center gap-2">
       <InputGroup className="w-full sm:w-56 sm:flex-none">
         <InputGroupAddon>
-          <Search />
+          <HoverIcon icon={SearchIcon} />
         </InputGroupAddon>
         <InputGroupInput
           value={query}

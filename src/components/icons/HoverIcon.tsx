@@ -5,7 +5,7 @@ import type { AnimatedIconComponent, IconHandle, IconProps } from "@/components/
 import { cn } from "@/lib/utils"
 
 // What "the whole button" is, for an icon inside it.
-const HOST = "button, a, [role='menuitem'], [role='option'], label"
+const HOST = "button, a, [role='menuitem'], [role='option'], label, [data-slot='input-group'], [data-slot='command-input-wrapper']"
 
 type Props = Omit<IconProps, "size"> & {
   // An AnimateIcons icon, or a Lucide one, which sits still.
@@ -14,17 +14,21 @@ type Props = Omit<IconProps, "size"> & {
   size?: number
   // Milliseconds the pointer must stay before the icon plays.
   delay?: number
+  // Play while the element the icon sits in is hovered, such as a field it is drawn over.
+  hoverParent?: boolean
 }
 
 // An icon that plays while the button, link or menu row around it is hovered, through the
 // icon's handle. Reduced motion is the icon's own business: it does not play.
-export function HoverIcon({ icon, size, delay = 0, className, style, ...props }: Props) {
+export function HoverIcon({ icon, size, delay = 0, hoverParent, className, style, ...props }: Props) {
   const Icon = icon as AnimatedIconComponent
   const mark = useRef<HTMLSpanElement>(null)
   const handle = useRef<IconHandle>(null)
 
   useEffect(() => {
-    const host = mark.current?.closest(HOST) ?? mark.current?.firstElementChild
+    const host = hoverParent
+      ? mark.current?.parentElement
+      : (mark.current?.closest(HOST) ?? mark.current?.firstElementChild)
     if (!host) return
     let timer: number | undefined
     const play = () => {
@@ -41,7 +45,7 @@ export function HoverIcon({ icon, size, delay = 0, className, style, ...props }:
       host.removeEventListener("mouseenter", play)
       host.removeEventListener("mouseleave", rest)
     }
-  }, [delay])
+  }, [delay, hoverParent])
 
   return (
     <span ref={mark} className="contents">

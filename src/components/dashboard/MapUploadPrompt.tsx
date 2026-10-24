@@ -1,4 +1,6 @@
-import { ImageUp, Map as MapIcon } from "lucide-react"
+import { Map as MapIcon } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { ImagePlusIcon } from "@/components/icons/ImagePlusIcon"
 import { FormAlert } from "@/components/auth/FormAlert"
 import type { MapImageUpload } from "@/hooks/use-map-image-upload"
 import { MapImageInput } from "./MapImageInput"
@@ -26,7 +28,7 @@ export function MapUploadPrompt({ canManage, upload }: Props) {
         onPick={upload.pick}
         className="text-muted-foreground hover:bg-muted/60 bg-muted/40 flex aspect-video flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-center transition-colors"
       >
-        <ImageUp className="size-8" />
+        <HoverIcon icon={ImagePlusIcon} size={32} />
         <span className="text-foreground text-sm font-medium">
           {upload.busy ? "Preparing your map…" : "Upload a map"}
         </span>

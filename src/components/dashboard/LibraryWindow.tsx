@@ -1,6 +1,7 @@
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { SearchIcon } from "@/components/icons/SearchIcon"
 import { Fragment } from "react"
 import type { PointerEventHandler, ReactNode, Ref } from "react"
-import { Search } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -67,7 +68,7 @@ export function LibraryWindow(props: Props) {
           <div className="flex shrink-0 items-center gap-2">
             <InputGroup className="min-w-0 flex-1 pointer-coarse:h-11">
               <InputGroupAddon>
-                <Search />
+                <HoverIcon icon={SearchIcon} />
               </InputGroupAddon>
               <InputGroupInput
                 autoFocus={props.autoFocus ?? !compact}

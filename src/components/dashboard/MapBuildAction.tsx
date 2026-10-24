@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { Hammer } from "lucide-react"
+import { HammerIcon } from "@/components/icons/HammerIcon"
+import { HoverIcon } from "@/components/icons/HoverIcon"
 import { Button } from "@/components/ui/button"
 import { MapBuilderLink } from "./MapBuilderLink"
 import { NewMapDialog } from "./NewMapDialog"
@@ -14,7 +15,7 @@ export function MapBuildAction({ mapId, built }: { mapId: string; built: boolean
   return (
     <>
       <Button variant="outline" className="w-fit" onClick={() => setOpen(true)}>
-        <Hammer />
+        <HoverIcon icon={HammerIcon} />
         Build instead
       </Button>
       <NewMapDialog open={open} onClose={() => setOpen(false)} mapId={mapId} />

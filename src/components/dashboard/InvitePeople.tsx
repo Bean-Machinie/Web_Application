@@ -1,5 +1,6 @@
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { SearchIcon } from "@/components/icons/SearchIcon"
 import { useEffect, useState } from "react"
-import { Search } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
 import { Input } from "@/components/ui/input"
@@ -123,7 +124,7 @@ export function InvitePeople({
   return (
     <div className="flex flex-col gap-3">
       <div className="relative">
-        <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+        <HoverIcon icon={SearchIcon} size={16} hoverParent className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2" />
         <Input
           aria-label="Search by username or email"
           placeholder="Search by username or email"

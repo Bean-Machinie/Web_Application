@@ -1,4 +1,5 @@
-import { Search } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { SearchIcon } from "@/components/icons/SearchIcon"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { ClearSearchButton } from "./ClearSearchButton"
 
@@ -11,7 +12,7 @@ export function LibrarySearch({ query, onQuery }: Props) {
     <div className="flex items-center md:h-12">
       <InputGroup className="w-full sm:w-64">
         <InputGroupAddon>
-          <Search />
+          <HoverIcon icon={SearchIcon} />
         </InputGroupAddon>
         <InputGroupInput
           value={query}

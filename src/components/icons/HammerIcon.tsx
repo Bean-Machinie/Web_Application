@@ -16,12 +16,12 @@ import {
  useRef,
  type HTMLAttributes,
 } from "react";
-export interface UserStarIconHandle {
+export interface HammerIconHandle {
  startAnimation: () => void;
  stopAnimation: () => void;
 }
 
-interface UserStarIconProps extends Omit<
+interface HammerIconProps extends Omit<
  HTMLAttributes<HTMLDivElement>,
  | "color"
  | "onDrag"
@@ -37,7 +37,7 @@ interface UserStarIconProps extends Omit<
  color?: string;
 }
 
-const UserStarIcon = forwardRef<UserStarIconHandle, UserStarIconProps>(
+const HammerIcon = forwardRef<HammerIconHandle, HammerIconProps>(
  (
   {
    onMouseEnter,
@@ -81,28 +81,14 @@ const UserStarIcon = forwardRef<UserStarIconHandle, UserStarIconProps>(
    [controls, onMouseLeave],
   );
 
-  const headVariants: Variants = {
-   normal: { y: 0 },
+  const hammerVariants: Variants = {
+   normal: { rotate: 0 },
    animate: {
-    y: [0, -1.5, 0.5, 0],
+    rotate: [0, -18, 9, -3, 0],
     transition: {
-     duration: 0.6 * duration,
+     duration: 0.85 * duration,
      ease: "easeInOut",
-     times: [0, 0.35, 0.7, 1],
-    },
-   },
-  };
-
-  const starVariants: Variants = {
-   normal: { scale: 1, rotate: 0 },
-   animate: {
-    scale: [1, 1.12, 0.96, 1],
-    rotate: [0, -16, 10, 0],
-    transition: {
-     duration: 0.7 * duration,
-     ease: "easeInOut",
-     times: [0, 0.35, 0.7, 1],
-     delay: 0.05 * duration,
+     times: [0, 0.4, 0.7, 0.87, 1],
     },
    },
   };
@@ -129,13 +115,14 @@ const UserStarIcon = forwardRef<UserStarIconHandle, UserStarIconProps>(
       animate={controls}
       initial="normal"
      >
-      <m.path
-       d="M16.051 12.616a1 1 0 0 1 1.909.024l.737 1.452a1 1 0 0 0 .737.535l1.634.256a1 1 0 0 1 .588 1.806l-1.172 1.168a1 1 0 0 0-.282.866l.259 1.613a1 1 0 0 1-1.541 1.134l-1.465-.75a1 1 0 0 0-.912 0l-1.465.75a1 1 0 0 1-1.539-1.133l.258-1.613a1 1 0 0 0-.282-.866l-1.156-1.153a1 1 0 0 1 .572-1.822l1.633-.256a1 1 0 0 0 .737-.535z"
-       variants={starVariants}
-       style={{ transformBox: "view-box", originX: "17px", originY: "17px" }}
-      />
-      <path d="M8 15H7a4 4 0 0 0-4 4v2" />
-      <m.circle cx="10" cy="7" r="4" variants={headVariants} />
+      <m.g
+       variants={hammerVariants}
+       style={{ transformBox: "view-box", originX: "4px", originY: "20px" }}
+      >
+       <path d="m15 12-9.373 9.373a1 1 0 0 1-3.001-3L12 9" />
+       <path d="m18 15 4-4" />
+       <path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172v-.344a2 2 0 0 0-.586-1.414l-1.657-1.657A6 6 0 0 0 12.516 3H9l1.243 1.243A6 6 0 0 1 12 8.485V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5" />
+      </m.g>
      </m.svg>
     </m.div>
    </LazyMotion>
@@ -143,5 +130,5 @@ const UserStarIcon = forwardRef<UserStarIconHandle, UserStarIconProps>(
  },
 );
 
-UserStarIcon.displayName = "UserStarIcon";
-export { UserStarIcon };
+HammerIcon.displayName = "HammerIcon";
+export { HammerIcon };

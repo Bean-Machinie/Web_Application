@@ -1,5 +1,4 @@
 import { HoverIcon } from "@/components/icons/HoverIcon"
-import { KIND_MENU_ICONS } from "@/components/icons/kind-menu-icons"
 import { PlusIcon } from "@/components/icons/PlusIcon"
 import { Button } from "@/components/ui/button"
 import {
@@ -34,10 +33,10 @@ export function LibraryNewButton({ kinds, onPick }: Props) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {kinds.map((kind) => {
-          const { label } = WORLD_KINDS[kind]
+          const { label, icon: Icon } = WORLD_KINDS[kind]
           return (
             <DropdownMenuItem key={kind} onSelect={() => onPick(kind)}>
-              <HoverIcon icon={KIND_MENU_ICONS[kind]} size={16} />
+              <Icon />
               {label}
             </DropdownMenuItem>
           )

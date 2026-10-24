@@ -1,4 +1,5 @@
-import { Hammer } from "lucide-react"
+import { HammerIcon } from "@/components/icons/HammerIcon"
+import { HoverIcon } from "@/components/icons/HoverIcon"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { useWorldScope } from "./useWorldScope"
@@ -10,7 +11,7 @@ export function MapBuilderLink({ mapId }: { mapId: string }) {
   return (
     <Button asChild variant="outline" className="w-fit">
       <Link to={`${basePath}/${mapId}/build`} state={{ fromMap: true }}>
-        <Hammer />
+        <HoverIcon icon={HammerIcon} />
         Edit map
       </Link>
     </Button>

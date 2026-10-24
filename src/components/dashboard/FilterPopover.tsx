@@ -1,4 +1,5 @@
-import { ListFilter } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { FilterIcon } from "@/components/icons/FilterIcon"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -23,7 +24,7 @@ export function FilterPopover({ groups }: { groups: FilterGroup[] }) {
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline">
-          <ListFilter />
+          <HoverIcon icon={FilterIcon} />
           Filter
           {/* A box of one size whatever is in it, so the button is the same size with a count or
               without, and the row does not move when a count appears. */}
