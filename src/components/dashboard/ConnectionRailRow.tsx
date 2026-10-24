@@ -1,4 +1,5 @@
-import { EyeOff } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
 import { Link } from "react-router-dom"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { ConnectionRow } from "@/lib/connection-groups"
@@ -40,7 +41,7 @@ export function ConnectionRailRow({ row, to, state, onOpen }: Props) {
         )}
       </span>
       <span className="min-w-0 flex-1 truncate">{entry.name}</span>
-      {hidden && <EyeOff className="text-muted-foreground size-3.5 shrink-0" aria-hidden />}
+      {hidden && <HoverIcon icon={EyeOffIcon} size={14} className="text-muted-foreground shrink-0" aria-hidden />}
     </Link>
   )
 

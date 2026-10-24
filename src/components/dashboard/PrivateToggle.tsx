@@ -1,4 +1,6 @@
-import { Lock, LockOpen } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { LockIcon } from "@/components/icons/LockIcon"
+import { LockOpenIcon } from "@/components/icons/LockOpenIcon"
 import { Button } from "@/components/ui/button"
 
 export function PrivateToggle({
@@ -10,7 +12,7 @@ export function PrivateToggle({
   isPrivate: boolean
   onChange: (isPrivate: boolean) => void
 }) {
-  const Icon = isPrivate ? Lock : LockOpen
+  const Icon = isPrivate ? LockIcon : LockOpenIcon
   return (
     <Button
       variant="ghost"
@@ -21,7 +23,7 @@ export function PrivateToggle({
       title={isPrivate ? "Private: players see “Undisclosed”" : "Visible to players"}
       onClick={() => onChange(!isPrivate)}
     >
-      <Icon />
+      <HoverIcon icon={Icon} />
     </Button>
   )
 }

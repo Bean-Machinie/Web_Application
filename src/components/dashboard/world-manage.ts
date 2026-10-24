@@ -1,4 +1,5 @@
-import { FolderPlus, Hammer, Library, Pencil, Trash2 } from "lucide-react"
+import { FolderPlus, Hammer, Library, Pencil } from "lucide-react"
+import { Trash2Icon } from "@/components/icons/Trash2Icon"
 import { errorMessage } from "@/lib/campaigns"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { MemberAction } from "./MemberMenu"
@@ -71,7 +72,7 @@ export function createWorldManage(handlers: Handlers): WorldManage {
         : []),
       {
         label: "Delete",
-        icon: Trash2,
+        icon: Trash2Icon,
         destructive: true,
         onSelect: () => onDelete(entry),
       },

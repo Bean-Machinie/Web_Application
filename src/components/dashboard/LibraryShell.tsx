@@ -1,5 +1,6 @@
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import type { ReactNode } from "react"
-import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -53,7 +54,7 @@ export function LibraryShell({ open, onClose, title, description, help, onEscape
             </div>
             <SheetClose asChild>
               <Button variant="ghost" aria-label="Close" className="size-11">
-                <X />
+                <HoverIcon icon={XIcon} />
               </Button>
             </SheetClose>
           </SheetHeader>

@@ -1,6 +1,9 @@
 import { useState } from "react"
 import type * as L from "leaflet"
-import { Map as MapIcon, MoreHorizontal, X } from "lucide-react"
+import { Map as MapIcon } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { EllipsisIcon } from "@/components/icons/EllipsisIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import type { MapSize } from "@/lib/map-geometry"
@@ -22,7 +25,7 @@ export function MapViewerPhoneControls({ map, url, size, onDetails }: Props) {
           <MapIcon />
         </Button>
         <Button variant="ghost" aria-label="Details" className="size-11 rounded-none border-l" onClick={onDetails}>
-          <MoreHorizontal />
+          <HoverIcon icon={EllipsisIcon} />
         </Button>
       </div>
       <Sheet open={open} onOpenChange={setOpen}>
@@ -32,7 +35,7 @@ export function MapViewerPhoneControls({ map, url, size, onDetails }: Props) {
             <SheetDescription className="sr-only">Where you are on the map, and the zoom</SheetDescription>
             <SheetClose asChild>
               <Button variant="ghost" aria-label="Close" className="size-11">
-                <X />
+                <HoverIcon icon={XIcon} />
               </Button>
             </SheetClose>
           </SheetHeader>

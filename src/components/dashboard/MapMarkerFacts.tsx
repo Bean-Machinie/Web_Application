@@ -1,4 +1,5 @@
-import { Lock } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { LockIcon } from "@/components/icons/LockIcon"
 import { Skeleton } from "@/components/ui/skeleton"
 import { firstLine } from "@/lib/rich-text-line"
 import type { StoredField } from "@/lib/world-fields"
@@ -24,7 +25,7 @@ export function Value({ def, stored, canManage }: { def: FieldDef; stored: Store
   return (
     <>
       <View value={stored.value} options={def.options} />
-      {stored.private && <Lock className="text-muted-foreground size-3 shrink-0" />}
+      {stored.private && <HoverIcon icon={LockIcon} size={12} className="text-muted-foreground shrink-0" />}
     </>
   )
 }

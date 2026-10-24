@@ -1,4 +1,5 @@
-import { Trash2 } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { Trash2Icon } from "@/components/icons/Trash2Icon"
 import { Button } from "@/components/ui/button"
 import type { SheetField } from "@/lib/character-sheet"
 import { InlineText } from "./InlineText"
@@ -36,7 +37,7 @@ export function CharacterTextSection({ field, value, fresh, context, onLabel, on
             aria-label={`Remove ${field.label}`}
             onClick={onRemove}
           >
-            <Trash2 />
+            <HoverIcon icon={Trash2Icon} />
           </Button>
         )}
       </div>

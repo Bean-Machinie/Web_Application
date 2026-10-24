@@ -1,5 +1,6 @@
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import type { ReactNode } from "react"
-import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
@@ -48,7 +49,7 @@ export function SelectionBar({ selection, progress, children }: Props) {
           disabled={busy}
           onClick={selection.clear}
         >
-          <X />
+          <HoverIcon icon={XIcon} />
         </Button>
       </div>
     </FloatingBar>

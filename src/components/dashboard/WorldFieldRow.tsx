@@ -1,4 +1,6 @@
-import { Lock, LockOpen } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { LockIcon } from "@/components/icons/LockIcon"
+import { LockOpenIcon } from "@/components/icons/LockOpenIcon"
 import { Switch } from "@/components/ui/switch"
 import type { FieldDef } from "@/lib/world-kinds"
 import type { StoredField } from "@/lib/world-fields"
@@ -26,7 +28,7 @@ export function WorldFieldRow({ def, context, stored, manage }: Props) {
         <h3 className="text-sm font-medium">{def.label}</h3>
         {manage && def.canBePrivate && (
           <label className="text-muted-foreground flex cursor-pointer items-center gap-2 text-xs">
-            {isPrivate ? <Lock className="size-3.5" /> : <LockOpen className="size-3.5" />}
+            {isPrivate ? <HoverIcon icon={LockIcon} size={14} /> : <HoverIcon icon={LockOpenIcon} size={14} />}
             Private
             <Switch
               size="sm"

@@ -1,5 +1,7 @@
-import { MoreHorizontal } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { EllipsisIcon } from "@/components/icons/EllipsisIcon"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -11,7 +13,7 @@ import {
 
 export type MemberAction = {
   label: string
-  icon?: LucideIcon
+  icon?: AnimatedIconComponent | LucideIcon
   destructive?: boolean
   onSelect: () => void
 }
@@ -32,7 +34,7 @@ export function MemberMenu({ name, actions }: { name: string; actions: MemberAct
       variant={action.destructive ? "destructive" : "default"}
       onSelect={action.onSelect}
     >
-      {action.icon && <action.icon className={action.destructive ? "" : "text-muted-foreground"} />}
+      {action.icon && <HoverIcon icon={action.icon} className={action.destructive ? "" : "text-muted-foreground"} />}
       {action.label}
     </DropdownMenuItem>
   )
@@ -46,7 +48,7 @@ export function MemberMenu({ name, actions }: { name: string; actions: MemberAct
           className="text-muted-foreground size-8"
           aria-label={`Actions for ${name}`}
         >
-          <MoreHorizontal className="size-4" />
+          <HoverIcon icon={EllipsisIcon} size={16} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={6} className="w-48 p-1 shadow-lg">

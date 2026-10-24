@@ -1,4 +1,6 @@
-import { Link2, Trash2 } from "lucide-react"
+import { Link2 } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { Trash2Icon } from "@/components/icons/Trash2Icon"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +42,7 @@ export function MapMarkerMenu({ point, onChangeLink, onRemove, onClose }: Props)
           Change link
         </DropdownMenuItem>
         <DropdownMenuItem variant="destructive" onSelect={onRemove}>
-          <Trash2 />
+          <HoverIcon icon={Trash2Icon} />
           Remove
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -1,4 +1,5 @@
-import { EyeOff } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
 import { Badge } from "@/components/ui/badge"
 
 // The loudest badge we have, on purpose: a GM must see at a glance what
@@ -6,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 export function HiddenBadge({ className }: { className?: string }) {
   return (
     <Badge className={className}>
-      <EyeOff />
+      <HoverIcon icon={EyeOffIcon} size={12} />
       Hidden
     </Badge>
   )

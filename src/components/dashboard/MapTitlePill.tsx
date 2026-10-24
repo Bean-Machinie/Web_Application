@@ -1,4 +1,5 @@
-import { EyeOff } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
 import { MAP_FLOAT_ROW } from "./map-float"
 
 // The map's name is not shown over it; only a map hidden from players says so, as
@@ -9,7 +10,7 @@ export function MapTitlePill({ revealed }: { revealed: boolean }) {
     <div
       className={`${MAP_FLOAT_ROW} text-muted-foreground pointer-events-none absolute top-4 left-4 z-[1000] flex items-center gap-1.5 px-3 text-xs font-medium`}
     >
-      <EyeOff className="size-3.5" />
+      <HoverIcon icon={EyeOffIcon} size={14} />
       Hidden
     </div>
   )

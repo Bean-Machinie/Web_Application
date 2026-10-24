@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
-import { Trash2, UserPlus } from "lucide-react"
+import { UserPlus } from "lucide-react"
+import { Trash2Icon } from "@/components/icons/Trash2Icon"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { useAuth } from "@/auth/useAuth"
 import { LoadingGate } from "@/components/LoadingGate"
@@ -77,7 +78,7 @@ export function CampaignMembers({ campaign }: { campaign: Campaign }) {
       ? [
           {
             label: "Remove from campaign",
-            icon: Trash2,
+            icon: Trash2Icon,
             destructive: true,
             onSelect: () => setRemoving(member),
           },

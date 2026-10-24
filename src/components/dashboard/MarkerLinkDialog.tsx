@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react"
-import { ArrowLeft, X } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
 import {
@@ -101,7 +103,7 @@ export function MarkerLinkDialog({ open, onClose, ...body }: Props) {
             <SheetTitle className="text-sm font-semibold">Link the marker</SheetTitle>
             <SheetClose asChild>
               <Button variant="ghost" aria-label="Close" className="size-11">
-                <X />
+                <HoverIcon icon={XIcon} />
               </Button>
             </SheetClose>
           </SheetHeader>

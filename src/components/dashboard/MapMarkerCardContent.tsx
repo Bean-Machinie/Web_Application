@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom"
-import { ArrowRight, Trash2, X } from "lucide-react"
+import { ArrowRight } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { Trash2Icon } from "@/components/icons/Trash2Icon"
+import { XIcon } from "@/components/icons/XIcon"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { useEntryPreview } from "@/hooks/use-entry-preview"
@@ -63,7 +66,7 @@ export function MapMarkerCardContent({ marker, canManage, backTo, onOpen, onClos
             aria-label="Close preview"
             onClick={onClose}
           >
-            <X />
+            <HoverIcon icon={XIcon} />
           </Button>
         </div>
         <MapMarkerFacts kind={marker.kind} fields={fields} canManage={canManage} />
@@ -83,7 +86,7 @@ export function MapMarkerCardContent({ marker, canManage, backTo, onOpen, onClos
             aria-label={`Remove marker for ${marker.name}`}
             onClick={onRemove}
           >
-            <Trash2 />
+            <HoverIcon icon={Trash2Icon} />
           </Button>
         )}
       </CardFooter>

@@ -1,3 +1,5 @@
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import { useMemo } from "react"
 import { useTable } from "@tanstack/react-table"
 import type { SortingState, Updater } from "@tanstack/react-table"
@@ -7,7 +9,6 @@ import type { EntrySelection } from "@/hooks/use-entry-selection"
 import { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { Sort, SortKey } from "@/lib/world-list"
-import { X } from "lucide-react"
 import { worldCellClass, worldHeadClass } from "./members-table-styles"
 import { SortableHead } from "./SortableHead"
 import { useWorldScope } from "./useWorldScope"
@@ -102,7 +103,7 @@ export function WorldEntryTable({ entries, manage, selection, connections, sort,
                         title="Back to your own order"
                         onClick={() => onSort(null)}
                       >
-                        <X />
+                        <HoverIcon icon={XIcon} />
                       </Button>
                     ) : (
                       String(column.columnDef.header)

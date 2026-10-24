@@ -1,5 +1,7 @@
 import { useState } from "react"
-import { Plus, X } from "lucide-react"
+import { Plus } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import { Button } from "@/components/ui/button"
 import { readList } from "@/lib/character-values"
 import type { ListItem } from "@/lib/character-values"
@@ -29,7 +31,7 @@ export function CharacterListValue({ value, onChange }: { value: unknown; onChan
             aria-label={`Remove ${item.text}`}
             onClick={() => onChange(items.filter((other) => other.id !== item.id))}
           >
-            <X />
+            <HoverIcon icon={XIcon} />
           </Button>
         </div>
       ))}

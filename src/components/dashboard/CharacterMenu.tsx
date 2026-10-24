@@ -1,4 +1,6 @@
-import { MoreHorizontal, Trash2 } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { EllipsisIcon } from "@/components/icons/EllipsisIcon"
+import { Trash2Icon } from "@/components/icons/Trash2Icon"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
@@ -8,12 +10,12 @@ export function CharacterMenu({ onDelete }: { onDelete: () => void }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" aria-label="Character options">
-          <MoreHorizontal />
+          <HoverIcon icon={EllipsisIcon} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem variant="destructive" onSelect={onDelete}>
-          <Trash2 />
+          <HoverIcon icon={Trash2Icon} />
           Delete character
         </DropdownMenuItem>
       </DropdownMenuContent>

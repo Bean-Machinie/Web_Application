@@ -1,4 +1,7 @@
-import { MoreHorizontal, Pin, PinOff, SquareMinus, SquarePlus, Trash2 } from "lucide-react"
+import { Pin, PinOff, SquareMinus, SquarePlus } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { EllipsisIcon } from "@/components/icons/EllipsisIcon"
+import { Trash2Icon } from "@/components/icons/Trash2Icon"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -43,7 +46,7 @@ export function CharacterFieldMenu({ field, pinned, onPin, onLength, onRemove, c
           className={`size-7 shrink-0 opacity-0 transition-opacity focus-visible:opacity-100 data-[state=open]:opacity-100 group-hover/field:opacity-100 ${className ?? ""}`}
           aria-label={`${field.label} options`}
         >
-          <MoreHorizontal />
+          <HoverIcon icon={EllipsisIcon} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
@@ -68,7 +71,7 @@ export function CharacterFieldMenu({ field, pinned, onPin, onLength, onRemove, c
         {field.custom && <DropdownMenuSeparator />}
         {field.custom && (
           <DropdownMenuItem variant="destructive" onSelect={onRemove}>
-            <Trash2 />
+            <HoverIcon icon={Trash2Icon} />
             Remove field
           </DropdownMenuItem>
         )}

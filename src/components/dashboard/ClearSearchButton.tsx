@@ -1,4 +1,5 @@
-import { X } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import { InputGroupAddon, InputGroupButton } from "@/components/ui/input-group"
 
 type Props = { value: string; onClear: () => void }
@@ -18,7 +19,7 @@ export function ClearSearchButton({ value, onClear }: Props) {
           event.currentTarget.closest("[data-slot=input-group]")?.querySelector("input")?.focus()
         }}
       >
-        <X />
+        <HoverIcon icon={XIcon} />
       </InputGroupButton>
     </InputGroupAddon>
   )

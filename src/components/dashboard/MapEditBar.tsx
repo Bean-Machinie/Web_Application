@@ -1,4 +1,6 @@
-import { Check, MapPinPlus, Move, X } from "lucide-react"
+import { Check, MapPinPlus, Move } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
@@ -19,7 +21,7 @@ export function MapEditBar({ placing, editing, onPlace, onCancel, onToggleEditin
       <>
         <span className="text-xs">Click the map to place the marker</span>
         <Button variant="ghost" size="icon-xs" className="pointer-coarse:size-11" aria-label="Cancel" onClick={onCancel}>
-          <X />
+          <HoverIcon icon={XIcon} />
         </Button>
       </>
     )

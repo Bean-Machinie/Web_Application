@@ -1,6 +1,8 @@
 import { useState } from "react"
 import type * as L from "leaflet"
-import { ChevronDown, ChevronUp, MoreHorizontal } from "lucide-react"
+import { ChevronDown, ChevronUp } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { EllipsisIcon } from "@/components/icons/EllipsisIcon"
 import type { MapSize } from "@/lib/map-geometry"
 import { MapCardButton } from "./MapCardButton"
 import { MapViewerNavigatorBody } from "./MapViewerNavigatorBody"
@@ -27,7 +29,7 @@ export function MapViewerNavigator({ map, url, size, onDetails }: Props) {
           {open ? <ChevronUp /> : <ChevronDown />}
         </MapCardButton>
         <MapCardButton label="Details" onClick={onDetails}>
-          <MoreHorizontal />
+          <HoverIcon icon={EllipsisIcon} />
         </MapCardButton>
       </div>
       {/* Slides shut by the height of its row going to nothing. */}

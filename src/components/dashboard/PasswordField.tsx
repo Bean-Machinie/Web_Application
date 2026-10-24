@@ -1,5 +1,7 @@
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { EyeIcon } from "@/components/icons/EyeIcon"
+import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
 import { useState } from "react"
-import { Eye, EyeOff } from "lucide-react"
 import { Input } from "@/components/ui/input"
 
 type Props = {
@@ -31,7 +33,7 @@ export function PasswordField({ label, value, onChange, disabled, autoComplete }
         onClick={() => setShown((now) => !now)}
         className="text-muted-foreground hover:text-foreground focus-visible:ring-ring absolute top-1/2 right-2 -translate-y-1/2 rounded-sm p-1 outline-none focus-visible:ring-2"
       >
-        {shown ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+        {shown ? <HoverIcon icon={EyeOffIcon} size={16} /> : <HoverIcon icon={EyeIcon} size={16} />}
       </button>
     </div>
   )

@@ -1,4 +1,9 @@
-import { Eye, EyeOff, FolderPlus, Library, Trash2 } from "lucide-react"
+import { FolderPlus, Library } from "lucide-react"
+import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
+import { EyeIcon } from "@/components/icons/EyeIcon"
+import { EyeOffIcon } from "@/components/icons/EyeOffIcon"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { Trash2Icon } from "@/components/icons/Trash2Icon"
 import type { LucideIcon } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -20,7 +25,7 @@ type Props = {
 }
 
 function Action(props: {
-  icon: LucideIcon
+  icon: AnimatedIconComponent | LucideIcon
   label: string
   disabled: boolean
   destructive?: boolean
@@ -38,7 +43,7 @@ function Action(props: {
       onClick={onClick}
       className={destructive ? "text-destructive hover:text-destructive" : undefined}
     >
-      <Icon className="size-4" />
+      <HoverIcon icon={Icon} size={16} />
       <span className="max-sm:sr-only">{label}</span>
     </Button>
   )
@@ -68,8 +73,8 @@ export function WorldBulkBar({ selection, bulk, onAddToCampaign }: Props) {
         <SelectionBar selection={selection} progress={bulk.progress}>
           {scope.hasVisibility && (
             <>
-              <Action icon={Eye} label="Reveal" disabled={busy || !bulk.canReveal} onClick={() => bulk.reveal(true)} />
-              <Action icon={EyeOff} label="Hide" disabled={busy || !bulk.canHide} onClick={() => bulk.reveal(false)} />
+              <Action icon={EyeIcon} label="Reveal" disabled={busy || !bulk.canReveal} onClick={() => bulk.reveal(true)} />
+              <Action icon={EyeOffIcon} label="Hide" disabled={busy || !bulk.canHide} onClick={() => bulk.reveal(false)} />
             </>
           )}
           {onAddToCampaign && (
@@ -85,7 +90,7 @@ export function WorldBulkBar({ selection, bulk, onAddToCampaign }: Props) {
             />
           )}
           <Action
-            icon={Trash2}
+            icon={Trash2Icon}
             label="Delete"
             destructive
             disabled={busy}

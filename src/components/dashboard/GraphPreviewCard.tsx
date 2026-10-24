@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom"
-import { ArrowRight, X } from "lucide-react"
+import { ArrowRight } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { useEntryPreview } from "@/hooks/use-entry-preview"
@@ -50,7 +52,7 @@ export function GraphPreviewCard({ node, onClose }: Props) {
             aria-label="Clear selection"
             onClick={onClose}
           >
-            <X />
+            <HoverIcon icon={XIcon} />
           </Button>
         </div>
         <GraphPreviewFacts kind={entry.kind} fields={fields} canManage={canManage} />

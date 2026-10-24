@@ -1,4 +1,6 @@
-import { GripVertical, X } from "lucide-react"
+import { GripVertical } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { StatAction } from "@/lib/stat-block"
@@ -38,7 +40,7 @@ export function StatActionRow({ action, onChange, onRemove }: Props) {
         aria-label={`Remove ${action.name || "action"}`}
         onClick={onRemove}
       >
-        <X />
+        <HoverIcon icon={XIcon} />
       </Button>
     </>
   )

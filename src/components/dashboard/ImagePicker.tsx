@@ -1,6 +1,8 @@
 import { useState } from "react"
 import type { ReactNode } from "react"
-import { Upload, X } from "lucide-react"
+import { Upload } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
 import { useFileUpload } from "@/hooks/use-file-upload"
@@ -82,7 +84,7 @@ export function ImagePicker({ url, fallback, disabled, onPick, onRemove }: Props
             onClick={onRemove}
             className="absolute -top-2 -right-2 rounded-full border opacity-0 shadow-xs transition-opacity group-focus-within/image:opacity-100 group-hover/image:opacity-100"
           >
-            <X />
+            <HoverIcon icon={XIcon} />
           </Button>
         )}
         <input {...getInputProps()} className="sr-only" tabIndex={-1} />

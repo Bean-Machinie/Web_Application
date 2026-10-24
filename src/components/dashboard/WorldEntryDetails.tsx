@@ -1,5 +1,6 @@
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { XIcon } from "@/components/icons/XIcon"
 import type { ReactNode } from "react"
-import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { usePhoneScreen } from "@/hooks/use-phone-screen"
 import {
@@ -62,7 +63,7 @@ export function WorldEntryDetails(props: Props) {
             {phone && (
               <SheetClose asChild>
                 <Button variant="ghost" aria-label="Close" className="size-11">
-                  <X />
+                  <HoverIcon icon={XIcon} />
                 </Button>
               </SheetClose>
             )}
