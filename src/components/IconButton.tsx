@@ -11,6 +11,8 @@ const QUIET =
 
 type Props = Omit<ComponentProps<typeof Button>, "children" | "variant" | "size"> & {
   icon: AnimatedIconComponent
+  // Draws the icon bigger or smaller without changing the button, such as "scale-125".
+  iconClassName?: string
   // What it does, for screen readers.
   label: string
   // Play the icon from outside: on the click that opens a menu or a panel.
@@ -24,6 +26,7 @@ type Props = Omit<ComponentProps<typeof Button>, "children" | "variant" | "size"
 // easy to hit. The icon plays while the whole button is hovered, and when the page plays it.
 export function IconButton({
   icon: Icon,
+  iconClassName,
   label,
   animateRef,
   className,
@@ -63,7 +66,7 @@ export function IconButton({
         onMouseLeave?.(event)
       }}
     >
-      <Icon ref={icon} size={ICON_SIZE} />
+      <Icon ref={icon} size={ICON_SIZE} className={iconClassName} />
       {children}
     </Button>
   )

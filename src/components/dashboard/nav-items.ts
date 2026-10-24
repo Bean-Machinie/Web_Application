@@ -15,6 +15,8 @@ export type NavItem = {
   title: string
   to: string
   icon: AnimatedIconComponent
+  // Drawn bigger or smaller than the others without taking more room, such as "scale-125".
+  iconClassName?: string
   badge?: string
   // Only the page itself lights the item, not the pages below it.
   exact?: boolean
@@ -35,7 +37,7 @@ export const campaignSettingsNav = (id: string): NavItem[] => [
 // What the sidebar shows outside a campaign.
 export const homeNav: NavItem[] = [
   { title: "Home", to: "/app", icon: LayoutGridIcon, exact: true },
-  { title: "Create", to: "/app/create", icon: PlusIcon },
+  { title: "Create", to: "/app/create", icon: PlusIcon, iconClassName: "scale-125" },
   { title: "Your library", to: "/app/library", icon: PackageIcon },
 ]
 

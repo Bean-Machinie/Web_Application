@@ -74,6 +74,7 @@ export function CreateMenu() {
             <DropdownMenuTrigger asChild>
               <IconButton
                 icon={PlusIcon}
+                iconClassName="scale-125"
                 label="Create"
                 animateRef={plus}
                 onPointerEnter={() => (quiet.current = false)}
