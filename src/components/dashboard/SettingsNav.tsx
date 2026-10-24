@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react"
+import { Link } from "react-router-dom"
 import { Icon } from "@/components/Icon"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -7,11 +8,11 @@ import { SETTINGS_GROUPS } from "./settings-tabs"
 import type { SettingsTab } from "./settings-tabs"
 import { useCampaign } from "./useCampaign"
 
-type Props = { tab: SettingsTab; onPick: (tab: SettingsTab) => void }
+type Props = { tab: SettingsTab; onPick: (tab: SettingsTab) => void; onLegal: () => void }
 
 // The tabs of the settings window, grouped under quiet labels. On a small screen this is the
 // first page, and the tab picked slides in over it.
-export function SettingsNav({ tab, onPick }: Props) {
+export function SettingsNav({ tab, onPick, onLegal }: Props) {
   const pending = useCampaign().unreadCount
 
   return (
@@ -51,6 +52,16 @@ export function SettingsNav({ tab, onPick }: Props) {
           ))}
         </div>
       ))}
+      <Link
+        to="/app/legal"
+        onClick={(event) => {
+          event.preventDefault()
+          onLegal()
+        }}
+        className="text-muted-foreground hover:text-foreground mt-auto px-2.5 text-xs transition-colors"
+      >
+        Legal notices
+      </Link>
     </nav>
   )
 }

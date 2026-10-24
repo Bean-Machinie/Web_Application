@@ -2,9 +2,7 @@ import { add, field, floor, number, when } from "./formulas"
 import type { CharacterTemplate, TemplateField } from "./types"
 
 // Structure only, in the terms of the System Reference Document 5.1: no class features,
-// spells or other rules text.
-const ATTRIBUTION =
-  'This work includes material taken from the System Reference Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.'
+// spells or other rules text. The licence notice is in legal-notices.ts.
 
 type Ability = "str" | "dex" | "con" | "int" | "wis" | "cha"
 
@@ -73,7 +71,6 @@ const line = (id: string, label: string): TemplateField => ({ id, tab: "overview
 export const DND_5E: CharacterTemplate = {
   id: "dnd-5e",
   version: 1,
-  attribution: ATTRIBUTION,
   tabs: [
     { id: "overview", label: "Overview", empty: "No details yet" },
     { id: "skills", label: "Skills", empty: "No skills yet" },

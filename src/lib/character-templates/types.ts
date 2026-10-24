@@ -61,6 +61,4 @@ export type CharacterTemplate = {
   tabs: TemplateTab[]
   sections: TemplateSection[]
   fields: TemplateField[]
-  // The licence notice the sheet must carry, shown at its foot.
-  attribution?: string
 }

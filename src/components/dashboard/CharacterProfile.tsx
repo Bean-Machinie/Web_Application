@@ -1,6 +1,9 @@
 import type { ReactNode } from "react"
 import { User } from "lucide-react"
+import { Link } from "react-router-dom"
 import type { Character } from "@/lib/characters"
+import { noticePath } from "@/lib/legal-notices"
+import type { GameNotice } from "@/lib/legal-notices"
 import { EditableName } from "./EditableName"
 import { ImageFieldEditor } from "./ImageFieldEditor"
 import { InlineText } from "./InlineText"
@@ -13,6 +16,8 @@ type Props = {
   onName: (name: string) => Promise<void>
   onConcept: (concept: string) => void
   onPortrait: (portrait: Character["portrait"]) => Promise<boolean>
+  // Where the template's content comes from, or none for a template without a licence.
+  template: GameNotice | null
   // The pinned fields as pills, or none.
   pills: ReactNode
   // The template's identity rows, as a card.
@@ -24,7 +29,7 @@ type Props = {
 // stays on screen with a portrait as wide as the column; below that it is above the sheet,
 // with a small portrait beside the name. The portrait's files are kept under the owner's
 // folder in the images bucket, which the existing storage rule lets them write.
-export function CharacterProfile({ character, userId, fresh, onName, onConcept, onPortrait, pills, identity }: Props) {
+export function CharacterProfile({ character, userId, fresh, onName, onConcept, onPortrait, template, pills, identity }: Props) {
   return (
     <aside className="relative flex w-full flex-col gap-4 min-[1000px]:sticky min-[1000px]:top-[calc(var(--header-height)+1.5rem)] min-[1000px]:w-[300px] min-[1000px]:shrink-0">
       <div className="flex items-start gap-4 min-[1000px]:flex-col">
@@ -49,6 +54,11 @@ export function CharacterProfile({ character, userId, fresh, onName, onConcept, 
           />
         </div>
       </div>
+      {template && (
+        <Link to={noticePath(template.id)} className="text-muted-foreground hover:text-foreground -mt-2 text-xs transition-colors">
+          {template.name} · {template.source}
+        </Link>
+      )}
       {pills && <div className="flex flex-wrap gap-2">{pills}</div>}
       {identity}
     </aside>

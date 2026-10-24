@@ -15,6 +15,7 @@ import { Create } from "@/pages/Create"
 import { Home } from "@/pages/Home"
 import { Invite } from "@/pages/Invite"
 import { JoinCampaign } from "@/pages/JoinCampaign"
+import { Legal } from "@/pages/Legal"
 import { Library } from "@/pages/Library"
 import { Login } from "@/pages/Login"
 import { MapBuild } from "@/pages/MapBuild"
@@ -69,6 +70,7 @@ export default function App() {
           <Route path="settings" element={<SettingsRedirect />} />
           <Route path="settings/:tab" element={<SettingsRedirect />} />
           <Route path="support" element={<Support />} />
+          <Route path="legal" element={<Legal />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

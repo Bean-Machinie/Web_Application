@@ -10,6 +10,7 @@ import type { CharacterFieldType } from "@/lib/character-templates/types"
 import { deleteCharacter } from "@/lib/characters"
 import type { Character } from "@/lib/characters"
 import { errorMessage } from "@/lib/campaigns"
+import { noticeFor, noticePath } from "@/lib/legal-notices"
 import { ConfirmDialog } from "./ConfirmDialog"
 import { CharacterMenu } from "./CharacterMenu"
 import { CharacterPill } from "./CharacterPill"
@@ -38,6 +39,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
   const [deleting, setDeleting] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
   const { template, fields, values } = sheet
+  const gameNotice = noticeFor(template!.id)
   const tabs = template!.tabs
   const tab = tabs.find((candidate) => candidate.id === params.get("tab")) ?? tabs[0]
 
@@ -87,6 +89,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
         onName={async (name) => void (await sheet.edit("name", name))}
         onConcept={(concept) => void sheet.edit("concept", concept)}
         onPortrait={(portrait) => sheet.edit("portrait", portrait)}
+        template={gameNotice}
         pills={pills.length > 0 ? pills : null}
         identity={identity.length > 0 && <CharacterRows fields={identity} actions={actions} narrow />}
       />
@@ -104,7 +107,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
           </Tabs>
           <div className="flex shrink-0 items-center gap-2">
             <SaveIndicator state={sheet.saveState} />
-            <CharacterMenu onDelete={() => setDeleting(true)} />
+            <CharacterMenu aboutPath={gameNotice && noticePath(gameNotice.id)} onDelete={() => setDeleting(true)} />
           </div>
         </div>
         {(sheet.error || failure) && <p className="text-destructive text-sm">{sheet.error ?? failure}</p>}
@@ -118,9 +121,6 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
           onOpen={(sectionId) => setOpened((old) => new Set(old).add(sectionId))}
           onAdd={async (type: CharacterFieldType) => setFreshField(await sheet.addField(tab.id, type, NEW_FIELD_LABEL[type]))}
         />
-        {template!.attribution && (
-          <p className="text-muted-foreground mt-6 text-[11px] leading-relaxed font-normal">{template!.attribution}</p>
-        )}
       </div>
       <ConfirmDialog
         open={deleting}

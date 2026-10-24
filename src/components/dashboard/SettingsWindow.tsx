@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useSettingsWindow } from "@/hooks/use-settings-window"
@@ -15,6 +16,7 @@ import type { SettingsTab } from "./settings-tabs"
 // use-settings-window.ts). Mounted once, for every page that has a signed-in user.
 export function SettingsWindow() {
   const { tab, open, close } = useSettingsWindow()
+  const navigate = useNavigate()
   const isMobile = useIsMobile()
   const active: SettingsTab = tab ?? "profile"
   const isOpen = tab !== null
@@ -80,7 +82,7 @@ export function SettingsWindow() {
               showTab && "max-md:-translate-x-1/4 max-md:opacity-0"
             )}
           >
-            <SettingsNav tab={active} onPick={pick} />
+            <SettingsNav tab={active} onPick={pick} onLegal={() => guard(() => navigate("/app/legal"))} />
           </div>
           <div
             inert={isMobile && !showTab}

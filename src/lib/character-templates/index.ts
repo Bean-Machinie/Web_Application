@@ -10,7 +10,7 @@ export const templateFor = (id: string, version: number) =>
   TEMPLATES.find((template) => template.id === id && template.version === version) ?? null
 
 // What the New character dialog offers, in its order: the newest version of each. The
-// short line is the licence in brief; the full notice is on the sheet itself.
+// short line is the licence in brief; the full notice is on the legal page.
 export const TEMPLATE_CHOICES: { id: string; version: number; name: string; description: string; licence?: string }[] = [
   { id: FREEFORM.id, version: FREEFORM.version, name: "Freeform", description: "Start empty and add what you need." },
   {

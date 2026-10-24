@@ -2,9 +2,7 @@ import { countStarted } from "./formulas"
 import type { CharacterTemplate, TemplateField, TemplateSection } from "./types"
 
 // Structure only, in the terms of the Blades in the Dark SRD: no playbook abilities or
-// other rules text.
-const ATTRIBUTION =
-  "This work is based on Blades in the Dark (found at http://www.bladesinthedark.com/), product of One Seven Design, developed and authored by John Harper, and licensed for our use under the Creative Commons Attribution 3.0 Unported license (http://creativecommons.org/licenses/by/3.0/)."
+// other rules text. The licence notice is in legal-notices.ts.
 
 const ATTRIBUTES: [id: string, label: string, actions: [string, string][]][] = [
   ["insight", "Insight", [["hunt", "Hunt"], ["study", "Study"], ["survey", "Survey"], ["tinker", "Tinker"]]],
@@ -55,7 +53,6 @@ const attributeFields = ATTRIBUTES.flatMap(([id, label, actions]): TemplateField
 export const BLADES: CharacterTemplate = {
   id: "blades-in-the-dark",
   version: 1,
-  attribution: ATTRIBUTION,
   tabs: [
     { id: "overview", label: "Overview", empty: "No details yet" },
     { id: "actions", label: "Actions", empty: "No actions yet" },

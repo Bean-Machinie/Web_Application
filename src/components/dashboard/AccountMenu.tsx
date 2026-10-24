@@ -15,6 +15,7 @@ import { HoverIcon } from "@/components/icons/HoverIcon"
 import { LifeBuoyIcon } from "@/components/icons/LifeBuoyIcon"
 import { LogOutIcon } from "@/components/icons/LogOutIcon"
 import { PaletteIcon } from "@/components/icons/PaletteIcon"
+import { HandshakeIcon } from "@/components/icons/HandshakeIcon"
 import { SettingsIcon } from "@/components/icons/SettingsIcon"
 import { useSettingsWindow } from "@/hooks/use-settings-window"
 import { supabase } from "@/lib/supabase"
@@ -81,6 +82,10 @@ export function AccountMenu({ children, side, align, onChoose, beforeLeave }: Pr
         <DropdownMenuItem onClick={leaveTo(() => navigate("/app/support"))}>
           <HoverIcon icon={LifeBuoyIcon} size={16} />
           Support
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={leaveTo(() => navigate("/app/legal"))}>
+          <HoverIcon icon={HandshakeIcon} size={16} />
+          Legal notices
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
