@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 import { LazyMotion, domMin, m, useAnimation, useReducedMotion } from "motion/react"
 import { forwardRef, useImperativeHandle } from "react"
-import type { ForwardRefExoticComponent, HTMLAttributes, ReactNode, RefAttributes } from "react"
+import type { HTMLAttributes, ReactNode } from "react"
 
 // How the app's animated icons are made, so that they are all alike:
 //  - one 24-unit drawing, a 2-unit round stroke, `currentColor`, no fill;
@@ -23,9 +23,6 @@ export type IconProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "color" | "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration"
 > & { size?: number }
-
-// Any icon that can be played through the handle, ours or an AnimateIcons one.
-export type AnimatedIconComponent = ForwardRefExoticComponent<IconProps & RefAttributes<IconHandle>>
 
 // The shell every icon draws into. Its children are the shapes, with variants.
 export const AnimatedIcon = forwardRef<IconHandle, IconProps & { children: ReactNode }>(

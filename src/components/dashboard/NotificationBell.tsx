@@ -5,7 +5,6 @@ import type { IconHandle } from "@/components/AnimatedIcon"
 import { BellIcon } from "@/components/BellIcon"
 import { Icon } from "@/components/Icon"
 import { IconButton } from "@/components/IconButton"
-import { SettingsIcon } from "@/components/SettingsIcon"
 import { Button } from "@/components/ui/button"
 import {
   Popover,
@@ -13,9 +12,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useIconHover } from "@/hooks/use-icon-hover"
 import { useSettingsWindow } from "@/hooks/use-settings-window"
 import { BELL_PAGE_SIZE } from "@/lib/notifications"
+import settings from "@/assets/icons/settings.svg"
 import { NotificationBadge } from "./NotificationBadge"
 import { NotificationList } from "./NotificationList"
 import { useCampaign } from "./useCampaign"
@@ -55,7 +54,6 @@ export function NotificationBell() {
   }, [open])
   // The bell swings on a click, and only then.
   const bell = useRef<IconHandle>(null)
-  const { icon: settingsIcon, hover: settingsHover } = useIconHover()
 
   function viewAll() {
     setOpen(false)
@@ -111,9 +109,8 @@ export function NotificationBell() {
             className="text-muted-foreground"
             aria-label="Notification settings"
             onClick={openPreferences}
-            {...settingsHover}
           >
-            <SettingsIcon ref={settingsIcon} size={16} />
+            <Icon src={settings} />
           </Button>
         </div>
       </PopoverContent>

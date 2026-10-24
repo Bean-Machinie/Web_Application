@@ -4,26 +4,26 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
-import { FileIcon } from "@/components/FileIcon"
-import { LifeBuoyIcon } from "@/components/LifeBuoyIcon"
-import { LogOutIcon } from "@/components/LogOutIcon"
-import { MonitorIcon } from "@/components/MonitorIcon"
-import { SettingsIcon } from "@/components/SettingsIcon"
+import desktop from "@/assets/icons/desktop.svg"
+import file from "@/assets/icons/file.svg"
+import lifeBuoy from "@/assets/icons/life-buoy.svg"
+import logout from "@/assets/icons/menu-logout.svg"
+import settings from "@/assets/icons/settings.svg"
+import { Icon } from "@/components/Icon"
 import { useSettingsWindow } from "@/hooks/use-settings-window"
 import { supabase } from "@/lib/supabase"
 import { AccountIdentity } from "./AccountIdentity"
-import { IconMenuItem } from "./IconMenuItem"
 import type { SettingsTab } from "./settings-tabs"
 
-const menuItems: { label: string; tab: SettingsTab; icon: AnimatedIconComponent }[] = [
-  { label: "Settings", tab: "profile", icon: SettingsIcon },
-  { label: "Appearance", tab: "appearance", icon: MonitorIcon },
-  { label: "Billing", tab: "billing", icon: FileIcon },
+const menuItems: { label: string; tab: SettingsTab; icon: string }[] = [
+  { label: "Settings", tab: "profile", icon: settings },
+  { label: "Appearance", tab: "appearance", icon: desktop },
+  { label: "Billing", tab: "billing", icon: file },
 ]
 
 type Props = {
@@ -70,30 +70,28 @@ export function AccountMenu({ children, side, align, onChoose, beforeLeave }: Pr
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {menuItems.map((item) => (
-            <IconMenuItem
-              key={item.label}
-              icon={item.icon}
-              onClick={choose(() => settingsWindow.open(item.tab))}
-            >
+            <DropdownMenuItem key={item.label} onClick={choose(() => settingsWindow.open(item.tab))}>
+              <Icon src={item.icon} />
               {item.label}
-            </IconMenuItem>
+            </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <IconMenuItem icon={LifeBuoyIcon} onClick={leaveTo(() => navigate("/app/support"))}>
+        <DropdownMenuItem onClick={leaveTo(() => navigate("/app/support"))}>
+          <Icon src={lifeBuoy} />
           Support
-        </IconMenuItem>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <IconMenuItem
-          icon={LogOutIcon}
+        <DropdownMenuItem
           variant="destructive"
           onClick={leaveTo(async () => {
             await supabase.auth.signOut()
             navigate("/login", { replace: true })
           })}
         >
+          <Icon src={logout} />
           Log out
-        </IconMenuItem>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

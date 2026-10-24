@@ -1,4 +1,4 @@
-import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
+import type { LucideIcon } from "lucide-react"
 import { campaignPath } from "./campaign-paths"
 import { roleLabel } from "./campaign-list"
 import { can } from "./campaign-permissions"
@@ -14,7 +14,7 @@ import { WORLD_KINDS, worldKinds } from "./world-kinds"
 // Where the palette looks when something is typed.
 export type PaletteScope = "everywhere" | "campaign" | "campaigns" | "library"
 
-type Page = { title: string; to: string; icon: AnimatedIconComponent }
+type Page = { title: string; to: string; icon: string | LucideIcon }
 
 export type PaletteInput = {
   query: string
