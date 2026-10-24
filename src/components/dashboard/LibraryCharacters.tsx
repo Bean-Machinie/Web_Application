@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom"
-import { Plus, User } from "lucide-react"
+import { User } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { PlusIcon } from "@/components/icons/PlusIcon"
 import { TiltCard } from "@/components/TiltCard"
 import { tiltCardSkin } from "@/components/tilt-card-styles"
 import { Button } from "@/components/ui/button"
@@ -26,7 +28,7 @@ export function LibraryCharacters({ characters, query, onNew }: Props) {
         </EmptyHeader>
         {!text && (
           <Button variant="outline" onClick={onNew}>
-            <Plus />
+            <HoverIcon icon={PlusIcon} />
             New character
           </Button>
         )}

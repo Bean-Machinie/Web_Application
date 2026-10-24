@@ -1,4 +1,6 @@
-import { Plus } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { KIND_MENU_ICONS } from "@/components/icons/kind-menu-icons"
+import { PlusIcon } from "@/components/icons/PlusIcon"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -16,7 +18,7 @@ export function LibraryNewButton({ kinds, onPick }: Props) {
   if (kinds.length === 1) {
     return (
       <Button onClick={() => onPick(kinds[0])}>
-        <Plus className="size-4" />
+        <HoverIcon icon={PlusIcon} size={16} />
         New {WORLD_KINDS[kinds[0]].noun}
       </Button>
     )
@@ -26,16 +28,16 @@ export function LibraryNewButton({ kinds, onPick }: Props) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button>
-          <Plus className="size-4" />
+          <HoverIcon icon={PlusIcon} size={16} />
           New
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {kinds.map((kind) => {
-          const { label, icon: Icon } = WORLD_KINDS[kind]
+          const { label } = WORLD_KINDS[kind]
           return (
             <DropdownMenuItem key={kind} onSelect={() => onPick(kind)}>
-              <Icon />
+              <HoverIcon icon={KIND_MENU_ICONS[kind]} size={16} />
               {label}
             </DropdownMenuItem>
           )

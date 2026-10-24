@@ -1,11 +1,14 @@
 import { useMemo, useRef, useState } from "react"
 import { Link, useMatch } from "react-router-dom"
-import { User, Users } from "lucide-react"
 import { useAuth } from "@/auth/useAuth"
 import { useCreateEntry } from "@/hooks/use-create-entry"
 import type { IconHandle } from "@/components/AnimatedIcon"
 import { IconButton } from "@/components/IconButton"
-import { PlusIcon } from "@/components/PlusIcon"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { KIND_MENU_ICONS } from "@/components/icons/kind-menu-icons"
+import { PlusIcon } from "@/components/icons/PlusIcon"
+import { UserRoundIcon } from "@/components/icons/UserRoundIcon"
+import { UsersRoundIcon } from "@/components/icons/UsersRoundIcon"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,20 +89,20 @@ export function CreateMenu() {
                 {destination}
               </DropdownMenuLabel>
               {kinds.map((kind) => {
-                const { label, icon: KindIcon } = WORLD_KINDS[kind]
+                const { label } = WORLD_KINDS[kind]
                 return (
                   <DropdownMenuItem
                     key={kind}
                     onSelect={() => (kind === "map" ? setMakingMap(true) : createEntry(kind))}
                   >
-                    <KindIcon />
+                    <HoverIcon icon={KIND_MENU_ICONS[kind]} size={16} />
                     {label}
                   </DropdownMenuItem>
                 )
               })}
               {!inCampaign && (
                 <DropdownMenuItem onSelect={newCharacter.open}>
-                  <User />
+                  <HoverIcon icon={UserRoundIcon} size={16} />
                   Character
                 </DropdownMenuItem>
               )}
@@ -108,7 +111,7 @@ export function CreateMenu() {
           )}
           <DropdownMenuItem asChild>
             <Link to="/app/campaigns/new">
-              <Users />
+              <HoverIcon icon={UsersRoundIcon} size={16} />
               New campaign
             </Link>
           </DropdownMenuItem>

@@ -1,4 +1,5 @@
-import { Plus } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { PlusIcon } from "@/components/icons/PlusIcon"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
 import { Button } from "@/components/ui/button"
@@ -45,7 +46,7 @@ export function LibraryPage() {
         actions={
           onCharacters ? (
             <Button onClick={newCharacter.open}>
-              <Plus className="size-4" />
+              <HoverIcon icon={PlusIcon} size={16} />
               New character
             </Button>
           ) : (
