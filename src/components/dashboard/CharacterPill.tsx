@@ -1,18 +1,22 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { pillValue } from "@/lib/character-values"
+import type { ResourceValue } from "@/lib/character-values"
 import { trackLength } from "@/lib/character-sheet"
 import type { SheetField } from "@/lib/character-sheet"
+import type { SheetActions } from "./character-actions"
+import { calculatedResource } from "./character-resource"
 import { CharacterFieldValue } from "./CharacterFieldValue"
 
-type Props = {
-  field: SheetField
-  value: unknown
-  onValue: (value: unknown) => void
-}
+type Props = { field: SheetField; actions: SheetActions }
 
 // A pinned field in the header, as a compact pill: "HP 24/31". Clicking it opens the same
 // control the field has on its tab, so a resource can be spent without leaving the top.
-export function CharacterPill({ field, value, onValue }: Props) {
+export function CharacterPill({ field, actions }: Props) {
+  // A resource with a calculated maximum shows the figure the sheet uses.
+  const calculated = field.maxFrom ? calculatedResource(field, actions) : null
+  const value = calculated ? calculated.value : (actions.values[field.id]?.value ?? null)
+  const onValue = (next: unknown) => (calculated ? calculated.onChange(next as ResourceValue) : actions.onValue(field.id, next))
+
   return (
     <Popover>
       <PopoverTrigger asChild>

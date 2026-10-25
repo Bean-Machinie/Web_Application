@@ -150,3 +150,7 @@ export const setCharacterValue = (id: string, fieldId: string, value: unknown) =
 
 export const setCharacterPinned = (id: string, fieldId: string, pinned: boolean) =>
   call("set_character_pinned", { target_character: id, target_field: fieldId, is_pinned: pinned })
+
+// Only ever up: the database refuses an older version.
+export const setCharacterTemplateVersion = (id: string, version: number) =>
+  call("set_character_template_version", { target_character: id, new_version: version })

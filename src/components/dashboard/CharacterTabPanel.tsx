@@ -1,9 +1,10 @@
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
-import { sectionStarted, tabContents } from "@/lib/character-sheet"
+import { isShown, sectionStarted, tabContents } from "@/lib/character-sheet"
 import type { SheetField } from "@/lib/character-sheet"
-import type { CharacterFieldType, CharacterTemplate, TemplateTab } from "@/lib/character-templates/types"
+import type { CharacterFieldType, CharacterTemplate, TemplateSection, TemplateTab } from "@/lib/character-templates/types"
+import { AbilityScoresDialog } from "./AbilityScoresDialog"
 import { AddFieldMenu } from "./AddFieldMenu"
 import type { SheetActions } from "./character-actions"
 import { CharacterRows } from "./CharacterRows"
@@ -22,11 +23,20 @@ type Props = {
   onAdd: (type: CharacterFieldType) => void
 }
 
+// The line under a section's heading, once the number it mentions is known.
+function captionOf(section: TemplateSection, actions: SheetActions) {
+  const number = section.caption ? actions.derived[section.caption.field] : null
+  return section.caption && number != null ? section.caption.text.replace("{n}", String(number)) : null
+}
+
 // One tab: the template's sections stacked as cards, each a compact card until set up.
 // Then the fields that are in no section, and a quiet Add. With nothing at all, a short
 // empty state with the way to add.
 export function CharacterTabPanel({ template, tab, fields, actions, opened, onOpen, onAdd }: Props) {
-  const { sections, loose } = tabContents(template, tab, fields)
+  const contents = tabContents(template, tab, fields)
+  const shown = (field: SheetField) => isShown(field, actions.byId, actions.values, actions.derived)
+  const sections = contents.sections.map(({ section, fields: inSection }) => ({ section, fields: inSection.filter(shown) }))
+  const loose = contents.loose.filter(shown)
   const plain = loose.filter((field) => field.type !== "text")
   const texts = loose.filter((field) => field.type === "text")
 
@@ -53,7 +63,9 @@ export function CharacterTabPanel({ template, tab, fields, actions, opened, onOp
           key={section.id}
           section={section}
           count={inSection.length}
-          open={opened.has(section.id) || sectionStarted(inSection, actions.values)}
+          open={opened.has(section.id) || sectionStarted(inSection, actions.values, actions.derived)}
+          caption={captionOf(section, actions)}
+          action={section.helper === "ability-scores" ? <AbilityScoresDialog actions={actions} /> : undefined}
           onOpen={() => onOpen(section.id)}
         >
           {section.layout === "grid" ? (

@@ -24,7 +24,7 @@ export function CharacterFieldValue({ field, value, onValue, tile }: Props) {
         <CharacterStatValue
           value={value}
           label={field.label}
-          onChange={onValue}
+          onChange={(number) => onValue(number === null || !field.range ? number : Math.min(Math.max(number, field.range[0]), field.range[1]))}
           className={tile ? "text-center text-xl font-semibold tabular-nums" : undefined}
         />
       )

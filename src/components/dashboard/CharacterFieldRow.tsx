@@ -13,6 +13,8 @@ type Props = {
   size: "wide" | "compact" | "narrow"
   // Another field read beside the value, like a skill's total.
   secondary?: ReactNode
+  // Marked out, like a skill the class offers.
+  highlighted?: boolean
   onLabel: (label: string) => void
   onPin: (pinned: boolean) => void
   onLength: (length: number) => void
@@ -29,8 +31,11 @@ const LABEL = {
   narrow: "w-28 shrink-0",
 }
 
-export function CharacterFieldRow({ field, pinned, fresh, size, secondary, onLabel, onPin, onLength, onRemove, children }: Props) {
+export function CharacterFieldRow({ field, pinned, fresh, size, secondary, highlighted, onLabel, onPin, onLength, onRemove, children }: Props) {
   const compact = size === "compact"
+
+  // Attacks are a table that takes the whole row, with no name beside it.
+  if (field.type === "attacks") return <div className="px-3 py-2 sm:px-4">{children}</div>
 
   return (
     <div className="group/field flex min-h-10 items-center gap-3 px-3 py-1.5 sm:px-4">
@@ -39,6 +44,7 @@ export function CharacterFieldRow({ field, pinned, fresh, size, secondary, onLab
           <InlineText value={field.label} placeholder="Name" maxLength={60} autoEdit={fresh} onSave={onLabel} />
         ) : (
           <span className="block truncate" title={field.hint ? `${field.title ?? field.label} (${field.hint})` : (field.title ?? field.label)}>
+            {highlighted && <span className="bg-primary mr-1.5 inline-block size-1.5 rounded-full align-middle" title="Class skill option" />}
             {field.label}
             {field.hint && <span className="ml-1.5 text-xs opacity-70">{field.hint}</span>}
           </span>

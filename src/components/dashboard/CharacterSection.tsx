@@ -7,6 +7,10 @@ type Props = {
   // How many fields it has, for the preview when the template gives none.
   count: number
   open: boolean
+  // A line under the heading, like how many skills to choose.
+  caption?: string | null
+  // A helper that opens beside the heading.
+  action?: ReactNode
   onOpen: () => void
   children: ReactNode
 }
@@ -15,7 +19,7 @@ type Props = {
 // line on what is inside ("6 scores"), and a Set up button on the right; the card as a
 // whole opens it too. Once it has a value it stays open, in place, as its heading over its
 // fields.
-export function CharacterSection({ section, count, open, onOpen, children }: Props) {
+export function CharacterSection({ section, count, open, caption, action, onOpen, children }: Props) {
   if (!open) {
     return (
       <div
@@ -37,7 +41,11 @@ export function CharacterSection({ section, count, open, onOpen, children }: Pro
 
   return (
     <section className="flex flex-col gap-2">
-      <h3 className="text-muted-foreground text-xs font-medium">{section.label}</h3>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-muted-foreground text-xs font-medium">{section.label}</h3>
+        {action}
+      </div>
+      {caption && <p className="text-muted-foreground -mt-1 text-xs">{caption}</p>}
       {children}
     </section>
   )

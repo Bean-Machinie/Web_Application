@@ -2,11 +2,14 @@ import type { Formula } from "./character-templates/formulas"
 import type {
   CharacterFieldType,
   CharacterTemplate,
+  ChoiceList,
   FieldConfig,
+  SheetFieldType,
   TemplateSection,
   TemplateTab,
 } from "./character-templates/types"
 import type { CustomField, StoredValue } from "./characters"
+import type { Derived } from "./character-derive"
 import { DEFAULT_TRACK_LENGTH, isEmptyValue } from "./character-values"
 
 // A field of the sheet, whether the template has it or the player added it.
@@ -15,7 +18,7 @@ export type SheetField = {
   tab: string
   // The template's section it is in; the fields a player adds are in none.
   section: string | null
-  type: CharacterFieldType
+  type: SheetFieldType
   label: string
   hint?: string
   title?: string
@@ -24,8 +27,15 @@ export type SheetField = {
   custom: boolean
   pinnedByTemplate: boolean
   derived?: Formula
-  format?: "signed"
+  format?: "signed" | "die" | "feet" | "pounds"
   secondary?: string
+  tertiary?: string
+  choices?: ChoiceList
+  range?: [number, number]
+  showWhen?: string
+  highlight?: string
+  hidden?: boolean
+  maxFrom?: string
 }
 
 // The template's fields, then the player's, each in its order.
@@ -46,6 +56,13 @@ export function sheetFields(template: CharacterTemplate, custom: CustomField[]):
       derived: field.derived,
       format: field.format,
       secondary: field.secondary,
+      tertiary: field.tertiary,
+      choices: field.choices,
+      range: field.range,
+      showWhen: field.showWhen,
+      highlight: field.highlight,
+      hidden: field.hidden,
+      maxFrom: field.maxFrom,
     })),
     ...custom.map((field) => ({
       id: field.id,
@@ -76,8 +93,8 @@ export type TabContents = {
 
 export function tabContents(template: CharacterTemplate, tab: TemplateTab, fields: SheetField[]): TabContents {
   const inTab = fields.filter((field) => field.tab === tab.id)
-  const nested = new Set(inTab.map((field) => field.secondary).filter(Boolean))
-  const shown = inTab.filter((field) => !nested.has(field.id))
+  const nested = new Set(inTab.flatMap((field) => [field.secondary, field.tertiary]).filter(Boolean))
+  const shown = inTab.filter((field) => !nested.has(field.id) && !field.hidden)
   return {
     sections: template.sections
       .filter((section) => section.tab === tab.id && !section.profile)
@@ -86,9 +103,29 @@ export function tabContents(template: CharacterTemplate, tab: TemplateTab, field
   }
 }
 
-// Whether any of a section's fields has been filled in, which keeps it open.
-export function sectionStarted(fieldsOfSection: SheetField[], values: Record<string, StoredValue>) {
-  return fieldsOfSection.some((field) => !field.derived && !isEmptyValue(field.type, values[field.id]?.value))
+// Whether any of a section's fields has been filled in, which keeps it open. A calculated
+// value does not count, except a toggle that is on (a saving throw the class gives): those
+// are the whole point of the section. A value the player entered over a calculated one does.
+export function sectionStarted(fieldsOfSection: SheetField[], values: Record<string, StoredValue>, derived: Derived) {
+  return fieldsOfSection.some(
+    (field) =>
+      !isEmptyValue(field.type, values[field.id]?.value) ||
+      (field.derived !== undefined && field.type === "toggle" && (derived[field.id] ?? 0) > 0)
+  )
+}
+
+// Whether a field shows now: not while the field it waits for (showWhen) has no value.
+export function isShown(
+  field: SheetField,
+  byId: Map<string, SheetField>,
+  values: Record<string, StoredValue>,
+  derived: Derived
+) {
+  const waitsFor = field.showWhen ? byId.get(field.showWhen) : undefined
+  if (!waitsFor) return true
+  return waitsFor.derived || waitsFor.type === "choice"
+    ? (derived[waitsFor.id] ?? null) !== null
+    : !isEmptyValue(waitsFor.type, values[waitsFor.id]?.value)
 }
 
 export const isPinned = (field: SheetField, values: Record<string, StoredValue>) =>

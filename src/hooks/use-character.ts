@@ -3,6 +3,7 @@ import { deriveAll } from "@/lib/character-derive"
 import { templateFor } from "@/lib/character-templates"
 import type { CharacterFieldType, FieldConfig } from "@/lib/character-templates/types"
 import { sheetFields } from "@/lib/character-sheet"
+import { upgradeCharacter } from "@/lib/character-upgrade"
 import {
   addCharacterField,
   fetchCharacter,
@@ -39,10 +40,13 @@ export function useCharacter(id: string) {
 
   useEffect(() => {
     Promise.all([fetchCharacter(id), fetchCharacterFields(id), fetchCharacterValues(id)])
-      .then(([found, fields, stored]) => {
-        setCharacter(found)
+      .then(async ([found, fields, stored]) => {
+        // An older sheet is carried to the newest version before it shows; if that fails it
+        // shows as it is.
+        const upgraded = found ? await upgradeCharacter(found, stored).catch(() => ({ character: found, values: stored })) : null
+        setCharacter(upgraded ? upgraded.character : found)
         setCustom(fields)
-        setValues(stored)
+        setValues(upgraded ? upgraded.values : stored)
         setLoaded(true)
       })
       .catch((failure) => setError(errorMessage(failure)))

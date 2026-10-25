@@ -12,6 +12,12 @@ export type Formula =
   | { op: "when"; field: string; then: Formula; otherwise?: Formula }
   // How many of these tracks have at least one box marked.
   | { op: "countStarted"; fields: string[] }
+  // `by` is a choice field: the number the table has for the option chosen. Null when
+  // nothing is chosen or the table has no entry, unless `otherwise` says what to use.
+  | { op: "lookup"; by: string; table: Record<string, number>; otherwise?: number }
+  // `by` is a choice field: the value of the field its option names.
+  | { op: "pick"; by: string; fields: Record<string, string> }
+  | { op: "min" | "max" | "multiply"; terms: Formula[] }
 
 export const field = (id: string): Formula => ({ op: "field", id })
 export const number = (value: number): Formula => ({ op: "number", value })
@@ -24,3 +30,13 @@ export const when = (toggle: string, then: Formula, otherwise?: Formula): Formul
   otherwise,
 })
 export const countStarted = (fields: string[]): Formula => ({ op: "countStarted", fields })
+export const lookup = (by: string, table: Record<string, number>, otherwise?: number): Formula => ({
+  op: "lookup",
+  by,
+  table,
+  otherwise,
+})
+export const pick = (by: string, fields: Record<string, string>): Formula => ({ op: "pick", by, fields })
+export const min = (...terms: Formula[]): Formula => ({ op: "min", terms })
+export const max = (...terms: Formula[]): Formula => ({ op: "max", terms })
+export const multiply = (...terms: Formula[]): Formula => ({ op: "multiply", terms })

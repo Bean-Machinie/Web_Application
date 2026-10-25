@@ -16,7 +16,7 @@ export function CharacterTiles({ fields, columns, actions }: Props) {
       style={{ "--columns": columns } as React.CSSProperties}
     >
       {fields.map((field) => {
-        const second = field.secondary ? actions.byId.get(field.secondary) : undefined
+        const nested = [field.secondary, field.tertiary].map((id) => (id ? actions.byId.get(id) : undefined)).filter((other) => other !== undefined)
         return (
           <div key={field.id} className="group/field bg-card relative flex min-h-22 flex-col items-center gap-1 px-2 py-3">
             <span className="text-muted-foreground max-w-full truncate text-xs font-medium" title={field.title ?? field.label}>
@@ -26,9 +26,13 @@ export function CharacterTiles({ fields, columns, actions }: Props) {
             <div className="flex h-8 w-full items-center justify-center">
               <CharacterFieldBody field={field} actions={actions} tile />
             </div>
-            {second && (
-              <span className="text-muted-foreground text-sm tabular-nums">
-                <CharacterFieldBody field={second} actions={actions} />
+            {nested.length > 0 && (
+              <span className="text-muted-foreground flex items-center gap-1 text-sm tabular-nums [&_button]:text-center">
+                {nested.map((other) => (
+                  <span key={other.id} title={other.title ?? other.label}>
+                    <CharacterFieldBody field={other} actions={actions} />
+                  </span>
+                ))}
               </span>
             )}
             <CharacterFieldMenu

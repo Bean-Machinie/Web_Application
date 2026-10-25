@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom"
 import { useAuth } from "@/auth/useAuth"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { useCharacter } from "@/hooks/use-character"
-import { isPinned, NEW_FIELD_LABEL, profileFields } from "@/lib/character-sheet"
+import { isPinned, isShown, NEW_FIELD_LABEL, profileFields } from "@/lib/character-sheet"
 import type { SheetField } from "@/lib/character-sheet"
 import { isEmptyValue } from "@/lib/character-values"
 import type { CharacterFieldType } from "@/lib/character-templates/types"
@@ -39,7 +39,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
   const [deleting, setDeleting] = useState(false)
   const [failure, setFailure] = useState<string | null>(null)
   const { template, fields, values } = sheet
-  const gameNotice = noticeFor(template!.id)
+  const gameNotice = noticeFor(template!.id, template!.version)
   const tabs = template!.tabs
   const tab = tabs.find((candidate) => candidate.id === params.get("tab")) ?? tabs[0]
 
@@ -59,6 +59,8 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
     field.type !== "list" &&
     field.type !== "text" &&
     field.type !== "line" &&
+    field.type !== "choice" &&
+    field.type !== "attacks" &&
     isPinned(field, values) &&
     (values[field.id]?.pinned === true || !isEmptyValue(field.type, values[field.id]?.value))
 
@@ -76,9 +78,9 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
   }
 
   const pills = fields.filter(showsPill).map((field) => (
-    <CharacterPill key={field.id} field={field} value={values[field.id]?.value ?? null} onValue={(value) => sheet.setValue(field.id, value)} />
+    <CharacterPill key={field.id} field={field} actions={actions} />
   ))
-  const identity = profileFields(template!, fields)
+  const identity = profileFields(template!, fields).filter((field) => isShown(field, actions.byId, values, sheet.derived))
 
   return (
     <div className="mx-auto flex w-[1280px] max-w-full flex-col gap-6 min-[1000px]:flex-row min-[1000px]:items-start min-[1000px]:gap-8">

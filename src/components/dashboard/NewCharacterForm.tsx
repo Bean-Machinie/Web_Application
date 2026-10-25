@@ -7,7 +7,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { useCreateCharacter } from "@/hooks/use-create-character"
 import { useTemplateChoice } from "@/hooks/use-template-choice"
 import { TEMPLATE_CHOICES } from "@/lib/character-templates"
-import { noticePath } from "@/lib/legal-notices"
+import { noticeFor, noticePath } from "@/lib/legal-notices"
 
 // Only mounted while the dialog is open, so it starts on the last system chosen.
 export function NewCharacterForm({ onClose }: { onClose: () => void }) {
@@ -46,7 +46,7 @@ export function NewCharacterForm({ onClose }: { onClose: () => void }) {
             </ToggleGroupItem>
             {option.licence && (
               <Link
-                to={noticePath(option.id)}
+                to={noticePath(noticeFor(option.id, option.version)?.id ?? option.id)}
                 className="text-muted-foreground hover:text-foreground absolute bottom-3 left-4 text-xs font-normal underline-offset-4 hover:underline"
               >
                 {option.licence}
