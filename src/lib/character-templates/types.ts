@@ -64,7 +64,7 @@ export type TemplateField = {
   config?: FieldConfig
   // Worked out from other fields and shown unless the player enters their own, which is
   // stored under the field's id. The calculated value itself is never stored. For a
-  // toggle, anything above 0 is on; for a choice, it is the number of the option (from 1).
+  // toggle, anything above 0 is on; for a choice, it is an `option` formula.
   derived?: Formula
   // How a number reads: "signed" shows +2 and -1, "die" d10, "feet" 30 ft.
   format?: "signed" | "die" | "feet" | "pounds"

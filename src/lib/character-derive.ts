@@ -102,6 +102,14 @@ export function deriveAll(fields: SheetField[], values: Record<string, StoredVal
         const option = chosenOf(formula.by, depth + 1)
         return (option ? formula.table[option] : undefined) ?? formula.otherwise ?? null
       }
+      case "option": {
+        const chosen = chosenOf(formula.by, depth + 1)
+        const target = byId.get(formula.of)
+        const id = chosen ? formula.table[chosen] : undefined
+        if (!target || !id) return null
+        const at = optionsFor(target, (by) => chosenOf(by, depth + 1)).findIndex((candidate) => candidate.id === id)
+        return at >= 0 ? at + 1 : null
+      }
       case "pick": {
         const option = chosenOf(formula.by, depth + 1)
         const target = option ? formula.fields[option] : undefined

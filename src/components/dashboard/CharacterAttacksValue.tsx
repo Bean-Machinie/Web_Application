@@ -6,7 +6,7 @@ import type { Attack } from "@/lib/character-values"
 import type { SheetActions } from "./character-actions"
 import { CharacterAttackRow, ATTACK_COLUMNS } from "./CharacterAttackRow"
 
-const HEADINGS = ["Name", "Ability", "To hit", "Damage"]
+const HEADINGS = ["Name", "Ability", "Proficient", "To hit", "Damage"]
 
 // The attacks as a table of rows: name, the ability it uses, to-hit and damage. The to-hit
 // is that ability's modifier plus the proficiency bonus unless the player wrote their own.
@@ -39,7 +39,7 @@ export function CharacterAttacksValue({ field, actions }: { field: SheetField; a
         variant="ghost"
         size="sm"
         className="text-muted-foreground -ml-2 w-fit"
-        onClick={() => save([...attacks, { id: crypto.randomUUID(), name: "", ability: "str", toHit: null, damage: "" }])}
+        onClick={() => save([...attacks, { id: crypto.randomUUID(), name: "", ability: "str", proficient: true, toHit: null, damage: "" }])}
       >
         <Plus />
         Add attack

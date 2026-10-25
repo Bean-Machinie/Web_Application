@@ -5,9 +5,9 @@ export type ResourceValue = { current: number; max: number }
 export type TrackValue = { filled: number }
 export type ListItem = { id: string; text: string }
 
-// An attack: the ability it uses picks the modifier its to-hit is worked out from, unless
-// the player entered a to-hit of their own.
-export type Attack = { id: string; name: string; ability: string | null; toHit: number | null; damage: string }
+// An attack: the ability it uses picks the modifier its to-hit is worked out from, plus the
+// proficiency bonus when proficient, unless the player entered a to-hit of their own.
+export type Attack = { id: string; name: string; ability: string | null; proficient: boolean; toHit: number | null; damage: string }
 
 export const DEFAULT_TRACK_LENGTH = 3
 
@@ -40,6 +40,7 @@ export const readAttacks = (value: unknown): Attack[] =>
           id: item.id as string,
           name: typeof item.name === "string" ? item.name : "",
           ability: readChoice(item.ability),
+          proficient: item.proficient !== false,
           toHit: readStat(item.toHit),
           damage: typeof item.damage === "string" ? item.damage : "",
         }))

@@ -10,11 +10,10 @@ import {
 import { COINS } from "./srd-5-2-1"
 import type { CharacterTemplate } from "./types"
 
-// Version 2 of the D&D 5e sheet, in the terms of the System Reference Document 5.2.1 (the
+// The D&D 5e sheet, in the terms of the System Reference Document 5.2.1 (the
 // 2024 rules): the player gives class, level, species, background and scores, and the rest
 // is calculated and can be written over. Structure and numbers only, no rules text.
-// The licence notice is in legal-notices.ts. Version 1 (SRD 5.1) is in dnd-5e.ts, whose
-// field ids all keep their meaning here.
+// The licence notice is in legal-notices.ts.
 export const DND_5E_2024: CharacterTemplate = {
   id: "dnd-5e",
   version: 2,

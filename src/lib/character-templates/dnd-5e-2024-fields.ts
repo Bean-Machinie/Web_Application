@@ -1,4 +1,4 @@
-import { add, field, floor, lookup, max, min, multiply, number, pick, when } from "./formulas"
+import { add, field, floor, lookup, max, min, multiply, number, option, pick, when } from "./formulas"
 import * as table from "./dnd-5e-2024-tables"
 import { ABILITIES, ABILITY_CAP, SKILLS } from "./srd-5-2-1"
 import type { AbilityId } from "./srd-5-2-1"
@@ -6,20 +6,12 @@ import type { TemplateField } from "./types"
 
 // The inputs the rest of the sheet is worked out from, in the profile column.
 const identity = { tab: "overview", section: "identity" } as const
-const previous = (id: string, hint: string): TemplateField => ({
-  ...identity, id, type: "line", label: "Previous text", hint, showWhen: id,
-})
-
 export const identityFields: TemplateField[] = [
   { ...identity, id: "character-class", type: "choice", label: "Class", choices: { options: table.CLASS_OPTIONS } },
   { ...identity, id: "level", type: "stat", label: "Level", range: [1, 20] },
   { ...identity, id: "species-choice", type: "choice", label: "Species", choices: { options: table.SPECIES_OPTIONS } },
   { ...identity, id: "background-choice", type: "choice", label: "Background", choices: { options: table.BACKGROUND_OPTIONS } },
   { ...identity, id: "alignment", type: "line", label: "Alignment" },
-  // The v1 text fields keep their ids and what they held.
-  previous("class", "Class and level"),
-  previous("species", "Species"),
-  previous("background", "Background"),
 ]
 
 const scores = { tab: "overview", section: "abilities" } as const
@@ -41,7 +33,7 @@ export const abilityFields = ABILITIES.flatMap(([id, label]): TemplateField[] =>
 const background = { tab: "overview", section: "background" } as const
 
 export const backgroundFields: TemplateField[] = [
-  { ...background, id: "origin-feat", type: "choice", label: "Origin feat", choices: { options: table.FEAT_OPTIONS }, derived: lookup("background-choice", table.BACKGROUND_FEAT) },
+  { ...background, id: "origin-feat", type: "choice", label: "Origin feat", choices: { options: table.FEAT_OPTIONS }, derived: option("origin-feat", "background-choice", table.BACKGROUND_FEAT) },
   {
     ...background, id: "ability-increase", type: "choice", label: "Ability increase",
     choices: { by: "background-choice", options: table.INCREASE_OPTIONS },
@@ -59,7 +51,7 @@ export const combatFields: TemplateField[] = [
   { ...combat, id: "proficiency-bonus", type: "stat", label: "Proficiency", title: "Proficiency Bonus", format: "signed", derived: add(floor(field("level"), -1, 4), number(2)) },
   { ...combat, id: "passive-perception", type: "stat", label: "Passive", title: "Passive Perception", derived: add(number(10), field("skill.perception")) },
   { ...combat, id: "inspiration", type: "toggle", label: "Inspiration" },
-  { ...body, id: "size", type: "choice", label: "Size", choices: { options: table.SIZE_OPTIONS }, derived: lookup("species-choice", table.SPECIES_SIZE) },
+  { ...body, id: "size", type: "choice", label: "Size", choices: { options: table.SIZE_OPTIONS }, derived: option("size", "species-choice", table.SPECIES_SIZE) },
   { ...body, id: "darkvision", type: "stat", label: "Darkvision", format: "feet", derived: lookup("species-choice", table.SPECIES_DARKVISION) },
   { ...body, id: "carrying-capacity", type: "stat", label: "Carrying", title: "Carrying capacity", format: "pounds", derived: multiply(field("str.total"), lookup("size", table.CARRY_PER_STRENGTH)) },
 ]
@@ -68,11 +60,14 @@ export const combatFields: TemplateField[] = [
 // level adds at least 1 (p. 23).
 const perLevel = max(number(1), add(floor(field("hit-die"), 0, 2), number(1), field("con.mod")))
 
+// Dwarven Toughness: 1 for each level, from level 1.
+const toughness = multiply(field("level"), lookup("species-choice", table.SPECIES_HP_PER_LEVEL, 0))
+
 export const hitPointFields: TemplateField[] = [
   { ...hp, id: "hp", type: "resource", label: "Hit Points", pinned: true, maxFrom: "hp.max" },
   {
     ...hp, id: "hp.max", type: "stat", label: "Hit Points maximum",
-    derived: add(field("hit-die"), field("con.mod"), multiply(add(field("level"), number(-1)), perLevel)),
+    derived: add(field("hit-die"), field("con.mod"), multiply(add(field("level"), number(-1)), perLevel), toughness),
   },
   { ...hp, id: "hit-dice", type: "resource", label: "Hit Dice", maxFrom: "hit-dice.max" },
   { ...hp, id: "hit-dice.max", type: "stat", label: "Hit Dice maximum", hidden: true, derived: field("level") },
@@ -86,7 +81,7 @@ const modifiers = Object.fromEntries(ABILITIES.map(([id]) => [id, `${id}.mod`]))
 const caster = { tab: "spells", section: "spellcasting" } as const
 
 export const spellFields: TemplateField[] = [
-  { ...caster, id: "spell-ability", type: "choice", label: "Ability", title: "Spellcasting ability", choices: { options: table.ABILITY_OPTIONS }, derived: lookup("character-class", table.SPELL_ABILITY) },
+  { ...caster, id: "spell-ability", type: "choice", label: "Ability", title: "Spellcasting ability", choices: { options: table.ABILITY_OPTIONS }, derived: option("spell-ability", "character-class", table.SPELL_ABILITY) },
   { ...caster, id: "spell-dc", type: "stat", label: "Save DC", title: "Spell save DC", showWhen: "spell-ability", derived: add(number(8), pick("spell-ability", modifiers), field("proficiency-bonus")) },
   { ...caster, id: "spell-attack", type: "stat", label: "Attack", title: "Spell attack bonus", format: "signed", showWhen: "spell-ability", derived: add(pick("spell-ability", modifiers), field("proficiency-bonus")) },
 ]

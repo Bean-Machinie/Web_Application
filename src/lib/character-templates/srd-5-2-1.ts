@@ -107,11 +107,12 @@ export const SIZES: { id: SizeId; label: string; carryPerStrength: number }[] = 
 
 // pp. 84-86 (Species Descriptions): size, Speed and the range of Darkvision in feet (0:
 // none). Human and Tiefling are Medium or Small, chosen with the species; Medium here.
-export type SrdSpecies = { id: string; label: string; size: SizeId; speed: number; darkvision: number }
+// Dwarven Toughness (p. 84) adds to the Hit Point maximum, once for each level.
+export type SrdSpecies = { id: string; label: string; size: SizeId; speed: number; darkvision: number; hpPerLevel?: number }
 
 export const SPECIES: SrdSpecies[] = [
   { id: "dragonborn", label: "Dragonborn", size: "medium", speed: 30, darkvision: 60 },
-  { id: "dwarf", label: "Dwarf", size: "medium", speed: 30, darkvision: 120 },
+  { id: "dwarf", label: "Dwarf", size: "medium", speed: 30, darkvision: 120, hpPerLevel: 1 },
   { id: "elf", label: "Elf", size: "medium", speed: 30, darkvision: 60 },
   { id: "gnome", label: "Gnome", size: "small", speed: 30, darkvision: 60 },
   { id: "goliath", label: "Goliath", size: "medium", speed: 35, darkvision: 0 },

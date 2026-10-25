@@ -1,6 +1,7 @@
 import { HoverIcon } from "@/components/icons/HoverIcon"
 import { XIcon } from "@/components/icons/XIcon"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatNumber } from "@/lib/character-derive"
 import { ABILITY_OPTIONS } from "@/lib/character-templates/dnd-5e-2024-tables"
@@ -9,7 +10,7 @@ import { toWhole } from "@/lib/character-values"
 import { EditedMarker } from "./EditedMarker"
 import { InlineText } from "./InlineText"
 
-export const ATTACK_COLUMNS = "grid grid-cols-[minmax(0,1fr)_7rem_5.5rem_minmax(0,1fr)_1.75rem] items-center gap-2"
+export const ATTACK_COLUMNS = "grid grid-cols-[minmax(0,1fr)_7rem_4.5rem_5.5rem_minmax(0,1fr)_1.75rem] items-center gap-2"
 
 type Props = {
   attack: Attack
@@ -22,7 +23,7 @@ type Props = {
 
 // One attack. Its to-hit is worked out, and typed over when the player knows better.
 export function CharacterAttackRow({ attack, modifier, bonus, onChange, onRemove }: Props) {
-  const calculated = modifier === null || bonus === null ? null : modifier + bonus
+  const calculated = modifier === null || (attack.proficient && bonus === null) ? null : modifier + (attack.proficient ? bonus! : 0)
   const shown = attack.toHit ?? calculated
 
   return (
@@ -40,6 +41,7 @@ export function CharacterAttackRow({ attack, modifier, bonus, onChange, onRemove
           ))}
         </SelectContent>
       </Select>
+      <Switch size="sm" checked={attack.proficient} onCheckedChange={(proficient) => onChange({ ...attack, proficient })} aria-label="Proficient" />
       <span className="flex items-center gap-1">
         <span className="w-9">
           <InlineText

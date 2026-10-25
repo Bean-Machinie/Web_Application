@@ -18,21 +18,23 @@ export const FEAT_OPTIONS = ORIGIN_FEATS.map((feat) => ({ id: feat, label: feat 
 const byId = <T extends { id: string }>(items: T[], value: (item: T) => number | undefined) =>
   Object.fromEntries(items.flatMap((item) => (value(item) === undefined ? [] : [[item.id, value(item)!]])))
 
-// The number of an option in a list, counting from 1: how a derived choice names its pick.
-const numberIn = (options: ChoiceOption[], id: string) => options.findIndex((option) => option.id === id) + 1
+// The same for a derived choice, naming the option by its id.
+const idsOf = <T extends { id: string }>(items: T[], value: (item: T) => string | undefined) =>
+  Object.fromEntries(items.flatMap((item) => (value(item) === undefined ? [] : [[item.id, value(item)!]])))
 
 export const HIT_DIE = byId(CLASSES, (c) => c.hitDie)
 export const SKILL_CHOICES = byId(CLASSES, (c) => c.skillCount)
-export const SPELL_ABILITY = byId(CLASSES, (c) => c.spellAbility ? numberIn(ABILITY_OPTIONS, c.spellAbility) : undefined)
+export const SPELL_ABILITY = idsOf(CLASSES, (c) => c.spellAbility ?? undefined)
 export const SAVE_PROFICIENCY = (ability: AbilityId) => byId(CLASSES, (c) => (c.saves.includes(ability) ? 1 : undefined))
 // A class with no list of skills offers any.
 export const CLASS_SKILL_OPTION = (skill: string) =>
   byId(CLASSES, (c) => (!c.skills || c.skills.includes(skill) ? 1 : undefined))
 export const BACKGROUND_SKILL = (skill: string) => byId(BACKGROUNDS, (b) => (b.skills.includes(skill) ? 1 : undefined))
-export const BACKGROUND_FEAT = byId(BACKGROUNDS, (b) => numberIn(FEAT_OPTIONS, b.feat))
+export const BACKGROUND_FEAT = idsOf(BACKGROUNDS, (b) => b.feat)
+export const SPECIES_HP_PER_LEVEL = byId(SPECIES, (s) => s.hpPerLevel)
 export const SPECIES_SPEED = byId(SPECIES, (s) => s.speed)
 export const SPECIES_DARKVISION = byId(SPECIES, (s) => s.darkvision)
-export const SPECIES_SIZE = byId(SPECIES, (s) => numberIn(SIZE_OPTIONS, s.size))
+export const SPECIES_SIZE = idsOf(SPECIES, (s) => s.size)
 export const CARRY_PER_STRENGTH = Object.fromEntries(SIZES.map((size) => [size.id, size.carryPerStrength]))
 
 // A background lets one of its abilities go up by 2 and another by 1, or all three by 1

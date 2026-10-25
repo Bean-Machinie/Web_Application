@@ -14,15 +14,6 @@ export type GameNotice = {
 // Structure only, in the terms of each licence: no rules text, class features or spells.
 export const GAME_NOTICES: GameNotice[] = [
   {
-    id: "dnd-5e",
-    version: 1,
-    name: "D&D 5e",
-    source: "SRD 5.1",
-    uses: "The structure of the character sheet: ability scores, skills, saving throws and hit points.",
-    notice:
-      'This work includes material taken from the System Reference Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.',
-  },
-  {
     id: "dnd-5e-2024",
     template: "dnd-5e",
     version: 2,
