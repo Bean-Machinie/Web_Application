@@ -117,7 +117,7 @@ export function deriveAll(fields: SheetField[], values: Record<string, StoredVal
       case "pick": {
         const option = chosenOf(formula.by, depth + 1)
         const target = option ? formula.fields[option] : undefined
-        return target ? valueOf(target, depth + 1) : null
+        return target ? valueOf(target, depth + 1) : (formula.otherwise ?? null)
       }
     }
   }

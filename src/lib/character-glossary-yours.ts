@@ -1,8 +1,10 @@
 import { choiceState } from "./character-choices"
+import { picksOf } from "./character-grants"
 import type { GlossaryContext } from "./character-glossary"
 import { CARRY_PER_STRENGTH, INCREASE_TO } from "./character-templates/dnd-5e-2024-tables"
 import { ABILITIES, BACKGROUNDS, CLASSES, SKILLS, SPECIES } from "./character-templates/srd-5-2-1"
-import { CLASS_NOTES, FEAT_NOTES, SPECIES_TRAITS } from "./character-templates/srd-5-2-1-glossary"
+import { featById } from "./character-templates/srd-5-2-1-feats"
+import { CLASS_NOTES, SPECIES_TRAITS } from "./character-templates/srd-5-2-1-glossary"
 import { readStat } from "./character-values"
 
 const signed = (value: number) => (value >= 0 ? `+${value}` : String(value))
@@ -114,11 +116,10 @@ export function yoursFor(key: string, fieldId: string, context: GlossaryContext)
     }
     case "origin-feat":
     case "versatile": {
-      const feat = chosen(fieldId)?.id
-      return feat && FEAT_NOTES[feat] ? [`${feat}: ${FEAT_NOTES[feat].benefits}`] : []
+      const feat = fieldId === "species-feat" ? picksOf(context, "species-feat")[0] : chosen(fieldId)?.id
+      const found = feat ? featById(feat) : undefined
+      return found ? [`${found.label}: ${found.benefit}`] : []
     }
-    case "skillful":
-      return label("human-skill") ? [label("human-skill")!] : []
     case "tool":
       return label("tool-proficiency") ? [label("tool-proficiency")!] : []
     case "ability-increase": {

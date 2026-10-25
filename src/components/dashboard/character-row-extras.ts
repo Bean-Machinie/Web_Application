@@ -7,7 +7,7 @@ import type { SheetActions } from "./character-actions"
 // a fixed field the template lets be changed, the menu item that changes it. Changing it
 // stores the current option as the player's own, so the field then shows as edited.
 export function rowExtras(field: SheetField, actions: SheetActions) {
-  const note = field.note && conditionsHold(field.note.when, actions.byId, actions.derived) ? field.note.text : null
+  const note = field.note && conditionsHold(field.note.when, actions.byId, actions.derived, actions.values) ? field.note.text : null
   const current = field.locked && field.overrideLabel && !isEdited(field, actions.values)
     ? choiceState(field, actions.byId, actions.derived).selected
     : null

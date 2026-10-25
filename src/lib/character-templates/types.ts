@@ -80,8 +80,6 @@ export type TemplateField = {
   showWhen?: string
   // The field is only shown while all of these hold.
   showIf?: Condition[]
-  // A control of its own instead of the one for the type.
-  control?: "ability-increase"
   // A derived field the sheet fixes (the origin feat a background gives): shown as plain
   // text, with `source` the choice it comes from. Unless `overrideLabel` is set it cannot be
   // changed; with it, the field's menu offers that, and the field then shows as edited.

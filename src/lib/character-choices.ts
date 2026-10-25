@@ -1,5 +1,7 @@
 import type { Derived } from "./character-derive"
 import type { SheetField } from "./character-sheet"
+import { readPicks } from "./character-values"
+import type { StoredValue } from "./characters"
 import type { ChoiceOption, Condition } from "./character-templates/types"
 
 // The options a choice field offers now. `chosenOf` says which option another choice field
@@ -30,12 +32,20 @@ export function choiceState(
   return { options, selected: number ? (options[number - 1] ?? null) : null }
 }
 
-// Whether every condition holds: each names a choice field and the option (or any of the
-// options) it must have.
-export function conditionsHold(conditions: Condition[], byId: Map<string, SheetField>, derived: Derived) {
+// Whether every condition holds: each names a field and the option (or any of the options)
+// it must have, for a choice, or among the ones picked, for a field of picks.
+export function conditionsHold(
+  conditions: Condition[],
+  byId: Map<string, SheetField>,
+  derived: Derived,
+  values: Record<string, StoredValue> = {}
+) {
   return conditions.every((condition) => {
     const field = byId.get(condition.field)
-    const chosen = field ? choiceState(field, byId, derived).selected?.id : undefined
-    return chosen !== undefined && [condition.is].flat().includes(chosen)
+    if (!field) return false
+    const wanted = [condition.is].flat()
+    if (field.type === "picks") return readPicks(values[field.id]?.value).some((id) => wanted.includes(id))
+    const chosen = choiceState(field, byId, derived).selected?.id
+    return chosen !== undefined && wanted.includes(chosen)
   })
 }

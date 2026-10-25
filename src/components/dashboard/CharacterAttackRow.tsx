@@ -58,7 +58,14 @@ export function CharacterAttackRow({ attack, modifier, bonus, onChange, onRemove
         </span>
         {attack.toHit !== null && <EditedMarker onReset={() => onChange({ ...attack, toHit: null })} />}
       </span>
-      <InlineText value={attack.damage} placeholder="1d8 + 3 slashing" maxLength={60} allowEmpty onSave={(damage) => onChange({ ...attack, damage })} />
+      <InlineText
+        value={attack.damage}
+        display={attack.auto && modifier !== null ? `${attack.damage} ${modifier >= 0 ? "+" : "−"} ${Math.abs(modifier)}` : undefined}
+        placeholder="1d8 + 3 slashing"
+        maxLength={60}
+        allowEmpty
+        onSave={(damage) => onChange({ ...attack, damage, auto: false })}
+      />
       <Button
         variant="ghost"
         size="icon"

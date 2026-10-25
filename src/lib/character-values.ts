@@ -7,7 +7,17 @@ export type ListItem = { id: string; text: string }
 
 // An attack: the ability it uses picks the modifier its to-hit is worked out from, plus the
 // proficiency bonus when proficient, unless the player entered a to-hit of their own.
-export type Attack = { id: string; name: string; ability: string | null; proficient: boolean; toHit: number | null; damage: string }
+export type Attack = {
+  id: string
+  name: string
+  ability: string | null
+  proficient: boolean
+  toHit: number | null
+  damage: string
+  // Put there by the builder from the starting equipment: the ability modifier is added to
+  // its damage, which the sheet shows.
+  auto?: boolean
+}
 
 export const DEFAULT_TRACK_LENGTH = 3
 
@@ -46,6 +56,7 @@ export const readAttacks = (value: unknown): Attack[] =>
           proficient: item.proficient !== false,
           toHit: readStat(item.toHit),
           damage: typeof item.damage === "string" ? item.damage : "",
+          auto: item.auto === true,
         }))
     : []
 

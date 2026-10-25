@@ -1,7 +1,6 @@
 import { isEdited } from "@/lib/character-derive"
 import type { SheetField } from "@/lib/character-sheet"
 import type { SheetActions } from "./character-actions"
-import { BackgroundIncreaseControl } from "./BackgroundIncreaseControl"
 import { CharacterAttacksValue } from "./CharacterAttacksValue"
 import { CharacterCalculatedResource } from "./CharacterCalculatedResource"
 import { CharacterChoiceValue } from "./CharacterChoiceValue"
@@ -18,7 +17,6 @@ type Props = { field: SheetField; actions: SheetActions; tile?: boolean }
 export function CharacterFieldBody({ field, actions, tile }: Props) {
   const reset = () => actions.onValue(field.id, null)
 
-  if (field.control === "ability-increase") return <BackgroundIncreaseControl actions={actions} />
   if (field.type === "choice") {
     return field.locked && !isEdited(field, actions.values) ? (
       <CharacterLockedChoice field={field} actions={actions} />

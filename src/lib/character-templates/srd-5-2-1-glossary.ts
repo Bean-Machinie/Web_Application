@@ -90,16 +90,6 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
   coins: entry("Coins", "Copper, silver, electrum, gold and platinum pieces.", "Spent on gear and services.", 89),
 }
 
-// p. 87 (Origin Feats): what each gives, in short.
-export const FEAT_NOTES: Record<string, { benefits: string; page: number }> = {
-  Alert: { benefits: "Add your Proficiency Bonus to Initiative, and you can swap Initiative with a willing ally.", page: 87 },
-  "Magic Initiate (Cleric)": { benefits: "Two Cleric cantrips and one level 1 Cleric spell, cast once for free per Long Rest.", page: 87 },
-  "Magic Initiate (Druid)": { benefits: "Two Druid cantrips and one level 1 Druid spell, cast once for free per Long Rest.", page: 87 },
-  "Magic Initiate (Wizard)": { benefits: "Two Wizard cantrips and one level 1 Wizard spell, cast once for free per Long Rest.", page: 87 },
-  "Savage Attacker": { benefits: "Once per turn when you hit with a weapon, roll its damage dice twice and use either.", page: 87 },
-  Skilled: { benefits: "Proficiency in any three skills or tools of your choice.", page: 87 },
-}
-
 // Each class’s Core Traits table (the page is the class’s first).
 export const CLASS_NOTES: Record<string, { primary: string; page: number }> = {
   barbarian: { primary: "Strength", page: 28 },

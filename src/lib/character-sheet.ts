@@ -36,7 +36,6 @@ export type SheetField = {
   range?: [number, number]
   showWhen?: string
   showIf?: Condition[]
-  control?: "ability-increase"
   locked?: boolean
   overrideLabel?: string
   source?: string
@@ -69,7 +68,6 @@ export function sheetFields(template: CharacterTemplate, custom: CustomField[]):
       range: field.range,
       showWhen: field.showWhen,
       showIf: field.showIf,
-      control: field.control,
       locked: field.locked,
       overrideLabel: field.overrideLabel,
       source: field.source,
@@ -135,7 +133,7 @@ export function isShown(
   values: Record<string, StoredValue>,
   derived: Derived
 ) {
-  if (field.showIf && !conditionsHold(field.showIf, byId, derived)) return false
+  if (field.showIf && !conditionsHold(field.showIf, byId, derived, values)) return false
   const waitsFor = field.showWhen ? byId.get(field.showWhen) : undefined
   if (!waitsFor) return true
   return waitsFor.derived || waitsFor.type === "choice"

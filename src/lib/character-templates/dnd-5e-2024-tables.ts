@@ -1,5 +1,8 @@
 import type { ChoiceOption } from "./types"
-import { ABILITIES, BACKGROUNDS, CLASSES, HUMAN, ORIGIN_FEATS, RECOMMENDED_FEAT, SIZES, SKILLS, SPECIES, TOOLS } from "./srd-5-2-1"
+import { ARMOR, MEDIUM_ARMOR_DEX_CAP, SHIELD_AC } from "./srd-5-2-1-gear"
+import { BACKGROUND_KITS, CLASS_KITS } from "./srd-5-2-1-kits"
+import { DROW, WOOD_ELF } from "./srd-5-2-1-origins"
+import { ABILITIES, BACKGROUNDS, CLASSES, ORIGIN_FEATS, SIZES, SPECIES, TOOLS } from "./srd-5-2-1"
 import type { AbilityId } from "./srd-5-2-1"
 
 // The SRD's data as the choices and tables the template's formulas read.
@@ -13,13 +16,7 @@ export const BACKGROUND_OPTIONS = labelled(BACKGROUNDS)
 export const ABILITY_OPTIONS = labelled(ABILITIES.map(([id, label]) => ({ id, label })))
 export const SIZE_OPTIONS = labelled(SIZES)
 export const FEAT_OPTIONS = ORIGIN_FEATS.map((feat) => ({ id: feat, label: feat }))
-// What a Human chooses with Versatile: any of them, the SRD recommending one.
-export const VERSATILE_OPTIONS = FEAT_OPTIONS.map((feat) => ({
-  ...feat,
-  label: feat.id === RECOMMENDED_FEAT ? `${feat.label} · Recommended` : feat.label,
-}))
 export const TOOL_OPTIONS = TOOLS.map((tool) => ({ id: tool, label: tool }))
-export const SKILL_OPTIONS = SKILLS.map(([id, label]) => ({ id, label }))
 
 // A table over the classes (or species, or backgrounds): the number for each.
 const byId = <T extends { id: string }>(items: T[], value: (item: T) => number | undefined) =>
@@ -42,7 +39,8 @@ export const BACKGROUND_FEAT = idsOf(BACKGROUNDS, (b) => b.feat)
 export const SPECIES_HP_PER_LEVEL = byId(SPECIES, (s) => s.hpPerLevel)
 export const SPECIES_SPEED = byId(SPECIES, (s) => s.speed)
 export const SPECIES_DARKVISION = byId(SPECIES, (s) => s.darkvision)
-export const SPECIES_SIZE = idsOf(SPECIES, (s) => s.size)
+// Human and Tiefling choose their size, so there is none until they do.
+export const SPECIES_SIZE = idsOf(SPECIES, (s) => (s.sizeChoice ? undefined : s.size))
 export const CARRY_PER_STRENGTH = Object.fromEntries(SIZES.map((size) => [size.id, size.carryPerStrength]))
 
 // A background lets one of its abilities go up by 2 and another by 1, or all three by 1
@@ -92,6 +90,28 @@ export const INCREASE_TO = (ability: AbilityId): Record<string, number> =>
 
 
 
-// Skillful: the skill a Human chose counts only while the species is Human.
-export const IS_HUMAN = { [HUMAN]: 1 }
-export const HUMAN_SKILL = (skill: string) => ({ [skill]: 1 })
+
+// Armor Class. The kit chosen names the armor worn and whether there is a Shield; the
+// armor then sets the base, how much Dexterity counts, and whether it is armor at all.
+const kits = [...Object.values(CLASS_KITS), ...Object.values(BACKGROUND_KITS)].flat()
+export const KIT_ARMOR = Object.fromEntries(kits.flatMap((kit) => kit.items.filter((item) => item.armor).map((item) => [kit.id, item.armor!])))
+export const KIT_SHIELD = Object.fromEntries(kits.filter((kit) => kit.items.some((item) => item.shield)).map((kit) => [kit.id, SHIELD_AC]))
+export const ARMOR_OPTIONS = ARMOR.map(({ id, label }) => ({ id, label }))
+export const ARMOR_BASE = Object.fromEntries(ARMOR.map((armor) => [armor.id, armor.base]))
+// Heavy armor ignores Dexterity.
+export const ARMOR_USES_DEX = Object.fromEntries(ARMOR.map((armor) => [armor.id, armor.kind === "heavy" ? 0 : 1]))
+export const ARMOR_DEX_CAP = Object.fromEntries(ARMOR.filter((armor) => armor.kind === "medium").map((armor) => [armor.id, MEDIUM_ARMOR_DEX_CAP]))
+export const ARMOR_WORN = Object.fromEntries(ARMOR.map((armor) => [armor.id, 1]))
+export const NO_ARMOR_ONLY = Object.fromEntries(ARMOR.map((armor) => [armor.id, 0]))
+
+// The equipment options of each class and background, as the options of a choice by it.
+const kitOptions = (all: typeof CLASS_KITS) =>
+  Object.fromEntries(Object.entries(all).map(([owner, list]) => [owner, list.map((kit) => ({ id: kit.id, label: kit.label === "Gold" ? "Gold" : `Kit ${kit.label}` }))]))
+export const CLASS_KIT_OPTIONS = kitOptions(CLASS_KITS)
+export const BACKGROUND_KIT_OPTIONS = kitOptions(BACKGROUND_KITS)
+
+// The Unarmored Defense of the Barbarian and the Monk adds one more modifier.
+export const UNARMORED_DEFENSE = { barbarian: "con.mod", monk: "wis.mod" }
+
+export const ELF_LINEAGE_SPEED = { [WOOD_ELF]: 35 }
+export const ELF_LINEAGE_DARKVISION = { [DROW]: 120 }

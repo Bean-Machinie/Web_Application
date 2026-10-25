@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { choiceState } from "@/lib/character-choices"
 import { characterBuildPath } from "@/lib/characters"
 import { readStat } from "@/lib/character-values"
+import { featGrants } from "@/lib/character-grants"
 import type { SheetActions } from "./character-actions"
 
 // What the builder made, read only, in the profile column: "Fighter 1", "Human · Soldier",
@@ -19,7 +20,7 @@ export function CharacterSummary({ actions }: { actions: SheetActions }) {
     [label("character-class"), level].filter((part) => part !== null).join(" "),
     [species, background].filter(Boolean).join(" · "),
     // The background’s feat, and the Human’s Versatile one.
-    [background ? label("origin-feat") : null, species === "Human" ? label("versatile-feat") : null].filter(Boolean).join(", "),
+    featGrants(actions).map((grant) => grant.id).join(", "),
   ].filter(Boolean)
 
   return (

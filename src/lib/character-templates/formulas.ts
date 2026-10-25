@@ -16,7 +16,7 @@ export type Formula =
   // nothing is chosen or the table has no entry, unless `otherwise` says what to use.
   | { op: "lookup"; by: string; table: Record<string, number>; otherwise?: number }
   // `by` is a choice field: the value of the field its option names.
-  | { op: "pick"; by: string; fields: Record<string, string> }
+  | { op: "pick"; by: string; fields: Record<string, string>; otherwise?: number }
   | { op: "min" | "max" | "multiply"; terms: Formula[] }
   // 1 if `id` is among the options picked in a "picks" field, else 0.
   | { op: "picked"; field: string; id: string }
@@ -42,7 +42,7 @@ export const lookup = (by: string, table: Record<string, number>, otherwise?: nu
   table,
   otherwise,
 })
-export const pick = (by: string, fields: Record<string, string>): Formula => ({ op: "pick", by, fields })
+export const pick = (by: string, fields: Record<string, string>, otherwise?: number): Formula => ({ op: "pick", by, fields, otherwise })
 export const min = (...terms: Formula[]): Formula => ({ op: "min", terms })
 export const max = (...terms: Formula[]): Formula => ({ op: "max", terms })
 export const multiply = (...terms: Formula[]): Formula => ({ op: "multiply", terms })
