@@ -1,4 +1,4 @@
-import { add, field, floor, lookup, max, min, multiply, number, option, pick, when } from "./formulas"
+import { add, field, floor, lookup, max, min, multiply, number, option, pick, picked, when } from "./formulas"
 import * as table from "./dnd-5e-2024-tables"
 import { ABILITIES, ABILITY_CAP, HUMAN, MAGIC_INITIATE_ABILITIES, MAGIC_INITIATE_FEATS, SKILLS } from "./srd-5-2-1"
 import type { AbilityId } from "./srd-5-2-1"
@@ -44,9 +44,8 @@ export const backgroundFields: TemplateField[] = [
     source: "background-choice", choices: { options: table.TOOL_OPTIONS },
     derived: option("tool-proficiency", "background-choice", table.BACKGROUND_TOOL),
   },
-  // Chosen in the Set scores dialog, so it has no row of its own.
   {
-    ...background, id: "ability-increase", type: "choice", label: "Ability increase", hidden: true,
+    ...background, id: "ability-increase", type: "choice", label: "Ability increase", control: "ability-increase",
     choices: { by: "background-choice", options: table.INCREASE_OPTIONS },
   },
 ]
@@ -119,31 +118,31 @@ export const spellFields: TemplateField[] = [
 // A proficiency toggle with its total beside it: the ability modifier, plus the
 // proficiency bonus if proficient. The toggle is on when the class (saves) or background
 // (skills) gives it, unless the player says otherwise.
-function proficiencyRow(section: string, id: string, label: string, ability: AbilityId, given: TemplateField["derived"], options: Partial<TemplateField> = {}): TemplateField[] {
+function proficiencyRow(tab: string, section: string, id: string, label: string, ability: AbilityId, given: TemplateField["derived"], options: Partial<TemplateField> = {}): TemplateField[] {
   return [
-    { id: `${id}.prof`, tab: "skills", section, type: "toggle", label, hint: ability.toUpperCase(), secondary: id, derived: given, ...options },
-    { id, tab: "skills", section, type: "stat", label, format: "signed", derived: add(field(`${ability}.mod`), when(`${id}.prof`, field("proficiency-bonus"), number(0))) },
+    { id: `${id}.prof`, tab, section, type: "toggle", label, hint: ability.toUpperCase(), secondary: id, derived: given, ...options },
+    { id, tab, section, type: "stat", label, format: "signed", derived: add(field(`${ability}.mod`), when(`${id}.prof`, field("proficiency-bonus"), number(0))) },
   ]
 }
 
-// On when the background gives the skill, or a Human chose it with Skillful.
+// On when the background gives the skill, the class lets you pick it and you did, or a
+// Human chose it with Skillful.
 const givenSkill = (skill: string) =>
   max(
     lookup("background-choice", table.BACKGROUND_SKILL(skill), 0),
+    multiply(picked("class-skills", skill), lookup("character-class", table.CLASS_SKILL_OPTION(skill), 0)),
     multiply(lookup("species-choice", table.IS_HUMAN, 0), lookup("human-skill", table.HUMAN_SKILL(skill), 0))
   )
 
 export const proficiencyFields: TemplateField[] = [
   ...ABILITIES.flatMap(([ability, label]) =>
-    proficiencyRow("saving-throws", `save.${ability}`, label, ability, lookup("character-class", table.SAVE_PROFICIENCY(ability)))
+    proficiencyRow("overview", "saving-throws", `save.${ability}`, label, ability, lookup("character-class", table.SAVE_PROFICIENCY(ability)))
   ),
-  ...SKILLS.flatMap(([id, label, ability]): TemplateField[] => [
-    ...proficiencyRow("skills", `skill.${id}`, label, ability, givenSkill(id), {
-      highlight: `skill.${id}.option`,
+  ...SKILLS.flatMap(([id, label, ability]) =>
+    proficiencyRow("skills", "skills", `skill.${id}`, label, ability, givenSkill(id), {
       note: { text: "from Human", when: [isHuman, { field: "human-skill", is: id }] },
-    }),
-    { id: `skill.${id}.option`, tab: "skills", section: "skills", type: "toggle", label, hidden: true, derived: lookup("character-class", table.CLASS_SKILL_OPTION(id)) },
-  ]),
-  // How many skills the class lets you choose, for the line over the skills.
-  { id: "skills.choose", tab: "skills", section: "skills", type: "stat", label: "Skills to choose", hidden: true, derived: lookup("character-class", table.SKILL_CHOICES) },
+    })
+  ),
+  // The skills picked from the class's list, set in the builder.
+  { id: "class-skills", tab: "skills", section: "skills", type: "picks", label: "Class skills", hidden: true },
 ]

@@ -1,8 +1,10 @@
+import { explain } from "@/lib/character-glossary"
 import { isPinned } from "@/lib/character-sheet"
 import type { SheetField } from "@/lib/character-sheet"
 import type { SheetActions } from "./character-actions"
 import { CharacterFieldBody } from "./CharacterFieldBody"
 import { CharacterFieldMenu } from "./CharacterFieldMenu"
+import { GlossaryLabel } from "./GlossaryLabel"
 
 type Props = { fields: SheetField[]; columns: number; actions: SheetActions }
 
@@ -19,9 +21,9 @@ export function CharacterTiles({ fields, columns, actions }: Props) {
         const nested = [field.secondary, field.tertiary].map((id) => (id ? actions.byId.get(id) : undefined)).filter((other) => other !== undefined)
         return (
           <div key={field.id} className="group/field bg-card relative flex min-h-22 flex-col items-center gap-1 px-2 py-3">
-            <span className="text-muted-foreground max-w-full truncate text-xs font-medium" title={field.title ?? field.label}>
-              {field.label}
-            </span>
+            <GlossaryLabel explanation={explain(field, actions)}>
+              <span className="text-muted-foreground max-w-full truncate text-xs font-medium">{field.label}</span>
+            </GlossaryLabel>
             {/* One height for every kind of value, so they all sit on the same line. */}
             <div className="flex h-8 w-full items-center justify-center">
               <CharacterFieldBody field={field} actions={actions} tile />

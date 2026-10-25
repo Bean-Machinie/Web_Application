@@ -36,6 +36,7 @@ export type SheetField = {
   range?: [number, number]
   showWhen?: string
   showIf?: Condition[]
+  control?: "ability-increase"
   locked?: boolean
   overrideLabel?: string
   source?: string
@@ -68,6 +69,7 @@ export function sheetFields(template: CharacterTemplate, custom: CustomField[]):
       range: field.range,
       showWhen: field.showWhen,
       showIf: field.showIf,
+      control: field.control,
       locked: field.locked,
       overrideLabel: field.overrideLabel,
       source: field.source,
@@ -109,7 +111,7 @@ export function tabContents(template: CharacterTemplate, tab: TemplateTab, field
   const shown = inTab.filter((field) => !nested.has(field.id) && !field.hidden)
   return {
     sections: template.sections
-      .filter((section) => section.tab === tab.id && !section.profile)
+      .filter((section) => section.tab === tab.id && !section.profile && !section.builderOnly)
       .map((section) => ({ section, fields: shown.filter((field) => field.section === section.id) })),
     loose: shown.filter((field) => field.section === null),
   }

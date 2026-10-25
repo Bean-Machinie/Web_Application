@@ -1,3 +1,4 @@
+import { explain } from "@/lib/character-glossary"
 import { isPinned } from "@/lib/character-sheet"
 import type { SheetField } from "@/lib/character-sheet"
 import type { SheetActions } from "./character-actions"
@@ -32,6 +33,7 @@ export function CharacterRows({ fields, actions, columns = 1, narrow }: Props) {
         pinned={isPinned(field, actions.values)}
         fresh={field.id === actions.freshId}
         note={note}
+        explanation={explain(field, actions)}
         unlock={unlock}
         highlighted={field.highlight !== undefined && (actions.derived[field.highlight] ?? 0) > 0}
         size={columns > 1 ? "compact" : narrow ? "narrow" : "wide"}

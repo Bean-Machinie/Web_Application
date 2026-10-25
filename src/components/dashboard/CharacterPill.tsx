@@ -1,4 +1,6 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { explain } from "@/lib/character-glossary"
+import { GlossaryLabel } from "./GlossaryLabel"
 import { pillValue } from "@/lib/character-values"
 import type { ResourceValue } from "@/lib/character-values"
 import { trackLength } from "@/lib/character-sheet"
@@ -24,7 +26,9 @@ export function CharacterPill({ field, actions }: Props) {
           type="button"
           className="bg-card hover:bg-accent focus-visible:ring-ring flex h-7 items-center gap-1.5 rounded-full border px-3 text-sm outline-none focus-visible:ring-2"
         >
-          <span className="text-muted-foreground">{field.label}</span>
+          <GlossaryLabel explanation={explain(field, actions)}>
+            <span className="text-muted-foreground">{field.label}</span>
+          </GlossaryLabel>
           <span className="font-medium tabular-nums">{pillValue(field.type, value, trackLength(field))}</span>
         </button>
       </PopoverTrigger>

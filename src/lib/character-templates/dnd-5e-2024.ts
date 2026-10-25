@@ -18,6 +18,7 @@ import type { CharacterTemplate } from "./types"
 export const DND_5E_2024: CharacterTemplate = {
   id: "dnd-5e",
   version: 2,
+  builder: true,
   tabs: [
     { id: "overview", label: "Overview", empty: "No details yet" },
     { id: "skills", label: "Skills", empty: "No skills yet" },
@@ -27,18 +28,15 @@ export const DND_5E_2024: CharacterTemplate = {
   ],
   sections: [
     { id: "identity", tab: "overview", label: "Identity", profile: true },
-    { id: "abilities", tab: "overview", label: "Ability scores", layout: "abilities", columns: 6, summary: "6 scores", helper: "ability-scores" },
-    { id: "background", tab: "overview", label: "Background benefits", summary: "Origin feat, Tool", helper: "background-increase" },
-    { id: "species-choices", tab: "overview", label: "Species choices", summary: "Versatile, Skillful" },
+    { id: "abilities", tab: "overview", label: "Ability scores", layout: "abilities", columns: 6, summary: "6 scores" },
+    { id: "saving-throws", tab: "overview", label: "Saving throws", layout: "saves", columns: 2, summary: "6 saves" },
+    { id: "background", tab: "overview", label: "Background benefits", builderOnly: true },
+    { id: "species-choices", tab: "overview", label: "Species choices", builderOnly: true },
     { id: "combat", tab: "overview", label: "Combat", layout: "grid", columns: 6, summary: "Armor Class, Initiative, Speed" },
     { id: "body", tab: "overview", label: "Size and senses", layout: "grid", columns: 3, summary: "Size, Darkvision, Carrying capacity" },
     { id: "hit-points", tab: "overview", label: "Hit points", summary: "Hit Points, Hit Dice, Death Saves" },
     { id: "attacks", tab: "overview", label: "Attacks", summary: "Name, ability, to-hit, damage" },
-    { id: "saving-throws", tab: "skills", label: "Saving throws", columns: 2, summary: "6 saves" },
-    {
-      id: "skills", tab: "skills", label: "Skills", columns: 2, summary: "18 skills",
-      caption: { field: "skills.choose", text: "Choose {n} — your class's options are marked" },
-    },
+    { id: "skills", tab: "skills", label: "Skills", columns: 2, summary: "18 skills" },
     { id: "spellcasting", tab: "spells", label: "Spellcasting", layout: "grid", columns: 3, summary: "Ability, Save DC, Attack" },
     { id: "currency", tab: "inventory", label: "Currency", layout: "grid", columns: 5, summary: "Copper to platinum" },
   ],

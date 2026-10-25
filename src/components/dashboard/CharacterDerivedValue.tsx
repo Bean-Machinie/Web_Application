@@ -9,6 +9,8 @@ type Props = {
   shown: number | null
   edited: boolean
   tile?: boolean
+  // A small box with the number centred, like an ability’s score; the edited marker sits beside it.
+  box?: boolean
   // A number the player typed; reset brings the calculated one back.
   onEnter: (value: number) => void
   onReset: () => void
@@ -24,7 +26,7 @@ function typedNumber(text: string, range?: [number, number]) {
 
 // A calculated number, typed over when clicked. Clearing the box goes back to the calculated
 // one.
-export function CharacterDerivedValue({ field, shown, edited, tile, onEnter, onReset }: Props) {
+export function CharacterDerivedValue({ field, shown, edited, tile, box, onEnter, onReset }: Props) {
   function save(text: string) {
     const typed = typedNumber(text, field.range)
     if (text === "") onReset()
@@ -32,8 +34,8 @@ export function CharacterDerivedValue({ field, shown, edited, tile, onEnter, onR
   }
 
   return (
-    <span className={`flex items-center gap-1.5 ${tile ? "justify-center" : ""}`}>
-      <span className={tile ? "w-16" : "w-14"}>
+    <span className={`relative flex items-center gap-1.5 ${tile || box ? "justify-center" : ""}`}>
+      <span className={box ? "w-8" : tile ? "w-16" : "w-14"}>
         <InlineText
           value={shown === null ? "" : String(shown)}
           display={formatNumber(shown, field.format)}
@@ -43,10 +45,14 @@ export function CharacterDerivedValue({ field, shown, edited, tile, onEnter, onR
           allowEmpty
           maxLength={7}
           onSave={save}
-          className={tile ? "text-center text-xl font-semibold tabular-nums" : "tabular-nums"}
+          className={box ? "min-h-4 !py-0 text-center text-xs font-medium tabular-nums" : tile ? "text-center text-xl font-semibold tabular-nums" : "tabular-nums"}
         />
       </span>
-      {edited && <EditedMarker onReset={onReset} />}
+      {edited && (
+        <span className={box ? "absolute top-1/2 left-full ml-1 -translate-y-1/2" : undefined}>
+          <EditedMarker onReset={onReset} />
+        </span>
+      )}
     </span>
   )
 }

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react"
 import type { SheetField } from "@/lib/character-sheet"
+import type { Explanation } from "@/lib/character-glossary"
+import { GlossaryLabel } from "./GlossaryLabel"
 import { InlineText } from "./InlineText"
 import { CharacterFieldMenu } from "./CharacterFieldMenu"
 
@@ -17,6 +19,8 @@ type Props = {
   highlighted?: boolean
   // A short note beside the name, like "from Human".
   note?: string | null
+  // What the label explains on hover, if the SRD has something on it.
+  explanation?: Explanation | null
   unlock?: { label: string; run: () => void }
   onLabel: (label: string) => void
   onPin: (pinned: boolean) => void
@@ -34,7 +38,7 @@ const LABEL = {
   narrow: "w-28 shrink-0",
 }
 
-export function CharacterFieldRow({ field, pinned, fresh, size, secondary, highlighted, note, unlock, onLabel, onPin, onLength, onRemove, children }: Props) {
+export function CharacterFieldRow({ field, pinned, fresh, size, secondary, highlighted, note, explanation, unlock, onLabel, onPin, onLength, onRemove, children }: Props) {
   const compact = size === "compact"
 
   // Attacks are a table that takes the whole row, with no name beside it.
@@ -46,12 +50,14 @@ export function CharacterFieldRow({ field, pinned, fresh, size, secondary, highl
         {field.custom ? (
           <InlineText value={field.label} placeholder="Name" maxLength={60} autoEdit={fresh} onSave={onLabel} />
         ) : (
-          <span className="block truncate" title={field.hint ? `${field.title ?? field.label} (${field.hint})` : (field.title ?? field.label)}>
+          <GlossaryLabel explanation={explanation ?? null}>
+          <span className="block truncate" title={explanation ? undefined : field.hint ? `${field.title ?? field.label} (${field.hint})` : (field.title ?? field.label)}>
             {highlighted && <span className="bg-primary mr-1.5 inline-block size-1.5 rounded-full align-middle" title="Class skill option" />}
             {field.label}
             {field.hint && <span className="ml-1.5 text-xs opacity-70">{field.hint}</span>}
             {note && <span className="ml-1.5 text-xs opacity-70">{note}</span>}
           </span>
+          </GlossaryLabel>
         )}
       </dt>
       <dd className={compact ? "shrink-0" : "min-w-0 flex-1"}>{children}</dd>

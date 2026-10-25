@@ -10,7 +10,8 @@ export type Condition = { field: string; is: string | string[] }
 // field of the player's is always one of CharacterFieldType.
 // - choice: the id of one option from a list the template declares.
 // - attacks: a list of attacks, each with its own name, ability and damage.
-export type SheetFieldType = CharacterFieldType | "choice" | "attacks"
+// - picks: the ids of several options picked, like the skills a class lets you choose.
+export type SheetFieldType = CharacterFieldType | "choice" | "attacks" | "picks"
 
 export type ChoiceOption = { id: string; label: string }
 
@@ -33,7 +34,7 @@ export type TemplateSection = {
   id: string
   tab: string
   label: string
-  layout?: "list" | "grid" | "abilities"
+  layout?: "list" | "grid" | "abilities" | "saves"
   // A grid's tiles across; for a list, how many columns of rows. More than one makes the
   // section as wide as the tab.
   columns?: number
@@ -41,11 +42,11 @@ export type TemplateSection = {
   summary?: string
   // Shown in the profile column beside the tabs (always open), not in its tab.
   profile?: boolean
+  // Set up in the builder, not on the sheet.
+  builderOnly?: boolean
   // A line under the heading once the section is open; `{n}` is the number of the field.
   // Nothing shows while the field has none.
   caption?: { field: string; text: string }
-  // A button in the heading that opens a helper of its own.
-  helper?: "ability-scores" | "background-increase"
 }
 
 // A field the template itself has. Its id is code, never changed or reused: values are
@@ -79,6 +80,8 @@ export type TemplateField = {
   showWhen?: string
   // The field is only shown while all of these hold.
   showIf?: Condition[]
+  // A control of its own instead of the one for the type.
+  control?: "ability-increase"
   // A derived field the sheet fixes (the origin feat a background gives): shown as plain
   // text, with `source` the choice it comes from. Unless `overrideLabel` is set it cannot be
   // changed; with it, the field's menu offers that, and the field then shows as edited.
@@ -105,6 +108,8 @@ export type TemplateField = {
 export type CharacterTemplate = {
   id: string
   version: number
+  // Has a guided builder, which a new character opens in and the sheet links back to.
+  builder?: boolean
   tabs: TemplateTab[]
   sections: TemplateSection[]
   fields: TemplateField[]

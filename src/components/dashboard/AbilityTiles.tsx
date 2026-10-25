@@ -5,13 +5,14 @@ import type { SheetActions } from "./character-actions"
 
 type Props = { fields: SheetField[]; columns: number; actions: SheetActions }
 
-// The six abilities as ruled tiles, like the other grids. On a phone, two across.
+// The six abilities as separate tiles, with room under them for the scores that hang over
+// their edges. On a phone, three across.
 export function AbilityTiles({ fields, columns, actions }: Props) {
   const facts = abilityFacts(actions)
 
   return (
     <div
-      className="bg-border grid grid-cols-2 gap-px overflow-hidden rounded-lg border shadow-xs sm:grid-cols-[repeat(var(--columns),minmax(0,1fr))]"
+      className="grid grid-cols-3 gap-x-3 gap-y-5 pb-2 sm:grid-cols-[repeat(var(--columns),minmax(0,1fr))]"
       style={{ "--columns": columns } as React.CSSProperties}
     >
       {fields.map((field) => (

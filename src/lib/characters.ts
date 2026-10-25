@@ -7,6 +7,7 @@ import type { CharacterFieldType, FieldConfig } from "./character-templates/type
 export const UNTITLED_CHARACTER = "Untitled character"
 
 export const characterPath = (id: string) => `/app/characters/${id}`
+export const characterBuildPath = (id: string, step?: string) => `/app/characters/${id}/build${step ? `?step=${step}` : ""}`
 
 export type Character = {
   id: string

@@ -30,6 +30,9 @@ export const readList = (value: unknown): ListItem[] =>
     ? value.filter((item): item is ListItem => typeof item?.id === "string" && typeof item.text === "string")
     : []
 
+export const readPicks = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []
+
 export const readChoice = (value: unknown) => (typeof value === "string" && value !== "" ? value : null)
 
 export const readAttacks = (value: unknown): Attack[] =>
@@ -67,6 +70,8 @@ export function isEmptyValue(type: SheetFieldType, value: unknown) {
       return readChoice(value) === null
     case "attacks":
       return readAttacks(value).length === 0
+    case "picks":
+      return readPicks(value).length === 0
   }
 }
 

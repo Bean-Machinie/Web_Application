@@ -35,15 +35,12 @@ export const SKILLS: [string, string, AbilityId][] = [
   ["survival", "Survival", "wis"],
 ]
 
-// p. 21 (Generate Your Scores): the Standard Array, and Point Cost with 27 points to spend.
-export const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8]
+// p. 21 (Generate Your Scores): Point Cost, with 27 points to spend.
 export const POINT_BUY_BUDGET = 27
 // p. 21 (Ability Score Point Costs): a score from 8 to 15 and what it costs.
 export const POINT_BUY_COSTS: Record<number, number> = { 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 }
 export const POINT_BUY_MIN = 8
 export const POINT_BUY_MAX = 15
-// p. 21 (Random Generation): four d6, the highest three added up; six times.
-export const ROLL_DICE = 4
 
 // p. 21 (Adjust Ability Scores): a background's increases cannot raise a score above 20.
 export const ABILITY_CAP = 20
@@ -117,7 +114,16 @@ export const SIZES: { id: SizeId; label: string; carryPerStrength: number }[] = 
 // pp. 84-86 (Species Descriptions): size, Speed and the range of Darkvision in feet (0:
 // none). Human and Tiefling are Medium or Small, chosen with the species; Medium here.
 // Dwarven Toughness (p. 84) adds to the Hit Point maximum, once for each level.
-export type SrdSpecies = { id: string; label: string; size: SizeId; speed: number; darkvision: number; hpPerLevel?: number }
+export type SrdSpecies = {
+  id: string
+  label: string
+  size: SizeId
+  speed: number
+  darkvision: number
+  hpPerLevel?: number
+  // Medium or Small, chosen with the species.
+  sizeChoice?: boolean
+}
 
 export const SPECIES: SrdSpecies[] = [
   { id: "dragonborn", label: "Dragonborn", size: "medium", speed: 30, darkvision: 60 },
@@ -126,9 +132,9 @@ export const SPECIES: SrdSpecies[] = [
   { id: "gnome", label: "Gnome", size: "small", speed: 30, darkvision: 60 },
   { id: "goliath", label: "Goliath", size: "medium", speed: 35, darkvision: 0 },
   { id: "halfling", label: "Halfling", size: "small", speed: 30, darkvision: 0 },
-  { id: "human", label: "Human", size: "medium", speed: 30, darkvision: 0 },
+  { id: "human", label: "Human", size: "medium", speed: 30, darkvision: 0, sizeChoice: true },
   { id: "orc", label: "Orc", size: "medium", speed: 30, darkvision: 120 },
-  { id: "tiefling", label: "Tiefling", size: "medium", speed: 30, darkvision: 60 },
+  { id: "tiefling", label: "Tiefling", size: "medium", speed: 30, darkvision: 60, sizeChoice: true },
 ]
 
 // p. 87 (Origin Feats): the feats a background can give. Magic Initiate is taken once for
@@ -179,3 +185,16 @@ export const RECOMMENDED_FEAT = "Skilled"
 // Intelligence, Wisdom or Charisma is chosen as its spellcasting ability.
 export const MAGIC_INITIATE_FEATS = ["Magic Initiate (Cleric)", "Magic Initiate (Druid)", "Magic Initiate (Wizard)"]
 export const MAGIC_INITIATE_ABILITIES: AbilityId[] = ["int", "wis", "cha"]
+
+// p. 21 (The Nine Alignments).
+export const ALIGNMENTS = [
+  "Lawful Good",
+  "Neutral Good",
+  "Chaotic Good",
+  "Lawful Neutral",
+  "Neutral",
+  "Chaotic Neutral",
+  "Lawful Evil",
+  "Neutral Evil",
+  "Chaotic Evil",
+]

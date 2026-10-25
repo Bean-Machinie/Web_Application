@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { useCharacter } from "@/hooks/use-character"
 import { isPinned, isShown, NEW_FIELD_LABEL, profileFields } from "@/lib/character-sheet"
 import type { SheetField } from "@/lib/character-sheet"
+import { builderProgress } from "@/lib/character-builder"
 import { isEmptyValue } from "@/lib/character-values"
 import type { CharacterFieldType } from "@/lib/character-templates/types"
 import { deleteCharacter } from "@/lib/characters"
@@ -15,9 +16,11 @@ import { ConfirmDialog } from "./ConfirmDialog"
 import { CharacterMenu } from "./CharacterMenu"
 import { CharacterPill } from "./CharacterPill"
 import { CharacterProfile } from "./CharacterProfile"
+import { BuilderBanner } from "./BuilderBanner"
 import { CharacterRows } from "./CharacterRows"
+import { CharacterSummary } from "./CharacterSummary"
 import { CharacterTabPanel } from "./CharacterTabPanel"
-import type { SheetActions } from "./character-actions"
+import { sheetActions } from "./sheet-actions"
 import { SaveIndicator } from "./SaveIndicator"
 
 type Props = {
@@ -64,18 +67,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
     isPinned(field, values) &&
     (values[field.id]?.pinned === true || !isEmptyValue(field.type, values[field.id]?.value))
 
-  const actions: SheetActions = {
-    characterId: character.id,
-    folder: userId,
-    values,
-    derived: sheet.derived,
-    byId: new Map(fields.map((field) => [field.id, field])),
-    freshId: freshField,
-    onValue: sheet.setValue,
-    onField: (field, label, config) => sheet.changeField(field.id, label, config),
-    onPin: (fieldId, pinned) => sheet.setPinned(fieldId, pinned),
-    onRemove: (fieldId) => sheet.removeField(fieldId),
-  }
+  const actions = sheetActions(sheet, character.id, userId, freshField)
 
   const pills = fields.filter(showsPill).map((field) => (
     <CharacterPill key={field.id} field={field} actions={actions} />
@@ -93,7 +85,13 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
         onPortrait={(portrait) => sheet.edit("portrait", portrait)}
         template={gameNotice}
         pills={pills.length > 0 ? pills : null}
-        identity={identity.length > 0 && <CharacterRows fields={identity} actions={actions} narrow />}
+        identity={
+          template!.builder ? (
+            <CharacterSummary actions={actions} />
+          ) : (
+            identity.length > 0 && <CharacterRows fields={identity} actions={actions} narrow />
+          )
+        }
       />
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         {/* The tabs, and at the right end of their row the save state and the menu. */}
@@ -112,6 +110,9 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
             <CharacterMenu aboutPath={gameNotice && noticePath(gameNotice.id)} onDelete={() => setDeleting(true)} />
           </div>
         </div>
+        {template!.builder && (
+          <BuilderBanner characterId={character.id} progress={builderProgress({ character, fields, values, derived: sheet.derived })} />
+        )}
         {(sheet.error || failure) && <p className="text-destructive text-sm">{sheet.error ?? failure}</p>}
         <CharacterTabPanel
           key={tab.id}
