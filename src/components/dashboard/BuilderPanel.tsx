@@ -6,7 +6,6 @@ import { CLASS_BUILD } from "@/lib/character-templates/srd-5-2-1-classes"
 import { readAttacks, readStat } from "@/lib/character-values"
 import type { BuilderStep } from "@/lib/character-builder"
 import type { Character } from "@/lib/characters"
-import { BUILDER_SCROLL } from "./builder-scroll"
 import type { SheetActions } from "./character-actions"
 
 type Props = { actions: SheetActions; character: Character; step: BuilderStep; left: string[] }
@@ -14,11 +13,11 @@ type Props = { actions: SheetActions; character: Character; step: BuilderStep; l
 const TILE = "bg-muted/40 rounded-lg px-2.5 py-2"
 const signed = (value: number) => (value >= 0 ? `+${value}` : String(value))
 
-function Tile({ label, value }: { label: string; value: string }) {
+function Tile({ label, value, small }: { label: string; value: string; small?: boolean }) {
   return (
-    <div className={TILE}>
+    <div className={`${TILE} min-w-0`}>
       <span className="text-muted-foreground text-xs">{label}</span>
-      <div className="font-semibold tabular-nums">{value}</div>
+      <div className={`truncate font-semibold whitespace-nowrap tabular-nums ${small ? "text-xs leading-6" : ""}`}>{value}</div>
     </div>
   )
 }
@@ -42,9 +41,9 @@ export function BuilderPanel({ actions, character, step, left }: Props) {
   const { derived } = actions
   const num = (id: string) => derived[id] ?? null
   const die = num("hit-die")
-  const hp = num("hp.max") ?? (die !== null ? `${die} + Con` : "—")
+  const hp = num("hp.max")
   const tiles: [string, string][] = [
-    ["Hit Points", String(hp)],
+    ["Hit Points", hp !== null ? String(hp) : die !== null ? `${die} + Con` : "—"],
     step === "species" ? ["Speed", formatNumber(num("speed"), "feet")] : step === "abilities" ? ["Initiative", formatNumber(num("initiative"), "signed")] : step === "choices" ? ["Passive", String(num("passive-perception") ?? "—")] : step === "details" ? ["Speed", formatNumber(num("speed"), "feet")] : ["AC", String(num("ac") ?? "—")],
     step === "details" ? ["AC", String(num("ac") ?? "—")] : ["Prof.", formatNumber(num("proficiency-bonus"), "signed")],
   ]
@@ -60,7 +59,7 @@ export function BuilderPanel({ actions, character, step, left }: Props) {
   })
 
   return (
-    <aside aria-label="Your character" className={`bg-card flex w-full shrink-0 flex-col gap-4 rounded-lg border p-5 shadow-xs min-[1100px]:min-h-0 min-[1100px]:w-[320px] ${BUILDER_SCROLL}`}>
+    <aside aria-label="Your character" className="bg-card flex w-full shrink-0 flex-col gap-4 rounded-lg border p-5 shadow-xs min-[1100px]:sticky min-[1100px]:top-[calc(var(--collection-top)+1.5rem)] min-[1100px]:w-[320px]">
       <div className="flex items-center gap-3">
         <div className="bg-muted flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg">
           {character.portrait ? <img src={character.portrait.url} alt="" className="size-full object-cover" /> : <User className="text-muted-foreground size-5" />}
@@ -74,7 +73,7 @@ export function BuilderPanel({ actions, character, step, left }: Props) {
       </div>
       <div className="grid grid-cols-3 gap-2">
         {tiles.map(([label, value]) => (
-          <Tile key={label} label={label} value={value} />
+          <Tile key={label} label={label} value={value} small={label === "Hit Points" && hp === null && value !== "—"} />
         ))}
       </div>
       {step === "details" && (
@@ -98,9 +97,10 @@ export function BuilderPanel({ actions, character, step, left }: Props) {
         <div className="border-t pt-4">
           <span className="text-muted-foreground text-xs">Still to choose</span>
           <ul className="mt-2 flex flex-col gap-1.5 text-sm">
-            {left.map((item) => (
+            {left.slice(0, 5).map((item) => (
               <li key={item}>{item}</li>
             ))}
+            {left.length > 5 && <li className="text-muted-foreground">+{left.length - 5} more</li>}
           </ul>
         </div>
       )}
