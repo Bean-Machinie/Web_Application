@@ -12,6 +12,7 @@ import { CharacterRows } from "./CharacterRows"
 import { CharacterSection } from "./CharacterSection"
 import { CharacterTextSection } from "./CharacterTextSection"
 import { CharacterTiles } from "./CharacterTiles"
+import { markerFor } from "./marker-for"
 
 type Props = {
   template: CharacterTemplate
@@ -69,6 +70,7 @@ export function CharacterTabPanel({ template, tab, fields, actions, opened, onOp
           count={inSection.length}
           open={opened.has(section.id) || sectionStarted(inSection, actions.values, actions.derived)}
           caption={captionOf(section, actions)}
+          action={section.layout === "abilities" ? markerFor("str", actions) : undefined}
           onOpen={() => onOpen(section.id)}
         >
           {section.layout === "abilities" ? (

@@ -20,6 +20,7 @@ import { BuilderBanner } from "./BuilderBanner"
 import { CharacterRows } from "./CharacterRows"
 import { CharacterSummary } from "./CharacterSummary"
 import { CharacterTabPanel } from "./CharacterTabPanel"
+import { QuickToFinish } from "./QuickToFinish"
 import { sheetActions } from "./sheet-actions"
 import { SaveIndicator } from "./SaveIndicator"
 
@@ -113,6 +114,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
         {template!.builder && (
           <BuilderBanner characterId={character.id} progress={builderProgress({ character, fields, values, derived: sheet.derived })} />
         )}
+        {template!.builder && <QuickToFinish character={character} fields={fields} values={values} derived={sheet.derived} />}
         {(sheet.error || failure) && <p className="text-destructive text-sm">{sheet.error ?? failure}</p>}
         <CharacterTabPanel
           key={tab.id}

@@ -5,6 +5,7 @@ import type { SheetActions } from "./character-actions"
 import { CharacterFieldBody } from "./CharacterFieldBody"
 import { CharacterFieldRow } from "./CharacterFieldRow"
 import { rowExtras } from "./character-row-extras"
+import { markerFor } from "./marker-for"
 
 type Props = { fields: SheetField[]; actions: SheetActions; columns?: number; narrow?: boolean }
 
@@ -34,6 +35,7 @@ export function CharacterRows({ fields, actions, columns = 1, narrow }: Props) {
         fresh={field.id === actions.freshId}
         note={note}
         explanation={explain(field, actions)}
+        marker={markerFor(field.id, actions)}
         unlock={unlock}
         highlighted={field.highlight !== undefined && (actions.derived[field.highlight] ?? 0) > 0}
         size={columns > 1 ? "compact" : narrow ? "narrow" : "wide"}

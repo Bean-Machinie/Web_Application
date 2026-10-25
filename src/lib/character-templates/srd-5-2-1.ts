@@ -64,6 +64,8 @@ export type SrdClass = {
   spellAbility: AbilityId | null
   // The class's Core Traits table.
   page: number
+  // A picture for the quick build's cards; none yet.
+  image?: string
 }
 
 export const CLASSES: SrdClass[] = [
@@ -90,6 +92,7 @@ export type SrdBackground = {
   feat: string
   tool: string
   skills: [string, string]
+  image?: string
 }
 
 export const BACKGROUNDS: SrdBackground[] = [
@@ -123,6 +126,7 @@ export type SrdSpecies = {
   hpPerLevel?: number
   // Medium or Small, chosen with the species.
   sizeChoice?: boolean
+  image?: string
 }
 
 export const SPECIES: SrdSpecies[] = [

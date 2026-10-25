@@ -19,6 +19,7 @@ import {
 import type { Character, CustomField, StoredValue } from "@/lib/characters"
 import { errorMessage } from "@/lib/campaigns"
 import type { WorldImage } from "@/lib/world-images"
+import { useSuggested } from "./use-suggested"
 
 export type SaveState = "idle" | "saving" | "saved" | "error"
 
@@ -143,6 +144,8 @@ export function useCharacter(id: string) {
     await track(removeCharacterField(fieldId))
   }
 
+  const unsuggest = useSuggested(values, setValue)
+
   return {
     character,
     template,
@@ -153,6 +156,7 @@ export function useCharacter(id: string) {
     error,
     saveState,
     setValue,
+    unsuggest,
     setPinned,
     edit,
     addField,

@@ -21,6 +21,8 @@ type Props = {
   note?: string | null
   // What the label explains on hover, if the SRD has something on it.
   explanation?: Explanation | null
+  // "Suggested", on a value the quick build filled in.
+  marker?: ReactNode
   unlock?: { label: string; run: () => void }
   onLabel: (label: string) => void
   onPin: (pinned: boolean) => void
@@ -38,7 +40,7 @@ const LABEL = {
   narrow: "w-28 shrink-0",
 }
 
-export function CharacterFieldRow({ field, pinned, fresh, size, secondary, highlighted, note, explanation, unlock, onLabel, onPin, onLength, onRemove, children }: Props) {
+export function CharacterFieldRow({ field, pinned, fresh, size, secondary, highlighted, note, explanation, marker, unlock, onLabel, onPin, onLength, onRemove, children }: Props) {
   const compact = size === "compact"
 
   // Attacks are a table that takes the whole row, with no name beside it.
@@ -62,6 +64,7 @@ export function CharacterFieldRow({ field, pinned, fresh, size, secondary, highl
       </dt>
       <dd className={compact ? "shrink-0" : "min-w-0 flex-1"}>{children}</dd>
       {secondary && <div className="shrink-0 text-right text-sm font-medium">{secondary}</div>}
+      {marker}
       <CharacterFieldMenu field={field} pinned={pinned} onPin={onPin} onLength={onLength} onRemove={onRemove} unlock={unlock} />
     </div>
   )

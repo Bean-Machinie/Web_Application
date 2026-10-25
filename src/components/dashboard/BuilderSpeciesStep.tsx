@@ -9,7 +9,7 @@ import { BuilderLabel } from "./BuilderLabel"
 import { BuilderLayout } from "./BuilderLayout"
 import { BuilderRow } from "./BuilderRow"
 import { BuilderSection } from "./BuilderSection"
-import { clearFields } from "./builder-clear"
+import { chooseSpecies } from "./builder-choose"
 import type { BuilderProps } from "./builder-types"
 
 const sizeName = (id: string) => SIZES.find((size) => size.id === id)!.label
@@ -18,13 +18,6 @@ const sizeName = (id: string) => SIZES.find((size) => size.id === id)!.label
 export function BuilderSpeciesStep({ actions }: BuilderProps) {
   const { species } = origins(actions)
   const sizeId = chosenOption(actions, "size")?.id
-
-  function choose(id: string) {
-    if (id === species?.id) return
-    actions.onValue("species-choice", id)
-    // What the old species asked for, and a size picked for it, are not the new one’s.
-    clearFields(actions, ["size", "species-option", "species-skill", "species-ability", "species-feat", "species-feat.ability"])
-  }
 
   return (
     <BuilderLayout
@@ -35,7 +28,7 @@ export function BuilderSpeciesStep({ actions }: BuilderProps) {
         line: [option.sizeChoice ? "Medium or Small" : sizeName(option.size), `${option.speed} ft`, option.darkvision ? "Darkvision" : null].filter(Boolean).join(" · "),
       }))}
       selected={species?.id ?? null}
-      onSelect={choose}
+      onSelect={(id) => chooseSpecies(actions, id)}
     >
       {species ? (
         <BuilderDetail

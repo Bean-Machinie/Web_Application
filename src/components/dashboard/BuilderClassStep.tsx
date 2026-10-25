@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { origins } from "@/lib/character-grants"
 import { ABILITIES, CLASSES } from "@/lib/character-templates/srd-5-2-1"
 import { CLASS_BUILD } from "@/lib/character-templates/srd-5-2-1-classes"
-import type { ClassBuild } from "@/lib/character-templates/srd-5-2-1-classes"
 import { CLASS_NOTES } from "@/lib/character-templates/srd-5-2-1-glossary"
 import { readStat } from "@/lib/character-values"
 import { BuilderDetail } from "./BuilderDetail"
@@ -12,40 +11,17 @@ import { BuilderLabel } from "./BuilderLabel"
 import { BuilderLayout } from "./BuilderLayout"
 import { BuilderRow } from "./BuilderRow"
 import { BuilderSection } from "./BuilderSection"
-import { clearFields } from "./builder-clear"
+import { chooseClass } from "./builder-choose"
+import { weaponsText } from "./class-text"
 import type { BuilderProps } from "./builder-types"
-import { applyKits, chosenKits } from "./character-kits"
 
 const nameOf = (id: string) => ABILITIES.find(([other]) => other === id)![1]
-
-const MARTIAL = {
-  all: "Martial weapons",
-  light: "Martial weapons that have the Light property",
-  "finesse-light": "Martial weapons that have the Finesse or Light property",
-}
-
-const weaponsText = ({ weapons }: ClassBuild) =>
-  weapons.martial ? `${weapons.simple ? "Simple and " : ""}${MARTIAL[weapons.martial]}` : "Simple weapons"
-
-// Everything picked for the old class, which the new one cannot use.
-const CLASS_FIELDS = ["class-skills", "class-style", "class-masteries", "class-expertise", "class-order", "class-invocation", "class-tools", "equipment-class"]
 
 // Step 1: the class, with what it gets and the features it has at level 1.
 export function BuilderClassStep({ actions }: BuilderProps) {
   const { cls } = origins(actions)
   const build = cls ? CLASS_BUILD[cls.id] : null
   const level = readStat(actions.values.level?.value)
-
-  function choose(id: string) {
-    if (id === cls?.id) return
-    actions.onValue("character-class", id)
-    clearFields(actions, CLASS_FIELDS)
-    // Whatever the old class’s kit put on the sheet goes with it.
-    const { backgroundKit } = chosenKits(actions)
-    applyKits(actions, backgroundKit ? [backgroundKit] : [], {}, id)
-    // A new character starts at level 1 (p. 19).
-    if (level === null) actions.onValue("level", 1)
-  }
 
   const setLevel = (next: number) => actions.onValue("level", Math.min(Math.max(next, 1), 20))
   const choiceTitles = build ? build.choices.map((choice) => choice.title) : []
@@ -59,7 +35,7 @@ export function BuilderClassStep({ actions }: BuilderProps) {
         line: `d${option.hitDie} · ${CLASS_BUILD[option.id].likes} · ${CLASS_BUILD[option.id].complexity}`,
       }))}
       selected={cls?.id ?? null}
-      onSelect={choose}
+      onSelect={(id) => chooseClass(actions, id)}
     >
       {cls && build ? (
         <BuilderDetail kind="Class" title={cls.label} intro={`Likes ${build.likes.toLowerCase()}.`} source={`${cls.label}, p. ${cls.page}`}>

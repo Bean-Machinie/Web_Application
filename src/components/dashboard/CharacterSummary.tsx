@@ -5,6 +5,7 @@ import { characterBuildPath } from "@/lib/characters"
 import { readStat } from "@/lib/character-values"
 import { featGrants } from "@/lib/character-grants"
 import type { SheetActions } from "./character-actions"
+import { QuickSummaryPicks } from "./QuickSummaryPicks"
 
 // What the builder made, read only, in the profile column: "Fighter 1", "Human · Soldier",
 // the Origin feats, and the way back into the builder to change any of it.
@@ -36,6 +37,7 @@ export function CharacterSummary({ actions }: { actions: SheetActions }) {
           <p className="text-muted-foreground text-sm">Not built yet</p>
         )}
       </div>
+      <QuickSummaryPicks actions={actions} />
       <Button asChild variant="outline" size="sm" className="w-full">
         <Link to={characterBuildPath(actions.characterId)}>Edit character</Link>
       </Button>
