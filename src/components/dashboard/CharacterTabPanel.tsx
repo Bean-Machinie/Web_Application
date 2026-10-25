@@ -1,10 +1,13 @@
-import { Plus } from "lucide-react"
+import { useState } from "react"
+import { Dices, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
 import { isShown, sectionStarted, tabContents } from "@/lib/character-sheet"
 import type { SheetField } from "@/lib/character-sheet"
 import type { CharacterFieldType, CharacterTemplate, TemplateSection, TemplateTab } from "@/lib/character-templates/types"
 import { AbilityScoresDialog } from "./AbilityScoresDialog"
+import { AbilityTiles } from "./AbilityTiles"
+import { BackgroundIncreaseLink } from "./BackgroundIncreaseLink"
 import { AddFieldMenu } from "./AddFieldMenu"
 import type { SheetActions } from "./character-actions"
 import { CharacterRows } from "./CharacterRows"
@@ -33,9 +36,14 @@ function captionOf(section: TemplateSection, actions: SheetActions) {
 // Then the fields that are in no section, and a quiet Add. With nothing at all, a short
 // empty state with the way to add.
 export function CharacterTabPanel({ template, tab, fields, actions, opened, onOpen, onAdd }: Props) {
+  // The Set scores dialog, and the step it opens on while it is open.
+  const [scores, setScores] = useState<1 | 2 | null>(null)
   const contents = tabContents(template, tab, fields)
   const shown = (field: SheetField) => isShown(field, actions.byId, actions.values, actions.derived)
-  const sections = contents.sections.map(({ section, fields: inSection }) => ({ section, fields: inSection.filter(shown) }))
+  // A section whose fields all wait on something (the Human's choices) is not there yet.
+  const sections = contents.sections
+    .map(({ section, fields: inSection }) => ({ section, fields: inSection.filter(shown) }))
+    .filter(({ fields: inSection }) => inSection.length > 0)
   const loose = contents.loose.filter(shown)
   const plain = loose.filter((field) => field.type !== "text")
   const texts = loose.filter((field) => field.type === "text")
@@ -65,13 +73,27 @@ export function CharacterTabPanel({ template, tab, fields, actions, opened, onOp
           count={inSection.length}
           open={opened.has(section.id) || sectionStarted(inSection, actions.values, actions.derived)}
           caption={captionOf(section, actions)}
-          action={section.helper === "ability-scores" ? <AbilityScoresDialog actions={actions} /> : undefined}
+          action={
+            section.helper === "ability-scores" ? (
+              <Button variant="ghost" size="sm" className="text-muted-foreground -my-1" onClick={() => setScores(1)}>
+                <Dices />
+                Set scores
+              </Button>
+            ) : undefined
+          }
           onOpen={() => onOpen(section.id)}
         >
-          {section.layout === "grid" ? (
+          {section.layout === "abilities" ? (
+            <AbilityTiles fields={inSection} columns={section.columns ?? 6} actions={actions} />
+          ) : section.layout === "grid" ? (
             <CharacterTiles fields={inSection} columns={section.columns ?? 3} actions={actions} />
           ) : (
-            <CharacterRows fields={inSection} actions={actions} columns={section.columns} />
+            <>
+              <CharacterRows fields={inSection} actions={actions} columns={section.columns} />
+              {section.helper === "background-increase" && (
+                <BackgroundIncreaseLink actions={actions} onOpen={() => setScores(2)} />
+              )}
+            </>
           )}
         </CharacterSection>
       ))}
@@ -88,6 +110,7 @@ export function CharacterTabPanel({ template, tab, fields, actions, opened, onOp
           onRemove={() => actions.onRemove(field.id)}
         />
       ))}
+      <AbilityScoresDialog actions={actions} open={scores} onClose={() => setScores(null)} />
       <AddFieldMenu onAdd={onAdd}>
         <Button variant="ghost" size="sm" className="text-muted-foreground w-fit">
           <Plus />

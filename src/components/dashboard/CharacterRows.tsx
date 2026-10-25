@@ -3,6 +3,7 @@ import type { SheetField } from "@/lib/character-sheet"
 import type { SheetActions } from "./character-actions"
 import { CharacterFieldBody } from "./CharacterFieldBody"
 import { CharacterFieldRow } from "./CharacterFieldRow"
+import { rowExtras } from "./character-row-extras"
 
 type Props = { fields: SheetField[]; actions: SheetActions; columns?: number; narrow?: boolean }
 
@@ -23,12 +24,15 @@ export function CharacterRows({ fields, actions, columns = 1, narrow }: Props) {
   const rows = fields.map((field) => {
     const second = field.secondary ? actions.byId.get(field.secondary) : undefined
     const paired = second?.type === "track"
+    const { note, unlock } = rowExtras(field, actions)
     return (
       <CharacterFieldRow
         key={field.id}
         field={field}
         pinned={isPinned(field, actions.values)}
         fresh={field.id === actions.freshId}
+        note={note}
+        unlock={unlock}
         highlighted={field.highlight !== undefined && (actions.derived[field.highlight] ?? 0) > 0}
         size={columns > 1 ? "compact" : narrow ? "narrow" : "wide"}
         secondary={

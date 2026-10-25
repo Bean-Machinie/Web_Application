@@ -1,5 +1,5 @@
 import type { ChoiceOption } from "./types"
-import { ABILITIES, BACKGROUNDS, CLASSES, ORIGIN_FEATS, SIZES, SPECIES } from "./srd-5-2-1"
+import { ABILITIES, BACKGROUNDS, CLASSES, HUMAN, ORIGIN_FEATS, RECOMMENDED_FEAT, SIZES, SKILLS, SPECIES, TOOLS } from "./srd-5-2-1"
 import type { AbilityId } from "./srd-5-2-1"
 
 // The SRD's data as the choices and tables the template's formulas read.
@@ -13,6 +13,13 @@ export const BACKGROUND_OPTIONS = labelled(BACKGROUNDS)
 export const ABILITY_OPTIONS = labelled(ABILITIES.map(([id, label]) => ({ id, label })))
 export const SIZE_OPTIONS = labelled(SIZES)
 export const FEAT_OPTIONS = ORIGIN_FEATS.map((feat) => ({ id: feat, label: feat }))
+// What a Human chooses with Versatile: any of them, the SRD recommending one.
+export const VERSATILE_OPTIONS = FEAT_OPTIONS.map((feat) => ({
+  ...feat,
+  label: feat.id === RECOMMENDED_FEAT ? `${feat.label} · Recommended` : feat.label,
+}))
+export const TOOL_OPTIONS = TOOLS.map((tool) => ({ id: tool, label: tool }))
+export const SKILL_OPTIONS = SKILLS.map(([id, label]) => ({ id, label }))
 
 // A table over the classes (or species, or backgrounds): the number for each.
 const byId = <T extends { id: string }>(items: T[], value: (item: T) => number | undefined) =>
@@ -30,6 +37,7 @@ export const SAVE_PROFICIENCY = (ability: AbilityId) => byId(CLASSES, (c) => (c.
 export const CLASS_SKILL_OPTION = (skill: string) =>
   byId(CLASSES, (c) => (!c.skills || c.skills.includes(skill) ? 1 : undefined))
 export const BACKGROUND_SKILL = (skill: string) => byId(BACKGROUNDS, (b) => (b.skills.includes(skill) ? 1 : undefined))
+export const BACKGROUND_TOOL = idsOf(BACKGROUNDS, (b) => b.tool)
 export const BACKGROUND_FEAT = idsOf(BACKGROUNDS, (b) => b.feat)
 export const SPECIES_HP_PER_LEVEL = byId(SPECIES, (s) => s.hpPerLevel)
 export const SPECIES_SPEED = byId(SPECIES, (s) => s.speed)
@@ -43,14 +51,25 @@ type Increase = { id: string; label: string; adds: Partial<Record<AbilityId, num
 
 const name = (ability: AbilityId) => ABILITIES.find(([id]) => id === ability)![1]
 
+// The id of each way: what it adds to each ability, so it never depends on list order.
+export const splitIncreaseId = (two: AbilityId, one: AbilityId) => `${two}+2,${one}+1`
+export const spreadIncreaseId = (abilities: AbilityId[]) => abilities.map((ability) => `${ability}+1`).join(",")
+
+// Reads an id back: the split names the ability that gets 2 and the one that gets 1.
+export function parseIncrease(id: string | null) {
+  if (!id) return null
+  const [first, second, third] = id.split(",").map((part) => part.split("+")[0] as AbilityId)
+  return third ? { mode: "spread" as const } : { mode: "split" as const, two: first, one: second }
+}
+
 function increasesFor(abilities: AbilityId[]): Increase[] {
   const split = abilities.flatMap((two) =>
     abilities
       .filter((one) => one !== two)
-      .map((one) => ({ id: `${two}+2,${one}+1`, label: `+2 ${name(two)}, +1 ${name(one)}`, adds: { [two]: 2, [one]: 1 } }))
+      .map((one) => ({ id: splitIncreaseId(two, one), label: `+2 ${name(two)}, +1 ${name(one)}`, adds: { [two]: 2, [one]: 1 } }))
   )
   const spread = {
-    id: abilities.map((ability) => `${ability}+1`).join(","),
+    id: spreadIncreaseId(abilities),
     label: `+1 ${abilities.map(name).join(", ")}`,
     adds: Object.fromEntries(abilities.map((ability) => [ability, 1])),
   }
@@ -72,3 +91,7 @@ export const INCREASE_TO = (ability: AbilityId): Record<string, number> =>
   )
 
 
+
+// Skillful: the skill a Human chose counts only while the species is Human.
+export const IS_HUMAN = { [HUMAN]: 1 }
+export const HUMAN_SKILL = (skill: string) => ({ [skill]: 1 })

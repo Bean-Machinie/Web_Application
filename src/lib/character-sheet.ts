@@ -2,6 +2,7 @@ import type { Formula } from "./character-templates/formulas"
 import type {
   CharacterFieldType,
   CharacterTemplate,
+  Condition,
   ChoiceList,
   FieldConfig,
   SheetFieldType,
@@ -9,6 +10,7 @@ import type {
   TemplateTab,
 } from "./character-templates/types"
 import type { CustomField, StoredValue } from "./characters"
+import { conditionsHold } from "./character-choices"
 import type { Derived } from "./character-derive"
 import { DEFAULT_TRACK_LENGTH, isEmptyValue } from "./character-values"
 
@@ -33,6 +35,11 @@ export type SheetField = {
   choices?: ChoiceList
   range?: [number, number]
   showWhen?: string
+  showIf?: Condition[]
+  locked?: boolean
+  overrideLabel?: string
+  source?: string
+  note?: { text: string; when: Condition[] }
   highlight?: string
   hidden?: boolean
   maxFrom?: string
@@ -60,6 +67,11 @@ export function sheetFields(template: CharacterTemplate, custom: CustomField[]):
       choices: field.choices,
       range: field.range,
       showWhen: field.showWhen,
+      showIf: field.showIf,
+      locked: field.locked,
+      overrideLabel: field.overrideLabel,
+      source: field.source,
+      note: field.note,
       highlight: field.highlight,
       hidden: field.hidden,
       maxFrom: field.maxFrom,
@@ -110,7 +122,7 @@ export function sectionStarted(fieldsOfSection: SheetField[], values: Record<str
   return fieldsOfSection.some(
     (field) =>
       !isEmptyValue(field.type, values[field.id]?.value) ||
-      (field.derived !== undefined && field.type === "toggle" && (derived[field.id] ?? 0) > 0)
+      (field.derived !== undefined && (field.type === "toggle" || field.type === "choice") && (derived[field.id] ?? 0) > 0)
   )
 }
 
@@ -121,6 +133,7 @@ export function isShown(
   values: Record<string, StoredValue>,
   derived: Derived
 ) {
+  if (field.showIf && !conditionsHold(field.showIf, byId, derived)) return false
   const waitsFor = field.showWhen ? byId.get(field.showWhen) : undefined
   if (!waitsFor) return true
   return waitsFor.derived || waitsFor.type === "choice"

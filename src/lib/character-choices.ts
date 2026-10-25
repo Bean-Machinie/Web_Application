@@ -1,6 +1,6 @@
 import type { Derived } from "./character-derive"
 import type { SheetField } from "./character-sheet"
-import type { ChoiceOption } from "./character-templates/types"
+import type { ChoiceOption, Condition } from "./character-templates/types"
 
 // The options a choice field offers now. `chosenOf` says which option another choice field
 // has, for the fields whose options depend on one (a background's ability increases).
@@ -28,4 +28,14 @@ export function choiceState(
   const options = optionsFor(field, chosenOf)
   const number = derived[field.id]
   return { options, selected: number ? (options[number - 1] ?? null) : null }
+}
+
+// Whether every condition holds: each names a choice field and the option (or any of the
+// options) it must have.
+export function conditionsHold(conditions: Condition[], byId: Map<string, SheetField>, derived: Derived) {
+  return conditions.every((condition) => {
+    const field = byId.get(condition.field)
+    const chosen = field ? choiceState(field, byId, derived).selected?.id : undefined
+    return chosen !== undefined && [condition.is].flat().includes(chosen)
+  })
 }

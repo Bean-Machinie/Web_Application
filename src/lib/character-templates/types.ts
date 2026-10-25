@@ -3,6 +3,9 @@ import type { Formula } from "./formulas"
 // The types the database knows, which a player can add to any sheet.
 export type CharacterFieldType = "stat" | "resource" | "track" | "list" | "text" | "toggle" | "line"
 
+// True while the choice field has one of these options.
+export type Condition = { field: string; is: string | string[] }
+
 // What a template's own fields can also be. These are never in the database's enum: a
 // field of the player's is always one of CharacterFieldType.
 // - choice: the id of one option from a list the template declares.
@@ -30,7 +33,7 @@ export type TemplateSection = {
   id: string
   tab: string
   label: string
-  layout?: "list" | "grid"
+  layout?: "list" | "grid" | "abilities"
   // A grid's tiles across; for a list, how many columns of rows. More than one makes the
   // section as wide as the tab.
   columns?: number
@@ -42,7 +45,7 @@ export type TemplateSection = {
   // Nothing shows while the field has none.
   caption?: { field: string; text: string }
   // A button in the heading that opens a helper of its own.
-  helper?: "ability-scores"
+  helper?: "ability-scores" | "background-increase"
 }
 
 // A field the template itself has. Its id is code, never changed or reused: values are
@@ -74,6 +77,16 @@ export type TemplateField = {
   range?: [number, number]
   // The field is only shown while this one has a value.
   showWhen?: string
+  // The field is only shown while all of these hold.
+  showIf?: Condition[]
+  // A derived field the sheet fixes (the origin feat a background gives): shown as plain
+  // text, with `source` the choice it comes from. Unless `overrideLabel` is set it cannot be
+  // changed; with it, the field's menu offers that, and the field then shows as edited.
+  locked?: boolean
+  overrideLabel?: string
+  source?: string
+  // A short note beside the label while all of these hold, like "from Human".
+  note?: { text: string; when: Condition[] }
   // Marks the field out when this field is above 0, like a skill the class offers.
   highlight?: string
   // Only there for other fields to read, like a maximum shown in a resource's own control.

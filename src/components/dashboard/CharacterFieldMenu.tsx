@@ -1,4 +1,4 @@
-import { Pin, PinOff, SquareMinus, SquarePlus } from "lucide-react"
+import { Pencil, Pin, PinOff, SquareMinus, SquarePlus } from "lucide-react"
 import { HoverIcon } from "@/components/icons/HoverIcon"
 import { EllipsisIcon } from "@/components/icons/EllipsisIcon"
 import { Trash2Icon } from "@/components/icons/Trash2Icon"
@@ -22,18 +22,20 @@ type Props = {
   // A track's number of boxes, changed here and not on the track itself.
   onLength: (length: number) => void
   onRemove: () => void
+  // Changes a fixed field (a house rule), for the fields the template allows it on.
+  unlock?: { label: string; run: () => void }
   className?: string
 }
 
 // What can be done to a field: show it in the header (numbers, boxes and toggles), add or
 // take away a box of a track the player made, and, for a field the player added, remove
 // it.
-export function CharacterFieldMenu({ field, pinned, onPin, onLength, onRemove, className }: Props) {
+export function CharacterFieldMenu({ field, pinned, onPin, onLength, onRemove, unlock, className }: Props) {
   const pinnable =
     !field.derived &&
     (field.type === "stat" || field.type === "resource" || field.type === "track" || field.type === "toggle")
   const sizable = field.type === "track" && field.custom
-  if (!pinnable && !field.custom) return null
+  if (!pinnable && !field.custom && !unlock) return null
 
   const length = trackLength(field)
 
@@ -49,11 +51,17 @@ export function CharacterFieldMenu({ field, pinned, onPin, onLength, onRemove, c
           <HoverIcon icon={EllipsisIcon} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-56">
         {pinnable && (
           <DropdownMenuItem onSelect={() => onPin(!pinned)}>
             {pinned ? <PinOff /> : <Pin />}
             {pinned ? "Remove from header" : "Show in header"}
+          </DropdownMenuItem>
+        )}
+        {unlock && (
+          <DropdownMenuItem onSelect={unlock.run}>
+            <Pencil />
+            {unlock.label}
           </DropdownMenuItem>
         )}
         {sizable && (

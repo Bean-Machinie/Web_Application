@@ -15,6 +15,9 @@ type Props = {
   secondary?: ReactNode
   // Marked out, like a skill the class offers.
   highlighted?: boolean
+  // A short note beside the name, like "from Human".
+  note?: string | null
+  unlock?: { label: string; run: () => void }
   onLabel: (label: string) => void
   onPin: (pinned: boolean) => void
   onLength: (length: number) => void
@@ -31,7 +34,7 @@ const LABEL = {
   narrow: "w-28 shrink-0",
 }
 
-export function CharacterFieldRow({ field, pinned, fresh, size, secondary, highlighted, onLabel, onPin, onLength, onRemove, children }: Props) {
+export function CharacterFieldRow({ field, pinned, fresh, size, secondary, highlighted, note, unlock, onLabel, onPin, onLength, onRemove, children }: Props) {
   const compact = size === "compact"
 
   // Attacks are a table that takes the whole row, with no name beside it.
@@ -47,12 +50,13 @@ export function CharacterFieldRow({ field, pinned, fresh, size, secondary, highl
             {highlighted && <span className="bg-primary mr-1.5 inline-block size-1.5 rounded-full align-middle" title="Class skill option" />}
             {field.label}
             {field.hint && <span className="ml-1.5 text-xs opacity-70">{field.hint}</span>}
+            {note && <span className="ml-1.5 text-xs opacity-70">{note}</span>}
           </span>
         )}
       </dt>
       <dd className={compact ? "shrink-0" : "min-w-0 flex-1"}>{children}</dd>
       {secondary && <div className="shrink-0 text-right text-sm font-medium">{secondary}</div>}
-      <CharacterFieldMenu field={field} pinned={pinned} onPin={onPin} onLength={onLength} onRemove={onRemove} />
+      <CharacterFieldMenu field={field} pinned={pinned} onPin={onPin} onLength={onLength} onRemove={onRemove} unlock={unlock} />
     </div>
   )
 }

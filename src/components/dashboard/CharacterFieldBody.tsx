@@ -6,6 +6,7 @@ import { CharacterCalculatedResource } from "./CharacterCalculatedResource"
 import { CharacterChoiceValue } from "./CharacterChoiceValue"
 import { CharacterDerivedToggle } from "./CharacterDerivedToggle"
 import { CharacterDerivedValue } from "./CharacterDerivedValue"
+import { CharacterLockedChoice } from "./CharacterLockedChoice"
 import { CharacterFieldValue } from "./CharacterFieldValue"
 
 type Props = { field: SheetField; actions: SheetActions; tile?: boolean }
@@ -16,7 +17,13 @@ type Props = { field: SheetField; actions: SheetActions; tile?: boolean }
 export function CharacterFieldBody({ field, actions, tile }: Props) {
   const reset = () => actions.onValue(field.id, null)
 
-  if (field.type === "choice") return <CharacterChoiceValue field={field} actions={actions} />
+  if (field.type === "choice") {
+    return field.locked && !isEdited(field, actions.values) ? (
+      <CharacterLockedChoice field={field} actions={actions} />
+    ) : (
+      <CharacterChoiceValue field={field} actions={actions} />
+    )
+  }
   if (field.type === "attacks") return <CharacterAttacksValue field={field} actions={actions} />
   if (field.maxFrom) return <CharacterCalculatedResource field={field} actions={actions} />
 

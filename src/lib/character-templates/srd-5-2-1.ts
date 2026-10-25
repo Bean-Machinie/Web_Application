@@ -58,6 +58,8 @@ export type SrdClass = {
   hitDie: number
   // Core Traits table, Saving Throw Proficiencies.
   saves: [AbilityId, AbilityId]
+  // Core Traits table, Primary Ability: one, two, or one of two (Fighter).
+  primary: AbilityId[]
   // Core Traits table, Skill Proficiencies: how many to choose, from which. No list: any.
   skillCount: number
   skills?: string[]
@@ -68,29 +70,36 @@ export type SrdClass = {
 }
 
 export const CLASSES: SrdClass[] = [
-  { id: "barbarian", label: "Barbarian", hitDie: 12, saves: ["str", "con"], skillCount: 2, skills: ["animal-handling", "athletics", "intimidation", "nature", "perception", "survival"], spellAbility: null, page: 28 },
-  { id: "bard", label: "Bard", hitDie: 8, saves: ["dex", "cha"], skillCount: 3, spellAbility: "cha", page: 31 },
-  { id: "cleric", label: "Cleric", hitDie: 8, saves: ["wis", "cha"], skillCount: 2, skills: ["history", "insight", "medicine", "persuasion", "religion"], spellAbility: "wis", page: 36 },
-  { id: "druid", label: "Druid", hitDie: 8, saves: ["int", "wis"], skillCount: 2, skills: ["animal-handling", "arcana", "insight", "medicine", "nature", "perception", "religion", "survival"], spellAbility: "wis", page: 41 },
-  { id: "fighter", label: "Fighter", hitDie: 10, saves: ["str", "con"], skillCount: 2, skills: ["acrobatics", "animal-handling", "athletics", "history", "insight", "intimidation", "persuasion", "perception", "survival"], spellAbility: null, page: 47 },
-  { id: "monk", label: "Monk", hitDie: 8, saves: ["str", "dex"], skillCount: 2, skills: ["acrobatics", "athletics", "history", "insight", "religion", "stealth"], spellAbility: null, page: 49 },
-  { id: "paladin", label: "Paladin", hitDie: 10, saves: ["wis", "cha"], skillCount: 2, skills: ["athletics", "insight", "intimidation", "medicine", "persuasion", "religion"], spellAbility: "cha", page: 53 },
-  { id: "ranger", label: "Ranger", hitDie: 10, saves: ["str", "dex"], skillCount: 3, skills: ["animal-handling", "athletics", "insight", "investigation", "nature", "perception", "stealth", "survival"], spellAbility: "wis", page: 57 },
-  { id: "rogue", label: "Rogue", hitDie: 8, saves: ["dex", "int"], skillCount: 4, skills: ["acrobatics", "athletics", "deception", "insight", "intimidation", "investigation", "perception", "persuasion", "sleight-of-hand", "stealth"], spellAbility: null, page: 61 },
-  { id: "sorcerer", label: "Sorcerer", hitDie: 6, saves: ["con", "cha"], skillCount: 2, skills: ["arcana", "deception", "insight", "intimidation", "persuasion", "religion"], spellAbility: "cha", page: 64 },
-  { id: "warlock", label: "Warlock", hitDie: 8, saves: ["wis", "cha"], skillCount: 2, skills: ["arcana", "deception", "history", "intimidation", "investigation", "nature", "religion"], spellAbility: "cha", page: 70 },
-  { id: "wizard", label: "Wizard", hitDie: 6, saves: ["int", "wis"], skillCount: 2, skills: ["arcana", "history", "insight", "investigation", "medicine", "nature", "religion"], spellAbility: "int", page: 77 },
+  { id: "barbarian", label: "Barbarian", hitDie: 12, saves: ["str", "con"], primary: ["str"], skillCount: 2, skills: ["animal-handling", "athletics", "intimidation", "nature", "perception", "survival"], spellAbility: null, page: 28 },
+  { id: "bard", label: "Bard", hitDie: 8, saves: ["dex", "cha"], primary: ["cha"], skillCount: 3, spellAbility: "cha", page: 31 },
+  { id: "cleric", label: "Cleric", hitDie: 8, saves: ["wis", "cha"], primary: ["wis"], skillCount: 2, skills: ["history", "insight", "medicine", "persuasion", "religion"], spellAbility: "wis", page: 36 },
+  { id: "druid", label: "Druid", hitDie: 8, saves: ["int", "wis"], primary: ["wis"], skillCount: 2, skills: ["animal-handling", "arcana", "insight", "medicine", "nature", "perception", "religion", "survival"], spellAbility: "wis", page: 41 },
+  { id: "fighter", label: "Fighter", hitDie: 10, saves: ["str", "con"], primary: ["str", "dex"], skillCount: 2, skills: ["acrobatics", "animal-handling", "athletics", "history", "insight", "intimidation", "persuasion", "perception", "survival"], spellAbility: null, page: 47 },
+  { id: "monk", label: "Monk", hitDie: 8, saves: ["str", "dex"], primary: ["dex", "wis"], skillCount: 2, skills: ["acrobatics", "athletics", "history", "insight", "religion", "stealth"], spellAbility: null, page: 49 },
+  { id: "paladin", label: "Paladin", hitDie: 10, saves: ["wis", "cha"], primary: ["str", "cha"], skillCount: 2, skills: ["athletics", "insight", "intimidation", "medicine", "persuasion", "religion"], spellAbility: "cha", page: 53 },
+  { id: "ranger", label: "Ranger", hitDie: 10, saves: ["str", "dex"], primary: ["dex", "wis"], skillCount: 3, skills: ["animal-handling", "athletics", "insight", "investigation", "nature", "perception", "stealth", "survival"], spellAbility: "wis", page: 57 },
+  { id: "rogue", label: "Rogue", hitDie: 8, saves: ["dex", "int"], primary: ["dex"], skillCount: 4, skills: ["acrobatics", "athletics", "deception", "insight", "intimidation", "investigation", "perception", "persuasion", "sleight-of-hand", "stealth"], spellAbility: null, page: 61 },
+  { id: "sorcerer", label: "Sorcerer", hitDie: 6, saves: ["con", "cha"], primary: ["cha"], skillCount: 2, skills: ["arcana", "deception", "insight", "intimidation", "persuasion", "religion"], spellAbility: "cha", page: 64 },
+  { id: "warlock", label: "Warlock", hitDie: 8, saves: ["wis", "cha"], primary: ["cha"], skillCount: 2, skills: ["arcana", "deception", "history", "intimidation", "investigation", "nature", "religion"], spellAbility: "cha", page: 70 },
+  { id: "wizard", label: "Wizard", hitDie: 6, saves: ["int", "wis"], primary: ["int"], skillCount: 2, skills: ["arcana", "history", "insight", "investigation", "medicine", "nature", "religion"], spellAbility: "int", page: 77 },
 ]
 
-// p. 83 (Background Descriptions): the three abilities it lists, its Origin feat and its
-// two skills.
-export type SrdBackground = { id: string; label: string; abilities: [AbilityId, AbilityId, AbilityId]; feat: string; skills: [string, string] }
+// p. 83 (Background Descriptions): the three abilities it lists, its Origin feat, its two
+// skills and its tool proficiency (the Soldier's is a Gaming Set of the player's choice).
+export type SrdBackground = {
+  id: string
+  label: string
+  abilities: [AbilityId, AbilityId, AbilityId]
+  feat: string
+  tool: string
+  skills: [string, string]
+}
 
 export const BACKGROUNDS: SrdBackground[] = [
-  { id: "acolyte", label: "Acolyte", abilities: ["int", "wis", "cha"], feat: "Magic Initiate (Cleric)", skills: ["insight", "religion"] },
-  { id: "criminal", label: "Criminal", abilities: ["dex", "con", "int"], feat: "Alert", skills: ["sleight-of-hand", "stealth"] },
-  { id: "sage", label: "Sage", abilities: ["con", "int", "wis"], feat: "Magic Initiate (Wizard)", skills: ["arcana", "history"] },
-  { id: "soldier", label: "Soldier", abilities: ["str", "dex", "con"], feat: "Savage Attacker", skills: ["athletics", "intimidation"] },
+  { id: "acolyte", label: "Acolyte", abilities: ["int", "wis", "cha"], feat: "Magic Initiate (Cleric)", tool: "Calligrapher’s Supplies", skills: ["insight", "religion"] },
+  { id: "criminal", label: "Criminal", abilities: ["dex", "con", "int"], feat: "Alert", tool: "Thieves’ Tools", skills: ["sleight-of-hand", "stealth"] },
+  { id: "sage", label: "Sage", abilities: ["con", "int", "wis"], feat: "Magic Initiate (Wizard)", tool: "Calligrapher’s Supplies", skills: ["arcana", "history"] },
+  { id: "soldier", label: "Soldier", abilities: ["str", "dex", "con"], feat: "Savage Attacker", tool: "Gaming Set (one kind)", skills: ["athletics", "intimidation"] },
 ]
 
 export type SizeId = "tiny" | "small" | "medium" | "large" | "huge" | "gargantuan"
@@ -141,3 +150,32 @@ export const COINS: [string, string, string][] = [
   ["gp", "Gold", "GP"],
   ["pp", "Platinum", "PP"],
 ]
+
+// p. 83 (Background Descriptions, Tool Proficiency).
+export const TOOLS = ["Calligrapher’s Supplies", "Thieves’ Tools", "Gaming Set (one kind)"]
+
+// p. 21 (Standard Array by Class): where the class suggests putting the Standard Array.
+export const STANDARD_ARRAY_BY_CLASS: Record<string, Record<AbilityId, number>> = {
+  barbarian: { str: 15, dex: 13, con: 14, int: 10, wis: 12, cha: 8 },
+  bard: { str: 8, dex: 14, con: 12, int: 13, wis: 10, cha: 15 },
+  cleric: { str: 14, dex: 8, con: 13, int: 10, wis: 15, cha: 12 },
+  druid: { str: 8, dex: 12, con: 14, int: 13, wis: 15, cha: 10 },
+  fighter: { str: 15, dex: 14, con: 13, int: 8, wis: 10, cha: 12 },
+  monk: { str: 12, dex: 15, con: 13, int: 10, wis: 14, cha: 8 },
+  paladin: { str: 15, dex: 10, con: 13, int: 8, wis: 12, cha: 14 },
+  ranger: { str: 12, dex: 15, con: 13, int: 8, wis: 14, cha: 10 },
+  rogue: { str: 12, dex: 15, con: 13, int: 14, wis: 10, cha: 8 },
+  sorcerer: { str: 10, dex: 13, con: 14, int: 8, wis: 12, cha: 15 },
+  warlock: { str: 8, dex: 14, con: 13, int: 12, wis: 10, cha: 15 },
+  wizard: { str: 8, dex: 12, con: 13, int: 15, wis: 14, cha: 10 },
+}
+
+// p. 86 (Human): Skillful gives proficiency in one skill of your choice, and Versatile an
+// Origin feat of your choice, Skilled recommended.
+export const HUMAN = "human"
+export const RECOMMENDED_FEAT = "Skilled"
+
+// p. 87 (Magic Initiate): the feat is taken for the Cleric, Druid or Wizard list, and
+// Intelligence, Wisdom or Charisma is chosen as its spellcasting ability.
+export const MAGIC_INITIATE_FEATS = ["Magic Initiate (Cleric)", "Magic Initiate (Druid)", "Magic Initiate (Wizard)"]
+export const MAGIC_INITIATE_ABILITIES: AbilityId[] = ["int", "wis", "cha"]
