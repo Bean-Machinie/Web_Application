@@ -28,7 +28,7 @@ export function BuilderSpeciesStep({ actions }: BuilderProps) {
 
   return (
     <BuilderLayout
-      heading={`${SPECIES.length} species`}
+      heading="Species"
       options={SPECIES.map((option) => ({
         id: option.id,
         name: option.label,

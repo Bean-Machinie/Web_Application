@@ -48,7 +48,7 @@ export function BuilderBackgroundStep({ actions }: BuilderProps) {
 
   return (
     <BuilderLayout
-      heading={`${BACKGROUNDS.length} backgrounds`}
+      heading="Backgrounds"
       options={BACKGROUNDS.map((option) => ({
         id: option.id,
         name: option.label,

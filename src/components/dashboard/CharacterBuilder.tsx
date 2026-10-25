@@ -1,21 +1,26 @@
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { useAuth } from "@/auth/useAuth"
-import { Button } from "@/components/ui/button"
 import type { useCharacter } from "@/hooks/use-character"
 import { BUILDER_STEPS, builderProgress, stillToChoose } from "@/lib/character-builder"
 import { characterPath } from "@/lib/characters"
+import { cn } from "@/lib/utils"
 import type { Character } from "@/lib/characters"
+import { BuilderActionBar } from "./BuilderActionBar"
 import { BuilderAbilitiesStep } from "./BuilderAbilitiesStep"
 import { BuilderBackgroundStep } from "./BuilderBackgroundStep"
 import { BuilderChoicesStep } from "./BuilderChoicesStep"
 import { BuilderClassStep } from "./BuilderClassStep"
 import { BuilderDetailsStep } from "./BuilderDetailsStep"
 import { BuilderEquipmentStep } from "./BuilderEquipmentStep"
+import { BuilderHeader } from "./BuilderHeader"
 import { BuilderPanel } from "./BuilderPanel"
 import { BuilderSpeciesStep } from "./BuilderSpeciesStep"
 import { BuilderStepper } from "./BuilderStepper"
-import { SaveIndicator } from "./SaveIndicator"
+import { BUILDER_SCROLL } from "./builder-scroll"
 import { sheetActions } from "./sheet-actions"
+
+// The steps that are a list beside a detail; the others are one column of content.
+const LIST_STEPS = ["class", "background", "species"]
 
 type Props = { sheet: ReturnType<typeof useCharacter>; character: Character }
 
@@ -47,28 +52,24 @@ export function CharacterBuilder({ sheet, character }: Props) {
   }[step.id]
 
   return (
-    <div className="mx-auto flex w-[1376px] max-w-full flex-col gap-5">
-      <header className="flex justify-end">
-        <div className="flex items-center gap-3">
-          <SaveIndicator state={sheet.saveState} />
-          <Button variant="outline" onClick={() => navigate("/app/library?section=characters")}>Save and exit</Button>
+    <div className="-m-4 flex h-[calc(100svh-var(--header-height))] flex-col md:-m-6">
+      <div className="mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col px-8">
+        <BuilderHeader sheet={sheet} character={character} />
+        <div className="shrink-0 border-b pt-6 pb-7">
+          <BuilderStepper step={step.id} progress={progress} onStep={go} />
         </div>
-      </header>
-      <BuilderStepper step={step.id} progress={progress} onStep={go} />
-      {sheet.error && <p className="text-destructive text-sm">{sheet.error}</p>}
-      <div className="flex flex-wrap items-start gap-6">
-        <div className="flex min-w-0 flex-[999_1_720px] flex-col">{body}</div>
-        <BuilderPanel actions={actions} character={character} step={step.id} left={stillToChoose(state)} />
+        <div className={cn("flex min-h-0 flex-1 flex-col gap-6 pt-6 pb-6 min-[1100px]:flex-row", BUILDER_SCROLL, "min-[1100px]:overflow-visible")}>
+          {LIST_STEPS.includes(step.id) ? body : <div className={cn("min-w-0 flex-1 min-[1100px]:min-h-0", BUILDER_SCROLL)}>{body}</div>}
+          <BuilderPanel actions={actions} character={character} step={step.id} left={stillToChoose(state)} />
+        </div>
       </div>
-      <footer className="flex items-center justify-between border-t pt-4">
-        <Button variant="ghost" disabled={!previous} onClick={() => previous && go(previous.id)}>Back</Button>
-        <span className="text-muted-foreground text-sm">Step {index + 1} of {BUILDER_STEPS.length}</span>
-        {next ? (
-          <Button onClick={() => go(next.id)}>Continue to {next.label}</Button>
-        ) : (
-          <Button onClick={() => navigate(characterPath(character.id))}>Finish and open sheet</Button>
-        )}
-      </footer>
+      <BuilderActionBar
+        index={index}
+        total={BUILDER_STEPS.length}
+        nextLabel={next?.label}
+        onBack={previous && (() => go(previous.id))}
+        onNext={() => (next ? go(next.id) : navigate(characterPath(character.id)))}
+      />
     </div>
   )
 }

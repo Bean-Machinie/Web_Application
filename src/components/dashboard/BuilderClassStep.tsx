@@ -52,7 +52,7 @@ export function BuilderClassStep({ actions }: BuilderProps) {
 
   return (
     <BuilderLayout
-      heading={`${CLASSES.length} classes`}
+      heading="Classes"
       options={CLASSES.map((option) => ({
         id: option.id,
         name: option.label,

@@ -14,7 +14,7 @@ type Props = {
 // bottom where the SRD says so.
 export function BuilderDetail({ kind, title, intro, source, children }: Props) {
   return (
-    <section className="flex flex-col gap-4 p-6">
+    <section className="flex flex-col gap-7 p-7">
       <div className="grid gap-1">
         <span className="text-muted-foreground text-xs">{kind}</span>
         <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>

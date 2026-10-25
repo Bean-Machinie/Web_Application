@@ -6,6 +6,7 @@ import { CLASS_BUILD } from "@/lib/character-templates/srd-5-2-1-classes"
 import { readAttacks, readStat } from "@/lib/character-values"
 import type { BuilderStep } from "@/lib/character-builder"
 import type { Character } from "@/lib/characters"
+import { BUILDER_SCROLL } from "./builder-scroll"
 import type { SheetActions } from "./character-actions"
 
 type Props = { actions: SheetActions; character: Character; step: BuilderStep; left: string[] }
@@ -59,7 +60,7 @@ export function BuilderPanel({ actions, character, step, left }: Props) {
   })
 
   return (
-    <aside aria-label="Your character" className="bg-card flex w-full shrink-0 flex-col gap-4 rounded-lg border p-5 shadow-xs lg:w-[300px]">
+    <aside aria-label="Your character" className={`bg-card flex w-full shrink-0 flex-col gap-4 rounded-lg border p-5 shadow-xs min-[1100px]:min-h-0 min-[1100px]:w-[320px] ${BUILDER_SCROLL}`}>
       <div className="flex items-center gap-3">
         <div className="bg-muted flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg">
           {character.portrait ? <img src={character.portrait.url} alt="" className="size-full object-cover" /> : <User className="text-muted-foreground size-5" />}
