@@ -10,14 +10,17 @@ import { characterBuildPath, characterPath } from "@/lib/characters"
 import type { Character } from "@/lib/characters"
 import { chosenLine, KIND_TEXT, optionsOf, QUICK_KINDS } from "@/lib/quick-options"
 import type { QuickKind } from "@/lib/quick-options"
-import { readRules, RULES_FIELD } from "@/lib/quick-state"
+import { APPROACH_FIELD, readRules, RULES_FIELD } from "@/lib/quick-state"
 import { applyQuickBuild } from "./quick-create"
+import { QuickApproach } from "./QuickApproach"
 import { QuickCard } from "./QuickCard"
+import { QuickIdentity } from "./QuickIdentity"
 import { QuickOptionSheet } from "./QuickOptionSheet"
 import { QuickPortrait } from "./QuickPortrait"
 import { QuickRulesDialog } from "./QuickRulesDialog"
 import { SaveIndicator } from "./SaveIndicator"
 import type { SheetActions } from "./character-actions"
+import { cn } from "@/lib/utils"
 
 type Props = {
   sheet: ReturnType<typeof useCharacter>
@@ -79,18 +82,27 @@ export function QuickStart({ sheet, character, actions, userId, onPick }: Props)
           {QUICK_KINDS.map((kind) => {
             const id = ids[kind]
             return (
-              <QuickCard
-                key={kind}
-                kind={kind}
-                chosen={optionsOf(kind).find((option) => option.id === id) ?? null}
-                line={id ? chosenLine(kind, id, rules.level) : KIND_TEXT[kind].question}
-                onOptions={() => onPick(kind)}
-                onView={() => setViewing(kind)}
-              />
+              <div key={kind} className={cn("flex flex-col gap-4", kind === "background" && "sm:col-span-2")}>
+                <QuickCard
+                  kind={kind}
+                  chosen={optionsOf(kind).find((option) => option.id === id) ?? null}
+                  line={id ? chosenLine(kind, id, rules.level) : KIND_TEXT[kind].question}
+                  onOptions={() => onPick(kind)}
+                  onView={() => setViewing(kind)}
+                  extra={kind === "species" && id ? <QuickIdentity key={id} speciesId={id} actions={actions} /> : undefined}
+                />
+                {kind === "class" && id && (
+                  <QuickApproach
+                    classId={id}
+                    chosen={(actions.values[APPROACH_FIELD]?.value as string | null | undefined) ?? null}
+                    onChoose={(approach) => actions.onValue(APPROACH_FIELD, approach)}
+                  />
+                )}
+              </div>
             )
           })}
         </div>
-        <QuickPortrait character={character} userId={userId} onName={(name) => void sheet.edit("name", name)} onPortrait={(portrait) => sheet.edit("portrait", portrait)} />
+        <QuickPortrait character={character} userId={userId} actions={actions} speciesId={ids.species ?? null} onName={(name) => void sheet.edit("name", name)} onPortrait={(portrait) => sheet.edit("portrait", portrait)} />
       </div>
       <QuickRulesDialog open={rulesOpen} rules={rules} onClose={() => setRulesOpen(false)} onChange={(next) => actions.onValue(RULES_FIELD, next)} />
       {QUICK_KINDS.map((kind) => (

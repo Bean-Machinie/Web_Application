@@ -9,6 +9,7 @@ const PICKS: { field: string; label: string; name: (id: string) => string }[] = 
   { field: "class-style", label: "Fighting Style", name: (id) => id },
   { field: "species-feat", label: "Versatile", name: (id) => id },
   { field: "class-masteries", label: "Weapon mastery", name: (id) => weaponById(id)?.label ?? id },
+  { field: "languages", label: "Languages", name: (id) => id },
   { field: "class-expertise", label: "Expertise", name: (id) => SKILLS.find(([other]) => other === id)?.[1] ?? id },
 ]
 

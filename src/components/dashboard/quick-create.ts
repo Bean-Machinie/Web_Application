@@ -1,7 +1,7 @@
 import type { useCharacter } from "@/hooks/use-character"
-import { origins } from "@/lib/character-grants"
+import { origins, picksOf } from "@/lib/character-grants"
 import { planQuickBuild } from "@/lib/quick-plan"
-import { readRules, SUGGESTED_FIELD } from "@/lib/quick-state"
+import { APPROACH_FIELD, readRules, SUGGESTED_FIELD } from "@/lib/quick-state"
 import type { SheetActions } from "./character-actions"
 import { applyKits } from "./character-kits"
 
@@ -10,7 +10,10 @@ import { applyKits } from "./character-kits"
 export function applyQuickBuild(actions: SheetActions, sheet: ReturnType<typeof useCharacter>) {
   const { cls, species, background } = origins(actions)
   if (!cls || !species || !background) return false
-  const plan = planQuickBuild(cls, species, background, readRules(actions.values))
+  const plan = planQuickBuild(cls, species, background, readRules(actions.values), {
+    approach: (actions.values[APPROACH_FIELD]?.value as string | null | undefined) ?? null,
+    languages: picksOf(actions, "languages"),
+  })
 
   for (const [field, value] of Object.entries(plan.values)) actions.onValue(field, value)
   // The scores are only stored now, so the kits' attacks read the modifiers they will have.

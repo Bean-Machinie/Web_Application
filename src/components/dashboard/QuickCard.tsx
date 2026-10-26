@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { ScrollText, Swords, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { KIND_TEXT } from "@/lib/quick-options"
@@ -14,19 +15,21 @@ type Props = {
   line: string
   onOptions: () => void
   onView: () => void
+  // The kind’s own quick choices, over the buttons once something is chosen.
+  extra?: ReactNode
 }
 
 // One of the three choices of the start page: a picture (or the kind's icon on a dark
 // surface) with the words on a soft fade at the bottom. Empty, it asks a question; chosen,
 // it names the option and offers Change and View.
-export function QuickCard({ kind, chosen, line, onOptions, onView }: Props) {
+export function QuickCard({ kind, chosen, line, onOptions, onView, extra }: Props) {
   const { noun, question } = KIND_TEXT[kind]
   const Icon = ICONS[kind]
 
   return (
     <article
       aria-label={noun}
-      className={cn("relative flex min-h-60 flex-col justify-end overflow-hidden rounded-xl border bg-neutral-900 text-white", kind === "background" && "min-h-52 sm:col-span-2")}
+      className={cn("relative flex min-h-60 flex-1 flex-col justify-end overflow-hidden rounded-xl border bg-neutral-900 text-white", kind === "background" && "min-h-52")}
     >
       {chosen?.image ? (
         <img src={chosen.image} alt="" className="absolute inset-0 size-full object-cover" />
@@ -38,6 +41,7 @@ export function QuickCard({ kind, chosen, line, onOptions, onView }: Props) {
           <h2 className={cn("font-semibold tracking-tight", chosen ? "text-2xl" : "text-lg")}>{chosen ? chosen.name : `Choose ${noun}`}</h2>
           <p className="text-sm text-white/70">{chosen ? line : question}</p>
         </div>
+        {chosen && extra}
         <div className="flex gap-2">
           {chosen ? (
             <>

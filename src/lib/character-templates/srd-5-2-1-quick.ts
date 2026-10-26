@@ -1,3 +1,5 @@
+import type { AbilityId } from "./srd-5-2-1"
+
 // Our own suggestions for the quick build, not SRD text. Each is a short order of
 // preference: the build takes the first ones the character does not already have.
 
@@ -27,3 +29,27 @@ export const ABILITY_METHODS: { id: AbilityMethod; label: string; note: string }
   { id: "point-buy", label: "Point buy", note: "The same scores, ready to adjust with 27 points." },
   { id: "own", label: "My own scores", note: "Rolled or agreed with your GM. Entered later." },
 ]
+
+// How a class fights, for the classes whose primary ability is a choice (p. 47: a Fighter's is
+// Strength or Dexterity). The others’ primary abilities are all required and they have one
+// kit, so they have no choice to offer. The first is the default. Kit and style are ids in
+// srd-5-2-1-kits.ts and srd-5-2-1-feats.ts.
+export type Approach = { id: string; label: string; line: string; ability: AbilityId; kit: string; style: string }
+
+export const APPROACHES: Record<string, Approach[]> = {
+  fighter: [
+    { id: "strength", label: "Up close", line: "Strength, heavy armor, big weapons", ability: "str", kit: "fighter-a", style: "Defense" },
+    { id: "dexterity", label: "Agile", line: "Dexterity, light armor, bows and finesse", ability: "dex", kit: "fighter-b", style: "Archery" },
+  ],
+}
+
+// p. 20 (Standard Languages): the language each species is tied to, where the table names one.
+export const SPECIES_LANGUAGES: Record<string, string[]> = {
+  dragonborn: ["Draconic"],
+  dwarf: ["Dwarvish"],
+  elf: ["Elvish"],
+  gnome: ["Gnomish"],
+  goliath: ["Giant"],
+  halfling: ["Halfling"],
+  orc: ["Orc"],
+}
