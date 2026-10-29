@@ -82,7 +82,7 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
           {sheet.error && <p className="text-destructive border-b px-4 py-2 text-sm">{sheet.error}</p>}
           <div className="flex min-h-0 flex-1">
             {!compact && <QuickToolStrip open={build.open} ready={ready} account={<MapAccount expanded={false} beforeLeave={async () => true} />} onShow={build.show} />}
-            <main className="min-w-0 flex-1 overflow-y-auto [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]">
+            <main className="min-w-0 flex-1 overflow-y-auto [scrollbar-color:var(--border)_transparent] [scrollbar-gutter:stable_both-edges] [scrollbar-width:thin]">
               <div className="mx-auto flex max-w-4xl flex-col gap-6 p-4 min-[1000px]:p-8">
                 <QuickSentence slots={build.slots} openId={build.open?.id ?? null} onToggle={build.toggle} />
                 {compact && card}
