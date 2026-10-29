@@ -28,6 +28,12 @@ type Props = {
 export function QuickCardIdentity({ character, userId, iconKind, speciesId, line, lineChanged, onName, onPortrait }: Props) {
   const [name, setName] = useState(character.name === UNTITLED_CHARACTER ? "" : character.name)
   const Icon = SLOT_ICONS[iconKind]
+  // A rename made in the top bar shows in this field too.
+  const [seen, setSeen] = useState(character.name)
+  if (seen !== character.name) {
+    setSeen(character.name)
+    setName(character.name === UNTITLED_CHARACTER ? "" : character.name)
+  }
 
   function save(next = name) {
     const trimmed = next.trim()

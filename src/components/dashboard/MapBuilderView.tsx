@@ -5,6 +5,7 @@ import { useWideScreen } from "@/hooks/use-wide-screen"
 import { useWorldEntry } from "@/hooks/use-world-entry"
 import { useWorldFields } from "@/hooks/use-world-fields"
 import { errorMessage } from "@/lib/campaigns"
+import { renameWorldEntry } from "@/lib/world-entries"
 import { toWorldImage } from "@/lib/world-images"
 import { COVER_FIELD } from "@/lib/world-kinds"
 import { fetchMapScene } from "@/lib/world-map-scenes"
@@ -19,7 +20,7 @@ import { useWorldScope } from "./useWorldScope"
 // else lands back on the entry. Render with key={entryId}.
 export function MapBuilderView({ entryId }: { entryId: string }) {
   const { canManage, basePath, imageFolder } = useWorldScope()
-  const { entry, error } = useWorldEntry(entryId)
+  const { entry, error, reload } = useWorldEntry(entryId)
   const state = useWorldFields(entryId, entry?.kind)
   const [loaded, setLoaded] = useState<LoadedScene | null | undefined>(undefined)
   const [sceneError, setSceneError] = useState<string | null>(null)
@@ -54,6 +55,15 @@ export function MapBuilderView({ entryId }: { entryId: string }) {
           folder={imageFolder}
           mapId={entryId}
           name={entry!.name}
+          onRename={async (name) => {
+            try {
+              await renameWorldEntry(entryId, name)
+              await reload()
+              return true
+            } catch {
+              return false
+            }
+          }}
           loaded={loaded}
           image={toWorldImage(state.fields[COVER_FIELD]?.value)}
           onSaveImage={(value) => state.saveNow(COVER_FIELD, "image", value)}

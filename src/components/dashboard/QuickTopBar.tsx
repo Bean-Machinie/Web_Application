@@ -8,10 +8,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { SaveState } from "@/hooks/use-character"
 import { characterBuildPath } from "@/lib/characters"
+import { EditableTitle } from "./EditableTitle"
 import { SaveIndicator } from "./SaveIndicator"
 
 type Props = {
+  // The saved name; empty while the character is untitled.
   name: string
+  onRename: (name: string) => Promise<boolean>
   characterId: string
   saveState: SaveState
   ready: boolean
@@ -23,13 +26,13 @@ type Props = {
 
 // Like the map builder's bar: back, the character's name, and at the far end the draft's
 // state, a menu for Customize and the table rules, and the one thing to do, Create character.
-export function QuickTopBar({ name, characterId, saveState, ready, creating, onBack, onRules, onCreate }: Props) {
+export function QuickTopBar({ name, onRename, characterId, saveState, ready, creating, onBack, onRules, onCreate }: Props) {
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b px-3">
       <Button variant="ghost" size="icon" aria-label="Back" onClick={onBack}>
         <ArrowLeft />
       </Button>
-      <h1 className="min-w-0 truncate font-medium">{name}</h1>
+      <EditableTitle value={name} placeholder="New character" label="Character name" maxLength={60} onSave={onRename} />
       <div className="ml-auto flex items-center gap-4">
         <SaveIndicator state={saveState} />
         <DropdownMenu>

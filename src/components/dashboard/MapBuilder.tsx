@@ -36,6 +36,7 @@ type Props = {
   folder: string
   mapId: string
   name: string
+  onRename: (name: string) => Promise<boolean>
   loaded: LoadedScene
   // The map's current image, which publishing replaces.
   image: WorldImage | null
@@ -47,7 +48,7 @@ type Props = {
 // the right. Publishing renders the canvas and hands the picture to
 // the same upload an image picked by hand goes through, so the rest of the app
 // cannot tell, and then opens the map.
-export function MapBuilder({ folder, mapId, name, loaded, image, onSaveImage }: Props) {
+export function MapBuilder({ folder, mapId, name, onRename, loaded, image, onSaveImage }: Props) {
   const history = useSceneHistory(loaded.scene)
   const { scene } = history
   const landStyle = useMapStyle(scene, history.change)
@@ -121,6 +122,7 @@ export function MapBuilder({ folder, mapId, name, loaded, image, onSaveImage }: 
     <div className="bg-background fixed inset-0 z-50 flex flex-col">
       <MapBuilderTopBar
         name={name}
+        onRename={onRename}
         store={autosave.store}
         publishing={publishing}
         canUndo={(history.canUndo || tools.placement.canUndo) && !publishing}

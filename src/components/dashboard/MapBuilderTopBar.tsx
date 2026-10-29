@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useShortcutKeys } from "@/hooks/use-shortcut-keys"
 import type { SaveStore } from "@/lib/scene-save-store"
+import { EditableTitle } from "./EditableTitle"
 import { MapSaveStatus } from "./MapSaveStatus"
 
 type Props = {
   name: string
+  onRename: (name: string) => Promise<boolean>
   // The draft's saving, which the status shows by itself.
   store: SaveStore
   publishing: boolean
@@ -28,7 +30,7 @@ export function MapBuilderTopBar(props: Props) {
       <Button variant="ghost" size="icon" aria-label="Back to the map" onClick={props.onBack}>
         <ArrowLeft />
       </Button>
-      <h1 className="min-w-0 truncate font-medium">{props.name}</h1>
+      <EditableTitle value={props.name} placeholder="Untitled map" label="Map name" onSave={props.onRename} />
       <div className="flex items-center">
         <Tooltip>
           <TooltipTrigger asChild>

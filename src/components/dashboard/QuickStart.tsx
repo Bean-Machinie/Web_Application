@@ -69,7 +69,8 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
       <LayoutGroup>
         <div className="bg-background fixed inset-0 z-50 flex flex-col">
           <QuickTopBar
-            name={character.name === UNTITLED_CHARACTER ? "New character" : character.name}
+            name={character.name === UNTITLED_CHARACTER ? "" : character.name}
+            onRename={(name) => sheet.edit("name", name)}
             characterId={character.id}
             saveState={sheet.saveState}
             ready={ready}
