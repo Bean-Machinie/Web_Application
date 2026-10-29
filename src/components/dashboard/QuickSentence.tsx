@@ -1,42 +1,47 @@
-import { chosenName } from "@/lib/quick-slots"
+import { useCallback, useEffect, useState } from "react"
+import { motion, useReducedMotion } from "motion/react"
+import { sentenceOf } from "@/lib/quick-sentence"
 import type { Slot } from "@/lib/quick-slots"
-import { QuickSlotButton } from "./QuickSlotButton"
+import type { QuickView } from "@/lib/quick-view"
+import { QuickTypedWord } from "./QuickTypedWord"
 
-type Props = { slots: Slot[]; openId: string | null; onToggle: (slot: string) => void }
+type Props = { slots: Slot[]; view: QuickView; openId: string | null; onToggle: (slot: string) => void }
 
-const article = (word: string) => (/^[aeiou]/i.test(word) ? "an" : "a")
-
-// A size reads as an adjective, so in lower case.
-const wordOf = (slot: Slot) => {
-  const name = chosenName(slot)
-  return name && slot.kind === "size" ? name.toLowerCase() : name
-}
-
-// The words before a slot: "I’m a", "who fights", "who was a", ", and I speak". A comma sticks
-// to the word before it.
-function lead(slot: Slot, index: number, slots: Slot[]) {
-  if (index === 0) return `I’m ${article(wordOf(slot) ?? slot.placeholder)}`
-  if (slot.kind === "approach") return "who fights"
-  if (slot.kind === "background") return `${slots.some((other) => other.kind === "approach") ? "and" : "who"} was ${article(wordOf(slot) ?? slot.placeholder)}`
-  if (slot.id === "language-0") return ", and I speak"
-  return slot.kind === "language" ? "and" : null
-}
-
-// "I’m a [species] [class] who was a [background]." Each word opens the picker of its options.
-export function QuickSentence({ slots, openId, onToggle }: Props) {
+// The place of the next choice: a blinking bar, and a small prompt after it in the UI font.
+function Caret({ lead, prompt, onClick }: { lead: string; prompt: string; onClick: () => void }) {
+  const reduced = useReducedMotion()
   return (
-    <h2 className="text-muted-foreground font-serif text-3xl/[1.7] font-normal tracking-tight italic min-[1280px]:text-4xl/[1.65]">
-      {slots.map((slot, index) => {
-        const before = lead(slot, index, slots)
-        return (
-          <span key={slot.id}>
-            {index > 0 && !before?.startsWith(",") && " "}
-            {before && `${before} `}
-            <QuickSlotButton word={wordOf(slot)} placeholder={slot.placeholder} chosenId={slot.chosen} slotId={slot.id} open={openId === slot.id} onClick={() => onToggle(slot.id)} />
-          </span>
-        )
+    <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+      <span>{lead}</span>
+      <motion.span
+        aria-hidden
+        animate={reduced ? undefined : { opacity: [1, 1, 0, 0] }}
+        transition={{ duration: 1, times: [0, 0.5, 0.5, 1], repeat: Infinity, ease: "linear" }}
+        className="bg-foreground -mb-[0.1em] inline-block h-[1em] w-0.5 align-baseline"
+      />
+      <button type="button" onClick={onClick} className="text-muted-foreground hover:text-foreground focus-visible:ring-ring ml-2 rounded-sm align-middle font-sans text-sm font-normal tracking-normal outline-none focus-visible:ring-2">
+        {prompt}
+      </button>
+    </motion.span>
+  )
+}
+
+// "I’m a small Human Fighter, once a Soldier." written as it is chosen: only what has been
+// chosen, then a caret where the next choice goes. A chosen word opens its choice again.
+export function QuickSentence({ slots, view, openId, onToggle }: Props) {
+  const [live, setLive] = useState(false)
+  const [busy, setBusy] = useState(0)
+  const onBusy = useCallback((delta: number) => setBusy((count) => count + delta), [])
+  // The words the page opens with are not typed; those chosen after are.
+  useEffect(() => setLive(true), [])
+
+  return (
+    <h2 className="text-muted-foreground font-serif text-3xl/[1.6] font-normal tracking-tight">
+      {sentenceOf(slots, view).map((part) => {
+        if (part.type === "text") return <span key={part.key}>{part.text}</span>
+        if (part.type === "caret") return busy === 0 && <Caret key={part.key} lead={part.lead} prompt={part.prompt} onClick={() => onToggle(part.slot)} />
+        return <QuickTypedWord key={part.key} part={part} animate={live} open={openId === part.slot} onBusy={onBusy} onClick={() => onToggle(part.slot)} />
       })}
-      <span aria-hidden>.</span>
     </h2>
   )
 }
