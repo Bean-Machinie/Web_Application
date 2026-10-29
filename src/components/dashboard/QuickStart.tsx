@@ -1,113 +1,88 @@
 import { useEffect, useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { HoverIcon } from "@/components/icons/HoverIcon"
-import { SettingsIcon } from "@/components/icons/SettingsIcon"
-import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useLocation, useNavigate } from "react-router-dom"
+import { LayoutGroup, MotionConfig } from "motion/react"
 import type { useCharacter } from "@/hooks/use-character"
-import { origins } from "@/lib/character-grants"
-import { characterBuildPath, characterPath } from "@/lib/characters"
+import { useQuickBuild } from "@/hooks/use-quick-build"
+import { characterPath } from "@/lib/characters"
 import type { Character } from "@/lib/characters"
-import { chosenLine, KIND_TEXT, optionsOf, QUICK_KINDS } from "@/lib/quick-options"
-import type { QuickKind } from "@/lib/quick-options"
-import { APPROACH_FIELD, readRules, RULES_FIELD } from "@/lib/quick-state"
+import { QUICK_KINDS } from "@/lib/quick-options"
+import { RULES_FIELD } from "@/lib/quick-state"
 import { applyQuickBuild } from "./quick-create"
-import { QuickApproach } from "./QuickApproach"
-import { QuickCard } from "./QuickCard"
-import { QuickIdentity } from "./QuickIdentity"
-import { QuickOptionSheet } from "./QuickOptionSheet"
-import { QuickPortrait } from "./QuickPortrait"
+import { QuickCharacterCard } from "./QuickCharacterCard"
+import { QuickLearnDialog } from "./QuickLearnDialog"
 import { QuickRulesDialog } from "./QuickRulesDialog"
-import { SaveIndicator } from "./SaveIndicator"
+import { QuickSentence } from "./QuickSentence"
+import { QuickStrip } from "./QuickStrip"
+import { QuickTopBar } from "./QuickTopBar"
 import type { SheetActions } from "./character-actions"
-import { cn } from "@/lib/utils"
 
-type Props = {
-  sheet: ReturnType<typeof useCharacter>
-  character: Character
-  actions: SheetActions
-  userId: string
-  onPick: (kind: QuickKind) => void
-}
+type Props = { sheet: ReturnType<typeof useCharacter>; character: Character; actions: SheetActions; userId: string }
 
-// "Start your story": a class, a species and a background to choose, a portrait and a name,
-// and Create character, which fills in the rest with suggestions.
-export function QuickStart({ sheet, character, actions, userId, onPick }: Props) {
+// "Start your story": a sentence to finish — "I’m a Human Fighter who was a Soldier" — with
+// the options of the open bracket below it and the character taking shape beside it. Create
+// character fills in the rest with suggestions.
+export function QuickStart({ sheet, character, actions, userId }: Props) {
   const navigate = useNavigate()
   const { state } = useLocation()
-  const [viewing, setViewing] = useState<QuickKind | null>(null)
+  const build = useQuickBuild(sheet, actions)
+  const [learning, setLearning] = useState<string | null>(null)
   const [rulesOpen, setRulesOpen] = useState(false)
   const [creating, setCreating] = useState(false)
-  const rules = readRules(actions.values)
-  const chosen = origins(actions)
-  const ids: Record<QuickKind, string | undefined> = { class: chosen.cls?.id, species: chosen.species?.id, background: chosen.background?.id }
-  const ready = QUICK_KINDS.every((kind) => ids[kind])
+  const ready = build.view.cls !== null && build.view.species !== null && build.view.background !== null
+  const learnKind = QUICK_KINDS.find((kind) => kind === build.open?.kind)
 
   // The sheet reads the character afresh, so it opens once every value is saved.
   useEffect(() => {
     if (creating && sheet.saveState === "saved" && !sheet.error) navigate(characterPath(character.id), { state })
   }, [creating, sheet.saveState, sheet.error, navigate, character.id, state])
 
-  const create = () => setCreating(applyQuickBuild(actions, sheet))
+  const select = (id: string) => build.choose(build.open!.id, id)
 
   return (
-    <div className="mx-auto flex w-[1100px] max-w-full flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Start your story</h1>
-          <p className="text-muted-foreground text-sm">Your character is a combination of a class, a species and a background.</p>
+    <MotionConfig reducedMotion="user">
+      <LayoutGroup>
+        <div className="mx-auto flex w-[1100px] max-w-full flex-col gap-6">
+          <QuickTopBar
+            characterId={character.id}
+            saveState={sheet.saveState}
+            ready={ready}
+            creating={creating && !sheet.error}
+            onRules={() => setRulesOpen(true)}
+            onCreate={() => setCreating(applyQuickBuild(actions, sheet))}
+          />
+          {sheet.error && <p className="text-destructive text-sm">{sheet.error}</p>}
+          <div className="flex flex-col gap-6 min-[1000px]:flex-row min-[1000px]:items-start min-[1000px]:gap-10">
+            <QuickCharacterCard
+              character={character}
+              userId={userId}
+              view={build.view}
+              shown={build.tried}
+              base={build.base}
+              onName={(name) => void sheet.edit("name", name)}
+              onPortrait={(portrait) => sheet.edit("portrait", portrait)}
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-4">
+              <QuickSentence slots={build.slots} openId={build.open?.id ?? null} onToggle={build.toggle} />
+              <QuickStrip
+                slot={build.open}
+                onSelect={select}
+                onLearn={setLearning}
+                onPreview={(id) => build.preview(build.open!.id, id)}
+              />
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <SaveIndicator state={sheet.saveState} />
-          <Button variant="ghost" asChild>
-            <Link to={characterBuildPath(character.id, "class")}>Customize</Link>
-          </Button>
-          <Button variant="outline" size="icon" aria-label="Table rules" onClick={() => setRulesOpen(true)}>
-            <HoverIcon icon={SettingsIcon} />
-          </Button>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              {/* A disabled button gets no pointer events, so the tooltip hangs on its wrapper. */}
-              <span tabIndex={ready ? -1 : 0}>
-                <Button disabled={!ready || (creating && !sheet.error)} onClick={create}>Create character</Button>
-              </span>
-            </TooltipTrigger>
-            {!ready && <TooltipContent>Choose a class, a species and a background first.</TooltipContent>}
-          </Tooltip>
-        </div>
-      </div>
-      {sheet.error && <p className="text-destructive text-sm">{sheet.error}</p>}
-      <div className="flex flex-col gap-6 min-[900px]:flex-row min-[900px]:items-start">
-        <div className="grid min-w-0 flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
-          {QUICK_KINDS.map((kind) => {
-            const id = ids[kind]
-            return (
-              <div key={kind} className={cn("flex flex-col gap-4", kind === "background" && "sm:col-span-2")}>
-                <QuickCard
-                  kind={kind}
-                  chosen={optionsOf(kind).find((option) => option.id === id) ?? null}
-                  line={id ? chosenLine(kind, id, rules.level) : KIND_TEXT[kind].question}
-                  onOptions={() => onPick(kind)}
-                  onView={() => setViewing(kind)}
-                  extra={kind === "species" && id ? <QuickIdentity key={id} speciesId={id} actions={actions} /> : undefined}
-                />
-                {kind === "class" && id && (
-                  <QuickApproach
-                    classId={id}
-                    chosen={(actions.values[APPROACH_FIELD]?.value as string | null | undefined) ?? null}
-                    onChoose={(approach) => actions.onValue(APPROACH_FIELD, approach)}
-                  />
-                )}
-              </div>
-            )
-          })}
-        </div>
-        <QuickPortrait character={character} userId={userId} actions={actions} speciesId={ids.species ?? null} onName={(name) => void sheet.edit("name", name)} onPortrait={(portrait) => sheet.edit("portrait", portrait)} />
-      </div>
-      <QuickRulesDialog open={rulesOpen} rules={rules} onClose={() => setRulesOpen(false)} onChange={(next) => actions.onValue(RULES_FIELD, next)} />
-      {QUICK_KINDS.map((kind) => (
-        <QuickOptionSheet key={kind} kind={kind} id={viewing === kind ? (ids[kind] ?? null) : null} actions={actions} onClose={() => setViewing(null)} />
-      ))}
-    </div>
+        <QuickLearnDialog
+          shown={learning && learnKind && build.open ? { slotId: build.open.id, kind: learnKind, id: learning } : null}
+          actions={actions}
+          onClose={() => setLearning(null)}
+          onSelect={(id) => {
+            setLearning(null)
+            select(id)
+          }}
+        />
+        <QuickRulesDialog open={rulesOpen} rules={build.rules} onClose={() => setRulesOpen(false)} onChange={(next) => actions.onValue(RULES_FIELD, next)} />
+      </LayoutGroup>
+    </MotionConfig>
   )
 }

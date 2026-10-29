@@ -57,13 +57,3 @@ const BY_KIND: Record<QuickKind, () => QuickOption[]> = {
 }
 
 export const optionsOf = (kind: QuickKind) => BY_KIND[kind]()
-
-// The muted line on a filled card: "Level 1", "Medium · 30 ft", "Savage Attacker".
-export function chosenLine(kind: QuickKind, id: string, level: number) {
-  if (kind === "class") return `Level ${level}`
-  if (kind === "species") {
-    const species = SPECIES.find((option) => option.id === id)!
-    return `${species.sizeChoice ? "Medium or Small" : sizeName(species.size)} · ${species.speed} ft`
-  }
-  return BACKGROUNDS.find((option) => option.id === id)!.feat
-}
