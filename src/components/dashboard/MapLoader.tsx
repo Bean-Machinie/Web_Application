@@ -3,10 +3,12 @@ type Props = {
   fullScreen?: boolean
   // How much of the left side a docked panel lies over, so the wheel is centred in what can be seen.
   inset?: number
+  // The words under the wheel; none leaves the wheel alone.
+  label?: string | null
 }
 
 // A soft track with a short arc running round it, in the foreground colour.
-export function MapLoader({ fullScreen = false, inset = 0 }: Props) {
+export function MapLoader({ fullScreen = false, inset = 0, label = "Loading map…" }: Props) {
   return (
     <div
       role="status"
@@ -27,7 +29,7 @@ export function MapLoader({ fullScreen = false, inset = 0 }: Props) {
           strokeDasharray="31 95"
         />
       </svg>
-      <p className="text-muted-foreground text-sm font-medium">Loading map…</p>
+      {label && <p className="text-muted-foreground text-sm font-medium">{label}</p>}
     </div>
   )
 }

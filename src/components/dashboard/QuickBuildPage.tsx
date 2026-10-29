@@ -1,16 +1,17 @@
 import { useLocation } from "react-router-dom"
 import { useAuth } from "@/auth/useAuth"
 import { FormAlert } from "@/components/auth/FormAlert"
-import { Skeleton } from "@/components/ui/skeleton"
 import { useCharacter } from "@/hooks/use-character"
 import { useDiscardUntitledCharacter } from "@/hooks/use-discard-untitled-character"
 import { characterPath } from "@/lib/characters"
+import { MapLoader } from "./MapLoader"
 import { QuickStart } from "./QuickStart"
 import { sheetActions } from "./sheet-actions"
 import { usePageTrail } from "./usePageTrail"
 
 // The quick build of one character. Render with key={id}. The address keeps the "just
-// created" state, so a new character that is left untouched still goes again.
+// created" state, so a new character that is left untouched still goes again. While it loads
+// the page is blank but for the wheel, as the map builder's is.
 export function QuickBuildPage({ id }: { id: string }) {
   const sheet = useCharacter(id)
   const { character } = sheet
@@ -25,7 +26,7 @@ export function QuickBuildPage({ id }: { id: string }) {
   ])
 
   if (sheet.error && !character) return <FormAlert tone="error">{sheet.error}</FormAlert>
-  if (character === undefined || !sheet.loaded) return <Skeleton className="h-24 w-full" />
+  if (character === undefined || !sheet.loaded) return <MapLoader fullScreen label={null} />
   if (character === null) {
     return <p className="text-muted-foreground text-sm">This character does not exist, or is not yours.</p>
   }

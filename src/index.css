@@ -38,6 +38,7 @@
     --color-card-foreground: var(--card-foreground);
     --color-card: var(--card);
     --color-foreground: var(--foreground);
+    --color-highlight: var(--highlight);
     --color-background: var(--background);
     --radius-*: initial;
     --radius-xs: calc(var(--radius) / 4);
@@ -50,6 +51,8 @@
 :root {
     /* Radix gray, light: page step 4, sidebar and fills 5-6, cards step 1, borders 8, text 11-12. */
     --background: oklch(0.931 0 0);
+    /* The one colour of the app: what the player has chosen, in the start page's sentence. */
+    --highlight: oklch(0.47 0.2 275);
     --foreground: oklch(0.2435 0 0);
     --card: oklch(0.9911 0 0);
     --card-foreground: oklch(0.2435 0 0);
@@ -86,6 +89,7 @@
 .dark {
     /* Radix gray, dark: page step 1, sidebar 2, cards 3, popover and fills 4-5. */
     --background: oklch(0.1776 0 0);
+    --highlight: oklch(0.8 0.12 275);
     --foreground: oklch(0.9491 0 0);
     --card: oklch(0.252 0 0);
     --card-foreground: oklch(0.9491 0 0);

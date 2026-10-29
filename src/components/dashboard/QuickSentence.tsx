@@ -25,7 +25,7 @@ function lead(slot: Slot, index: number, slots: Slot[]) {
 // "I’m a [species] [class] who was a [background]." Each word opens the picker of its options.
 export function QuickSentence({ slots, openId, onToggle }: Props) {
   return (
-    <h2 className="font-serif text-2xl/[2] tracking-tight min-[600px]:text-3xl/[2]">
+    <h2 className="text-muted-foreground font-serif text-3xl/[1.7] font-normal tracking-tight italic min-[1280px]:text-4xl/[1.65]">
       {slots.map((slot, index) => {
         const before = lead(slot, index, slots)
         return (

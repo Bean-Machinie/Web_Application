@@ -15,16 +15,16 @@ export function QuickSlotButton({ word, placeholder, chosenId, slotId, open, onC
       aria-label={word ? `${placeholder}: ${word}. Change` : `Choose ${placeholder}`}
       onClick={onClick}
       className={cn(
-        "hover:bg-accent focus-visible:bg-accent focus-visible:ring-ring relative -mx-1 inline-block rounded-md px-1 leading-[1.2] whitespace-nowrap outline-none focus-visible:ring-2",
-        word ? "text-foreground" : "text-muted-foreground",
-        open && "bg-accent"
+        "hover:bg-highlight/10 focus-visible:bg-highlight/10 focus-visible:ring-highlight relative -mx-1 inline-block rounded-md px-1 leading-[1.2] whitespace-nowrap outline-none focus-visible:ring-2",
+        word ? "text-highlight font-medium not-italic" : "text-muted-foreground/70",
+        open && "bg-highlight/10"
       )}
     >
       {word ?? placeholder}
       {word && chosenId ? (
-        <motion.span layoutId={`surface:${slotId}:${chosenId}`} className="bg-foreground absolute inset-x-1 -bottom-0.5 h-0.5 rounded-full" />
+        <motion.span layoutId={`surface:${slotId}:${chosenId}`} className="bg-highlight absolute inset-x-1 -bottom-0.5 h-0.5 rounded-full" />
       ) : (
-        <span aria-hidden className="border-muted-foreground/60 absolute inset-x-1 -bottom-0.5 border-b-2 border-dashed" />
+        <span aria-hidden className="border-highlight/40 absolute inset-x-1 -bottom-0.5 border-b-2 border-dashed" />
       )}
     </button>
   )

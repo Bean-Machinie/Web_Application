@@ -18,16 +18,14 @@ type Props = {
   onName: (name: string) => void
   onPortrait: (portrait: Character["portrait"]) => Promise<boolean>
   onOpenSlot: (slot: string) => void
+  // Stacked above the picker on a narrow screen, so boxed; in the side panel it is not.
+  compact: boolean
 }
 
-// The live character card: 360px and sticky beside the picker, and a compact summary
-// above it below 1000px. `shown` is the card with the hovered option tried on.
-export function QuickCharacterCard({ character, userId, view, slots, shown, base, onName, onPortrait, onOpenSlot }: Props) {
+// The live character, in the side panel, and a compact summary above the picker below 1000px. `shown` is the card with the hovered option tried on.
+export function QuickCharacterCard({ character, userId, view, slots, shown, base, onName, onPortrait, onOpenSlot, compact }: Props) {
   return (
-    <aside
-      aria-label="Your character"
-      className="bg-card flex flex-col gap-4 rounded-xl border p-4 shadow-xs min-[1000px]:sticky min-[1000px]:top-4 min-[1000px]:w-[360px] min-[1000px]:shrink-0"
-    >
+    <section aria-label={compact ? "Your character" : undefined} className={compact ? "bg-card flex flex-col gap-4 rounded-xl border p-4 shadow-xs" : "flex flex-col gap-4"}>
       <QuickCardIdentity
         character={character}
         userId={userId}
@@ -41,6 +39,6 @@ export function QuickCharacterCard({ character, userId, view, slots, shown, base
       <QuickCardNumbers shown={shown} base={base} />
       <QuickCardLists shown={shown} base={base} />
       <QuickCardFinish open={openSlots(slots)} onOpen={onOpenSlot} />
-    </aside>
+    </section>
   )
 }
