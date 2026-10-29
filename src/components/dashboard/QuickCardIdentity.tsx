@@ -22,8 +22,9 @@ type Props = {
   onPortrait: (portrait: Character["portrait"]) => Promise<boolean>
 }
 
-// The top of the character card: the portrait, to upload or leave as the class icon, the
-// name, and the line "Human Fighter · Soldier". The name is saved when the field is left.
+// The top of the character card: a wide portrait, to upload or leave as the class icon, with
+// the name over its bottom edge, and the line "Human Barbarian · Sage" under it. The name is
+// saved when the field is left.
 export function QuickCardIdentity({ character, userId, iconKind, speciesId, line, lineChanged, onName, onPortrait }: Props) {
   const [name, setName] = useState(character.name === UNTITLED_CHARACTER ? "" : character.name)
   const Icon = SLOT_ICONS[iconKind]
@@ -40,37 +41,36 @@ export function QuickCardIdentity({ character, userId, iconKind, speciesId, line
   }
 
   return (
-    <div className="flex items-start gap-3 min-[1000px]:w-full">
-      <div className="[--image-size:5rem]">
+    <div className="flex flex-col gap-2">
+      <div className="relative [--image-height:10rem] [--image-size:100%] max-[999px]:[--image-height:7rem]">
         <ImageFieldEditor
           value={character.portrait}
           label="Portrait"
-          fallback={<Icon className="size-8" strokeWidth={1.25} />}
+          fallback={<Icon className="size-12" strokeWidth={1} />}
           context={{ folder: userId, entryId: character.id }}
           onChange={(value) => onPortrait(value as Character["portrait"])}
         />
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <div className="flex gap-1.5">
+        <div className="pointer-events-none absolute inset-x-px bottom-px flex gap-1.5 rounded-b-lg bg-gradient-to-t from-black/75 via-black/40 to-transparent p-2.5 pt-10">
           <Input
             value={name}
             maxLength={60}
             placeholder="Name your character"
             aria-label="Character name"
+            className="pointer-events-auto border-white/25 bg-black/30 text-white placeholder:text-white/70"
             onChange={(event) => setName(event.target.value)}
             onBlur={() => save()}
             onKeyDown={(event) => event.key === "Enter" && event.currentTarget.blur()}
           />
           {speciesId && (
-            <Button variant="outline" size="icon" aria-label="Suggest a name" onClick={suggest}>
+            <Button variant="secondary" size="icon" aria-label="Suggest a name" className="pointer-events-auto" onClick={suggest}>
               <Dices />
             </Button>
           )}
         </div>
-        <p className="text-muted-foreground -ml-1 text-sm">
-          {line ? <QuickValue value={line} changed={lineChanged} /> : "Your story starts here"}
-        </p>
       </div>
+      <p className="text-muted-foreground text-sm">
+        {line ? <QuickValue value={line} changed={lineChanged} className="-ml-1" /> : "Your story starts here"}
+      </p>
     </div>
   )
 }

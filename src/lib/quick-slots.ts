@@ -51,11 +51,12 @@ function languageSlots(view: QuickView): Slot[] {
 export function slotsOf(view: QuickView): Slot[] {
   const main = (kind: QuickKind, chosen: string | null): Slot => ({ id: kind, kind, placeholder: kind, options: optionsOf(kind), chosen })
   const extra = (slot: Slot | null) => (slot ? [slot] : [])
+  // Only a species with a size to choose has one, and it reads as an adjective before it.
   const size = view.species && SPECIES.find((species) => species.id === view.species)?.sizeChoice
   return [
+    ...(size ? [{ id: "size", kind: "size" as const, placeholder: "size", options: SIZE_OPTIONS, chosen: view.size }] : []),
     main("species", view.species),
     ...extra(lineageSlot(view)),
-    ...(size ? [{ id: "size", kind: "size" as const, placeholder: "size", options: SIZE_OPTIONS, chosen: view.size }] : []),
     main("class", view.cls),
     ...extra(approachSlot(view)),
     main("background", view.background),

@@ -34,6 +34,9 @@ export function useQuickBuild(sheet: ReturnType<typeof useCharacter>, actions: S
     open: slots.find((slot) => slot.id === openId) ?? null,
     base,
     tried,
+    // The option being hovered or focused in the open slot.
+    previewId: preview && preview.slot === openId ? preview.id : null,
+    show: setOpenId,
     toggle: (slot: string) => setOpenId((current) => (current === slot ? null : slot)),
     preview: (slot: string, id: string | null) => setPreview(id ? { slot, id } : null),
     choose,

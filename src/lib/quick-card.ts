@@ -13,10 +13,10 @@ export type CardModel = {
   hp: string
   ac: string
   speed: string
-  darkvision: string
-  mods: { id: string; label: string; value: string }[]
-  feat: string
-  skills: string[]
+  mods: { id: string; label: string; mod: string; score: string }[]
+  // Each with where it comes from: "Savage Attacker · Soldier".
+  feats: { name: string; source: string }[]
+  skills: { name: string; bonus: string }[]
 }
 
 const NONE = "—"
@@ -55,9 +55,13 @@ export function cardOf(view: QuickView, fields: SheetField[], stored: Record<str
     hp: cls ? number(derived["hp.max"]) : NONE,
     ac: cls ? number(derived.ac) : NONE,
     speed: species ? number(derived.speed, " ft") : NONE,
-    darkvision: species ? (derived.darkvision ? `${derived.darkvision} ft` : "None") : NONE,
-    mods: ABILITIES.map(([id, label]) => ({ id, label: label.slice(0, 3).toUpperCase(), value: cls ? signed(derived[`${id}.mod`]) : NONE })),
-    feat: featGrants(context).filter((grant) => grant.slot !== "class-style").map((grant) => grant.id).join(", "),
-    skills: SKILLS.filter(([id]) => (derived[`skill.${id}.prof`] ?? 0) > 0).map(([, label]) => label),
+    mods: ABILITIES.map(([id, label]) => ({
+      id,
+      label: label.slice(0, 3).toUpperCase(),
+      mod: cls ? signed(derived[`${id}.mod`]) : NONE,
+      score: cls ? number(derived[`${id}.total`]) : NONE,
+    })),
+    feats: featGrants(context).filter((grant) => grant.slot !== "class-style").map((grant) => ({ name: grant.id, source: grant.source })),
+    skills: SKILLS.filter(([id]) => (derived[`skill.${id}.prof`] ?? 0) > 0).map(([id, label]) => ({ name: label, bonus: signed(derived[`skill.${id}`]) })),
   }
 }

@@ -12,7 +12,8 @@ import { QuickCharacterCard } from "./QuickCharacterCard"
 import { QuickLearnDialog } from "./QuickLearnDialog"
 import { QuickRulesDialog } from "./QuickRulesDialog"
 import { QuickSentence } from "./QuickSentence"
-import { QuickStrip } from "./QuickStrip"
+import { QuickPicker } from "./QuickPicker"
+import { QuickReview } from "./QuickReview"
 import { QuickTopBar } from "./QuickTopBar"
 import type { SheetActions } from "./character-actions"
 
@@ -36,35 +37,52 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
     if (creating && sheet.saveState === "saved" && !sheet.error) navigate(characterPath(character.id), { state })
   }, [creating, sheet.saveState, sheet.error, navigate, character.id, state])
 
+  const busy = creating && !sheet.error
+  const create = () => setCreating(applyQuickBuild(actions, sheet))
   const select = (id: string) => build.choose(build.open!.id, id)
 
   return (
     <MotionConfig reducedMotion="user">
       <LayoutGroup>
-        <div className="mx-auto flex w-[1100px] max-w-full flex-col gap-6">
+        <div className="mx-auto flex w-[1280px] max-w-full flex-col gap-2">
           <QuickTopBar
             characterId={character.id}
             saveState={sheet.saveState}
             ready={ready}
-            creating={creating && !sheet.error}
+            creating={busy}
             onRules={() => setRulesOpen(true)}
-            onCreate={() => setCreating(applyQuickBuild(actions, sheet))}
+            onCreate={create}
           />
           {sheet.error && <p className="text-destructive text-sm">{sheet.error}</p>}
+          <div className="py-6 min-[1000px]:py-10">
+            <QuickSentence slots={build.slots} openId={build.open?.id ?? null} onToggle={build.toggle} />
+          </div>
           <div className="flex flex-col gap-6 min-[1000px]:flex-row min-[1000px]:items-start min-[1000px]:gap-10">
-            <QuickCharacterCard
-              character={character}
-              userId={userId}
-              view={build.view}
-              shown={build.tried}
-              base={build.base}
-              onName={(name) => void sheet.edit("name", name)}
-              onPortrait={(portrait) => sheet.edit("portrait", portrait)}
-            />
-            <div className="flex min-w-0 flex-1 flex-col gap-4">
-              <QuickSentence slots={build.slots} openId={build.open?.id ?? null} onToggle={build.toggle} />
-              <QuickStrip
+            <div className="min-[1000px]:order-2">
+              <QuickCharacterCard
+                character={character}
+                userId={userId}
+                view={build.view}
+                slots={build.slots}
+                shown={build.tried}
+                base={build.base}
+                onName={(name) => void sheet.edit("name", name)}
+                onPortrait={(portrait) => sheet.edit("portrait", portrait)}
+                onOpenSlot={build.show}
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <QuickPicker
                 slot={build.open}
+                previewId={build.previewId}
+                actions={actions}
+                idle={
+                  ready ? (
+                    <QuickReview characterId={character.id} view={build.view} slots={build.slots} rules={build.rules} creating={busy} onOpen={build.show} onCreate={create} />
+                  ) : (
+                    <p className="text-muted-foreground text-sm">Choose a word in the sentence to see its options.</p>
+                  )
+                }
                 onSelect={select}
                 onLearn={setLearning}
                 onPreview={(id) => build.preview(build.open!.id, id)}
