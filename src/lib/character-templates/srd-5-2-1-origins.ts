@@ -30,9 +30,9 @@ export const SPECIES_CHOICES: Record<string, ChoiceDecl[]> = {
     {
       kind: "options", field: "species-option", title: "Elven Lineage", count: 1,
       options: [
-        { id: DROW, label: "Drow", note: "Darkvision 120 ft and the Dancing Lights cantrip." },
-        { id: "high-elf", label: "High Elf", note: "The Prestidigitation cantrip, swappable for a Wizard cantrip." },
-        { id: WOOD_ELF, label: "Wood Elf", note: "Speed 35 ft and the Druidcraft cantrip." },
+        { id: DROW, label: "Drow", note: "Darkvision 120 ft and the Dancing Lights cantrip.", lineage: true },
+        { id: "high-elf", label: "High Elf", note: "The Prestidigitation cantrip, swappable for a Wizard cantrip.", lineage: true },
+        { id: WOOD_ELF, label: "Wood Elf", note: "Speed 35 ft and the Druidcraft cantrip.", lineage: true },
       ],
     },
     { kind: "skills", field: "species-skill", title: "Keen Senses", count: 1, from: ["insight", "perception", "survival"] },
@@ -42,8 +42,8 @@ export const SPECIES_CHOICES: Record<string, ChoiceDecl[]> = {
     {
       kind: "options", field: "species-option", title: "Gnomish Lineage", count: 1,
       options: [
-        { id: "forest-gnome", label: "Forest Gnome", note: "Minor Illusion and Speak with Animals." },
-        { id: "rock-gnome", label: "Rock Gnome", note: "Mending, Prestidigitation and clockwork devices." },
+        { id: "forest-gnome", label: "Forest Gnome", note: "Minor Illusion and Speak with Animals.", lineage: true },
+        { id: "rock-gnome", label: "Rock Gnome", note: "Mending, Prestidigitation and clockwork devices.", lineage: true },
       ],
     },
     lineageAbility,

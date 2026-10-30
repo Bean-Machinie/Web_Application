@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { LayoutGroup, MotionConfig } from "motion/react"
 import type { useCharacter } from "@/hooks/use-character"
 import { useCompactScreen } from "@/hooks/use-compact-screen"
+import { useAcceptSuggestion } from "@/hooks/use-accept-suggestion"
 import { useQuickBuild } from "@/hooks/use-quick-build"
 import { characterPath, UNTITLED_CHARACTER } from "@/lib/characters"
 import type { Character } from "@/lib/characters"
@@ -48,6 +49,7 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
   const busy = creating && !sheet.error
   const create = () => setCreating(applyQuickBuild(actions, sheet))
   const select = (id: string) => build.choose(build.open!.id, id)
+  useAcceptSuggestion(build.suggestion, select)
 
   const card = (
     <QuickCharacterCard
@@ -81,10 +83,10 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
           />
           {sheet.error && <p className="text-destructive border-b px-4 py-2 text-sm">{sheet.error}</p>}
           <div className="flex min-h-0 flex-1">
-            {!compact && <QuickToolStrip open={build.open} ready={ready} account={<MapAccount expanded={false} beforeLeave={async () => true} />} onShow={build.show} />}
+            {!compact && <QuickToolStrip open={build.open} ready={ready && build.complete} account={<MapAccount expanded={false} beforeLeave={async () => true} />} onShow={build.show} />}
             <main className="min-w-0 flex-1 overflow-y-auto [scrollbar-color:var(--border)_transparent] [scrollbar-gutter:stable_both-edges] [scrollbar-width:thin]">
               <div className="mx-auto flex max-w-4xl flex-col gap-6 p-4 min-[1000px]:p-8">
-                <QuickSentence slots={build.slots} view={build.view} openId={build.open?.id ?? null} onToggle={build.toggle} />
+                <QuickSentence slots={build.slots} ghost={build.ghost} openId={build.open?.id ?? null} onToggle={build.toggle} />
                 {compact && card}
                 <QuickPicker
                   slot={build.open}
