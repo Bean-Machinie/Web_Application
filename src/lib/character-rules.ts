@@ -9,7 +9,7 @@ import { INCREASE_OPTIONS } from "./character-templates/dnd-5e-2024-tables"
 import { allowed, countOf, declsOf, repeats, without } from "./character-rules-checks"
 import { NAME, NOUN, PICKS, SCORES, SILENT } from "./character-rules-names"
 import { planQuickBuild } from "./quick-plan"
-import { APPROACH_FIELD, markerOfField } from "./quick-state"
+import { APPROACH_FIELD, CREATED_FIELD, markerOfField, RULES_FIELD } from "./quick-state"
 import type { QuickRules } from "./quick-state"
 
 // The one place that says what a change of class, species, lineage, background or approach does
@@ -26,7 +26,7 @@ export type RuleState = {
   suggested: string[] | null
   rules: QuickRules
 }
-export type RuleChange = Partial<{ cls: string; species: string; background: string; lineage: string; approach: string }>
+export type RuleChange = Partial<{ cls: string; species: string; background: string; lineage: string; approach: string; rules: QuickRules; pick: { values: Record<string, unknown>; reset?: boolean } }>
 export type RuleResult = {
   // The fields whose value changes, by field id; null clears.
   set: Record<string, unknown>
@@ -72,6 +72,16 @@ export function reconcile(state: RuleState, change: RuleChange): RuleResult {
     sugg.delete("species-option")
   }
   if (change.approach) out[APPROACH_FIELD] = change.approach
+  // Picks made in a panel are the player's own; "reset" gives them back to the suggestion.
+  for (const [field, value] of Object.entries(change.pick?.values ?? {})) {
+    out[field] = value
+    const marker = markerOfField(field)
+    if (!marker) continue
+    if (change.pick?.reset) sugg.add(marker)
+    else sugg.delete(marker)
+  }
+  const rules = change.rules ?? state.rules
+  if (change.rules) out[RULES_FIELD] = change.rules
   const cls = CLASSES.find((option) => option.id === (change.cls ?? state.cls))
   const species = SPECIES.find((option) => option.id === (change.species ?? state.species))
   const background = BACKGROUNDS.find((option) => option.id === (change.background ?? state.background))
@@ -115,13 +125,15 @@ export function reconcile(state: RuleState, change: RuleChange): RuleResult {
 
   // The suggestions, from the class, species and background as they now are.
   let modifiers: RuleResult["modifiers"] = null
-  if (state.suggested && cls && species && background) {
+  // Suggestions are stored as soon as the three origins are chosen.
+  const complete = !!(cls && species && background)
+  if (complete) {
     const fixed: Record<string, unknown> = {}
     for (const field of [...PICKS, "size", "languages", "skilled-picks", "species-feat.ability", "origin-feat.ability", "equipment-class", "equipment-background"]) {
       if (!isSuggested(field) && (!empty(out[field]) || touched.has(field))) fixed[field] = out[field] ?? []
     }
     if (!sugg.has("abilities") && !empty(out["ability-increase"])) fixed.abilities = true
-    const plan = planQuickBuild(cls, species, background, state.rules, { approach: (out[APPROACH_FIELD] as string | null) ?? null, languages: picked("languages"), fixed })
+    const plan = planQuickBuild(cls, species, background, rules, { approach: (out[APPROACH_FIELD] as string | null) ?? null, languages: picked("languages"), fixed })
     modifiers = plan.modifiers
     for (const [field, value] of Object.entries(plan.values)) {
       const marker = markerOfField(field)
@@ -129,6 +141,8 @@ export function reconcile(state: RuleState, change: RuleChange): RuleResult {
       out[field] = value
       sugg.add(marker)
     }
+    if (!state.suggested || change.rules) out.level = rules.level
+    if (rules.method === "own" && sugg.has("abilities")) for (const field of SCORES) out[field] = null
     // What was suggested and now has no suggestion is cleared.
     for (const marker of [...sugg].filter((key) => !plan.suggested.includes(key))) {
       for (const field of marker === "abilities" ? [...SCORES, "ability-increase"] : [marker]) out[field] = null
@@ -157,11 +171,13 @@ export function reconcile(state: RuleState, change: RuleChange): RuleResult {
     removed.push(`${languages.length - count} extra ${languages.length - count === 1 ? "language" : "languages"} removed`)
   }
 
+  // The character is a draft until Create is pressed.
+  if (!state.suggested && complete && out[CREATED_FIELD] == null) out[CREATED_FIELD] = false
   const set: Record<string, unknown> = {}
   for (const field of Object.keys(out)) if (!same(out[field], state.picks[field])) set[field] = out[field] ?? null
   return {
     set,
-    suggested: state.suggested ? [...sugg] : null,
+    suggested: state.suggested || complete ? [...sugg] : null,
     removed,
     reopened,
     kits: { cls: (out["equipment-class"] as string | null) ?? null, background: (out["equipment-background"] as string | null) ?? null },

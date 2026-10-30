@@ -1,19 +1,16 @@
-import { ABILITIES, BACKGROUNDS, CLASSES, SKILLS, SPECIES } from "./character-templates/srd-5-2-1"
+import { ABILITIES, SIZES, SKILLS } from "./character-templates/srd-5-2-1"
 import { CLASS_BUILD } from "./character-templates/srd-5-2-1-classes"
 import { BACKGROUND_CHOICES, SPECIES_CHOICES } from "./character-templates/srd-5-2-1-origins"
 import { weaponById } from "./character-templates/srd-5-2-1-gear"
+import { BACKGROUND_KITS, CLASS_KITS } from "./character-templates/srd-5-2-1-kits"
 import { ABILITY_METHODS } from "./character-templates/srd-5-2-1-quick"
-import { planQuickBuild } from "./quick-plan"
-import { stepOfMarker } from "./quick-state"
-import type { QuickRules } from "./quick-state"
+import { readRules, readSuggested } from "./quick-state"
+import type { StoredValue } from "./characters"
 import type { Slot } from "./quick-slots"
-import { fixedOf } from "./quick-view"
-import type { QuickView } from "./quick-view"
-import type { BuilderStep } from "./character-builder"
 
 // A pick the quick build made for the player. Languages are changed in the sentence, the
 // others in the step of the detailed builder where they are chosen.
-export type ReviewRow = { key: string; label: string; value: string; slot?: string; step?: BuilderStep }
+export type ReviewRow = { key: string; label: string; value: string; slot?: string }
 
 const LABELS: Record<string, string> = {
   abilities: "Ability scores",
@@ -47,28 +44,30 @@ const optionName = (id: string) => {
 }
 const list = (value: unknown) => (Array.isArray(value) ? (value as string[]) : [])
 
-// What "Create character" will fill in, for the review: the plan's suggestions in words.
-export function suggestedRows(view: QuickView, rules: QuickRules): ReviewRow[] {
-  const cls = CLASSES.find((option) => option.id === view.cls)
-  const species = SPECIES.find((option) => option.id === view.species)
-  const background = BACKGROUNDS.find((option) => option.id === view.background)
-  if (!cls || !species || !background) return []
-  const plan = planQuickBuild(cls, species, background, rules, { approach: view.approach, languages: view.languages, fixed: fixedOf(view) })
+// A kit by id, from either list.
+const kitLabel = (id: string) => [...Object.values(CLASS_KITS), ...Object.values(BACKGROUND_KITS)].flat().find((kit) => kit.id === id)?.label ?? id
 
+// What the builder suggested and the player has not changed, for the review: the stored
+// values in words, in the order of the markers.
+export function suggestedRows(values: Record<string, StoredValue>): ReviewRow[] {
+  const rules = readRules(values)
+  const stored = (key: string) => values[key]?.value
+  const picks = (key: string) => list(stored(key))
   const text: Record<string, string> = {
     abilities: ABILITY_METHODS.find((method) => method.id === rules.method)!.label,
-    "class-skills": list(plan.values["class-skills"]).map(skillName).join(", "),
-    "species-skill": list(plan.values["species-skill"]).map(skillName).join(", "),
-    "skilled-picks": list(plan.values["skilled-picks"]).map(skillName).join(", "),
-    "class-expertise": list(plan.values["class-expertise"]).map(skillName).join(", "),
-    "class-masteries": list(plan.values["class-masteries"]).map((id) => weaponById(id)?.label ?? id).join(", "),
-    "equipment-class": plan.classKit.label,
-    "equipment-background": plan.backgroundKit.label,
-    size: "Medium",
+    "class-skills": picks("class-skills").map(skillName).join(", "),
+    "species-skill": picks("species-skill").map(skillName).join(", "),
+    "skilled-picks": picks("skilled-picks").map(skillName).join(", "),
+    "class-expertise": picks("class-expertise").map(skillName).join(", "),
+    "class-masteries": picks("class-masteries").map((id) => weaponById(id)?.label ?? id).join(", "),
+    "equipment-class": kitLabel(String(stored("equipment-class"))),
+    "equipment-background": kitLabel(String(stored("equipment-background"))),
+    size: SIZES.find((size) => size.id === stored("size"))?.label ?? "",
   }
-  return plan.suggested.map((key) => {
-    const value = text[key] ?? list(plan.values[key]).map(optionName).join(", ")
-    return key === "languages" ? { key, label: LABELS[key], value, slot: "language-0" } : { key, label: LABELS[key] ?? key, value, step: stepOfMarker(key) }
+  return readSuggested(values).flatMap((key) => {
+    const value = text[key] ?? picks(key).map(optionName).join(", ")
+    if (!value) return []
+    return [key === "languages" ? { key, label: LABELS[key], value, slot: "language-0" } : { key, label: LABELS[key] ?? key, value }]
   })
 }
 

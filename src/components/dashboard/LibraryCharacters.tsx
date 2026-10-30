@@ -7,7 +7,8 @@ import { tiltCardSkin } from "@/components/tilt-card-styles"
 import { Button } from "@/components/ui/button"
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
 import { Skeleton } from "@/components/ui/skeleton"
-import { characterPath } from "@/lib/characters"
+import { Badge } from "@/components/ui/badge"
+import { characterPath, characterStartPath } from "@/lib/characters"
 import type { Character } from "@/lib/characters"
 
 type Props = { characters: Character[] | null; query: string; onNew: () => void }
@@ -51,12 +52,15 @@ export function LibraryCharacters({ characters, query, onNew }: Props) {
             <div className="flex flex-col gap-0.5 p-2.5">
               {/* The stretched link makes the whole card clickable. */}
               <Link
-                to={characterPath(character.id)}
+                to={character.draft ? characterStartPath(character.id) : characterPath(character.id)}
                 className="truncate font-medium outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-ring focus-visible:after:rounded-lg focus-visible:after:ring-2"
               >
                 {character.name}
               </Link>
-              <span className="text-muted-foreground truncate text-xs">{character.concept || "Character"}</span>
+              <span className="text-muted-foreground flex items-center gap-1.5 truncate text-xs">
+                {character.draft && <Badge variant="secondary">Draft</Badge>}
+                {character.concept || "Character"}
+              </span>
             </div>
           </div>
         </TiltCard>

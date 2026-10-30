@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { characterBuildPath } from "@/lib/characters"
-import { stepOfMarker } from "@/lib/quick-state"
+import { characterStartPath } from "@/lib/characters"
+import { pickKeyOf } from "@/lib/pick-info"
 import type { SheetActions } from "./character-actions"
 
 // "Suggested" beside a value the quick build filled in, with Change in its menu, which opens
-// the step of the detailed builder where it is chosen. It is gone once the player chooses.
+// its panel in the builder. It is gone once the player chooses.
 export function SuggestedMarker({ markerKey, actions }: { markerKey: string; actions: SheetActions }) {
   return (
     <DropdownMenu>
@@ -20,7 +20,7 @@ export function SuggestedMarker({ markerKey, actions }: { markerKey: string; act
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <Link to={characterBuildPath(actions.characterId, stepOfMarker(markerKey))}>Change</Link>
+          <Link to={`${characterStartPath(actions.characterId)}?pick=${pickKeyOf(markerKey)}`}>Change</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

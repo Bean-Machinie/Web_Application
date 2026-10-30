@@ -1,8 +1,10 @@
 import { useState } from "react"
+import { ruleStateOf } from "@/lib/character-rules-state"
 import { cardOf } from "@/lib/quick-card"
+import { tried as tryOn, triedPick } from "@/lib/quick-preview"
 import { nextOpen, slotsOf } from "@/lib/quick-slots"
 import { readRules } from "@/lib/quick-state"
-import { readView, withPick } from "@/lib/quick-view"
+import { readView } from "@/lib/quick-view"
 import type { useCharacter } from "@/hooks/use-character"
 import { commitPick } from "@/components/dashboard/quick-commit"
 import type { SheetActions } from "@/components/dashboard/character-actions"
@@ -22,8 +24,15 @@ export function useQuickBuild(sheet: ReturnType<typeof useCharacter>, actions: S
   // A slot that has gone (a new species has no lineage) leaves the next one open.
   const open = slots.find((slot) => slot.id === chosenId) ?? next
 
-  const base = cardOf(view, sheet.fields, actions.values, rules)
-  const tried = preview ? cardOf(withPick(view, preview.slot, preview.id), sheet.fields, actions.values, rules) : base
+  // What a panel is trying on, or null.
+  const [pickPreview, setPickPreview] = useState<Record<string, unknown> | null>(null)
+
+  const base = cardOf(sheet.fields, actions.values)
+  const tried = pickPreview
+    ? cardOf(sheet.fields, triedPick(actions.values, ruleStateOf(actions), pickPreview))
+    : preview
+      ? cardOf(sheet.fields, tryOn(actions.values, ruleStateOf(actions), view, preview.slot, preview.id))
+      : base
 
   function choose(slot: string, id: string) {
     commitPick(actions, view, slot, id)
@@ -51,6 +60,7 @@ export function useQuickBuild(sheet: ReturnType<typeof useCharacter>, actions: S
     previewId,
     show: setChosenId,
     toggle: (slot: string) => setChosenId(open?.id === slot ? null : slot),
+    tryPick: setPickPreview,
     preview: (slot: string, id: string | null) => setPreview(id ? { slot, id } : null),
     choose,
   }

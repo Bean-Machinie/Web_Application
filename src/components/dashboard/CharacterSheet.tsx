@@ -5,7 +5,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { useCharacter } from "@/hooks/use-character"
 import { isPinned, isShown, NEW_FIELD_LABEL, profileFields } from "@/lib/character-sheet"
 import type { SheetField } from "@/lib/character-sheet"
-import { builderProgress } from "@/lib/character-builder"
 import { isEmptyValue } from "@/lib/character-values"
 import type { CharacterFieldType } from "@/lib/character-templates/types"
 import { deleteCharacter } from "@/lib/characters"
@@ -16,7 +15,7 @@ import { ConfirmDialog } from "./ConfirmDialog"
 import { CharacterMenu } from "./CharacterMenu"
 import { CharacterPill } from "./CharacterPill"
 import { CharacterProfile } from "./CharacterProfile"
-import { BuilderBanner } from "./BuilderBanner"
+import { QuickBanner } from "./QuickBanner"
 import { CharacterRows } from "./CharacterRows"
 import { CharacterSummary } from "./CharacterSummary"
 import { CharacterTabPanel } from "./CharacterTabPanel"
@@ -112,7 +111,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
           </div>
         </div>
         {template!.builder && (
-          <BuilderBanner characterId={character.id} progress={builderProgress({ character, fields, values, derived: sheet.derived })} />
+          <QuickBanner characterId={character.id} context={{ values, derived: sheet.derived, byId: new Map(fields.map((field) => [field.id, field])) }} />
         )}
         {template!.builder && <QuickToFinish character={character} fields={fields} values={values} derived={sheet.derived} />}
         {(sheet.error || failure) && <p className="text-destructive text-sm">{sheet.error ?? failure}</p>}

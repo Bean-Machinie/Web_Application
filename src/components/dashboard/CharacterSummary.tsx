@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { choiceState } from "@/lib/character-choices"
-import { characterBuildPath } from "@/lib/characters"
+import { characterStartPath } from "@/lib/characters"
 import { readStat } from "@/lib/character-values"
 import { featGrants } from "@/lib/character-grants"
 import type { SheetActions } from "./character-actions"
@@ -39,7 +39,7 @@ export function CharacterSummary({ actions }: { actions: SheetActions }) {
       </div>
       <QuickSummaryPicks actions={actions} />
       <Button asChild variant="outline" size="sm" className="w-full">
-        <Link to={characterBuildPath(actions.characterId)}>Edit character</Link>
+        <Link to={characterStartPath(actions.characterId)}>Edit character</Link>
       </Button>
     </div>
   )

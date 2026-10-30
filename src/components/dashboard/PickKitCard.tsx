@@ -13,7 +13,7 @@ type Props = {
 
 // The equipment options of a class or a background: each a card with its items, and the Armor
 // Class it gives. Exactly one is chosen, and none is chosen for the player.
-export function BuilderKitCard({ title, kits, selected, armorClass, onSelect }: Props) {
+export function PickKitCard({ title, kits, selected, armorClass, onSelect }: Props) {
   return (
     <section aria-label={title} className="bg-card rounded-lg border p-5 shadow-xs">
       <div className="mb-3 flex items-center gap-2">

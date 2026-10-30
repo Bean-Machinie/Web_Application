@@ -1,9 +1,9 @@
 import { toast } from "sonner"
-import { origins } from "@/lib/character-grants"
 import { reconcile } from "@/lib/character-rules"
-import type { RuleChange, RuleState } from "@/lib/character-rules"
+import type { RuleChange } from "@/lib/character-rules"
+import { ruleStateOf } from "@/lib/character-rules-state"
 import { readPicks } from "@/lib/character-values"
-import { isQuickBuilt, readRules, readSuggested, SUGGESTED_FIELD } from "@/lib/quick-state"
+import { KITS_FIELD, SUGGESTED_FIELD } from "@/lib/quick-state"
 import type { SheetActions } from "./character-actions"
 import { applyKits, chosenKits, kitById, kitsEdited } from "./character-kits"
 
@@ -12,30 +12,20 @@ import { applyKits, chosenKits, kitById, kitsEdited } from "./character-kits"
 // again from both kits, and a toast says what was removed or must be picked again, with Undo.
 
 const ORIGINS = ["character-class", "species-choice", "background-choice"]
-const EQUIPMENT = ["inventory", "attacks", "coin.gp"]
-
-function stateOf(actions: SheetActions): RuleState {
-  const { cls, species, background } = origins(actions)
-  return {
-    cls: cls?.id ?? null,
-    species: species?.id ?? null,
-    background: background?.id ?? null,
-    picks: Object.fromEntries(Object.entries(actions.values).map(([field, stored]) => [field, stored.value])),
-    suggested: isQuickBuilt(actions.values) ? readSuggested(actions.values) : null,
-    rules: readRules(actions.values),
-  }
-}
+// What names the items of the kits, or picks them.
+const KIT_FIELDS = ["equipment-class", "equipment-background", "class-tools", "background-tool"]
+const EQUIPMENT = ["inventory", "attacks", "coin.gp", KITS_FIELD]
 
 // `title` opens the toast: "Changed to Wizard".
 export function changeCharacter(actions: SheetActions, change: RuleChange, title: string) {
-  const result = reconcile(stateOf(actions), change)
+  const result = reconcile(ruleStateOf(actions), change)
   const fields = Object.keys(result.set).sort((a, b) => Number(ORIGINS.includes(b)) - Number(ORIGINS.includes(a)))
   const before = [...fields, ...EQUIPMENT, SUGGESTED_FIELD].map((field) => [field, actions.values[field]?.value ?? null] as const)
 
   // The kits are written again when either changed, but not over what the player edited.
   const kits = [kitById(result.kits.cls), kitById(result.kits.background)].filter((kit): kit is NonNullable<typeof kit> => kit !== null)
   const hadKits = Object.values(chosenKits(actions)).some((kit) => kit !== null)
-  const kitsChanged = "equipment-class" in result.set || "equipment-background" in result.set || !!change.cls || !!change.background
+  const kitsChanged = KIT_FIELDS.some((field) => field in result.set) || !!change.cls || !!change.background
   const rewrite = kitsChanged && (kits.length > 0 || hadKits)
   const edited = rewrite && kitsEdited(actions)
 

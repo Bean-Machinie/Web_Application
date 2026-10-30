@@ -8,7 +8,6 @@ export const UNTITLED_CHARACTER = "Untitled character"
 
 export const characterPath = (id: string) => `/app/characters/${id}`
 export const characterStartPath = (id: string) => `/app/characters/${id}/start`
-export const characterBuildPath = (id: string, step?: string) => `/app/characters/${id}/build${step ? `?step=${step}` : ""}`
 
 export type Character = {
   id: string
@@ -18,6 +17,8 @@ export type Character = {
   templateId: string
   templateVersion: number
   updatedAt: string
+  // Built quickly and not created yet.
+  draft: boolean
 }
 
 // A field the player added.
@@ -46,6 +47,7 @@ function toCharacter(row: Record<string, unknown>): Character {
     templateId: row.template_id as string,
     templateVersion: row.template_version as number,
     updatedAt: row.updated_at as string,
+    draft: false,
   }
 }
 
@@ -64,7 +66,12 @@ function toCustomField(row: Record<string, unknown>): CustomField {
 export async function fetchCharacters() {
   const { data, error } = await supabase.from("characters").select(COLUMNS).order("updated_at", { ascending: false })
   if (error) throw error
-  return (data as Record<string, unknown>[]).map(toCharacter)
+  const characters = (data as Record<string, unknown>[]).map(toCharacter)
+  // A draft has suggestions stored and Create not pressed (the flag is false, not absent).
+  const flags = await supabase.from("character_values").select("character_id").eq("field_id", "quick.created").eq("value", false)
+  if (flags.error) throw flags.error
+  const drafts = new Set((flags.data as { character_id: string }[]).map((row) => row.character_id))
+  return characters.map((character) => ({ ...character, draft: drafts.has(character.id) }))
 }
 
 // Null when it does not exist or is not yours.

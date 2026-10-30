@@ -1,6 +1,5 @@
 import { ABILITY_METHODS } from "./character-templates/srd-5-2-1-quick"
 import type { AbilityMethod } from "./character-templates/srd-5-2-1-quick"
-import type { BuilderStep } from "./character-builder"
 import { readPicks, readStat } from "./character-values"
 import type { StoredValue } from "./characters"
 
@@ -8,6 +7,11 @@ import type { StoredValue } from "./characters"
 // the table rules chosen on the start page, and which values on the sheet were suggested.
 export const RULES_FIELD = "quick.rules"
 export const SUGGESTED_FIELD = "quick.suggested"
+// Whether Create was pressed. False while the character is a draft; absent on characters made
+// before drafts, which are not drafts.
+export const CREATED_FIELD = "quick.created"
+// What the builder last wrote for the starting kits, so a later difference is the player's edit.
+export const KITS_FIELD = "quick.kits"
 // How the character fights, when the player chose; none means the class’s first.
 export const APPROACH_FIELD = "quick.approach"
 
@@ -51,11 +55,4 @@ export function markerShownFor(fieldId: string, values: Values) {
   return ["class-skills", "species-skill", "skilled-picks"].find(
     (key) => suggested.includes(key) && readPicks(values[key]?.value).some((id) => id === skill || id === `skill:${skill}`)
   ) ?? null
-}
-
-// The step of the detailed builder that changes what a marker covers.
-export function stepOfMarker(key: string): BuilderStep {
-  if (key === "abilities") return "abilities"
-  if (key === "size" || key === "species-option") return "species"
-  return key.startsWith("equipment") ? "equipment" : "choices"
 }

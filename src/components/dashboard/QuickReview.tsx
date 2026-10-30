@@ -1,26 +1,25 @@
-import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { characterBuildPath } from "@/lib/characters"
+import { pickKeyOf } from "@/lib/pick-info"
+import type { Attention } from "@/lib/quick-attention"
 import { openLabel, suggestedRows } from "@/lib/quick-review"
 import { openSlots } from "@/lib/quick-slots"
 import type { Slot } from "@/lib/quick-slots"
-import type { QuickRules } from "@/lib/quick-state"
-import type { QuickView } from "@/lib/quick-view"
+import type { StoredValue } from "@/lib/characters"
 
 type Props = {
-  characterId: string
-  view: QuickView
+  values: Record<string, StoredValue>
   slots: Slot[]
-  rules: QuickRules
   creating: boolean
   onOpen: (slot: string) => void
+  needs: Attention[]
+  onPick: (pick: string) => void
   onCreate: () => void
 }
 
 // Shown in place of the picker once the class, species and background are chosen: what Create
-// character will fill in on its own, each with a way to change it, what is still open, and Create.
-export function QuickReview({ characterId, view, slots, rules, creating, onOpen, onCreate }: Props) {
-  const rows = suggestedRows(view, rules)
+// character holds as suggestions, each with a way to change it, what is still open, and Create.
+export function QuickReview({ values, slots, needs, creating, onOpen, onPick, onCreate }: Props) {
+  const rows = suggestedRows(values)
   const open = openSlots(slots)
 
   return (
@@ -34,29 +33,28 @@ export function QuickReview({ characterId, view, slots, rules, creating, onOpen,
                 <span className="text-muted-foreground text-xs">{row.label}</span>
                 <span className="truncate text-sm">{row.value}</span>
               </div>
-              {row.slot ? (
-                <Button variant="ghost" size="sm" onClick={() => onOpen(row.slot!)}>Change</Button>
-              ) : (
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to={characterBuildPath(characterId, row.step)}>Change</Link>
-                </Button>
-              )}
+              <Button variant="ghost" size="sm" onClick={() => (row.slot ? onOpen(row.slot) : onPick(pickKeyOf(row.key)))}>Change</Button>
             </li>
           ))}
         </ul>
       </section>
       <section className="flex flex-col gap-2">
         <h3 className="text-lg font-semibold tracking-tight">Still open</h3>
-        {open.length > 0 ? (
+        {open.length + needs.length > 0 ? (
           <ul className="flex flex-wrap gap-2">
             {open.map((slot) => (
               <li key={slot.id}>
                 <Button variant="outline" size="sm" onClick={() => onOpen(slot.id)}>{openLabel(slot)}</Button>
               </li>
             ))}
+            {needs.map((need) => (
+              <li key={need.key}>
+                <Button variant="outline" size="sm" onClick={() => onPick(pickKeyOf(need.key))}>{need.label}</Button>
+              </li>
+            ))}
           </ul>
         ) : (
-          <p className="text-muted-foreground text-sm">Nothing left to choose in the sentence.</p>
+          <p className="text-muted-foreground text-sm">Nothing left to choose.</p>
         )}
       </section>
       <Button size="lg" className="self-start" disabled={creating} onClick={onCreate}>Create character</Button>

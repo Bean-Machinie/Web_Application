@@ -2,9 +2,9 @@ import { Badge } from "@/components/ui/badge"
 import { ABILITIES, CLASSES, SKILLS } from "@/lib/character-templates/srd-5-2-1"
 import { CLASS_BUILD } from "@/lib/character-templates/srd-5-2-1-classes"
 import { CLASS_NOTES } from "@/lib/character-templates/srd-5-2-1-glossary"
-import { BuilderLabel } from "./BuilderLabel"
-import { BuilderRow } from "./BuilderRow"
-import { BuilderSection } from "./BuilderSection"
+import { DetailLabel } from "./DetailLabel"
+import { DetailRow } from "./DetailRow"
+import { DetailSection } from "./DetailSection"
 import type { SheetActions } from "./character-actions"
 import { weaponsText } from "./class-text"
 
@@ -23,23 +23,23 @@ export function QuickClassDetails({ id, actions }: { id: string; actions: SheetA
         <Badge variant="outline">Complexity: {build.complexity}</Badge>
         <Badge variant="outline">Primary: {CLASS_NOTES[id].primary}</Badge>
       </div>
-      <BuilderSection title={`What a ${cls.label} gets`}>
-        <BuilderRow label={<BuilderLabel glossaryKey="hit-die" actions={actions}>Hit Point Die</BuilderLabel>}>d{cls.hitDie} per {cls.label} level</BuilderRow>
-        <BuilderRow label={<BuilderLabel glossaryKey="saving-throws" actions={actions}>Saving throws</BuilderLabel>}>{cls.saves.map(abilityName).join(" and ")}</BuilderRow>
-        <BuilderRow label="Armor training">{build.armor}</BuilderRow>
-        <BuilderRow label="Weapons">{weaponsText(build)}</BuilderRow>
-        {build.tools.length > 0 && <BuilderRow label="Tools">{build.tools.join(", ")}</BuilderRow>}
-        <BuilderRow label="Skills">
+      <DetailSection title={`What a ${cls.label} gets`}>
+        <DetailRow label={<DetailLabel glossaryKey="hit-die" actions={actions}>Hit Point Die</DetailLabel>}>d{cls.hitDie} per {cls.label} level</DetailRow>
+        <DetailRow label={<DetailLabel glossaryKey="saving-throws" actions={actions}>Saving throws</DetailLabel>}>{cls.saves.map(abilityName).join(" and ")}</DetailRow>
+        <DetailRow label="Armor training">{build.armor}</DetailRow>
+        <DetailRow label="Weapons">{weaponsText(build)}</DetailRow>
+        {build.tools.length > 0 && <DetailRow label="Tools">{build.tools.join(", ")}</DetailRow>}
+        <DetailRow label="Skills">
           Choose {cls.skillCount}{cls.skills ? ` of ${cls.skills.map(skillName).join(", ")}` : " of any"}
-        </BuilderRow>
-      </BuilderSection>
-      <BuilderSection title="At level 1">
+        </DetailRow>
+      </DetailSection>
+      <DetailSection title="At level 1">
         {build.features.map((feature) => (
-          <BuilderRow key={feature.name} label={<span className="text-foreground font-medium">{feature.name}</span>}>
+          <DetailRow key={feature.name} label={<span className="text-foreground font-medium">{feature.name}</span>}>
             <span className="text-muted-foreground">{feature.summary}</span>
-          </BuilderRow>
+          </DetailRow>
         ))}
-      </BuilderSection>
+      </DetailSection>
     </div>
   )
 }

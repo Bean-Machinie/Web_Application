@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { LayoutGroup, MotionConfig } from "motion/react"
 import type { useCharacter } from "@/hooks/use-character"
 import { useCompactScreen } from "@/hooks/use-compact-screen"
@@ -7,9 +7,11 @@ import { useAcceptSuggestion } from "@/hooks/use-accept-suggestion"
 import { useQuickBuild } from "@/hooks/use-quick-build"
 import { characterPath, UNTITLED_CHARACTER } from "@/lib/characters"
 import type { Character } from "@/lib/characters"
+import { SPECIES } from "@/lib/character-templates/srd-5-2-1"
+import { needsAttention } from "@/lib/quick-attention"
 import { QUICK_KINDS } from "@/lib/quick-options"
-import { RULES_FIELD } from "@/lib/quick-state"
-import { applyQuickBuild } from "./quick-create"
+import { CREATED_FIELD } from "@/lib/quick-state"
+import { changeCharacter } from "./character-change"
 import { QuickCharacterCard } from "./QuickCharacterCard"
 import { QuickLearnDialog } from "./QuickLearnDialog"
 import { MapAccount } from "./MapAccount"
@@ -18,6 +20,7 @@ import { QuickSidePanel } from "./QuickSidePanel"
 import { QuickStatusBar } from "./QuickStatusBar"
 import { QuickToolStrip } from "./QuickToolStrip"
 import { QuickSentence } from "./QuickSentence"
+import { QuickPickPanel } from "./QuickPickPanel"
 import { QuickPicker } from "./QuickPicker"
 import { QuickReview } from "./QuickReview"
 import { QuickTopBar } from "./QuickTopBar"
@@ -34,6 +37,12 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
   const { state } = useLocation()
   const compact = useCompactScreen()
   const build = useQuickBuild(sheet, actions)
+  // The pick whose panel is open is in the address, so a link can open it.
+  const [params, setParams] = useSearchParams()
+  const pick = params.get("pick")
+  const setPick = (next: string | null) => setParams(next ? { pick: next } : {}, { replace: true })
+  // Languages are words of the sentence, so the sentence lists them.
+  const needs = needsAttention(actions).filter((need) => need.key !== "languages")
   const [learning, setLearning] = useState<string | null>(null)
   const [rulesOpen, setRulesOpen] = useState(false)
   const [creating, setCreating] = useState(false)
@@ -47,7 +56,10 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
   }, [creating, sheet.saveState, sheet.error, navigate, character.id, state])
 
   const busy = creating && !sheet.error
-  const create = () => setCreating(applyQuickBuild(actions, sheet))
+  const create = () => {
+    actions.onValue(CREATED_FIELD, true)
+    setCreating(true)
+  }
   const select = (id: string) => build.choose(build.open!.id, id)
   useAcceptSuggestion(build.suggestion, select)
 
@@ -62,6 +74,9 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
       onName={(name) => void sheet.edit("name", name)}
       onPortrait={(portrait) => sheet.edit("portrait", portrait)}
       onOpenSlot={build.show}
+      onPick={ready ? setPick : null}
+      needs={needs}
+      sizeChoice={!!SPECIES.find((option) => option.id === build.view.species)?.sizeChoice}
       compact={compact}
     />
   )
@@ -73,7 +88,6 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
           <QuickTopBar
             name={character.name === UNTITLED_CHARACTER ? "" : character.name}
             onRename={(name) => sheet.edit("name", name)}
-            characterId={character.id}
             saveState={sheet.saveState}
             ready={ready}
             creating={busy}
@@ -94,7 +108,7 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
                   actions={actions}
                   idle={
                     ready ? (
-                      <QuickReview characterId={character.id} view={build.view} slots={build.slots} rules={build.rules} creating={busy} onOpen={build.show} onCreate={create} />
+                      <QuickReview values={actions.values} slots={build.slots} needs={needs} creating={busy} onOpen={build.show} onPick={setPick} onCreate={create} />
                     ) : (
                       <p className="text-muted-foreground text-sm">Choose a word in the sentence to see its options.</p>
                     )
@@ -109,6 +123,16 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
           </div>
           <QuickStatusBar rules={build.rules} onRules={() => setRulesOpen(true)} />
         </div>
+        <QuickPickPanel
+          pickKey={pick}
+          actions={actions}
+          sheet={sheet}
+          character={character}
+          base={build.base}
+          shown={build.tried}
+          onPreview={build.tryPick}
+          onClose={() => setPick(null)}
+        />
         <QuickLearnDialog
           shown={learning && learnKind && build.open ? { slotId: build.open.id, kind: learnKind, id: learning } : null}
           actions={actions}
@@ -118,7 +142,7 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
             select(id)
           }}
         />
-        <QuickRulesDialog open={rulesOpen} rules={build.rules} onClose={() => setRulesOpen(false)} onChange={(next) => actions.onValue(RULES_FIELD, next)} />
+        <QuickRulesDialog open={rulesOpen} rules={build.rules} onClose={() => setRulesOpen(false)} onChange={(next) => changeCharacter(actions, { rules: next }, "Changed rules")} />
       </LayoutGroup>
     </MotionConfig>
   )

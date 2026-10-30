@@ -5,6 +5,7 @@ import type { Kit, KitItem } from "@/lib/character-templates/srd-5-2-1-choices"
 import { BACKGROUND_KITS, CLASS_KITS } from "@/lib/character-templates/srd-5-2-1-kits"
 import { chosenOption, origins, picksOf } from "@/lib/character-grants"
 import { proficientWith } from "@/lib/character-weapons"
+import { KITS_FIELD } from "@/lib/quick-state"
 import { readAttacks, readList, readStat } from "@/lib/character-values"
 import type { Attack, ListItem } from "@/lib/character-values"
 import type { SheetActions } from "./character-actions"
@@ -68,28 +69,29 @@ export function kitWrites(actions: SheetActions, kits: Kit[], picked: Record<str
   return { inventory, attacks, gp: kits.length > 0 ? kits.reduce((sum, kit) => sum + kit.gp, 0) : null }
 }
 
+// What the kits put on the sheet, as one string: kit items, kit attacks and the gold.
+const signOf = (inventory: ListItem[], attacks: Attack[], gp: number | null) =>
+  JSON.stringify([
+    inventory.filter((item) => item.id.startsWith(KIT_PREFIX)).map((item) => [item.id, item.text]),
+    attacks.filter((attack) => attack.id.startsWith(KIT_PREFIX)).map((attack) => [attack.id, attack.name, attack.ability, attack.proficient, attack.toHit, attack.damage]),
+    gp,
+  ])
+
+// Writes the kits and remembers what was written, so only the player's own edits differ later.
 export function applyKits(actions: SheetActions, kits: Kit[], picked: Record<string, string[]> = {}, newClass?: string) {
   const { inventory, attacks, gp } = kitWrites(actions, kits, picked, newClass)
   actions.onValue("inventory", inventory)
   actions.onValue("attacks", attacks)
   actions.onValue("coin.gp", gp)
+  actions.onValue(KITS_FIELD, signOf(inventory, attacks, gp))
 }
 
-// Whether the player has changed what the kits put on the sheet: a kit item or attack edited or
+// Whether the player has changed what the builder last wrote: a kit item or attack edited or
 // removed, or the gold changed. Items they added do not count, they survive a rewrite.
 export function kitsEdited(actions: SheetActions) {
-  const { classKit, backgroundKit } = chosenKits(actions)
-  const kits = [classKit, backgroundKit].filter((kit): kit is Kit => kit !== null)
-  if (kits.length === 0) return false
-  const expected = kitWrites(actions, kits)
-  const mine = <T extends { id: string }>(list: T[], sign: (item: T) => unknown[]) => JSON.stringify(list.filter((item) => item.id.startsWith(KIT_PREFIX)).map(sign))
-  const item = (entry: ListItem) => [entry.id, entry.text]
-  const attack = (entry: Attack) => [entry.id, entry.name, entry.ability, entry.proficient, entry.toHit, entry.damage]
-  return (
-    mine(readList(actions.values.inventory?.value), item) !== mine(expected.inventory, item) ||
-    mine(readAttacks(actions.values.attacks?.value), attack) !== mine(expected.attacks, attack) ||
-    (readStat(actions.values["coin.gp"]?.value) ?? null) !== expected.gp
-  )
+  const written = actions.values[KITS_FIELD]?.value
+  if (typeof written !== "string") return false
+  return signOf(readList(actions.values.inventory?.value), readAttacks(actions.values.attacks?.value), readStat(actions.values["coin.gp"]?.value) ?? null) !== written
 }
 
 // The Armor Class a kit gives, for the pill on its card: armor and Shield with Dexterity, and

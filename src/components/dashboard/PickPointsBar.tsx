@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { ABILITIES, POINT_BUY_BUDGET } from "@/lib/character-templates/srd-5-2-1"
 import type { AbilityId, SrdBackground } from "@/lib/character-templates/srd-5-2-1"
-import { abilitiesAt, idFor } from "./builder-increase"
-import type { Levels } from "./builder-increase"
+import { abilitiesAt, idFor } from "./pick-increase"
+import type { Levels } from "./pick-increase"
 
 const nameOf = (id: AbilityId) => ABILITIES.find(([other]) => other === id)![1]
 
@@ -17,7 +17,7 @@ type Props = {
 
 // The top of the scores card: the points left with a bar, the class’s suggestion, and a line on
 // the background’s increase that says at once whether it is complete.
-export function BuilderPointsBar({ typing, left, className, onSuggest, background, levels }: Props) {
+export function PickPointsBar({ typing, left, className, onSuggest, background, levels }: Props) {
   const two = background ? abilitiesAt(background, levels, "2") : []
   const one = background ? abilitiesAt(background, levels, "1") : []
   const done = background !== null && idFor(background, levels) !== null
