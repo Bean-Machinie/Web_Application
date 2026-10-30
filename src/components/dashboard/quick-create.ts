@@ -2,6 +2,7 @@ import type { useCharacter } from "@/hooks/use-character"
 import { origins, picksOf } from "@/lib/character-grants"
 import { planQuickBuild } from "@/lib/quick-plan"
 import { APPROACH_FIELD, readRules, SUGGESTED_FIELD } from "@/lib/quick-state"
+import { fixedOf, readView } from "@/lib/quick-view"
 import type { SheetActions } from "./character-actions"
 import { applyKits } from "./character-kits"
 
@@ -13,6 +14,7 @@ export function applyQuickBuild(actions: SheetActions, sheet: ReturnType<typeof 
   const plan = planQuickBuild(cls, species, background, readRules(actions.values), {
     approach: (actions.values[APPROACH_FIELD]?.value as string | null | undefined) ?? null,
     languages: picksOf(actions, "languages"),
+    fixed: fixedOf(readView(actions)),
   })
 
   for (const [field, value] of Object.entries(plan.values)) actions.onValue(field, value)

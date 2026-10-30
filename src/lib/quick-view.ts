@@ -30,6 +30,12 @@ export function readView(context: GlossaryContext): QuickView {
   }
 }
 
+// What the player already picked, which the plan does not suggest again.
+export const fixedOf = (view: QuickView): Record<string, unknown> => ({
+  ...(view.size ? { size: view.size } : {}),
+  ...(view.lineage ? { "species-option": [view.lineage] } : {}),
+})
+
 // The languages picked, or the one the species is tied to until the player picks.
 export const shownLanguages = (view: QuickView) => (view.languages.length > 0 ? view.languages : (SPECIES_LANGUAGES[view.species ?? ""] ?? []))
 

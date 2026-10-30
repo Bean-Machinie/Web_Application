@@ -1,6 +1,6 @@
 import type { CardModel } from "@/lib/quick-card"
 import type { Character } from "@/lib/characters"
-import { openSlots } from "@/lib/quick-review"
+import { openSlots } from "@/lib/quick-slots"
 import type { Slot } from "@/lib/quick-slots"
 import type { QuickView } from "@/lib/quick-view"
 import { QuickCardFinish } from "./QuickCardFinish"

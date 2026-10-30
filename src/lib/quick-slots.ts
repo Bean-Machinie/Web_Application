@@ -11,9 +11,10 @@ import type { QuickView } from "./quick-view"
 export type SlotKind = QuickKind | "approach" | "lineage" | "size" | "language"
 
 // One bracket of the sentence: what it asks for, the options to choose from, and the choice.
-// `named` is for a lineage slot whose options name the species, so the sentence writes them.
+// `named` is for a lineage slot the sentence asks for, and `leads` when its word comes before the
+// species word ("Gold Dragonborn") instead of standing in for it ("High Elf").
 // `suggested` is the option offered while nothing is chosen; the slot stays open until it is accepted.
-export type Slot = { id: string; kind: SlotKind; placeholder: string; options: QuickOption[]; chosen: string | null; named?: boolean; suggested?: string }
+export type Slot = { id: string; kind: SlotKind; placeholder: string; options: QuickOption[]; chosen: string | null; named?: boolean; leads?: boolean; suggested?: string }
 
 const SIZE_OPTIONS: QuickOption[] = [
   { id: "medium", name: "Medium", line: "About 4–7 ft tall.", source: "SRD 5.2.1 · Species" },
@@ -25,7 +26,7 @@ function lineageSlot(view: QuickView): Slot | null {
   if (decl?.kind !== "options") return null
   const source = `SRD 5.2.1 · p. ${SPECIES_TRAITS[view.species!].page}`
   const options = decl.options.map((option) => ({ id: option.id, name: option.label, line: option.note ?? "", source }))
-  return { id: "lineage", kind: "lineage", placeholder: decl.title.toLowerCase(), options, chosen: view.lineage, named: decl.options.some((option) => option.lineage) }
+  return { id: "lineage", kind: "lineage", placeholder: decl.title.toLowerCase(), options, chosen: view.lineage, named: decl.options.some((option) => option.lineage), leads: decl.options.some((option) => option.adjective) }
 }
 
 function approachSlot(view: QuickView): Slot | null {
@@ -40,16 +41,14 @@ function approachSlot(view: QuickView): Slot | null {
 function languageSlots(view: QuickView): Slot[] {
   if (!view.species) return []
   const shown = shownLanguages(view)
-  // Until some are picked, the language the species is tied to is only suggested.
-  const tied = view.languages.length === 0 ? shown : []
   return Array.from({ length: languageCount(view) }, (_, index) => {
     const taken = shown.filter((_, other) => other !== index)
     const options = STANDARD_LANGUAGES.filter((language) => language !== "Common" && !taken.includes(language)).map((language) => {
       const speakers = SPECIES.find((species) => SPECIES_LANGUAGES[species.id]?.includes(language))
       return { id: language, name: language, line: speakers ? `Spoken by ${speakers.label}s.` : "A Standard Language.", source: "SRD 5.2.1 · p. 20" }
     })
-    const chosen = view.languages[index] ?? null
-    return { id: `language-${index}`, kind: "language" as const, placeholder: "language", options, chosen, suggested: chosen ? undefined : tied[index] }
+    // The language the species is tied to is suggested, and counts as filled.
+    return { id: `language-${index}`, kind: "language" as const, placeholder: "language", options, chosen: shown[index] ?? null }
   })
 }
 
@@ -70,13 +69,16 @@ export function slotsOf(view: QuickView): Slot[] {
   ]
 }
 
-// The slots the sentence writes. Size and an ancestry that does not name the species are
-// chosen from the card, not in the sentence.
+// The slots the sentence writes. Size and the Goliath’s ancestry are suggested, not asked.
 const inSentence = (slot: Slot) => slot.kind !== "size" && (slot.kind !== "lineage" || slot.named)
 export const sentenceSlots = (slots: Slot[]) => slots.filter(inSentence)
 
-// The one next slot to answer: the first of the sentence not chosen, a suggestion included until
-// it is accepted. The caret, the picker and the review all follow it.
-export const nextOpen = (slots: Slot[]) => sentenceSlots(slots).find((slot) => slot.chosen === null) ?? null
+// The open slots: those of the sentence not chosen yet, an approach suggestion included until it
+// is accepted. Every open slot is in the sentence and nothing else is, so the caret, the picker,
+// "To finish" and the review all read this.
+export const openSlots = (slots: Slot[]) => sentenceSlots(slots).filter((slot) => slot.chosen === null)
+
+// The one next slot to answer.
+export const nextOpen = (slots: Slot[]) => openSlots(slots)[0] ?? null
 
 export const chosenName = (slot: Slot) => slot.options.find((option) => option.id === slot.chosen)?.name ?? null

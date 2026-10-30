@@ -5,13 +5,16 @@ import type { Kit } from "./character-templates/srd-5-2-1-choices"
 import { CLASS_BUILD } from "./character-templates/srd-5-2-1-classes"
 import { weaponById } from "./character-templates/srd-5-2-1-gear"
 import { BACKGROUND_KITS, CLASS_KITS } from "./character-templates/srd-5-2-1-kits"
-import { SPECIES_CHOICES } from "./character-templates/srd-5-2-1-origins"
+import { isMagicInitiate } from "./character-templates/srd-5-2-1-feats"
+import { BACKGROUND_CHOICES, SPECIES_CHOICES } from "./character-templates/srd-5-2-1-origins"
 import { APPROACHES, RECOMMENDED_EXPERTISE, SPECIES_LANGUAGES, SUGGESTED_SKILLS } from "./character-templates/srd-5-2-1-quick"
 import { proficientWith } from "./character-weapons"
 import type { QuickRules } from "./quick-state"
 
-// What the player already chose on the start page, which the plan leaves alone.
-export type QuickChosen = { approach: string | null; languages: string[] }
+// What the player already chose, which the plan leaves alone. `fixed` has the picks made by
+// hand, by field id (and "abilities" for the scores and the increase); the plan holds what they
+// take, so a suggestion never repeats one.
+export type QuickChosen = { approach: string | null; languages: string[]; fixed?: Record<string, unknown> }
 
 // Everything the quick build fills in for a class, species and background: the values to
 // store under their field ids, the markers to put on them, and the two kits.
@@ -54,12 +57,20 @@ function masteries(cls: SrdClass, count: number, rule: "melee" | "any" | "profic
     .slice(0, count)
 }
 
+const SKILL_PICKS = ["class-skills", "species-skill"]
+const skillOf = (id: string) => id.replace("skill:", "")
+
 export function planQuickBuild(cls: SrdClass, species: SrdSpecies, background: SrdBackground, rules: QuickRules, chosen: QuickChosen): QuickPlan {
   const values: Record<string, unknown> = { level: rules.level }
+  const fixed = chosen.fixed ?? {}
+  const set = (field: string, value: unknown) => {
+    if (!(field in fixed)) values[field] = value
+  }
   const approach = APPROACHES[cls.id]?.find((option) => option.id === chosen.approach) ?? APPROACHES[cls.id]?.[0]
   const classKit = CLASS_KITS[cls.id].find((kit) => kit.id === approach?.kit) ?? CLASS_KITS[cls.id][0]
   const backgroundKit = BACKGROUND_KITS[background.id][0]
-  Object.assign(values, { "equipment-class": classKit.id, "equipment-background": backgroundKit.id })
+  set("equipment-class", classKit.id)
+  set("equipment-background", backgroundKit.id)
 
   // The approach's ability gets the class's best score, swapped from the primary that had it.
   const scores = { ...STANDARD_ARRAY_BY_CLASS[cls.id] }
@@ -68,31 +79,45 @@ export function planQuickBuild(cls: SrdClass, species: SrdSpecies, background: S
     ;[scores[lead], scores[approach.ability]] = [scores[approach.ability], scores[lead]]
   }
   const { two, one } = suggestIncrease(background, scores, approach ? [approach.ability] : cls.primary)
-  values["ability-increase"] = splitIncreaseId(two, one)
-  if (rules.method !== "own") for (const [id] of ABILITIES) values[id] = scores[id]
+  if (!("abilities" in fixed)) {
+    values["ability-increase"] = splitIncreaseId(two, one)
+    if (rules.method !== "own") for (const [id] of ABILITIES) values[id] = scores[id]
+  }
   const total = (id: AbilityId) => Math.min(ABILITY_CAP, scores[id] + (id === two ? 2 : id === one ? 1 : 0))
 
-  // Skills in the order they are asked for, none of them held twice.
-  const taken = new Set(background.skills)
-  const own = (cls.skills ?? SKILLS.map(([id]) => id))
-  const preferred = [...SUGGESTED_SKILLS[cls.id].filter((id) => own.includes(id)), ...own]
-  values["class-skills"] = take(preferred, taken, cls.skillCount)
+  // Skills in the order they are asked for, none of them held twice, those picked by hand included.
+  const taken = new Set([...background.skills, ...SKILL_PICKS.flatMap((field) => (fixed[field] as string[] | undefined) ?? []), ...(((fixed["skilled-picks"] as string[] | undefined) ?? []).filter((id) => id.startsWith("skill:")).map(skillOf))])
+  const classSkills = cls.skills ?? SKILLS.map(([id]) => id)
+  const preferred = [...SUGGESTED_SKILLS[cls.id].filter((id) => classSkills.includes(id)), ...classSkills]
+  set("class-skills", take(preferred, taken, cls.skillCount))
+  // Tools likewise: the background's, the class's, and the Skilled picks.
+  const tools = new Set([...(background.id === "soldier" ? [] : [background.tool]), ...CLASS_BUILD[cls.id].tools, ...(((fixed["skilled-picks"] as string[] | undefined) ?? []).filter((id) => id.startsWith("tool:")).map((id) => id.slice(5)))])
   const speciesDecls = SPECIES_CHOICES[species.id] ?? []
   for (const decl of speciesDecls) {
-    if (decl.kind === "skills") values[decl.field] = take(decl.from === "any" ? preferred : [...decl.from].sort((a, b) => preferred.indexOf(a) - preferred.indexOf(b)), taken, decl.count)
-    if (decl.kind === "feat" && decl.recommended) values[decl.field] = [decl.recommended]
+    if (decl.kind === "skills") set(decl.field, take(decl.from === "any" ? preferred : [...decl.from].sort((a, b) => preferred.indexOf(a) - preferred.indexOf(b)), taken, decl.count))
+    if (decl.kind === "feat" && decl.recommended) set(decl.field, [decl.recommended])
+    // The sentence asks for a lineage that names the species; the others are suggested.
+    if (decl.kind === "options" && !decl.options.some((option) => option.lineage)) set(decl.field, [decl.options[0].id])
   }
-  const feats = [background.feat, ...(speciesDecls.flatMap((decl) => (decl.kind === "feat" && decl.recommended ? [decl.recommended] : [])))]
-  if (feats.includes("Skilled")) values["skilled-picks"] = take([...preferred, ...SKILLS.map(([id]) => id)], taken, 3).map((id) => `skill:${id}`)
+  if (species.sizeChoice) set("size", "medium")
+  const speciesFeat = ((fixed["species-feat"] ?? values["species-feat"]) as string[] | undefined)?.[0]
+  const feats = [background.feat, ...(speciesFeat ? [speciesFeat] : [])]
+  if (feats.includes("Skilled")) set("skilled-picks", take([...preferred, ...SKILLS.map(([id]) => id)], taken, 3).map((id) => `skill:${id}`))
+  // A Magic Initiate feat asks for its spellcasting ability: the class's, or Intelligence.
+  const ability = ["int", "wis", "cha"].includes(cls.spellAbility ?? "") ? cls.spellAbility : "int"
+  if (isMagicInitiate(background.feat)) set("origin-feat.ability", [ability])
+  if (speciesFeat && isMagicInitiate(speciesFeat)) set("species-feat.ability", [ability])
 
-  for (const decl of CLASS_BUILD[cls.id].choices) {
-    if (decl.kind === "feat" && decl.recommended) values[decl.field] = [approach?.style ?? decl.recommended]
-    if (decl.kind === "weapons") values[decl.field] = masteries(cls, decl.count, decl.rule, [classKit, backgroundKit])
-    if (decl.kind === "expertise" && RECOMMENDED_EXPERTISE.every((id) => taken.has(id))) values[decl.field] = RECOMMENDED_EXPERTISE
+  for (const decl of [...CLASS_BUILD[cls.id].choices, ...(BACKGROUND_CHOICES[background.id] ?? [])]) {
+    if (decl.kind === "feat" && decl.recommended) set(decl.field, [approach?.style ?? decl.recommended])
+    if (decl.kind === "weapons") set(decl.field, masteries(cls, decl.count, decl.rule, [classKit, backgroundKit]))
+    if (decl.kind === "expertise" && RECOMMENDED_EXPERTISE.every((id) => taken.has(id))) set(decl.field, RECOMMENDED_EXPERTISE)
+    if (decl.kind === "options") set(decl.field, [decl.options[0].id])
+    if (decl.kind === "tools") set(decl.field, take(decl.from, tools, decl.count))
   }
 
   // Languages the species is tied to, unless the player picked their own.
-  if (chosen.languages.length === 0) values.languages = SPECIES_LANGUAGES[species.id] ?? []
+  if (chosen.languages.length === 0) set("languages", SPECIES_LANGUAGES[species.id] ?? [])
 
   // Only what was filled in is marked; an empty pick is left to finish.
   const suggested = Object.keys(values).filter((field) => field !== "level" && !(Array.isArray(values[field]) && (values[field] as unknown[]).length === 0))

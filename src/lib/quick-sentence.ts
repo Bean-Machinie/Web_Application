@@ -66,7 +66,8 @@ export function sentenceOf(slots: Slot[], ghost: Ghost | null = null): SentenceP
   if (open === species.id) return clause(species, PROMPTS.species, " ", speciesText)!
   // A lineage that names the species stands in for the species word, ghost included.
   const lineageOpen = !!lineage && open === lineage.id
-  const lineageName = lineageOpen && ghost?.slot === lineage.id ? nameOf(lineage, ghost.id) : lineage?.chosen ? chosenName(lineage) : null
+  const lineageWord = (id: string) => (lineage!.leads ? `${nameOf(lineage!, id)} ${chosenName(species)}` : nameOf(lineage!, id))
+  const lineageName = lineageOpen && ghost?.slot === lineage.id ? lineageWord(ghost.id) : lineage?.chosen ? lineageWord(lineage.chosen) : null
   const name = lineageName ?? chosenName(species)!
   word("species", lineageName ? lineage!.id : species.id, " ", withArticle(name), "", lineageOpen && !!lineageName, lineageName ? CHANGE_EITHER : undefined)
   if (lineageOpen) return ghost?.slot === lineage.id ? caret(lineage.id, "", hintOf()) : caret(lineage.id, PROMPTS.lineage)

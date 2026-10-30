@@ -30,7 +30,10 @@ export const isQuickBuilt = (values: Values) => Array.isArray(values[SUGGESTED_F
 // A marker covers one field of the builder, and the six scores with the background's
 // increase count as one.
 const ABILITY_FIELDS = /^(str|dex|con|int|wis|cha)$/
-const MARKED = ["class-skills", "species-skill", "skilled-picks", "class-style", "species-feat", "class-masteries", "class-expertise", "languages", "equipment-class", "equipment-background"]
+export const MARKED = [
+  "class-skills", "species-skill", "skilled-picks", "class-style", "species-feat", "class-masteries", "class-expertise", "languages", "equipment-class", "equipment-background",
+  "size", "species-option", "species-ability", "class-order", "class-invocation", "class-tools", "background-tool", "origin-feat.ability", "species-feat.ability",
+]
 
 // The marker a change to this field takes away: the player has now chosen it themselves.
 export function markerOfField(fieldId: string) {
@@ -53,5 +56,6 @@ export function markerShownFor(fieldId: string, values: Values) {
 // The step of the detailed builder that changes what a marker covers.
 export function stepOfMarker(key: string): BuilderStep {
   if (key === "abilities") return "abilities"
+  if (key === "size" || key === "species-option") return "species"
   return key.startsWith("equipment") ? "equipment" : "choices"
 }

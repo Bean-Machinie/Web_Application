@@ -24,7 +24,7 @@ export const WOOD_ELF = "wood-elf"
 export const SPECIES_CHOICES: Record<string, ChoiceDecl[]> = {
   dragonborn: [{
     kind: "options", field: "species-option", title: "Draconic Ancestry", count: 1,
-    options: DRAGONS.map(([dragon, damage]) => ({ id: dragon, label: `${dragon[0].toUpperCase()}${dragon.slice(1)}`, note: `${damage} damage for your Breath Weapon and Resistance.` })),
+    options: DRAGONS.map(([dragon, damage]) => ({ id: dragon, label: `${dragon[0].toUpperCase()}${dragon.slice(1)}`, note: `${damage} damage for your Breath Weapon and Resistance.`, lineage: true, adjective: true })),
   }],
   elf: [
     {
@@ -67,9 +67,9 @@ export const SPECIES_CHOICES: Record<string, ChoiceDecl[]> = {
     {
       kind: "options", field: "species-option", title: "Fiendish Legacy", count: 1,
       options: [
-        { id: "abyssal", label: "Abyssal", note: "Resistance to Poison and the Poison Spray cantrip." },
-        { id: "chthonic", label: "Chthonic", note: "Resistance to Necrotic and the Chill Touch cantrip." },
-        { id: "infernal", label: "Infernal", note: "Resistance to Fire and the Fire Bolt cantrip." },
+        { id: "abyssal", label: "Abyssal", note: "Resistance to Poison and the Poison Spray cantrip.", lineage: true, adjective: true },
+        { id: "chthonic", label: "Chthonic", note: "Resistance to Necrotic and the Chill Touch cantrip.", lineage: true, adjective: true },
+        { id: "infernal", label: "Infernal", note: "Resistance to Fire and the Fire Bolt cantrip.", lineage: true, adjective: true },
       ],
     },
     lineageAbility,

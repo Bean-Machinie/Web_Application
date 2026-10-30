@@ -5,6 +5,7 @@ import { ABILITIES, BACKGROUNDS, CLASSES, SKILLS, SPECIES } from "./character-te
 import type { StoredValue } from "./characters"
 import { planQuickBuild } from "./quick-plan"
 import type { QuickRules } from "./quick-state"
+import { fixedOf } from "./quick-view"
 import type { QuickView } from "./quick-view"
 
 // What the character card shows, as the text of each value so two cards compare by value.
@@ -43,7 +44,7 @@ export function cardOf(view: QuickView, fields: SheetField[], stored: Record<str
   put("species-option", view.lineage ? [view.lineage] : null)
   put("size", view.size)
   if (cls) {
-    const plan = planQuickBuild(cls, species ?? SPECIES[0], background ?? BACKGROUNDS[0], rules, { approach: view.approach, languages: view.languages })
+    const plan = planQuickBuild(cls, species ?? SPECIES[0], background ?? BACKGROUNDS[0], rules, { approach: view.approach, languages: view.languages, fixed: fixedOf(view) })
     for (const [field, value] of Object.entries(plan.values)) put(field, value)
     for (const field of [...(species ? [] : OF_SPECIES), ...(background ? [] : OF_BACKGROUND)]) put(field, null)
   }

@@ -5,7 +5,7 @@ import type { Kit, KitItem } from "@/lib/character-templates/srd-5-2-1-choices"
 import { BACKGROUND_KITS, CLASS_KITS } from "@/lib/character-templates/srd-5-2-1-kits"
 import { chosenOption, origins, picksOf } from "@/lib/character-grants"
 import { proficientWith } from "@/lib/character-weapons"
-import { readAttacks, readList } from "@/lib/character-values"
+import { readAttacks, readList, readStat } from "@/lib/character-values"
 import type { Attack, ListItem } from "@/lib/character-values"
 import type { SheetActions } from "./character-actions"
 
@@ -38,21 +38,20 @@ function abilityFor(weapon: Weapon, monk: boolean, actions: SheetActions) {
   return weapon.finesse && dex > str ? "dex" : "str"
 }
 
-// Writes what the two kits chosen come to on the sheet: the gold, the items in the
-// inventory, and an attack for each weapon. What an earlier kit put there is replaced.
+// What the kits come to on the sheet: the gold, the items in the inventory, and an attack for
+// each weapon. What an earlier kit put there is replaced, what the player added stays.
 // `picked` has tools just chosen, which the actions do not hold yet; `newClass` is a class just
 // chosen, whose kit rules apply before it is stored.
-export function applyKits(actions: SheetActions, kits: Kit[], picked: Record<string, string[]> = {}, newClass?: string) {
+export function kitWrites(actions: SheetActions, kits: Kit[], picked: Record<string, string[]> = {}, newClass?: string) {
   const classId = newClass ?? origins(actions).cls?.id
   const build = classId ? CLASS_BUILD[classId] : null
   const order = newClass ? undefined : picksOf(actions, "class-order")[0]
 
   const items = kits.flatMap((kit) => kit.items.map((item, index) => ({ id: `${KIT_PREFIX}${kit.id}:${index}`, text: itemText(item, actions, picked) })))
   const inventory: ListItem[] = [...readList(actions.values.inventory?.value).filter((item) => !item.id.startsWith(KIT_PREFIX)), ...items]
-  actions.onValue("inventory", inventory)
 
   const weapons = [...new Set(kits.flatMap((kit) => kit.items.flatMap((item) => (item.weapon ? [item.weapon] : []))))]
-  const attacks: Attack[] = weapons.flatMap((id) => {
+  const made: Attack[] = weapons.flatMap((id) => {
     const weapon = weaponById(id)
     if (!weapon) return []
     return [{
@@ -65,8 +64,32 @@ export function applyKits(actions: SheetActions, kits: Kit[], picked: Record<str
       auto: true,
     }]
   })
-  actions.onValue("attacks", [...readAttacks(actions.values.attacks?.value).filter((attack) => !attack.id.startsWith(KIT_PREFIX)), ...attacks])
-  actions.onValue("coin.gp", kits.length > 0 ? kits.reduce((sum, kit) => sum + kit.gp, 0) : null)
+  const attacks = [...readAttacks(actions.values.attacks?.value).filter((attack) => !attack.id.startsWith(KIT_PREFIX)), ...made]
+  return { inventory, attacks, gp: kits.length > 0 ? kits.reduce((sum, kit) => sum + kit.gp, 0) : null }
+}
+
+export function applyKits(actions: SheetActions, kits: Kit[], picked: Record<string, string[]> = {}, newClass?: string) {
+  const { inventory, attacks, gp } = kitWrites(actions, kits, picked, newClass)
+  actions.onValue("inventory", inventory)
+  actions.onValue("attacks", attacks)
+  actions.onValue("coin.gp", gp)
+}
+
+// Whether the player has changed what the kits put on the sheet: a kit item or attack edited or
+// removed, or the gold changed. Items they added do not count, they survive a rewrite.
+export function kitsEdited(actions: SheetActions) {
+  const { classKit, backgroundKit } = chosenKits(actions)
+  const kits = [classKit, backgroundKit].filter((kit): kit is Kit => kit !== null)
+  if (kits.length === 0) return false
+  const expected = kitWrites(actions, kits)
+  const mine = <T extends { id: string }>(list: T[], sign: (item: T) => unknown[]) => JSON.stringify(list.filter((item) => item.id.startsWith(KIT_PREFIX)).map(sign))
+  const item = (entry: ListItem) => [entry.id, entry.text]
+  const attack = (entry: Attack) => [entry.id, entry.name, entry.ability, entry.proficient, entry.toHit, entry.damage]
+  return (
+    mine(readList(actions.values.inventory?.value), item) !== mine(expected.inventory, item) ||
+    mine(readAttacks(actions.values.attacks?.value), attack) !== mine(expected.attacks, attack) ||
+    (readStat(actions.values["coin.gp"]?.value) ?? null) !== expected.gp
+  )
 }
 
 // The Armor Class a kit gives, for the pill on its card: armor and Shield with Dexterity, and

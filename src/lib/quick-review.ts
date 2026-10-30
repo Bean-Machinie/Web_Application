@@ -1,10 +1,13 @@
-import { BACKGROUNDS, CLASSES, SKILLS, SPECIES } from "./character-templates/srd-5-2-1"
+import { ABILITIES, BACKGROUNDS, CLASSES, SKILLS, SPECIES } from "./character-templates/srd-5-2-1"
+import { CLASS_BUILD } from "./character-templates/srd-5-2-1-classes"
+import { BACKGROUND_CHOICES, SPECIES_CHOICES } from "./character-templates/srd-5-2-1-origins"
 import { weaponById } from "./character-templates/srd-5-2-1-gear"
 import { ABILITY_METHODS } from "./character-templates/srd-5-2-1-quick"
 import { planQuickBuild } from "./quick-plan"
 import { stepOfMarker } from "./quick-state"
 import type { QuickRules } from "./quick-state"
 import type { Slot } from "./quick-slots"
+import { fixedOf } from "./quick-view"
 import type { QuickView } from "./quick-view"
 import type { BuilderStep } from "./character-builder"
 
@@ -22,11 +25,26 @@ const LABELS: Record<string, string> = {
   "class-masteries": "Weapon mastery",
   "class-expertise": "Expertise",
   languages: "Languages",
+  size: "Size",
+  "species-option": "Ancestry",
+  "species-ability": "Spellcasting ability",
+  "class-order": "Order",
+  "class-invocation": "Invocation",
+  "class-tools": "Tool proficiency",
+  "background-tool": "Gaming set",
+  "origin-feat.ability": "Spellcasting ability",
+  "species-feat.ability": "Spellcasting ability",
   "equipment-class": "Class equipment",
   "equipment-background": "Background equipment",
 }
 
 const skillName = (id: string) => SKILLS.find(([other]) => other === id.replace("skill:", ""))?.[1] ?? id.replace("tool:", "")
+// An option's name from the choices of the class, species and background, else the id.
+const optionName = (id: string) => {
+  const decls = [...Object.values(SPECIES_CHOICES), ...Object.values(BACKGROUND_CHOICES), ...Object.values(CLASS_BUILD).flatMap((build) => build.choices)].flat()
+  const found = decls.flatMap((decl) => (decl.kind === "options" ? decl.options : [])).find((option) => option.id === id)
+  return found?.label ?? ABILITIES.find(([other]) => other === id)?.[1] ?? id
+}
 const list = (value: unknown) => (Array.isArray(value) ? (value as string[]) : [])
 
 // What "Create character" will fill in, for the review: the plan's suggestions in words.
@@ -35,7 +53,7 @@ export function suggestedRows(view: QuickView, rules: QuickRules): ReviewRow[] {
   const species = SPECIES.find((option) => option.id === view.species)
   const background = BACKGROUNDS.find((option) => option.id === view.background)
   if (!cls || !species || !background) return []
-  const plan = planQuickBuild(cls, species, background, rules, { approach: view.approach, languages: view.languages })
+  const plan = planQuickBuild(cls, species, background, rules, { approach: view.approach, languages: view.languages, fixed: fixedOf(view) })
 
   const text: Record<string, string> = {
     abilities: ABILITY_METHODS.find((method) => method.id === rules.method)!.label,
@@ -46,15 +64,12 @@ export function suggestedRows(view: QuickView, rules: QuickRules): ReviewRow[] {
     "class-masteries": list(plan.values["class-masteries"]).map((id) => weaponById(id)?.label ?? id).join(", "),
     "equipment-class": plan.classKit.label,
     "equipment-background": plan.backgroundKit.label,
+    size: "Medium",
   }
   return plan.suggested.map((key) => {
-    const value = text[key] ?? list(plan.values[key]).join(", ")
+    const value = text[key] ?? list(plan.values[key]).map(optionName).join(", ")
     return key === "languages" ? { key, label: LABELS[key], value, slot: "language-0" } : { key, label: LABELS[key] ?? key, value, step: stepOfMarker(key) }
   })
 }
-
-// The slots still empty, to finish in the sentence. Languages are optional, so a language not
-// picked yet is open but does not hold up Create.
-export const openSlots = (slots: Slot[]) => slots.filter((slot) => slot.chosen === null)
 
 export const openLabel = (slot: Slot) => `${slot.placeholder[0].toUpperCase()}${slot.placeholder.slice(1)}`

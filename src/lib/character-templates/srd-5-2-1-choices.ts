@@ -4,9 +4,9 @@ import type { FeatCategory } from "./srd-5-2-1-feats"
 // the Skills and feats step shows whatever applies to the character. Each choice is stored
 // as a list of ids under the field it names.
 
-// `lineage` marks an option that names the species itself (High Elf, Forest Gnome), so it can
-// stand in for the species word.
-export type OptionDecl = { id: string; label: string; note?: string; lineage?: boolean }
+// `lineage` marks an option the sentence asks for. It stands in for the species word (High Elf,
+// Forest Gnome), or with `adjective` leads it (Gold Dragonborn, Infernal Tiefling).
+export type OptionDecl = { id: string; label: string; note?: string; lineage?: boolean; adjective?: boolean }
 
 export type ChoiceDecl =
   // Skills, from a list or from any.
