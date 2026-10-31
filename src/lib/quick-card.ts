@@ -6,7 +6,7 @@ import type { StoredValue } from "./characters"
 import { readLine } from "./character-values"
 import { NONE, number, signed } from "./quick-card-format"
 import { featuresOf } from "./quick-card-features"
-import type { FeatureGroup } from "./quick-card-features"
+import type { FeatureCard } from "./quick-card-features"
 import { gearOf } from "./quick-card-gear"
 import type { GearModel } from "./quick-card-gear"
 import { proficienciesOf } from "./quick-card-proficiencies"
@@ -22,7 +22,7 @@ export type CardModel = {
   alignment: string | null
   mods: { id: string; label: string; mod: string; score: string }[]
   skills: { name: string; bonus: string }[]
-  features: FeatureGroup[]
+  features: FeatureCard[]
   proficiency: ProficiencyModel
   gear: GearModel
 }
