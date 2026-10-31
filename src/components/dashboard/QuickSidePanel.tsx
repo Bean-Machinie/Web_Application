@@ -21,15 +21,17 @@ type Props = {
   base: CardModel
   // Opens a pick's panel; none until the class, species and background are chosen.
   onPick: ((pick: string) => void) | null
+  // Opens the picker of a word of the sentence.
+  onOpenSlot: (slot: string) => void
 }
 
 // The panel on the right, as the map builder's: a flat bar of tabs on a shade apart that stays
 // put, and the open tab under it, scrolling on its own. The tab is remembered in this browser.
-export function QuickSidePanel({ overview, shown, base, onPick }: Props) {
+export function QuickSidePanel({ overview, shown, base, onPick, onOpenSlot }: Props) {
   const [tab, setTab] = useStoredTab("quick-panel-tab", TABS.map((candidate) => candidate.id))
   const content: Record<(typeof TABS)[number]["id"], ReactNode> = {
     overview,
-    features: <QuickFeaturesTab shown={shown} base={base} onPick={onPick} />,
+    features: <QuickFeaturesTab shown={shown} base={base} onPick={onPick} onOpenSlot={onOpenSlot} />,
     proficiencies: <QuickProficienciesTab shown={shown} base={base} onPick={onPick} />,
     gear: <QuickGearTab shown={shown} base={base} onPick={onPick} />,
   }

@@ -7,35 +7,33 @@ import { CLASS_BUILD } from "./character-templates/srd-5-2-1-classes"
 import { featById } from "./character-templates/srd-5-2-1-feats"
 import { weaponById } from "./character-templates/srd-5-2-1-gear"
 import { SPECIES_TRAIT_LIST } from "./character-templates/srd-5-2-1-origins"
+import { FEATURE_STATE, STYLE_EFFECT } from "./character-templates/srd-5-2-1-states"
 import { readStat } from "./character-values"
 import { readSuggested } from "./quick-state"
 
-// One thing the character has. `eyebrow` is the feature's name when it asks for a choice, and
-// then `title` is the pick ("Choose" until there is one); `pick` is the panel that changes it.
+// One thing the character has, as a row: its name, what it comes to on the right (`value`, and
+// `effect` after it), and for the open row the full `description` and the `picks` as a list.
+// `pick` is the panel that changes it; `chosen` is false until there is a pick.
 export type Feature = {
-  eyebrow: string | null
-  title: string
+  name: string
+  value: string
+  effect: string | null
   description: string
-  chips: string[]
-  uses: string | null
-  // Whether a pick was made, and if so whether the builder suggested it.
+  picks: string[]
   chosen: boolean
   suggested: boolean
   pick: string | null
 }
-// The features of one source: the class, the background or the species.
-export type FeatureCard = { label: "Class" | "Background" | "Species"; name: string; features: Feature[] }
+// The features of one source: the class, the background or the species. `slot` is the word of
+// the sentence that picks it; `level` is only for the class.
+export type FeatureCard = { label: "Class" | "Background" | "Species"; slot: "class" | "background" | "species"; name: string; level: number | null; features: Feature[] }
 
-// How often a feature can be used, from the same pages as the class and species summaries.
-const USES: Record<string, string> = {
-  Rage: "2 uses · Short Rest",
-  "Second Wind": "2 uses · Short Rest",
-  "Innate Sorcery": "2 uses · Long Rest",
-  "Lay On Hands": "Long Rest",
-  "Breath Weapon": "Proficiency Bonus uses · Long Rest",
-  Stonecunning: "Proficiency Bonus uses · Long Rest",
-  "Giant Ancestry": "Proficiency Bonus uses · Long Rest",
-  "Relentless Endurance": "1 use · Long Rest",
+// How many rows each source has room for: the most any class or species lists, so the panel
+// keeps its size whichever is tried on. The background gives one feat.
+export const FEATURE_SLOTS = {
+  Class: Math.max(...Object.values(CLASS_BUILD).map((build) => build.features.length)),
+  Background: 1,
+  Species: Math.max(...Object.values(SPECIES_TRAIT_LIST).map((traits) => traits.length)),
 }
 
 const skillLabel = (id: string) => SKILLS.find(([skill]) => skill === id)?.[1] ?? id
@@ -51,27 +49,31 @@ function featDescription(id: string, context: GlossaryContext) {
   return featById(id)?.benefit ?? ""
 }
 
-// A feature that asks for a choice shows the pick and what it does; one without shows itself.
+// A feature that asks for a choice shows the pick; one without shows what it comes to.
 function featureOf(name: string, summary: string, source: string, context: GlossaryContext, cards: Card[]): Feature {
   const card = cards.find((candidate) => candidate.source === source && sameTitle(candidate.decl.title, name))
-  const plain: Feature = { eyebrow: null, title: name, description: summary, chips: [], uses: USES[name] ?? null, chosen: false, suggested: false, pick: null }
+  const range = name === "Darkvision" ? summary.match(/(\d+) feet/)?.[1] : undefined
+  const plain: Feature = { name, value: range ? `${range} ft` : (FEATURE_STATE[name] ?? ""), effect: null, description: summary, picks: [], chosen: false, suggested: false, pick: null }
   if (!card) return plain
 
   const { decl, chosen } = card
-  const feature = { ...plain, pick: decl.field, chosen: chosen.length > 0, suggested: readSuggested(context.values).includes(decl.field) }
-  if (chosen.length === 0) return { ...feature, eyebrow: name, title: "Choose", description: "" }
-  // The chips say it all; the rule would only repeat the class.
+  const feature = { ...plain, value: "Choose", pick: decl.field, chosen: chosen.length > 0, suggested: readSuggested(context.values).includes(decl.field) }
+  if (chosen.length === 0) return feature
   if (decl.kind === "weapons") {
-    return { ...feature, description: "", chips: chosen.map((id) => { const weapon = weaponById(id); return weapon ? `${weapon.label} · ${weapon.mastery}` : id }) }
+    const weapons = chosen.map((id) => weaponById(id))
+    return {
+      ...feature,
+      value: chosen.map((id, index) => weapons[index]?.label ?? id).join(", "),
+      picks: chosen.map((id, index) => (weapons[index] ? `${weapons[index].label} · ${weapons[index].mastery}` : id)),
+    }
   }
-  if (decl.kind === "feat") return { ...feature, eyebrow: name, title: chosen[0], description: featDescription(chosen[0], context) }
+  if (decl.kind === "feat") return { ...feature, value: chosen[0], effect: STYLE_EFFECT[chosen[0]] ?? null, description: featDescription(chosen[0], context) }
   if (decl.kind === "options") {
     const option = decl.options.find((candidate) => candidate.id === chosen[0])
-    return { ...feature, eyebrow: name, title: option?.label ?? chosen[0], description: option?.note ?? "" }
+    return { ...feature, value: option?.label ?? chosen[0], description: option?.note ?? summary }
   }
-  if (decl.kind === "skills") return { ...feature, eyebrow: name, title: list(chosen.map(skillLabel)), description: "You add your Proficiency Bonus to checks with it." }
-  if (decl.kind === "expertise") return { ...feature, eyebrow: name, title: list(chosen.map(skillLabel)), description: "Your Proficiency Bonus counts double for these skills." }
-  return { ...feature, eyebrow: name, title: chosen.join(", ") }
+  if (decl.kind === "skills" || decl.kind === "expertise") return { ...feature, value: list(chosen.map(skillLabel)) }
+  return { ...feature, value: chosen.join(", ") }
 }
 
 // One card each for the class, the background and the species, in that order. The feats sit in
@@ -82,12 +84,12 @@ export function featuresOf(context: GlossaryContext): FeatureCard[] {
   const feat = chosenOption(context, "origin-feat")
   const level = readStat(context.values.level?.value) ?? 1
   const originFeat: Feature[] = background && feat
-    ? [{ eyebrow: "Origin feat", title: feat.id, description: featDescription(feat.id, context), chips: [], uses: null, chosen: true, suggested: false, pick: "origin-feat" }]
+    ? [{ name: "Origin feat", value: feat.id, effect: null, description: featDescription(feat.id, context), picks: [], chosen: true, suggested: false, pick: "origin-feat" }]
     : []
 
   return [
-    ...(cls ? [{ label: "Class" as const, name: `${cls.label} ${level}`, features: CLASS_BUILD[cls.id].features.map((item) => featureOf(item.name, item.summary, cls.label, context, cards)) }] : []),
-    ...(background ? [{ label: "Background" as const, name: background.label, features: originFeat }] : []),
-    ...(species ? [{ label: "Species" as const, name: species.label, features: (SPECIES_TRAIT_LIST[species.id] ?? []).map((trait) => featureOf(trait.name, trait.summary, species.label, context, cards)) }] : []),
+    ...(cls ? [{ label: "Class" as const, slot: "class" as const, name: cls.label, level, features: CLASS_BUILD[cls.id].features.map((item) => featureOf(item.name, item.summary, cls.label, context, cards)) }] : []),
+    ...(background ? [{ label: "Background" as const, slot: "background" as const, name: background.label, level: null, features: originFeat }] : []),
+    ...(species ? [{ label: "Species" as const, slot: "species" as const, name: species.label, level: null, features: (SPECIES_TRAIT_LIST[species.id] ?? []).map((trait) => featureOf(trait.name, trait.summary, species.label, context, cards)) }] : []),
   ].filter((card) => card.features.length > 0)
 }

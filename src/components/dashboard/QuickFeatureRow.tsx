@@ -1,32 +1,42 @@
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import type { Feature } from "@/lib/quick-card-features"
 import { featureIcon } from "./feature-icon"
-import { QuickChoicePill } from "./QuickChoicePill"
-import { QuickItemRow } from "./QuickItemRow"
-import { QuickValue } from "./QuickValue"
+import { QuickPropertyRow } from "./QuickPropertyRow"
 
-type Props = { feature: Feature; changed: boolean; onPick: ((pick: string) => void) | null }
+type Props = {
+  feature: Feature
+  changed: boolean
+  open: boolean
+  onToggle: () => void
+  onPick: ((pick: string) => void) | null
+}
 
-// A feature as a row. What can be chosen is a pill that opens its panel: the pick itself, or for
-// weapon masteries each chip.
-export function QuickFeatureRow({ feature, changed, onPick }: Props) {
-  const Icon = featureIcon(feature.eyebrow, feature.title)
-  const open = onPick && feature.pick ? () => onPick(feature.pick!) : null
-  const pill = (value: string) => <QuickChoicePill key={value} value={value} suggested={feature.suggested} chosen={feature.chosen} onClick={open} />
-  const extras = (feature.chips.length > 0 || feature.uses) && (
-    <>
-      {feature.chips.map(pill)}
-      {feature.uses && <Badge variant="secondary" className="rounded-[4px] font-normal">{feature.uses}</Badge>}
-    </>
-  )
-
+// A feature as a row of the property list. Opened, it gives the full description, the picks as a
+// list, who chose it, and a Change button where there is something to choose.
+export function QuickFeatureRow({ feature, changed, open, onToggle, onPick }: Props) {
   return (
-    <QuickItemRow
-      icon={<Icon />}
-      eyebrow={feature.eyebrow}
-      title={feature.eyebrow ? pill(feature.title) : <QuickValue value={feature.title} changed={changed} className="-ml-1" />}
-      description={feature.description}
-      extras={extras || undefined}
-    />
+    <QuickPropertyRow
+      icon={featureIcon(feature.name, feature.value)}
+      name={feature.name}
+      value={feature.value}
+      effect={feature.effect}
+      placeholder={!feature.chosen && feature.pick !== null}
+      suggested={feature.chosen && feature.suggested}
+      changed={changed}
+      animated
+      open={open}
+      onToggle={onToggle}
+    >
+      <p className="text-muted-foreground text-[13px] leading-snug">{feature.description}</p>
+      {feature.picks.length > 0 && (
+        <ul className="text-muted-foreground list-disc pl-4 text-[13px]">
+          {feature.picks.map((pick) => <li key={pick}>{pick}</li>)}
+        </ul>
+      )}
+      {feature.pick && feature.chosen && <p className="text-muted-foreground text-xs">{feature.suggested ? "Suggested" : "Your choice"}</p>}
+      {onPick && feature.pick && (
+        <Button variant="secondary" size="sm" onClick={() => onPick(feature.pick!)}>Change</Button>
+      )}
+    </QuickPropertyRow>
   )
 }

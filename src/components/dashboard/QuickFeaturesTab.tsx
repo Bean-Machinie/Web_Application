@@ -1,24 +1,55 @@
+import { useState } from "react"
+import { AnimatePresence } from "motion/react"
 import type { CardModel } from "@/lib/quick-card"
 import { has } from "@/lib/quick-card-format"
-import { QuickFeatureRow } from "./QuickFeatureRow"
+import { FEATURE_SLOTS } from "@/lib/quick-card-features"
+import { QuickFeatureSlot } from "./QuickFeatureSlot"
 import { QuickSection } from "./QuickSection"
 
-type Props = { shown: CardModel; base: CardModel; onPick: ((pick: string) => void) | null }
+type Props = { shown: CardModel; base: CardModel; onPick: ((pick: string) => void) | null; onOpenSlot: (slot: string) => void }
 
-// The class, the background and the species, each a section of features.
-export function QuickFeaturesTab({ shown, base, onPick }: Props) {
+// In the order of the sentence. Each shows once the one before it is chosen (or it is itself).
+const SECTIONS = [
+  { label: "Species", slot: "species", after: null },
+  { label: "Class", slot: "class", after: "Species" },
+  { label: "Background", slot: "background", after: "Class" },
+] as const
+
+// The sections come one at a time, each easing in under the last once that is chosen, with room for
+// all its possible rows until something is chosen, then only its own: the others collapse. One row is open at a time.
+export function QuickFeaturesTab({ shown, base, onPick, onOpenSlot }: Props) {
+  const [open, setOpen] = useState<string | null>(null)
   const known = base.features.flatMap((card) => card.features)
-  if (shown.features.length === 0) return <p className="text-muted-foreground text-sm">Choose a class, species and background to see your features.</p>
+  // What is chosen counts, not what is only tried on, so hovering does not bring a section in.
+  const chosen = (label: string | null) => label === null || base.features.some((card) => card.label === label)
 
   return (
     <div className="flex flex-col">
-      {shown.features.map((card) => (
-        <QuickSection key={card.label} label={card.label} name={card.name}>
-          {card.features.map((feature) => (
-            <QuickFeatureRow key={`${feature.eyebrow}${feature.title}`} feature={feature} changed={!has(known, feature)} onPick={onPick} />
-          ))}
-        </QuickSection>
-      ))}
+      <AnimatePresence initial={false}>
+        {SECTIONS.filter(({ label, after }) => chosen(after) || chosen(label)).map(({ label, slot }) => {
+          const card = shown.features.find((candidate) => candidate.label === label)
+          return (
+            <QuickSection
+              key={label}
+              reveal
+              label={label}
+              name={card?.name ?? "Not chosen"}
+              placeholder={!card}
+              onOpen={() => onOpenSlot(slot)}
+              end={card?.level != null && <span className="text-muted-foreground text-xs">Level {card.level}</span>}
+            >
+              <ul className="-mx-2 flex flex-col">
+                {Array.from({ length: FEATURE_SLOTS[label] }, (_, index) => {
+                  const feature = card?.features[index]
+                  const key = `${label}:${index}`
+                  const hidden = !!card && index >= card.features.length
+                  return <QuickFeatureSlot key={key} feature={feature} hidden={hidden} changed={!!feature && !has(known, feature)} open={open === key} onToggle={() => setOpen(open === key ? null : key)} onPick={onPick} />
+                })}
+              </ul>
+            </QuickSection>
+          )
+        })}
+      </AnimatePresence>
     </div>
   )
 }

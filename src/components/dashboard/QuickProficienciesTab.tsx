@@ -1,8 +1,11 @@
 import type { CardModel } from "@/lib/quick-card"
 import { has, NONE } from "@/lib/quick-card-format"
 import { cn } from "@/lib/utils"
-import { QuickProficiencyRow } from "./QuickProficiencyRow"
-import { QuickSectionHeader } from "./QuickSectionHeader"
+import { Languages, Shield, Swords, Wrench } from "lucide-react"
+import { useState } from "react"
+import { QuickChangeRow } from "./QuickChangeRow"
+import { QuickEditButton } from "./QuickEditButton"
+import { QuickSection } from "./QuickSection"
 import { QuickValue } from "./QuickValue"
 
 type Props = { shown: CardModel; base: CardModel; onPick: ((pick: string) => void) | null }
@@ -10,15 +13,22 @@ type Props = { shown: CardModel; base: CardModel; onPick: ((pick: string) => voi
 // Saving throws with a dot where proficient, the skills in two columns, then tools, languages,
 // armor training and weapons as short rows.
 export function QuickProficienciesTab({ shown, base, onPick }: Props) {
+  const [open, setOpen] = useState<string | null>(null)
   const now = shown.proficiency
   const before = base.proficiency
-  const edit = (pick: string | null) => (onPick && pick ? () => onPick(pick) : null)
+  const edit = (label: string, pick: string | null) => (onPick && pick ? <QuickEditButton label={`Edit ${label}`} onClick={() => onPick(pick)} /> : null)
   const list = (items: string[]) => items.join(", ") || NONE
+  const change = (pick: string | null) => (onPick && pick ? () => onPick(pick) : null)
+  const rows = [
+    { icon: Wrench, name: "Tools", value: list(now.tools), before: list(before.tools), text: "You are proficient with these tools.", onChange: change(now.picks.tools) },
+    { icon: Languages, name: "Languages", value: list(now.languages), before: list(before.languages), text: "The languages you know.", onChange: change(now.picks.languages) },
+    { icon: Shield, name: "Armor", value: now.armor, before: before.armor, text: "The armor you are trained to wear.", onChange: null },
+    { icon: Swords, name: "Weapons", value: now.weapons, before: before.weapons, text: "The weapons you are proficient with.", onChange: null },
+  ]
 
   return (
-    <div className="flex flex-col gap-4">
-      <section aria-label="Saving throws" className="flex flex-col gap-1">
-        <QuickSectionHeader title="Saving throws" />
+    <div className="flex flex-col">
+      <QuickSection label="Saving throws">
         <ul className="grid grid-cols-2 gap-x-4 gap-y-0.5">
           {now.saves.map((save) => (
             <li key={save.label} className="flex items-center gap-2 text-sm">
@@ -28,9 +38,8 @@ export function QuickProficienciesTab({ shown, base, onPick }: Props) {
             </li>
           ))}
         </ul>
-      </section>
-      <section aria-label="Skills" className="flex flex-col gap-1">
-        <QuickSectionHeader title="Skills" onEdit={edit(now.picks.skills)} />
+      </QuickSection>
+      <QuickSection label="Skills" end={edit("skills", now.picks.skills)}>
         {shown.skills.length === 0 && <p className="text-sm">{NONE}</p>}
         <ul className="grid grid-cols-2 gap-x-4 gap-y-0.5">
           {shown.skills.map((skill) => (
@@ -40,16 +49,14 @@ export function QuickProficienciesTab({ shown, base, onPick }: Props) {
             </li>
           ))}
         </ul>
-      </section>
-      <section aria-label="Training" className="flex flex-col gap-1">
-        <QuickSectionHeader title="Tools, languages and training" />
-        <dl className="flex flex-col gap-1">
-          <QuickProficiencyRow label="Tools" value={list(now.tools)} changed={list(now.tools) !== list(before.tools)} onEdit={edit(now.picks.tools)} />
-          <QuickProficiencyRow label="Languages" value={list(now.languages)} changed={list(now.languages) !== list(before.languages)} onEdit={edit(now.picks.languages)} />
-          <QuickProficiencyRow label="Armor" value={now.armor} changed={now.armor !== before.armor} />
-          <QuickProficiencyRow label="Weapons" value={now.weapons} changed={now.weapons !== before.weapons} />
-        </dl>
-      </section>
+      </QuickSection>
+      <QuickSection label="Training">
+        <ul className="-mx-2 flex flex-col">
+          {rows.map((row) => (
+            <QuickChangeRow key={row.name} {...row} changed={row.value !== row.before} open={open === row.name} onToggle={() => setOpen(open === row.name ? null : row.name)} />
+          ))}
+        </ul>
+      </QuickSection>
     </div>
   )
 }
