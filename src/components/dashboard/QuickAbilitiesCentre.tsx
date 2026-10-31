@@ -6,8 +6,6 @@ import { ruleStateOf } from "@/lib/character-rules-state"
 import { ABILITIES, ABILITY_CAP, POINT_BUY_BUDGET } from "@/lib/character-templates/srd-5-2-1"
 import type { AbilityId } from "@/lib/character-templates/srd-5-2-1"
 import type { AbilityMethod } from "@/lib/character-templates/srd-5-2-1-quick"
-import { Eraser } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { assign, buyScore, pointsLeft, readScores, suggestedAbilities } from "@/lib/quick-abilities"
 import type { QuickRules } from "@/lib/quick-state"
 import { cn } from "@/lib/utils"
@@ -21,7 +19,6 @@ import { QuickScorePicker } from "./QuickScorePicker"
 import { QuickScoreField } from "./QuickScoreField"
 import { QuickScoreLine } from "./QuickScoreLine"
 import { QuickScoreReset } from "./QuickScoreReset"
-import { QuickSwap } from "./QuickSwap"
 import { StatGrid } from "./StatGrid"
 
 type Props = {
@@ -70,16 +67,6 @@ export function QuickAbilitiesCentre({ actions, rules, inset, focus, onFocused }
     ? deriveAll([...actions.byId.values()], { ...actions.values, ...Object.fromEntries(ABILITIES.map(([id]) => [id, { pinned: actions.values[id]?.pinned ?? null, value: buyScore(scores[id]) }])) })
     : actions.derived
 
-  const aside = (
-    <div className="flex items-center gap-3">
-      {rules.method === "point-buy" && <span className="tabular-nums"><QuickSwap text={`${left} of ${POINT_BUY_BUDGET} points left`} className="px-0" /></span>}
-      <Button variant="ghost" size="sm" className="text-muted-foreground -mr-2" disabled={ABILITIES.every(([id]) => scores[id] === null)} onClick={() => clearScores(actions)}>
-        <Eraser />
-        Clear
-      </Button>
-    </div>
-  )
-
   // Standard array: only its numbers, handed over from whoever holds them. Custom: any score.
   const commit = (id: AbilityId) => (score: number) => {
     if (rules.method === "standard") {
@@ -95,7 +82,14 @@ export function QuickAbilitiesCentre({ actions, rules, inset, focus, onFocused }
   return (
     <main className={cn("min-w-0 flex-1 overflow-y-auto transition-[padding-left] duration-200 ease-linear [scrollbar-color:var(--border)_transparent] [scrollbar-gutter:stable_both-edges] [scrollbar-width:thin] motion-reduce:transition-none", inset && "pl-[14.75rem]")}>
       <div className="mx-auto flex max-w-[720px] flex-col gap-4 p-4 min-[1000px]:p-8">
-        <QuickAbilitiesHeader text={HINT[rules.method]} changed={changed} onUseSuggested={() => resetAbilities(actions)} aside={aside} />
+        <QuickAbilitiesHeader
+          text={HINT[rules.method]}
+          changed={changed}
+          onUseSuggested={() => resetAbilities(actions)}
+          onClear={() => clearScores(actions)}
+          canClear={ABILITIES.some(([id]) => scores[id] !== null)}
+          points={rules.method === "point-buy" ? { left, budget: POINT_BUY_BUDGET } : undefined}
+        />
         <StatGrid
           large
           label="Ability scores"
