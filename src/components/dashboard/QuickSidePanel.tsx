@@ -41,9 +41,9 @@ export function QuickSidePanel({ overview, shown, base, onPick, onOpenSlot, onRe
   return (
     <aside aria-label="Your character" className="flex w-[360px] shrink-0 flex-col border-l">
       <Tabs value={tab} onValueChange={setTab} className="min-h-0 flex-1 gap-0">
-        <MapPanelHeader>
+        <MapPanelHeader fill>
           {TABS.map((candidate) => (
-            <MapPanelTab key={candidate.id} value={candidate.id}>{candidate.label}</MapPanelTab>
+            <MapPanelTab key={candidate.id} value={candidate.id} className="flex-1 last:border-r-0">{candidate.label}</MapPanelTab>
           ))}
         </MapPanelHeader>
         {TABS.map((candidate) => (
