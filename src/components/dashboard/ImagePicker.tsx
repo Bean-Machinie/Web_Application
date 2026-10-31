@@ -45,7 +45,7 @@ export function ImagePicker({ url, fallback, disabled, onPick, onRemove }: Props
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="group/image relative h-[var(--image-height,var(--image-size,7rem))] w-[var(--image-size,7rem)] shrink-0">
+      <div className="group/image relative aspect-square w-[var(--image-size,7rem)] shrink-0">
         <button
           type="button"
           aria-label={url ? "Change image" : "Upload image"}

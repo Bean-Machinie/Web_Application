@@ -1,12 +1,13 @@
 import type { CardModel } from "@/lib/quick-card"
+import { QuickSectionHeader } from "./QuickSectionHeader"
 import { QuickValue } from "./QuickValue"
 
-type Props = { shown: CardModel; base: CardModel }
+type Props = { shown: CardModel; base: CardModel; onEdit?: () => void }
 
 // Hit Points, Armor Class and Speed as one row of large numbers, then the six abilities
 // as tiles like the sheet's: the modifier large, the score small. What differs from the
-// committed card `base` is highlighted.
-export function QuickCardNumbers({ shown, base }: Props) {
+// committed card `base` is highlighted. With `onEdit` the abilities have a heading and a pencil.
+export function QuickCardNumbers({ shown, base, onEdit }: Props) {
   const big = [
     { label: "Hit Points", value: shown.hp, changed: shown.hp !== base.hp },
     { label: "Armor Class", value: shown.ac, changed: shown.ac !== base.ac },
@@ -23,15 +24,18 @@ export function QuickCardNumbers({ shown, base }: Props) {
           </div>
         ))}
       </dl>
-      <ul aria-label="Ability scores" className="grid grid-cols-3 gap-2 max-[999px]:grid-cols-6">
-        {shown.mods.map((mod, index) => (
-          <li key={mod.id} className="bg-muted/40 flex flex-col items-center rounded-lg border py-1.5">
-            <span className="text-muted-foreground text-[10px] font-medium">{mod.label}</span>
-            <QuickValue value={mod.mod} changed={mod.mod !== base.mods[index].mod} className="text-xl font-semibold" />
-            <QuickValue value={mod.score} changed={mod.score !== base.mods[index].score} className="text-muted-foreground text-xs" />
-          </li>
-        ))}
-      </ul>
+      <div className="flex flex-col gap-1">
+        {onEdit && <QuickSectionHeader title="Ability scores" onEdit={onEdit} />}
+        <ul aria-label="Ability scores" className="grid grid-cols-3 gap-2 max-[999px]:grid-cols-6">
+          {shown.mods.map((mod, index) => (
+            <li key={mod.id} className="bg-muted/40 flex flex-col items-center rounded-lg border py-1.5">
+              <span className="text-muted-foreground text-[10px] font-medium">{mod.label}</span>
+              <QuickValue value={mod.mod} changed={mod.mod !== base.mods[index].mod} className="text-xl font-semibold" />
+              <QuickValue value={mod.score} changed={mod.score !== base.mods[index].score} className="text-muted-foreground text-xs" />
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }

@@ -4,10 +4,9 @@ import type { Attention } from "@/lib/quick-attention"
 import { openSlots } from "@/lib/quick-slots"
 import type { Slot } from "@/lib/quick-slots"
 import type { QuickView } from "@/lib/quick-view"
-import { QuickCardEdits } from "./QuickCardEdits"
+import { QuickCardDetails } from "./QuickCardDetails"
 import { QuickCardFinish } from "./QuickCardFinish"
 import { QuickCardIdentity } from "./QuickCardIdentity"
-import { QuickCardLists } from "./QuickCardLists"
 import { QuickCardNumbers } from "./QuickCardNumbers"
 
 type Props = {
@@ -42,10 +41,16 @@ export function QuickCharacterCard({ character, userId, view, slots, shown, base
         onName={onName}
         onPortrait={onPortrait}
       />
-      <QuickCardNumbers shown={shown} base={base} />
-      <QuickCardLists shown={shown} base={base} />
+      <QuickCardDetails
+        size={shown.size}
+        sizeChanged={shown.size !== base.size}
+        concept={character.concept}
+        alignment={shown.alignment}
+        onDetails={onPick ? () => onPick("details") : null}
+        onSize={onPick && sizeChoice ? () => onPick("size") : null}
+      />
+      <QuickCardNumbers shown={shown} base={base} onEdit={onPick ? () => onPick("abilities") : undefined} />
       <QuickCardFinish open={openSlots(slots)} needs={onPick ? needs : []} onOpen={onOpenSlot} onPick={(pick) => onPick?.(pick)} />
-      {onPick && <QuickCardEdits sizeChoice={sizeChoice} onPick={onPick} />}
     </section>
   )
 }

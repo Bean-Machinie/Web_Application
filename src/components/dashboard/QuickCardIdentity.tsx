@@ -48,7 +48,7 @@ export function QuickCardIdentity({ character, userId, iconKind, speciesId, line
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="relative [--image-height:10rem] [--image-size:100%] max-[999px]:[--image-height:7rem]">
+      <div className="relative [--image-size:100%]">
         <ImageFieldEditor
           value={character.portrait}
           label="Portrait"

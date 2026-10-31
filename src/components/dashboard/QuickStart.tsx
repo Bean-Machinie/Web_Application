@@ -119,7 +119,7 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
                 />
               </div>
             </main>
-            {!compact && <QuickSidePanel>{card}</QuickSidePanel>}
+            {!compact && <QuickSidePanel overview={card} shown={build.tried} base={build.base} onPick={ready ? setPick : null} />}
           </div>
           <QuickStatusBar rules={build.rules} onRules={() => setRulesOpen(true)} />
         </div>
