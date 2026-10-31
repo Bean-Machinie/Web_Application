@@ -1,7 +1,7 @@
 import { ABILITIES } from "@/lib/character-templates/srd-5-2-1"
 import type { AbilityId } from "@/lib/character-templates/srd-5-2-1"
 import type { AbilityMethod } from "@/lib/character-templates/srd-5-2-1-quick"
-import { ABILITY_FIELDS } from "@/lib/quick-abilities"
+import { ABILITY_FIELDS, fitPointBuy, readScores } from "@/lib/quick-abilities"
 import type { Scores } from "@/lib/quick-abilities"
 import type { QuickRules } from "@/lib/quick-state"
 import type { SheetActions } from "./character-actions"
@@ -22,9 +22,12 @@ export const setScores = (actions: SheetActions, values: Partial<Scores>) =>
 // Every score emptied, for the player to fill again.
 export const clearScores = (actions: SheetActions) => setScores(actions, noScores())
 
-// A new method starts the scores again, from the class's suggestion.
-export const setMethod = (actions: SheetActions, rules: QuickRules, method: AbilityMethod) =>
-  changeCharacter(actions, { rules: { ...rules, method }, pick: { values: noScores(), reset: true } }, "Changed ability method")
+// The scores carry over to a new method, whoever set them. Point buy only brings them within its
+// range and budget; the Standard Array and Custom take them as they are.
+export function setMethod(actions: SheetActions, rules: QuickRules, method: AbilityMethod) {
+  const fitted = method === "point-buy" ? fitPointBuy(readScores(actions.values)) : {}
+  changeCharacter(actions, { rules: { ...rules, method }, ...(Object.keys(fitted).length > 0 && { pick: { values: fitted } }) }, "Changed ability method")
+}
 
 export const setIncrease = (actions: SheetActions, id: string) =>
   changeCharacter(actions, { pick: { values: { "ability-increase": id } } }, "Changed ability increase")

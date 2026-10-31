@@ -45,7 +45,6 @@ export function QuickAbilitiesPanel({ actions, rules }: Props) {
                   </MapSubToolButton>
                 )
               })}
-              <p className="text-muted-foreground px-1 pt-2 text-xs">Changing the method starts the scores again.</p>
             </div>
           ),
         },

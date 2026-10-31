@@ -23,6 +23,18 @@ export function assign(scores: Scores, id: AbilityId, value: number): Partial<Sc
 export const buyScore = (score: number | null) => Math.min(Math.max(score ?? POINT_BUY_MIN, POINT_BUY_MIN), POINT_BUY_MAX)
 export const pointsLeft = (scores: Scores) =>
   POINT_BUY_BUDGET - ABILITIES.reduce((sum, [id]) => sum + POINT_BUY_COSTS[buyScore(scores[id])], 0)
+// The scores as point buy would keep them: between 8 and 15, and within the 27 points, the highest
+// lowered first when they are not. Only the ones that change, so none for scores that already fit.
+export function fitPointBuy(scores: Scores): Partial<Scores> {
+  const fitted = { ...scores }
+  for (const [id] of ABILITIES) if (fitted[id] !== null && buyScore(fitted[id]) !== fitted[id]) fitted[id] = buyScore(fitted[id])
+  while (pointsLeft(fitted) < 0) {
+    const [highest] = ABILITIES.map(([id]) => id).sort((a, b) => buyScore(fitted[b]) - buyScore(fitted[a]))
+    fitted[highest] = buyScore(fitted[highest]) - 1
+  }
+  return Object.fromEntries(ABILITIES.filter(([id]) => fitted[id] !== scores[id]).map(([id]) => [id, fitted[id]]))
+}
+
 // What one more point of the score costs, or null at the top.
 export const raiseCost = (score: number) => (score < POINT_BUY_MAX ? POINT_BUY_COSTS[score + 1] - POINT_BUY_COSTS[score] : null)
 
