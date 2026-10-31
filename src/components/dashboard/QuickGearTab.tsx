@@ -6,11 +6,11 @@ import { QuickChangeRow } from "./QuickChangeRow"
 import { QuickSection } from "./QuickSection"
 import { QuickValue } from "./QuickValue"
 
-type Props = { shown: CardModel; base: CardModel; onPick: ((pick: string) => void) | null }
+type Props = { shown: CardModel; base: CardModel; onPick: ((pick: string) => void) | null; onReset: ((field: string, label: string) => void) | null }
 
 // The kits chosen for the class and the background as accordion rows, what is in the inventory,
 // the gold, and the attacks with their to-hit and damage.
-export function QuickGearTab({ shown, base, onPick }: Props) {
+export function QuickGearTab({ shown, base, onPick, onReset }: Props) {
   const { kits, inventory, gold, attacks } = shown.gear
   const before = base.gear
   const equipment = onPick ? () => onPick("equipment") : null
@@ -21,7 +21,7 @@ export function QuickGearTab({ shown, base, onPick }: Props) {
         {kits.length === 0 && <p className="text-sm">{NONE}</p>}
         <div className="flex flex-col">
           {kits.map((kit) => (
-            <QuickChangeRow key={kit.source} value={kit.source} name={kit.source} text={kit.choice} changed={!has(before.kits, kit)} about="The starting equipment you took; its items are in your inventory." onChange={equipment} />
+            <QuickChangeRow key={kit.source} value={kit.source} name={kit.source} text={kit.choice} changed={!has(before.kits, kit)} about="The starting equipment you took; its items are in your inventory." onChange={equipment} onReset={onReset && kit.resettable ? () => onReset(kit.field, `${kit.source} equipment`) : null} />
           ))}
         </div>
       </QuickSection>

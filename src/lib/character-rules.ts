@@ -184,3 +184,23 @@ export function reconcile(state: RuleState, change: RuleChange): RuleResult {
     modifiers,
   }
 }
+
+// Gives the picks of these fields back to the suggestion: clears them and marks them as suggested,
+// so that reconcile fills each in again, as it would for a character the player had not touched.
+export const resetToSuggested = (fields: string[]): RuleChange => ({
+  pick: { values: Object.fromEntries(fields.map((field) => [field, null])), reset: true },
+})
+
+// What those fields would hold after the reset, by field id; null until the class, species and
+// background are chosen, which is when suggestions are made. A field with no suggestion holds null.
+export function suggestedValues(state: RuleState, fields: string[]) {
+  if (!state.cls || !state.species || !state.background) return null
+  const { set } = reconcile(state, resetToSuggested(fields))
+  return Object.fromEntries(fields.map((field) => [field, field in set ? set[field] : (state.picks[field] ?? null)]))
+}
+
+// Whether a pick of the player's own is not what the suggestion would be: resetting would change it.
+export function differsFromSuggested(state: RuleState, field: string) {
+  const suggestion = suggestedValues(state, [field])?.[field]
+  return !empty(suggestion) && !same(suggestion, state.picks[field])
+}

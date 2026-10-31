@@ -4,14 +4,13 @@ import type { QuickRules } from "@/lib/quick-state"
 
 type Props = { rules: QuickRules; onRules: () => void }
 
-// The thin bar under the workspace, as the map builder's: a hint at the near end, and at the
+// The thin bar under the workspace, as the map builder's: at the
 // far end the table rules in force, which open the rules.
 export function QuickStatusBar({ rules, onRules }: Props) {
   const method = ABILITY_METHODS.find((candidate) => candidate.id === rules.method)!
 
   return (
     <footer className="bg-background flex h-7 shrink-0 items-center gap-0.5 border-t px-2">
-      <span className="text-muted-foreground hidden text-xs min-[1000px]:inline">Hover over an option to preview it on your character.</span>
       <span className="flex-1" />
       <Button variant="ghost" size="xs" onClick={onRules} className="text-muted-foreground">
         Level {rules.level} · {method.label}

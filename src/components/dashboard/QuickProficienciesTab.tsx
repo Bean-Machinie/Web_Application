@@ -7,20 +7,21 @@ import { QuickChangeRow } from "./QuickChangeRow"
 import { QuickSection } from "./QuickSection"
 import { QuickValue } from "./QuickValue"
 
-type Props = { shown: CardModel; base: CardModel; onPick: ((pick: string) => void) | null }
+type Props = { shown: CardModel; base: CardModel; onPick: ((pick: string) => void) | null; onReset: ((field: string, label: string) => void) | null }
 
 // Saving throws with a dot where proficient, the skills in two columns, then tools, languages,
 // armor training and weapons as accordion rows.
-export function QuickProficienciesTab({ shown, base, onPick }: Props) {
+export function QuickProficienciesTab({ shown, base, onPick, onReset }: Props) {
   const now = shown.proficiency
   const before = base.proficiency
   const list = (items: string[]) => items.join(", ") || NONE
   const change = (pick: string | null) => (onPick && pick ? () => onPick(pick) : null)
+  const reset = (pick: string | null, own: boolean, label: string) => (onReset && pick && own ? () => onReset(pick, label) : null)
   const rows = [
-    { name: "Tools", text: list(now.tools), before: list(before.tools), about: "You are proficient with these tools.", onChange: change(now.picks.tools) },
-    { name: "Languages", text: list(now.languages), before: list(before.languages), about: "The languages you know.", onChange: change(now.picks.languages) },
-    { name: "Armor", text: now.armor, before: before.armor, about: "The armor you are trained to wear.", onChange: null },
-    { name: "Weapons", text: now.weapons, before: before.weapons, about: "The weapons you are proficient with.", onChange: null },
+    { name: "Tools", text: list(now.tools), before: list(before.tools), about: "You are proficient with these tools.", onChange: change(now.picks.tools), onReset: reset(now.picks.tools, now.resettable.tools, "tools") },
+    { name: "Languages", text: list(now.languages), before: list(before.languages), about: "The languages you know.", onChange: change(now.picks.languages), onReset: reset(now.picks.languages, now.resettable.languages, "languages") },
+    { name: "Armor", text: now.armor, before: before.armor, about: "The armor you are trained to wear.", onChange: null, onReset: null },
+    { name: "Weapons", text: now.weapons, before: before.weapons, about: "The weapons you are proficient with.", onChange: null, onReset: null },
   ]
 
   return (
@@ -50,7 +51,7 @@ export function QuickProficienciesTab({ shown, base, onPick }: Props) {
       <QuickSection icon={Wrench} title="Training" subtitle="Tools, languages, armor and weapons">
         <div className="flex flex-col">
           {rows.map((row) => (
-            <QuickChangeRow key={row.name} value={row.name} name={row.name} text={row.text} changed={row.text !== row.before} about={row.about} onChange={row.onChange} />
+            <QuickChangeRow key={row.name} value={row.name} name={row.name} text={row.text} changed={row.text !== row.before} about={row.about} onChange={row.onChange} onReset={row.onReset} />
           ))}
         </div>
       </QuickSection>

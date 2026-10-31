@@ -7,7 +7,7 @@ import { QuickFeatureSlot } from "./QuickFeatureSlot"
 import { QuickSection } from "./QuickSection"
 import { SLOT_ICONS } from "./quick-icons"
 
-type Props = { shown: CardModel; base: CardModel; onPick: ((pick: string) => void) | null; onOpenSlot: (slot: string) => void }
+type Props = { shown: CardModel; base: CardModel; onPick: ((pick: string) => void) | null; onOpenSlot: (slot: string) => void; onReset: ((field: string, label: string) => void) | null }
 
 // In the order of the sentence. Each shows once the one before it is chosen (or it is itself).
 const SECTIONS = [
@@ -19,7 +19,7 @@ const SECTIONS = [
 // The sections come one at a time, each easing in under the last once that is chosen, with room for
 // all its possible rows until something is chosen, then only its own: the others collapse. The rows
 // are items of one Accordion, so one is open at a time.
-export function QuickFeaturesTab({ shown, base, onPick, onOpenSlot }: Props) {
+export function QuickFeaturesTab({ shown, base, onPick, onOpenSlot, onReset }: Props) {
   const known = base.features.flatMap((card) => card.features)
   // What is chosen counts, not what is only tried on, so hovering does not bring a section in.
   const chosen = (label: string | null) => label === null || base.features.some((card) => card.label === label)
@@ -35,7 +35,7 @@ export function QuickFeaturesTab({ shown, base, onPick, onOpenSlot }: Props) {
                 {Array.from({ length: FEATURE_SLOTS[label] }, (_, index) => {
                   const feature = card?.features[index]
                   const hidden = !!card && index >= card.features.length
-                  return <QuickFeatureSlot key={index} feature={feature} value={`${label}:${index}`} hidden={hidden} changed={!!feature && !has(known, feature)} onPick={onPick} />
+                  return <QuickFeatureSlot key={index} feature={feature} value={`${label}:${index}`} hidden={hidden} changed={!!feature && !has(known, feature)} onPick={onPick} onReset={onReset} />
                 })}
               </div>
             </QuickSection>

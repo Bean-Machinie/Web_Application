@@ -11,14 +11,21 @@ type Props = {
   about: string
   // Opens the panel that changes it; none, and there is no button.
   onChange: (() => void) | null
+  // Gives the player's own pick back to the suggestion; none when it is not one, or not different.
+  onReset?: (() => void) | null
 }
 
 // An accordion row whose open state is a line of text and a Change button.
-export function QuickChangeRow({ about, onChange, ...row }: Props) {
+export function QuickChangeRow({ about, onChange, onReset, ...row }: Props) {
   return (
     <QuickAccordionRow {...row}>
       <p className="text-muted-foreground text-[13px] leading-snug">{about}</p>
-      {onChange && <Button variant="secondary" size="sm" onClick={onChange}>Change</Button>}
+      {onChange && (
+        <div className="flex gap-2">
+          <Button variant="secondary" size="sm" onClick={onChange}>Change</Button>
+          {onReset && <Button variant="ghost" size="sm" onClick={onReset}>Use suggested</Button>}
+        </div>
+      )}
     </QuickAccordionRow>
   )
 }

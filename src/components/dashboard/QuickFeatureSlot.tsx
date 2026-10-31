@@ -14,12 +14,13 @@ type Props = {
   hidden: boolean
   changed: boolean
   onPick: ((pick: string) => void) | null
+  onReset: ((field: string, label: string) => void) | null
 }
 
 // One place in a section's list, with the divider above it. It is always there: when the list has
 // no use for it, it collapses (and grows back when it does), and what is in it crossfades between
 // an empty row and a feature.
-export function QuickFeatureSlot({ feature, value, hidden, changed, onPick }: Props) {
+export function QuickFeatureSlot({ feature, value, hidden, changed, onPick, onReset }: Props) {
   return (
     <motion.div
       aria-hidden={hidden || undefined}
@@ -31,7 +32,7 @@ export function QuickFeatureSlot({ feature, value, hidden, changed, onPick }: Pr
     >
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.div key={feature ? "row" : "empty"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={SWAP}>
-          {feature ? <QuickFeatureRow feature={feature} value={value} changed={changed} onPick={onPick} /> : <QuickEmptyRow />}
+          {feature ? <QuickFeatureRow feature={feature} value={value} changed={changed} onPick={onPick} onReset={onReset} /> : <QuickEmptyRow />}
         </motion.div>
       </AnimatePresence>
     </motion.div>

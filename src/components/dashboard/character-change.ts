@@ -16,8 +16,9 @@ const ORIGINS = ["character-class", "species-choice", "background-choice"]
 const KIT_FIELDS = ["equipment-class", "equipment-background", "class-tools", "background-tool"]
 const EQUIPMENT = ["inventory", "attacks", "coin.gp", KITS_FIELD]
 
-// `title` opens the toast: "Changed to Wizard".
-export function changeCharacter(actions: SheetActions, change: RuleChange, title: string) {
+// `title` opens the toast: "Changed to Wizard". The toast is for what was removed or must be picked
+// again; with `always` it is there with Undo even when nothing was, as for a reset.
+export function changeCharacter(actions: SheetActions, change: RuleChange, title: string, always = false) {
   const result = reconcile(ruleStateOf(actions), change)
   const fields = Object.keys(result.set).sort((a, b) => Number(ORIGINS.includes(b)) - Number(ORIGINS.includes(a)))
   const before = [...fields, ...EQUIPMENT, SUGGESTED_FIELD].map((field) => [field, actions.values[field]?.value ?? null] as const)
@@ -37,12 +38,12 @@ export function changeCharacter(actions: SheetActions, change: RuleChange, title
   if (result.suggested) actions.onValue(SUGGESTED_FIELD, result.suggested)
 
   const notes = [...result.removed, ...(result.reopened.length > 0 ? [`${result.reopened.join(", ")} to re-pick`] : [])]
-  if (notes.length > 0) {
+  if (notes.length > 0 || always) {
     const undo = () => {
       for (const [field, value] of before) if (field !== SUGGESTED_FIELD) actions.onValue(field, value)
       actions.onValue(SUGGESTED_FIELD, before.find(([field]) => field === SUGGESTED_FIELD)?.[1])
     }
-    toast(`${title}: ${notes.join(", ")}`, { action: { label: "Undo", onClick: undo } })
+    toast(notes.length > 0 ? `${title}: ${notes.join(", ")}` : title, { action: { label: "Undo", onClick: undo } })
   }
   if (edited) toast("Replace starting equipment?", { description: "You changed the equipment the kits gave.", action: { label: "Replace", onClick: writeKits } })
 }

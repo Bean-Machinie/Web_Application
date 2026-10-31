@@ -1,6 +1,7 @@
-import { Minus, Plus } from "lucide-react"
+import { Minus, Plus, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { AbilityMethod } from "@/lib/character-templates/srd-5-2-1-quick"
 import { POINT_BUY_MIN } from "@/lib/character-templates/srd-5-2-1"
 import { buyScore, raiseCost } from "@/lib/quick-abilities"
@@ -18,6 +19,9 @@ type Props = {
   // Point buy only: the points still to spend.
   left: number
   onScore: (score: number | null) => void
+  // The base score the builder suggests, null while there is none, and the way back to it.
+  suggested: number | null
+  onReset: () => void
 }
 
 const modifier = (total: number) => Math.floor((total - 10) / 2)
@@ -25,7 +29,7 @@ const signed = (value: number) => (value >= 0 ? `+${value}` : `−${-value}`)
 
 // One ability, as large as the Overview's tile: the modifier, the score it comes to, and what
 // sets it: a list of the numbers still to hand out, or buttons that spend points.
-export function QuickAbilityCard({ label, method, base: stored, bonus, options, left, onScore }: Props) {
+export function QuickAbilityCard({ label, method, base: stored, bonus, options, left, onScore, suggested, onReset }: Props) {
   const score = buyScore(stored)
   // Point buy starts every score at its lowest, as the points left count it.
   const base = method === "point-buy" ? score : stored
@@ -34,7 +38,17 @@ export function QuickAbilityCard({ label, method, base: stored, bonus, options, 
   const values = base !== null && !options.includes(base) ? [base, ...options] : options
 
   return (
-    <li className="bg-muted/40 flex flex-col items-center gap-3 rounded-xl border p-5">
+    <li className="bg-muted/40 relative flex flex-col items-center gap-3 rounded-xl border p-5">
+      {suggested !== null && stored !== suggested && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon-xs" aria-label={`Use suggested ${label}`} className="text-muted-foreground absolute top-2 right-2" onClick={onReset}>
+              <RotateCcw />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Use suggested ({suggested})</TooltipContent>
+        </Tooltip>
+      )}
       <h3 className="text-muted-foreground text-xs font-medium tracking-widest uppercase">{label}</h3>
       <div className="text-4xl font-semibold tabular-nums">
         <QuickSwap text={total === null ? "—" : signed(modifier(total))} className="px-0" />

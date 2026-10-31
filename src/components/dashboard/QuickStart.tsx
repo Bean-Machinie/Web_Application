@@ -20,6 +20,7 @@ import { QuickAbilitiesCentre } from "./QuickAbilitiesCentre"
 import { QuickBuildCentre } from "./QuickBuildCentre"
 import { QuickLeftPanel } from "./QuickLeftPanel"
 import { QuickRail } from "./QuickRail"
+import { resetPicks } from "./quick-reset"
 import { QuickCharacterCard } from "./QuickCharacterCard"
 import { QuickLearnDialog } from "./QuickLearnDialog"
 import { QuickRulesDialog } from "./QuickRulesDialog"
@@ -47,7 +48,7 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
   const setPick = (next: string | null) => setParams(next ? { pick: next } : {}, { replace: true })
   // Languages are words of the sentence, so the sentence lists them.
   const needs = needsAttention(actions).filter((need) => need.key !== "languages")
-  const { workspace, setWorkspace, panelOpen, setPanelOpen, openPick, openSlot } = useQuickWorkspace(compact, setPick, build.show)
+  const { workspace, setWorkspace, panelOpen, setPanelOpen, openPick, openSlot } = useQuickWorkspace(setPick, build.show)
   const [suggestions, setSuggestions] = useShowSuggestions()
   const [learning, setLearning] = useState<string | null>(null)
   const [rulesOpen, setRulesOpen] = useState(false)
@@ -123,7 +124,7 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
             )
           }
           statusBar={<QuickStatusBar rules={build.rules} onRules={() => setRulesOpen(true)} />}
-          rightPanel={!compact && <QuickSidePanel overview={card} shown={build.tried} base={build.base} onPick={ready ? openPick : null} onOpenSlot={openSlot} />}
+          rightPanel={!compact && <QuickSidePanel overview={card} shown={build.tried} base={build.base} onPick={ready ? openPick : null} onOpenSlot={openSlot} onReset={ready ? (field, label) => resetPicks(actions, [field], label) : null} />}
         />
         <QuickPickPanel
           pickKey={pick}

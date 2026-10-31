@@ -2,6 +2,8 @@ import { ABILITIES, POINT_BUY_BUDGET, POINT_BUY_COSTS, POINT_BUY_MAX, POINT_BUY_
 import type { AbilityId } from "./character-templates/srd-5-2-1"
 import type { AbilityMethod } from "./character-templates/srd-5-2-1-quick"
 import { ROLL, STANDARD_ARRAY } from "./character-templates/srd-5-2-1-scores"
+import { suggestedValues } from "./character-rules"
+import type { RuleState } from "./character-rules"
 import { readStat } from "./character-values"
 import type { StoredValue } from "./characters"
 import { readRolled } from "./quick-state"
@@ -40,3 +42,18 @@ export function rollScore(random: () => number = Math.random) {
   return dice.slice(0, ROLL.keep).reduce((sum, die) => sum + die, 0)
 }
 export const rollScores = (random?: () => number) => Array.from({ length: ROLL.scores }, () => rollScore(random)).sort((a, b) => b - a)
+
+// The fields the builder suggests together: the six scores and the background's increase.
+export const ABILITY_FIELDS = [...ABILITIES.map(([id]) => id as string), "ability-increase"]
+
+// The scores and the increase as the builder would have them, or null while it has none: until the
+// class, species and background are chosen, and for Roll, which hands out no scores.
+export function suggestedAbilities(state: RuleState) {
+  if (state.rules.method === "own") return null
+  const values = suggestedValues(state, ABILITY_FIELDS)
+  if (!values) return null
+  return {
+    scores: Object.fromEntries(ABILITIES.map(([id]) => [id, readStat(values[id])])) as Scores,
+    increase: (values["ability-increase"] as string | null) ?? null,
+  }
+}
