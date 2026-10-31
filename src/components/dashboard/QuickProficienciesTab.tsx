@@ -50,7 +50,7 @@ export function QuickProficienciesTab({ shown, base, onPick }: Props) {
       <QuickSection icon={Wrench} title="Training" subtitle="Tools, languages, armor and weapons">
         <div className="flex flex-col">
           {rows.map((row) => (
-            <QuickChangeRow key={row.name} value={row.name} name={row.name} text={row.text} suggested={row.text !== NONE} changed={row.text !== row.before} about={row.about} onChange={row.onChange} />
+            <QuickChangeRow key={row.name} value={row.name} name={row.name} text={row.text} changed={row.text !== row.before} about={row.about} onChange={row.onChange} />
           ))}
         </div>
       </QuickSection>

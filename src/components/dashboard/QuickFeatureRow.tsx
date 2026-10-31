@@ -7,11 +7,8 @@ type Props = { feature: Feature; value: string; changed: boolean; onPick: ((pick
 // A feature as an accordion row. Opened, it gives the full description, the picks as a list, who
 // chose it, and a Change button where there is something to choose.
 export function QuickFeatureRow({ feature, value, changed, onPick }: Props) {
-  // The dot is on everything that is not the player's own pick: suggestions and what the rules give.
-  const own = feature.pick !== null && feature.chosen && !feature.suggested
-  const given = feature.value !== "" && !own && (feature.pick === null || feature.chosen)
   return (
-    <QuickAccordionRow value={value} name={feature.name} text={feature.value} effect={feature.effect} suggested={given} changed={changed} className="border-0">
+    <QuickAccordionRow value={value} name={feature.name} text={feature.value} effect={feature.effect} changed={changed} className="border-0">
       <p className="text-muted-foreground text-[13px] leading-snug">{feature.description}</p>
       {feature.picks.length > 0 && (
         <ul className="text-muted-foreground list-disc pl-4 text-[13px]">

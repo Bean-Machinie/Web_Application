@@ -6,8 +6,6 @@ type Props = {
   value: string
   name: string
   text: string
-  // A dot before the text: it was given or suggested, not picked by the player.
-  suggested?: boolean
   changed: boolean
   // One line on what it is, shown when the row is open.
   about: string

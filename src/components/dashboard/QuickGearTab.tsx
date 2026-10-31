@@ -21,7 +21,7 @@ export function QuickGearTab({ shown, base, onPick }: Props) {
         {kits.length === 0 && <p className="text-sm">{NONE}</p>}
         <div className="flex flex-col">
           {kits.map((kit) => (
-            <QuickChangeRow key={kit.source} value={kit.source} name={kit.source} text={kit.choice} suggested={kit.suggested} changed={!has(before.kits, kit)} about="The starting equipment you took; its items are in your inventory." onChange={equipment} />
+            <QuickChangeRow key={kit.source} value={kit.source} name={kit.source} text={kit.choice} changed={!has(before.kits, kit)} about="The starting equipment you took; its items are in your inventory." onChange={equipment} />
           ))}
         </div>
       </QuickSection>
