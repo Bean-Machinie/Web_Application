@@ -45,8 +45,9 @@ export const POINT_BUY_MAX = 15
 // p. 21 (Adjust Ability Scores): a background's increases cannot raise a score above 20.
 export const ABILITY_CAP = 20
 
-// p. 23 (Character Advancement): the Proficiency Bonus by level.
-export const proficiencyBonusAt = (level: number) => 2 + Math.floor((level - 1) / 4)
+// p. 23 (Character Advancement): the Proficiency Bonus is +2 at level 1, and one more every 4 levels.
+export const PROFICIENCY_BONUS = { atLevel1: 2, levelsPerStep: 4 }
+export const proficiencyBonusAt = (level: number) => PROFICIENCY_BONUS.atLevel1 + Math.floor((level - 1) / PROFICIENCY_BONUS.levelsPerStep)
 
 export type SrdClass = {
   id: string
@@ -184,11 +185,6 @@ export const STANDARD_ARRAY_BY_CLASS: Record<string, Record<AbilityId, number>> 
 // Origin feat of your choice, Skilled recommended.
 export const HUMAN = "human"
 export const RECOMMENDED_FEAT = "Skilled"
-
-// p. 87 (Magic Initiate): the feat is taken for the Cleric, Druid or Wizard list, and
-// Intelligence, Wisdom or Charisma is chosen as its spellcasting ability.
-export const MAGIC_INITIATE_FEATS = ["Magic Initiate (Cleric)", "Magic Initiate (Druid)", "Magic Initiate (Wizard)"]
-export const MAGIC_INITIATE_ABILITIES: AbilityId[] = ["int", "wis", "cha"]
 
 // p. 21 (The Nine Alignments).
 export const ALIGNMENTS = [

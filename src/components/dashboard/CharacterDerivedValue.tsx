@@ -8,8 +8,10 @@ type Props = {
   // The calculated number, or the player's own when they have written over it.
   shown: number | null
   edited: boolean
+  // What the calculation gives, for the reset button's tooltip.
+  calculated: string | null
   tile?: boolean
-  // A small box with the number centred, like an ability’s score; the edited marker sits beside it.
+  // A small box with the number centred, like an ability’s score; the edited marker sits under it.
   box?: boolean
   // A number the player typed; reset brings the calculated one back.
   onEnter: (value: number) => void
@@ -26,7 +28,7 @@ function typedNumber(text: string, range?: [number, number]) {
 
 // A calculated number, typed over when clicked. Clearing the box goes back to the calculated
 // one.
-export function CharacterDerivedValue({ field, shown, edited, tile, box, onEnter, onReset }: Props) {
+export function CharacterDerivedValue({ field, shown, edited, calculated, tile, box, onEnter, onReset }: Props) {
   function save(text: string) {
     const typed = typedNumber(text, field.range)
     if (text === "") onReset()
@@ -49,8 +51,8 @@ export function CharacterDerivedValue({ field, shown, edited, tile, box, onEnter
         />
       </span>
       {edited && (
-        <span className={box ? "absolute top-1/2 left-full ml-1 -translate-y-1/2" : undefined}>
-          <EditedMarker onReset={onReset} />
+        <span className={box ? "absolute top-full left-1/2 mt-2.5 -translate-x-1/2" : undefined}>
+          <EditedMarker calculated={calculated} onReset={onReset} />
         </span>
       )}
     </span>

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useStoredValue } from "./use-stored-value"
 
 export type NotificationPref =
   | "invitations"
@@ -7,30 +7,24 @@ export type NotificationPref =
   | "campaignDeleted"
   | "ownership"
 
-const KEY = "notification-prefs"
+type Prefs = Record<NotificationPref, boolean>
 
-function read(): Record<NotificationPref, boolean> {
-  const all = { invitations: true, memberLeft: true, removed: true, campaignDeleted: true, ownership: true }
+const KEY = "notification-prefs"
+const ALL: Prefs = { invitations: true, memberLeft: true, removed: true, campaignDeleted: true, ownership: true }
+
+function read(text: string | null): Prefs {
   try {
-    return { ...all, ...JSON.parse(localStorage.getItem(KEY) ?? "{}") }
+    return { ...ALL, ...JSON.parse(text ?? "{}") }
   } catch {
-    return all
+    return ALL
   }
 }
 
-// Which kinds of notification the person wants, kept on this device.
+const write = (prefs: Prefs) => JSON.stringify(prefs)
+
+// Which kinds of notification the person wants, kept on this device. If it cannot be kept
+// (private mode), the choice lasts until the page is closed.
 export function useNotificationPrefs() {
-  const [prefs, setPrefs] = useState(read)
-
-  function set(pref: NotificationPref, on: boolean) {
-    const next = { ...prefs, [pref]: on }
-    setPrefs(next)
-    try {
-      localStorage.setItem(KEY, JSON.stringify(next))
-    } catch {
-      // Private mode: the choice lasts until the page is closed.
-    }
-  }
-
-  return { prefs, set }
+  const [prefs, setPrefs] = useStoredValue(KEY, read, write)
+  return { prefs, set: (pref: NotificationPref, on: boolean) => setPrefs({ ...prefs, [pref]: on }) }
 }

@@ -5,7 +5,7 @@ import { ABILITIES } from "./character-templates/srd-5-2-1"
 import { CLASS_BUILD } from "./character-templates/srd-5-2-1-classes"
 import { differsFromSuggested } from "./character-rules"
 import { ruleStateOf } from "./character-rules-state"
-import { NONE, signed } from "./quick-card-format"
+import { NONE, signed } from "./character-format"
 import { readSuggested } from "./quick-state"
 
 // What the character is trained in, as text. `picks` are the panels that change skills, tools and languages.

@@ -1,3 +1,5 @@
+import { ARCHERY, ARCHERY_BONUS } from "./srd-5-2-1-feats"
+
 // What a feature comes to, in a few words, for the right-hand side of a row of the builder's
 // Features tab. Short and mechanical, from the same pages as the class and species summaries.
 
@@ -35,7 +37,7 @@ export const FEATURE_STATE: Record<string, string> = {
 
 // The effect of a Fighting Style feat, shown after its name.
 export const STYLE_EFFECT: Record<string, string> = {
-  Archery: "+2 ranged",
+  [ARCHERY]: `+${ARCHERY_BONUS} ranged`,
   Defense: "+1 AC",
   "Great Weapon Fighting": "Reroll 1s, 2s",
   "Two-Weapon Fighting": "+ modifier damage",

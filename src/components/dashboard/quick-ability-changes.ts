@@ -6,7 +6,7 @@ import { ROLLED_FIELD } from "@/lib/quick-state"
 import type { QuickRules } from "@/lib/quick-state"
 import type { SheetActions } from "./character-actions"
 import { changeCharacter } from "./character-change"
-import { resetPicks } from "./quick-reset"
+import { resetPicks } from "./character-reset"
 
 // Every change to the ability scores goes through the character rules (reconcile), like the
 // other picks: what is the player's own is kept, and what was suggested is recalculated.

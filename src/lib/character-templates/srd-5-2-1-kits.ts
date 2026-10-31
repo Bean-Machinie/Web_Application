@@ -91,3 +91,7 @@ export const BACKGROUND_KITS: Record<string, Kit[]> = {
     gold("soldier-b", 50),
   ],
 }
+
+// The kit with this id, whichever class or background it belongs to; null for none.
+export const kitById = (id: string | null | undefined) =>
+  [...Object.values(CLASS_KITS), ...Object.values(BACKGROUND_KITS)].flat().find((kit) => kit.id === id) ?? null

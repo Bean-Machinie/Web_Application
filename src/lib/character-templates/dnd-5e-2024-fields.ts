@@ -1,7 +1,8 @@
 import { add, field, floor, lookup, max, min, multiply, number, option, pick, picked, when } from "./formulas"
 import * as table from "./dnd-5e-2024-tables"
-import { ABILITIES, ABILITY_CAP, SKILLS } from "./srd-5-2-1"
+import { ABILITIES, ABILITY_CAP, PROFICIENCY_BONUS, SKILLS } from "./srd-5-2-1"
 import type { AbilityId } from "./srd-5-2-1"
+import { ALERT, ARCHERY, ARCHERY_BONUS } from "./srd-5-2-1-feats"
 import type { TemplateField } from "./types"
 
 // The inputs the rest of the sheet is worked out from, in the profile column.
@@ -65,13 +66,21 @@ export const combatFields: TemplateField[] = [
       multiply(pick("character-class", table.UNARMORED_DEFENSE, 0), lookup("armor-worn", table.NO_ARMOR_ONLY, 1))
     ),
   },
-  { ...combat, id: "initiative", type: "stat", label: "Initiative", format: "signed", derived: field("dex.mod") },
-  { ...combat, id: "speed", type: "stat", label: "Speed", format: "feet", derived: max(lookup("species-choice", table.SPECIES_SPEED), multiply(picked("species-option", "wood-elf"), number(35))) },
-  { ...combat, id: "proficiency-bonus", type: "stat", label: "Proficiency", title: "Proficiency Bonus", format: "signed", derived: add(floor(field("level"), -1, 4), number(2)) },
+  // Alert (p. 87, Initiative Proficiency): the Proficiency Bonus is added to Initiative. The feat
+  // is the background's, or Versatile's.
+  { ...combat, id: "feat.alert", type: "toggle", label: "Alert", hidden: true, derived: max(lookup("origin-feat", { [ALERT]: 1 }, 0), picked("species-feat", ALERT)) },
+  {
+    ...combat, id: "initiative", type: "stat", label: "Initiative", format: "signed",
+    derived: when("feat.alert", add(field("dex.mod"), field("proficiency-bonus")), field("dex.mod")),
+  },
+  // Archery (p. 87): what attack rolls with Ranged weapons add to their to-hit.
+  { ...combat, id: "attack-ranged-bonus", type: "stat", label: "Ranged attacks", hidden: true, derived: multiply(picked("class-style", ARCHERY), number(ARCHERY_BONUS)) },
+  { ...combat, id: "speed", type: "stat", label: "Speed", format: "feet", derived: max(lookup("species-choice", table.SPECIES_SPEED), ...Object.entries(table.ELF_LINEAGE_SPEED).map(([lineage, feet]) => multiply(picked("species-option", lineage), number(feet)))) },
+  { ...combat, id: "proficiency-bonus", type: "stat", label: "Proficiency", title: "Proficiency Bonus", format: "signed", derived: add(floor(field("level"), -1, PROFICIENCY_BONUS.levelsPerStep), number(PROFICIENCY_BONUS.atLevel1)) },
   { ...combat, id: "passive-perception", type: "stat", label: "Passive", title: "Passive Perception", derived: add(number(10), field("skill.perception")) },
   { ...combat, id: "inspiration", type: "toggle", label: "Inspiration" },
   { ...body, id: "size", type: "choice", label: "Size", choices: { options: table.SIZE_OPTIONS }, derived: option("size", "species-choice", table.SPECIES_SIZE) },
-  { ...body, id: "darkvision", type: "stat", label: "Darkvision", format: "feet", derived: max(lookup("species-choice", table.SPECIES_DARKVISION), multiply(picked("species-option", "drow"), number(120))) },
+  { ...body, id: "darkvision", type: "stat", label: "Darkvision", format: "feet", derived: max(lookup("species-choice", table.SPECIES_DARKVISION), ...Object.entries(table.ELF_LINEAGE_DARKVISION).map(([lineage, feet]) => multiply(picked("species-option", lineage), number(feet)))) },
   { ...body, id: "carrying-capacity", type: "stat", label: "Carrying", title: "Carrying capacity", format: "pounds", derived: multiply(field("str.total"), lookup("size", table.CARRY_PER_STRENGTH)) },
 ]
 

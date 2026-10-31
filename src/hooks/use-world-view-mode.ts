@@ -1,28 +1,9 @@
-import { useState } from "react"
 import { useAuth } from "@/auth/useAuth"
+import { useStoredValue } from "./use-stored-value"
 
 export type WorldViewMode = "list" | "grid" | "graph"
 
+const read = (text: string | null): WorldViewMode => (text === "grid" || text === "graph" ? text : "list")
+
 // Remembered per user, in this browser.
-export function useWorldViewMode() {
-  const storageKey = `world-view:${useAuth().session!.user.id}`
-  const [mode, setMode] = useState<WorldViewMode>(() => {
-    try {
-      const stored = localStorage.getItem(storageKey)
-      return stored === "grid" || stored === "graph" ? stored : "list"
-    } catch {
-      return "list"
-    }
-  })
-
-  function change(next: WorldViewMode) {
-    setMode(next)
-    try {
-      localStorage.setItem(storageKey, next)
-    } catch {
-      // The choice just will not be remembered.
-    }
-  }
-
-  return [mode, change] as const
-}
+export const useWorldViewMode = () => useStoredValue(`world-view:${useAuth().session!.user.id}`, read)

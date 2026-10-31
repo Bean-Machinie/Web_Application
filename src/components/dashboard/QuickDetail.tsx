@@ -1,19 +1,15 @@
 import { KIND_TEXT, optionsOf } from "@/lib/quick-options"
 import type { QuickKind } from "@/lib/quick-options"
 import type { SheetActions } from "./character-actions"
-import { QuickBackgroundDetails } from "./QuickBackgroundDetails"
-import { QuickClassDetails } from "./QuickClassDetails"
-import { QuickSpeciesDetails } from "./QuickSpeciesDetails"
+import { QUICK_DETAILS } from "./quick-details"
 
 type Props = { kind: QuickKind; id: string | null; actions: SheetActions }
-
-const DETAILS = { class: QuickClassDetails, species: QuickSpeciesDetails, background: QuickBackgroundDetails }
 
 // Under the grid: the option being hovered, or the one chosen, in full, with the same hover
 // cards as the sheet.
 export function QuickDetail({ kind, id, actions }: Props) {
   const option = optionsOf(kind).find((candidate) => candidate.id === id)
-  const Details = DETAILS[kind]
+  const Details = QUICK_DETAILS[kind]
 
   return (
     <section aria-live="polite" aria-label={`${KIND_TEXT[kind].noun} details`} className="bg-card rounded-xl border shadow-xs max-[999px]:hidden">

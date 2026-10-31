@@ -16,21 +16,21 @@ type Props = {
   onUseSuggested: () => void
 }
 
-const list = (values: number[]) => values.join(", ")
+const joinNumbers = (values: number[]) => values.join(", ")
 
 // Above the cards: whether the scores are the suggested ones, with the way back when they are not;
 // at the right what is left to spend or hand out, and for Roll the button that rolls.
 export function QuickAbilitiesHeader({ method, left, free, rolled, onRoll, changed, onUseSuggested }: Props) {
   const aside =
     method === "point-buy" ? `${left} of ${POINT_BUY_BUDGET} points left`
-    : method === "standard" && free.length > 0 ? `To assign: ${list(free)}`
+    : method === "standard" && free.length > 0 ? `To assign: ${joinNumbers(free)}`
     : ""
   const status =
     changed === null
       ? method === "point-buy" ? `${left} of ${POINT_BUY_BUDGET} points left`
         : method === "own" && !rolled ? "Roll six scores to assign"
         : free.length === 0 ? "Every score is assigned"
-        : `To assign: ${list(free)}`
+        : `To assign: ${joinNumbers(free)}`
       : changed === 0 ? "Using suggested scores"
       : `${changed} changed from suggested`
 

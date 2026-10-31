@@ -3,15 +3,16 @@ import { useAuth } from "@/auth/useAuth"
 import { sideInvalid, sizeProblem } from "@/lib/map-canvas-size"
 import { PRESETS, presetSize } from "@/lib/map-shapes"
 import type { PresetKey } from "@/lib/map-shapes"
+import { useStoredValue } from "./use-stored-value"
 
 type Saved = { preset: PresetKey | "custom"; width: string; height: string; locked: boolean }
 
 const FIRST: Saved = { preset: "3:2/standard", width: "3072", height: "2048", locked: false }
 
 // What was chosen last time, if it is still a size a canvas may have.
-function readSaved(key: string): Saved {
+function readSaved(text: string | null): Saved {
   try {
-    const saved = JSON.parse(localStorage.getItem(key) ?? "null")
+    const saved = JSON.parse(text ?? "null")
     const known = saved?.preset === "custom" || PRESETS.some((preset) => preset.key === saved?.preset)
     if (known && sizeProblem(Number(saved.width), Number(saved.height)) === null) {
       return { ...saved, locked: saved.locked === true }
@@ -29,7 +30,7 @@ function readSaved(key: string): Saved {
 // remembered per user in this browser, and is what the dialog opens on next time.
 export function useMapSize() {
   const storageKey = `new-map-size:${useAuth().session!.user.id}`
-  const [first] = useState(() => readSaved(storageKey))
+  const [first, save] = useStoredValue(storageKey, readSaved, JSON.stringify)
   const [preset, setPreset] = useState(first.preset)
   const [width, setWidth] = useState(first.width)
   const [height, setHeight] = useState(first.height)
@@ -42,12 +43,8 @@ export function useMapSize() {
 
   useEffect(() => {
     if (problem) return
-    try {
-      localStorage.setItem(storageKey, JSON.stringify({ preset, width, height, locked }))
-    } catch {
-      // It just will not be remembered.
-    }
-  }, [storageKey, problem, preset, width, height, locked])
+    save({ preset, width, height, locked })
+  }, [save, problem, preset, width, height, locked])
   // A side is marked when it is itself wrong; when each is fine but not together, both.
   const both = problem !== null && !sideInvalid(w) && !sideInvalid(h)
 

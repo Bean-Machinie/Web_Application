@@ -9,7 +9,6 @@ import { CampaignSettingsAdvanced } from "@/pages/CampaignSettingsAdvanced"
 import { CampaignSettingsGeneral } from "@/pages/CampaignSettingsGeneral"
 import { CampaignSettingsMembers } from "@/pages/CampaignSettingsMembers"
 import { Campaigns } from "@/pages/Campaigns"
-import { CharacterBuildRedirect } from "@/pages/CharacterBuildRedirect"
 import { CharacterStartRoute } from "@/pages/CharacterStart"
 import { CharacterSheetPage } from "@/pages/CharacterSheet"
 import { Characters } from "@/pages/Characters"
@@ -62,7 +61,6 @@ export default function App() {
           </Route>
           <Route path="characters/:characterId" element={<CharacterSheetPage />} />
           <Route path="characters/:characterId/start" element={<CharacterStartRoute />} />
-          <Route path="characters/:characterId/build" element={<CharacterBuildRedirect />} />
           <Route path="create" element={<LibraryWorldScope />}>
             <Route index element={<Create />} />
           </Route>

@@ -1,4 +1,5 @@
 import { cardsFor } from "./character-cards"
+import { joinList } from "./character-format"
 import type { GlossaryContext } from "./character-glossary"
 import { origins } from "./character-grants"
 import type { ChoiceDecl } from "./character-templates/srd-5-2-1-choices"
@@ -10,7 +11,6 @@ export type PickInfo = { key: string; title: string; source: string; help: strin
 
 // Picks that are not a list of options.
 const SPECIAL: Record<string, { title: string; help: string }> = {
-  abilities: { title: "Ability scores", help: "Spend 27 points, add your background’s increase, or enter rolled scores." },
   equipment: { title: "Equipment", help: "Your class and background each offer a ready-made kit, or gold to buy your own." },
   "origin-feat": { title: "Origin feat", help: "The feat your background gives." },
   size: { title: "Size", help: "Medium or Small, your choice." },
@@ -19,6 +19,10 @@ const SPECIAL: Record<string, { title: string; help: string }> = {
 
 // The panel a marker or field of the review opens: both kits are one panel.
 export const pickKeyOf = (key: string) => (key.startsWith("equipment") ? "equipment" : key)
+
+// The address query that opens the builder where a pick is changed: its panel, or for the ability
+// scores their workspace.
+export const pickQuery = (key: string) => (key === "abilities" ? "workspace=abilities" : `pick=${pickKeyOf(key)}`)
 
 function helpFor(decl: ChoiceDecl) {
   const count = "count" in decl ? decl.count : 1
@@ -40,7 +44,7 @@ export function pickInfo(context: GlossaryContext, key: string): PickInfo | null
     const sources: Record<string, string | undefined> = {
       "origin-feat": background?.label,
       size: species?.label,
-      equipment: [cls?.label, background?.label].filter(Boolean).join(" and "),
+      equipment: joinList([cls?.label, background?.label].filter((label): label is string => !!label)),
     }
     return { key, ...special, source: sources[key] ?? "", decl: null }
   }

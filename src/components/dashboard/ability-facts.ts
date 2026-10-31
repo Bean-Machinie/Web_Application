@@ -1,6 +1,6 @@
-import { choiceState } from "@/lib/character-choices"
+import { chosenOption, origins } from "@/lib/character-grants"
 import { INCREASE_TO } from "@/lib/character-templates/dnd-5e-2024-tables"
-import { ABILITY_CAP, BACKGROUNDS, CLASSES } from "@/lib/character-templates/srd-5-2-1"
+import { ABILITY_CAP } from "@/lib/character-templates/srd-5-2-1"
 import type { AbilityId, SrdBackground, SrdClass } from "@/lib/character-templates/srd-5-2-1"
 import type { SheetActions } from "./character-actions"
 
@@ -14,34 +14,26 @@ export type AbilityFacts = {
   saves: ReadonlySet<AbilityId>
 }
 
-export function chosenId(actions: SheetActions, fieldId: string) {
-  const field = actions.byId.get(fieldId)
-  return field ? (choiceState(field, actions.byId, actions.derived).selected?.id ?? null) : null
-}
-
 export function abilityFacts(actions: SheetActions): AbilityFacts {
-  const cls = CLASSES.find((candidate) => candidate.id === chosenId(actions, "character-class")) ?? null
-  const background = BACKGROUNDS.find((candidate) => candidate.id === chosenId(actions, "background-choice")) ?? null
+  const { cls, background } = origins(actions)
   return {
     cls,
     background,
-    increaseId: chosenId(actions, "ability-increase"),
+    increaseId: chosenOption(actions, "ability-increase")?.id ?? null,
     primary: new Set(cls?.primary),
     saves: new Set(cls?.saves),
   }
 }
 
-// A score with an increase added, never taking it above 20 (a score already above stays).
-export const totalWith = (base: number, bonus: number) => (base >= ABILITY_CAP ? base : Math.min(ABILITY_CAP, base + bonus))
-
 // What the background's increase adds to an ability, by the way it was chosen.
 export const bonusFor = (facts: AbilityFacts, ability: AbilityId) =>
   facts.background && facts.increaseId ? (INCREASE_TO(ability)[facts.increaseId] ?? 0) : 0
 
-// "15 + 2 from Soldier", for the tooltip of a score the increase applies to.
-export function increaseNote(facts: AbilityFacts, ability: AbilityId, base: number | null) {
+// "15 + 2 from Soldier", for the tooltip of a score the increase applies to. `total` is what the
+// sheet works out for the score, null if it was typed over: it is lower than the two added when the cap held it.
+export function increaseNote(facts: AbilityFacts, ability: AbilityId, base: number | null, total: number | null) {
   const bonus = bonusFor(facts, ability)
   if (!bonus || base === null || !facts.background) return null
-  const capped = totalWith(base, bonus) < base + bonus
+  const capped = total !== null && total < base + bonus
   return `${base} + ${bonus} from ${facts.background.label}${capped ? `, capped at ${ABILITY_CAP}` : ""}`
 }

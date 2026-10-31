@@ -2,6 +2,8 @@ import { isEdited } from "@/lib/character-derive"
 import { explain } from "@/lib/character-glossary"
 import type { SheetField } from "@/lib/character-sheet"
 import type { SheetActions } from "./character-actions"
+import { calculatedText } from "./character-calculated"
+import { resetPicks } from "./character-reset"
 import { CharacterFieldBody } from "./CharacterFieldBody"
 import { EditedMarker } from "./EditedMarker"
 import { GlossaryLabel } from "./GlossaryLabel"
@@ -34,7 +36,7 @@ export function SaveRows({ fields, columns, actions }: Props) {
                 <span>{field.label}</span>
               </GlossaryLabel>
             </dt>
-            {isEdited(field, actions.values) && <EditedMarker onReset={() => actions.onValue(field.id, null)} />}
+            {isEdited(field, actions.values) && <EditedMarker calculated={calculatedText(actions, field)} onReset={() => resetPicks(actions, [field.id], `${field.label} proficiency`)} />}
             <dd className="shrink-0">{total && <CharacterFieldBody field={total} actions={actions} />}</dd>
           </div>
         )

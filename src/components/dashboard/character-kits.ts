@@ -2,7 +2,7 @@ import { CLASS_BUILD } from "@/lib/character-templates/srd-5-2-1-classes"
 import { ARMOR, MEDIUM_ARMOR_DEX_CAP, SHIELD_AC, weaponById } from "@/lib/character-templates/srd-5-2-1-gear"
 import type { Weapon } from "@/lib/character-templates/srd-5-2-1-gear"
 import type { Kit, KitItem } from "@/lib/character-templates/srd-5-2-1-choices"
-import { BACKGROUND_KITS, CLASS_KITS } from "@/lib/character-templates/srd-5-2-1-kits"
+import { kitById } from "@/lib/character-templates/srd-5-2-1-kits"
 import { chosenOption, origins, picksOf } from "@/lib/character-grants"
 import { proficientWith } from "@/lib/character-weapons"
 import { KITS_FIELD } from "@/lib/quick-state"
@@ -11,9 +11,6 @@ import type { Attack, ListItem } from "@/lib/character-values"
 import type { SheetActions } from "./character-actions"
 
 const KIT_PREFIX = "kit:"
-
-export const allKits = () => [...Object.values(CLASS_KITS), ...Object.values(BACKGROUND_KITS)].flat()
-export const kitById = (id: string | null | undefined) => allKits().find((kit) => kit.id === id) ?? null
 
 // The kit chosen for the class and for the background; null while none. A choice by class or
 // by background, so one that belongs to another class is not a choice.

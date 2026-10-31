@@ -18,3 +18,23 @@
 - Do not refactor or reformat code outside the task.
 - Ask before creating new folders or adding dependencies.
 - Read DESIGN.md before any UI work, once it exists.
+
+## Character builder conventions
+Shared code lives in one place each. New code uses it; do not write a local copy.
+Before writing a helper, search for an existing one.
+
+- Formatting (ability and skill names, signed numbers, list joining):
+  src/lib/character-format.ts
+- Derived values (modifiers, totals, caps): read them from the sheet's template
+  values. Never recompute them in UI. The one exception is quick-plan.ts, which
+  runs before sheet values exist.
+- Rules values (speeds, senses, bonuses, recommendations): the SRD constants files
+  in src/lib/character-templates/. Template formulas read them and never hardcode
+  values or ids.
+- Origins and choice fields: origins and chosenOption in src/lib/character-grants.ts
+- Kits: kitById in src/lib/character-templates/srd-5-2-1-kits.ts
+- Details panels: QUICK_DETAILS in src/components/dashboard/quick-details.ts
+- Browser storage: useStoredValue in src/hooks/; src/lib/browser-storage.ts
+  everywhere else
+- Pick changes all go through reconcile (src/lib/character-rules.ts). Resetting a
+  pick uses resetToSuggested, next to it.

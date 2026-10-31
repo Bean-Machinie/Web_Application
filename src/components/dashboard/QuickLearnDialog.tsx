@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/button"
 import { KIND_TEXT, optionsOf } from "@/lib/quick-options"
 import type { QuickKind } from "@/lib/quick-options"
 import type { SheetActions } from "./character-actions"
-import { QuickBackgroundDetails } from "./QuickBackgroundDetails"
-import { QuickClassDetails } from "./QuickClassDetails"
-import { QuickSpeciesDetails } from "./QuickSpeciesDetails"
+import { QUICK_DETAILS } from "./quick-details"
 import { SLOT_ICONS } from "./quick-icons"
 
 type Props = {
@@ -17,13 +15,11 @@ type Props = {
   onSelect: (id: string) => void
 }
 
-const DETAILS = { class: QuickClassDetails, species: QuickSpeciesDetails, background: QuickBackgroundDetails }
-
 // The details of one option in a centred dialog that its card morphs into (it shares the
 // card's layoutId), closing on Esc or a click outside, where the card returns.
 export function QuickLearnDialog({ shown, actions, onClose, onSelect }: Props) {
   const option = shown ? optionsOf(shown.kind).find((candidate) => candidate.id === shown.id) : undefined
-  const Details = shown && DETAILS[shown.kind]
+  const Details = shown && QUICK_DETAILS[shown.kind]
   const Icon = shown && SLOT_ICONS[shown.kind]
 
   return (

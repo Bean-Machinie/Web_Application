@@ -1,3 +1,4 @@
+import { abilityName } from "../character-format"
 import type { ChoiceOption } from "./types"
 import { ARMOR, MEDIUM_ARMOR_DEX_CAP, SHIELD_AC } from "./srd-5-2-1-gear"
 import { BACKGROUND_KITS, CLASS_KITS } from "./srd-5-2-1-kits"
@@ -47,7 +48,6 @@ export const CARRY_PER_STRENGTH = Object.fromEntries(SIZES.map((size) => [size.i
 // (p. 83). Each way is an option, named by what it adds to each ability.
 type Increase = { id: string; label: string; adds: Partial<Record<AbilityId, number>> }
 
-const name = (ability: AbilityId) => ABILITIES.find(([id]) => id === ability)![1]
 
 // The id of each way: what it adds to each ability, so it never depends on list order.
 export const splitIncreaseId = (two: AbilityId, one: AbilityId) => `${two}+2,${one}+1`
@@ -64,11 +64,11 @@ function increasesFor(abilities: AbilityId[]): Increase[] {
   const split = abilities.flatMap((two) =>
     abilities
       .filter((one) => one !== two)
-      .map((one) => ({ id: splitIncreaseId(two, one), label: `+2 ${name(two)}, +1 ${name(one)}`, adds: { [two]: 2, [one]: 1 } }))
+      .map((one) => ({ id: splitIncreaseId(two, one), label: `+2 ${abilityName(two)}, +1 ${abilityName(one)}`, adds: { [two]: 2, [one]: 1 } }))
   )
   const spread = {
     id: spreadIncreaseId(abilities),
-    label: `+1 ${abilities.map(name).join(", ")}`,
+    label: `+1 ${abilities.map(abilityName).join(", ")}`,
     adds: Object.fromEntries(abilities.map((ability) => [ability, 1])),
   }
   return [...split, spread]

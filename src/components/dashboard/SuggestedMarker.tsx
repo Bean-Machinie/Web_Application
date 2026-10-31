@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { characterStartPath } from "@/lib/characters"
-import { pickKeyOf } from "@/lib/pick-info"
+import { pickQuery } from "@/lib/pick-info"
 import type { SheetActions } from "./character-actions"
 
 // "Suggested" beside a value the quick build filled in, with Change in its menu, which opens
@@ -20,7 +20,7 @@ export function SuggestedMarker({ markerKey, actions }: { markerKey: string; act
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <Link to={`${characterStartPath(actions.characterId)}?pick=${pickKeyOf(markerKey)}`}>Change</Link>
+          <Link to={`${characterStartPath(actions.characterId)}?${pickQuery(markerKey)}`}>Change</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

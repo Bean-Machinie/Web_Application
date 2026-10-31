@@ -1,4 +1,5 @@
-import { ABILITIES, BACKGROUNDS, CLASSES, SIZES, SPECIES } from "./character-templates/srd-5-2-1"
+import { abilityShort } from "./character-format"
+import { BACKGROUNDS, CLASSES, SIZES, SPECIES } from "./character-templates/srd-5-2-1"
 import { CLASS_NOTES, SPECIES_TRAITS } from "./character-templates/srd-5-2-1-glossary"
 
 export type QuickKind = "class" | "species" | "background"
@@ -23,7 +24,6 @@ export type QuickOption = {
 }
 
 const sizeName = (id: string) => SIZES.find((size) => size.id === id)!.label
-const abilityShort = (id: string) => ABILITIES.find(([other]) => other === id)![1].slice(0, 3)
 
 // The species' size, Speed and Darkvision, as one line.
 export const speciesLine = (species: (typeof SPECIES)[number]) =>

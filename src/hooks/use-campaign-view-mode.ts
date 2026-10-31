@@ -1,27 +1,9 @@
-import { useState } from "react"
 import { useAuth } from "@/auth/useAuth"
+import { useStoredValue } from "./use-stored-value"
 
 export type CampaignViewMode = "list" | "grid"
 
+const read = (text: string | null): CampaignViewMode => (text === "list" ? "list" : "grid")
+
 // Remembered per user, in this browser.
-export function useCampaignViewMode() {
-  const storageKey = `campaigns-view:${useAuth().session!.user.id}`
-  const [mode, setMode] = useState<CampaignViewMode>(() => {
-    try {
-      return localStorage.getItem(storageKey) === "list" ? "list" : "grid"
-    } catch {
-      return "grid"
-    }
-  })
-
-  function change(next: CampaignViewMode) {
-    setMode(next)
-    try {
-      localStorage.setItem(storageKey, next)
-    } catch {
-      // The choice just will not be remembered.
-    }
-  }
-
-  return [mode, change] as const
-}
+export const useCampaignViewMode = () => useStoredValue(`campaigns-view:${useAuth().session!.user.id}`, read)

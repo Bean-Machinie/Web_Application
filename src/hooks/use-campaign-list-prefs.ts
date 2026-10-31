@@ -1,7 +1,7 @@
-import { useState } from "react"
 import { useAuth } from "@/auth/useAuth"
 import { defaultSort } from "@/lib/campaign-list"
 import type { RoleFilter, Sort } from "@/lib/campaign-list"
+import { useStoredValue } from "./use-stored-value"
 
 type Prefs = { role: RoleFilter; sort: Sort }
 
@@ -24,26 +24,12 @@ function parse(text: string | null): Prefs {
   return DEFAULTS
 }
 
+const write = (prefs: Prefs) => JSON.stringify(prefs)
+
 // The role filter and sort order, remembered per user in this browser.
 export function useCampaignListPrefs() {
-  const storageKey = `campaigns-list:${useAuth().session!.user.id}`
-  const [prefs, setPrefs] = useState<Prefs>(() => {
-    try {
-      return parse(localStorage.getItem(storageKey))
-    } catch {
-      return DEFAULTS
-    }
-  })
-
-  function change(next: Partial<Prefs>) {
-    const updated = { ...prefs, ...next }
-    setPrefs(updated)
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(updated))
-    } catch {
-      // The choice just will not be remembered.
-    }
-  }
+  const [prefs, setPrefs] = useStoredValue(`campaigns-list:${useAuth().session!.user.id}`, parse, write)
+  const change = (next: Partial<Prefs>) => setPrefs({ ...prefs, ...next })
 
   return {
     role: prefs.role,

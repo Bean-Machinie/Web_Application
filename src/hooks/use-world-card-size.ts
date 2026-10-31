@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useStoredValue } from "./use-stored-value"
 
 export type CardSize = "small" | "medium" | "large"
 
@@ -7,25 +7,7 @@ export const CARD_MIN_WIDTH: Record<CardSize, number> = { small: 150, medium: 20
 
 const KEY = "world-card-size"
 
+const read = (text: string | null): CardSize => (text === "small" || text === "large" ? text : "medium")
+
 // Remembered in this browser.
-export function useWorldCardSize() {
-  const [size, setSize] = useState<CardSize>(() => {
-    try {
-      const stored = localStorage.getItem(KEY)
-      return stored === "small" || stored === "large" ? stored : "medium"
-    } catch {
-      return "medium"
-    }
-  })
-
-  function change(next: CardSize) {
-    setSize(next)
-    try {
-      localStorage.setItem(KEY, next)
-    } catch {
-      // The choice just will not be remembered.
-    }
-  }
-
-  return [size, change] as const
-}
+export const useWorldCardSize = () => useStoredValue(KEY, read)

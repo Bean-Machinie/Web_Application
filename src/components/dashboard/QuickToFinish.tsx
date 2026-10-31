@@ -5,7 +5,7 @@ import type { SheetField } from "@/lib/character-sheet"
 import { CLASS_BUILD } from "@/lib/character-templates/srd-5-2-1-classes"
 import { characterStartPath } from "@/lib/characters"
 import type { Character, StoredValue } from "@/lib/characters"
-import { pickKeyOf } from "@/lib/pick-info"
+import { pickQuery } from "@/lib/pick-info"
 import { needsAttention } from "@/lib/quick-attention"
 import { isQuickBuilt } from "@/lib/quick-state"
 
@@ -17,7 +17,7 @@ export function QuickToFinish({ character, fields, values, derived }: Props) {
   if (!isQuickBuilt(values)) return null
   const context = { values, derived, byId: new Map(fields.map((field) => [field.id, field])) }
   const { cls } = origins(context)
-  const items = needsAttention(context).map((need) => ({ label: need.label, to: `${characterStartPath(character.id)}?pick=${pickKeyOf(need.key)}` }))
+  const items = needsAttention(context).map((need) => ({ label: need.label, to: `${characterStartPath(character.id)}?${pickQuery(need.key)}` }))
   if (cls && CLASS_BUILD[cls.id].spellcaster) items.push({ label: "Spells", to: "?tab=spells" })
 
   return (

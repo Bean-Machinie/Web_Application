@@ -5,7 +5,8 @@ import { ruleStateOf } from "@/lib/character-rules-state"
 import { readPicks } from "@/lib/character-values"
 import { KITS_FIELD, SUGGESTED_FIELD } from "@/lib/quick-state"
 import type { SheetActions } from "./character-actions"
-import { applyKits, chosenKits, kitById, kitsEdited } from "./character-kits"
+import { kitById } from "@/lib/character-templates/srd-5-2-1-kits"
+import { applyKits, chosenKits, kitsEdited } from "./character-kits"
 
 // What a change of class, species, lineage, background or approach does to the character, from
 // reconcile: the picks and suggestions it works out are stored, the starting equipment is written

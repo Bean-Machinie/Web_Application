@@ -1,20 +1,15 @@
-import { chosenOption, featGrants, origins, picksOf } from "./character-grants"
+import { featGrants, origins, picksOf } from "./character-grants"
 import type { GlossaryContext } from "./character-glossary"
 import { isMagicInitiate } from "./character-templates/srd-5-2-1-feats"
 import { CLASS_BUILD } from "./character-templates/srd-5-2-1-classes"
 import type { ChoiceDecl } from "./character-templates/srd-5-2-1-choices"
 import { LANGUAGES_TO_PICK } from "./character-templates/srd-5-2-1-gear"
-import { BACKGROUND_CHOICES, SPECIES_CHOICES } from "./character-templates/srd-5-2-1-origins"
+import { ABILITY_OPTIONS, BACKGROUND_CHOICES, SPECIES_CHOICES } from "./character-templates/srd-5-2-1-origins"
 
-// One thing to choose on the Skills and feats step: what it is, who asks for it, what has
+// One thing to choose for the character: what it is, who asks for it, what has
 // been picked, and whether that is enough.
 export type Card = { decl: ChoiceDecl; source: string; chosen: string[]; done: boolean; remaining: number }
 
-const ABILITY_OPTIONS = [
-  { id: "int", label: "Intelligence" },
-  { id: "wis", label: "Wisdom" },
-  { id: "cha", label: "Charisma" },
-]
 const abilityOf = (field: string): ChoiceDecl => ({ kind: "options", field, title: "Spellcasting ability", count: 1, options: ABILITY_OPTIONS })
 
 // Every choice the current class, background, species and feats ask for. Each class,
@@ -52,9 +47,3 @@ export function cardsFor(context: GlossaryContext): Card[] {
 }
 
 export const pendingCards = (cards: Card[]) => cards.filter((card) => !card.done)
-
-// The feat each feat card shows chosen, for the background’s fixed one.
-export const backgroundFeat = (context: GlossaryContext) => chosenOption(context, "origin-feat")
-
-export const cardStatus = (card: Card) =>
-  card.done ? "Done" : `${card.chosen.length} of ${card.decl.kind === "feat" ? 1 : card.decl.count} chosen`

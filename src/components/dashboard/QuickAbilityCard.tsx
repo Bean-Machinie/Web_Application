@@ -4,8 +4,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { AbilityMethod } from "@/lib/character-templates/srd-5-2-1-quick"
 import { POINT_BUY_MIN } from "@/lib/character-templates/srd-5-2-1"
+import { signed } from "@/lib/character-format"
 import { buyScore, raiseCost } from "@/lib/quick-abilities"
-import { totalWith } from "./ability-facts"
+import { EditedMarker } from "./EditedMarker"
 import { QuickSwap } from "./QuickSwap"
 
 type Props = {
@@ -14,6 +15,9 @@ type Props = {
   // The base score, before the background's increase.
   base: number | null
   bonus: number
+  // What the sheet works out for it: the score with the increase, and its modifier.
+  total: number | null
+  mod: number | null
   // The numbers the ability can be given, for the Standard Array and Roll: the ones not held yet.
   options: number[]
   // Point buy only: the points still to spend.
@@ -22,18 +26,16 @@ type Props = {
   // The base score the builder suggests, null while there is none, and the way back to it.
   suggested: number | null
   onReset: () => void
+  // The total or modifier is typed over on the sheet: what the calculation gives, and the way back to it.
+  edited: { calculated: string | null; onReset: () => void } | null
 }
-
-const modifier = (total: number) => Math.floor((total - 10) / 2)
-const signed = (value: number) => (value >= 0 ? `+${value}` : `−${-value}`)
 
 // One ability, as large as the Overview's tile: the modifier, the score it comes to, and what
 // sets it: a list of the numbers still to hand out, or buttons that spend points.
-export function QuickAbilityCard({ label, method, base: stored, bonus, options, left, onScore, suggested, onReset }: Props) {
+export function QuickAbilityCard({ label, method, base: stored, bonus, total, mod, options, left, onScore, suggested, onReset, edited }: Props) {
   const score = buyScore(stored)
   // Point buy starts every score at its lowest, as the points left count it.
   const base = method === "point-buy" ? score : stored
-  const total = base === null ? null : totalWith(base, bonus)
   const next = raiseCost(score)
   const values = base !== null && !options.includes(base) ? [base, ...options] : options
 
@@ -51,10 +53,17 @@ export function QuickAbilityCard({ label, method, base: stored, bonus, options, 
       )}
       <h3 className="text-muted-foreground text-xs font-medium tracking-widest uppercase">{label}</h3>
       <div className="text-4xl font-semibold tabular-nums">
-        <QuickSwap text={total === null ? "—" : signed(modifier(total))} className="px-0" />
+        <QuickSwap text={signed(mod)} className="px-0" />
       </div>
-      <p className="text-muted-foreground text-sm tabular-nums">
-        <QuickSwap text={total === null ? "No score" : bonus > 0 ? `${total} (${base} + ${bonus})` : `${total}`} className="px-0" />
+      <p className="text-muted-foreground flex items-center gap-1 text-sm tabular-nums">
+        {edited ? (
+          <>
+            <QuickSwap text={total === null ? "No score" : `${total}`} className="px-0" />
+            <EditedMarker calculated={edited.calculated} onReset={edited.onReset} />
+          </>
+        ) : (
+          <QuickSwap text={total === null ? "No score" : bonus > 0 ? `${total} (${base} + ${bonus})` : `${total}`} className="px-0" />
+        )}
       </p>
       {method === "point-buy" ? (
         <div className="flex items-center gap-2">

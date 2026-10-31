@@ -1,6 +1,8 @@
 import { isEdited } from "@/lib/character-derive"
 import type { SheetField } from "@/lib/character-sheet"
 import type { SheetActions } from "./character-actions"
+import { calculatedText } from "./character-calculated"
+import { resetPicks } from "./character-reset"
 import { CharacterAttacksValue } from "./CharacterAttacksValue"
 import { CharacterCalculatedResource } from "./CharacterCalculatedResource"
 import { CharacterChoiceValue } from "./CharacterChoiceValue"
@@ -15,7 +17,9 @@ type Props = { field: SheetField; actions: SheetActions; tile?: boolean }
 // template works out shows its calculated value in the same control; anything the player
 // enters is stored under the field's id, and clearing it (reset) removes it.
 export function CharacterFieldBody({ field, actions, tile }: Props) {
-  const reset = () => actions.onValue(field.id, null)
+  const edited = isEdited(field, actions.values)
+  const calculated = edited ? calculatedText(actions, field) : null
+  const reset = () => resetPicks(actions, [field.id], field.label)
 
   if (field.type === "choice") {
     return field.locked && !isEdited(field, actions.values) ? (
@@ -32,7 +36,8 @@ export function CharacterFieldBody({ field, actions, tile }: Props) {
       <CharacterDerivedToggle
         label={field.label}
         on={(actions.derived[field.id] ?? 0) > 0}
-        edited={isEdited(field, actions.values)}
+        edited={edited}
+        calculated={calculated}
         onChange={(on) => actions.onValue(field.id, on)}
         onReset={reset}
       />
@@ -44,7 +49,8 @@ export function CharacterFieldBody({ field, actions, tile }: Props) {
       <CharacterDerivedValue
         field={field}
         shown={actions.derived[field.id] ?? null}
-        edited={isEdited(field, actions.values)}
+        edited={edited}
+        calculated={calculated}
         tile={tile}
         onEnter={(value) => actions.onValue(field.id, value)}
         onReset={reset}

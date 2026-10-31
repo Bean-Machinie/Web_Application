@@ -4,7 +4,8 @@ import type { SheetField } from "./character-sheet"
 import { ABILITIES, SIZES, SKILLS } from "./character-templates/srd-5-2-1"
 import type { StoredValue } from "./characters"
 import { readLine } from "./character-values"
-import { NONE, number, signed } from "./quick-card-format"
+import { abilityShort, NONE, signed } from "./character-format"
+import { number } from "./quick-card-format"
 import { featuresOf } from "./quick-card-features"
 import type { FeatureCard } from "./quick-card-features"
 import { gearOf } from "./quick-card-gear"
@@ -41,9 +42,9 @@ export function cardOf(fields: SheetField[], values: Record<string, StoredValue>
     speed: species ? number(derived.speed, " ft") : NONE,
     size: size?.label ?? NONE,
     alignment: readLine(values.alignment?.value) || null,
-    mods: ABILITIES.map(([id, label]) => ({
+    mods: ABILITIES.map(([id]) => ({
       id,
-      label: label.slice(0, 3).toUpperCase(),
+      label: abilityShort(id).toUpperCase(),
       mod: cls ? signed(derived[`${id}.mod`]) : NONE,
       score: cls ? number(derived[`${id}.total`]) : NONE,
     })),

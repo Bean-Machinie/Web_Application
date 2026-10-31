@@ -1,3 +1,4 @@
+import { RECOMMENDED_FEAT } from "./srd-5-2-1"
 import { GAMING_SETS } from "./srd-5-2-1-gear"
 import type { ChoiceDecl, OptionDecl } from "./srd-5-2-1-choices"
 
@@ -5,7 +6,8 @@ import type { ChoiceDecl, OptionDecl } from "./srd-5-2-1-choices"
 // Elf and Gnome p. 85 (Elven Lineages, Gnomish Lineage), Goliath p. 85, Human p. 86 (Skillful,
 // Versatile), Tiefling p. 86 (Fiendish Legacies), the Soldier’s gaming set p. 83.
 
-const ABILITY_OPTIONS: OptionDecl[] = [
+// The abilities a feat or lineage can ask for its spellcasting: Intelligence, Wisdom or Charisma.
+export const ABILITY_OPTIONS: OptionDecl[] = [
   { id: "int", label: "Intelligence" },
   { id: "wis", label: "Wisdom" },
   { id: "cha", label: "Charisma" },
@@ -61,7 +63,7 @@ export const SPECIES_CHOICES: Record<string, ChoiceDecl[]> = {
   }],
   human: [
     { kind: "skills", field: "species-skill", title: "Skillful", count: 1, from: "any" },
-    { kind: "feat", field: "species-feat", title: "Versatile", category: "origin", recommended: "Skilled" },
+    { kind: "feat", field: "species-feat", title: "Versatile", category: "origin", recommended: RECOMMENDED_FEAT },
   ],
   tiefling: [
     {

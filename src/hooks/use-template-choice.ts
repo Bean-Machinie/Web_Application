@@ -1,28 +1,9 @@
-import { useState } from "react"
 import { useAuth } from "@/auth/useAuth"
 import { DEFAULT_TEMPLATE_ID, TEMPLATE_CHOICES } from "@/lib/character-templates"
+import { useStoredValue } from "./use-stored-value"
+
+const read = (text: string | null) => TEMPLATE_CHOICES.find((candidate) => candidate.id === text)?.id ?? DEFAULT_TEMPLATE_ID
 
 // The system chosen for the last new character, remembered per user in this browser, so
 // the dialog opens on it.
-export function useTemplateChoice() {
-  const storageKey = `new-character-template:${useAuth().session!.user.id}`
-  const [choice, setChoice] = useState(() => {
-    try {
-      const saved = localStorage.getItem(storageKey)
-      return TEMPLATE_CHOICES.some((candidate) => candidate.id === saved) ? saved! : DEFAULT_TEMPLATE_ID
-    } catch {
-      return DEFAULT_TEMPLATE_ID
-    }
-  })
-
-  function change(next: string) {
-    setChoice(next)
-    try {
-      localStorage.setItem(storageKey, next)
-    } catch {
-      // The choice just will not be remembered.
-    }
-  }
-
-  return [choice, change] as const
-}
+export const useTemplateChoice = () => useStoredValue(`new-character-template:${useAuth().session!.user.id}`, read)

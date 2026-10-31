@@ -7,6 +7,7 @@ import { formatNumber } from "@/lib/character-derive"
 import { ABILITY_OPTIONS } from "@/lib/character-templates/dnd-5e-2024-tables"
 import type { Attack } from "@/lib/character-values"
 import { toWhole } from "@/lib/character-values"
+import { resetWithUndo } from "./character-reset"
 import { EditedMarker } from "./EditedMarker"
 import { InlineText } from "./InlineText"
 
@@ -14,16 +15,16 @@ export const ATTACK_COLUMNS = "grid grid-cols-[minmax(0,1fr)_7rem_4.5rem_5.5rem_
 
 type Props = {
   attack: Attack
-  // The modifier of the ability it uses and the proficiency bonus; null while unknown.
+  // The modifier of the ability it uses, for the damage; null while unknown.
   modifier: number | null
-  bonus: number | null
+  // The to-hit the sheet works out for it; null while unknown.
+  calculated: number | null
   onChange: (attack: Attack) => void
   onRemove: () => void
 }
 
 // One attack. Its to-hit is worked out, and typed over when the player knows better.
-export function CharacterAttackRow({ attack, modifier, bonus, onChange, onRemove }: Props) {
-  const calculated = modifier === null || (attack.proficient && bonus === null) ? null : modifier + (attack.proficient ? bonus! : 0)
+export function CharacterAttackRow({ attack, modifier, calculated, onChange, onRemove }: Props) {
   const shown = attack.toHit ?? calculated
 
   return (
@@ -56,7 +57,12 @@ export function CharacterAttackRow({ attack, modifier, bonus, onChange, onRemove
             onSave={(text) => onChange({ ...attack, toHit: toWhole(text) })}
           />
         </span>
-        {attack.toHit !== null && <EditedMarker onReset={() => onChange({ ...attack, toHit: null })} />}
+        {attack.toHit !== null && (
+          <EditedMarker
+            calculated={calculated === null ? null : formatNumber(calculated, "signed")}
+            onReset={() => resetWithUndo("Reset to hit to calculated", () => onChange({ ...attack, toHit: null }), () => onChange(attack))}
+          />
+        )}
       </span>
       <InlineText
         value={attack.damage}

@@ -7,6 +7,8 @@ import { readStat } from "@/lib/character-values"
 import { increaseNote } from "./ability-facts"
 import type { AbilityFacts } from "./ability-facts"
 import type { SheetActions } from "./character-actions"
+import { calculatedText } from "./character-calculated"
+import { resetPicks } from "./character-reset"
 import { CharacterDerivedValue } from "./CharacterDerivedValue"
 import { CharacterFieldBody } from "./CharacterFieldBody"
 import { GlossaryLabel } from "./GlossaryLabel"
@@ -20,17 +22,20 @@ type Props = { field: SheetField; actions: SheetActions; facts: AbilityFacts }
 export function AbilityTile({ field, actions, facts }: Props) {
   const total = field.secondary ? actions.byId.get(field.secondary) : undefined
   const modifier = field.tertiary ? actions.byId.get(field.tertiary) : undefined
-  const note = increaseNote(facts, field.id as AbilityId, readStat(actions.values[field.id]?.value))
+  const edited = total ? isEdited(total, actions.values) : false
+  // Typed over, the tile says so under the score and has no increase to explain.
+  const note = edited || !total ? null : increaseNote(facts, field.id as AbilityId, readStat(actions.values[field.id]?.value), actions.derived[total.id] ?? null)
 
   const box = total && (
     <span className="bg-background inline-block rounded-md border px-0.5 shadow-xs">
       <CharacterDerivedValue
         field={total}
         shown={actions.derived[total.id] ?? null}
-        edited={isEdited(total, actions.values)}
+        edited={edited}
+        calculated={edited ? calculatedText(actions, total) : null}
         box
         onEnter={(value) => actions.onValue(total.id, value)}
-        onReset={() => actions.onValue(total.id, null)}
+        onReset={() => resetPicks(actions, [total.id], `${field.label} total`)}
       />
     </span>
   )

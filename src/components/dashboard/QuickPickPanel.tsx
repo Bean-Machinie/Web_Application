@@ -5,7 +5,6 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import type { useCharacter } from "@/hooks/use-character"
 import { origins } from "@/lib/character-grants"
 import { countOf } from "@/lib/character-rules-checks"
-import { ABILITIES } from "@/lib/character-templates/srd-5-2-1"
 import { readPicks } from "@/lib/character-values"
 import type { Character } from "@/lib/characters"
 import { pickInfo } from "@/lib/pick-info"
@@ -14,7 +13,6 @@ import { pickOptions } from "@/lib/pick-options"
 import type { CardModel } from "@/lib/quick-card"
 import type { SheetActions } from "./character-actions"
 import { changeCharacter } from "./character-change"
-import { PickAbilities } from "./PickAbilities"
 import { PickDetails } from "./PickDetails"
 import { PickEquipment } from "./PickEquipment"
 import { PickList } from "./PickList"
@@ -42,7 +40,7 @@ const SIZES = [
 // The fields a pick holds and what is stored in them now.
 function currentOf(info: PickInfo, actions: SheetActions): Values {
   const stored = (field: string) => actions.values[field]?.value ?? null
-  const fields = info.key === "abilities" ? [...ABILITIES.map(([id]) => id), "ability-increase"] : info.key === "equipment" ? ["equipment-class", "equipment-background"] : info.decl ? [info.decl.field] : [info.key]
+  const fields = info.key === "equipment" ? ["equipment-class", "equipment-background"] : info.decl ? [info.decl.field] : [info.key]
   return Object.fromEntries(fields.map((field) => [field, stored(field)]))
 }
 
@@ -74,7 +72,6 @@ function PanelBody({ info, actions, sheet, character, base, shown, onPreview, on
   )
 
   const body =
-    info.key === "abilities" ? <PickAbilities draft={draft} onDraft={setDraft} actions={actions} /> :
     info.key === "equipment" ? <PickEquipment draft={draft} onDraft={setDraft} actions={actions} /> :
     info.key === "details" ? <PickDetails actions={actions} character={character} onConcept={(concept) => void sheet.edit("concept", concept)} /> :
     info.key === "origin-feat" ? <PickOriginFeat draft={draft} onDraft={setDraft} onPreview={setHover} actions={actions} /> :

@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { SheetField } from "@/lib/character-sheet"
+import { toHitOf } from "@/lib/character-weapons"
 import { readAttacks } from "@/lib/character-values"
 import type { Attack } from "@/lib/character-values"
 import type { SheetActions } from "./character-actions"
@@ -9,11 +10,10 @@ import { CharacterAttackRow, ATTACK_COLUMNS } from "./CharacterAttackRow"
 const HEADINGS = ["Name", "Ability", "Proficient", "To hit", "Damage"]
 
 // The attacks as a table of rows: name, the ability it uses, to-hit and damage. The to-hit
-// is that ability's modifier plus the proficiency bonus unless the player wrote their own.
+// is worked out (see toHitOf) unless the player wrote their own.
 export function CharacterAttacksValue({ field, actions }: { field: SheetField; actions: SheetActions }) {
   const attacks = readAttacks(actions.values[field.id]?.value)
   const save = (next: Attack[]) => actions.onValue(field.id, next)
-  const bonus = actions.derived["proficiency-bonus"] ?? null
 
   return (
     <div className="flex min-w-0 flex-col gap-1">
@@ -30,7 +30,7 @@ export function CharacterAttacksValue({ field, actions }: { field: SheetField; a
           key={attack.id}
           attack={attack}
           modifier={attack.ability ? (actions.derived[`${attack.ability}.mod`] ?? null) : null}
-          bonus={bonus}
+          calculated={toHitOf(attack, actions.derived)}
           onChange={(changed) => save(attacks.map((other) => (other.id === attack.id ? changed : other)))}
           onRemove={() => save(attacks.filter((other) => other.id !== attack.id))}
         />

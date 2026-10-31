@@ -1,8 +1,9 @@
 import { cardsFor } from "./character-cards"
+import { abilityShort, joinList, skillName } from "./character-format"
 import type { Card } from "./character-cards"
 import type { GlossaryContext } from "./character-glossary"
 import { chosenOption, origins, picksOf } from "./character-grants"
-import { ABILITIES, SIZES, SKILLS } from "./character-templates/srd-5-2-1"
+import { SIZES } from "./character-templates/srd-5-2-1"
 import { CLASS_BUILD } from "./character-templates/srd-5-2-1-classes"
 import { featById } from "./character-templates/srd-5-2-1-feats"
 import { weaponById } from "./character-templates/srd-5-2-1-gear"
@@ -41,15 +42,13 @@ export const FEATURE_SLOTS = {
   Species: Math.max(...Object.values(SPECIES_TRAIT_LIST).map((traits) => traits.length)),
 }
 
-const skillLabel = (id: string) => SKILLS.find(([skill]) => skill === id)?.[1] ?? id
 const sameTitle = (a: string, b: string) => a.toLowerCase().replace(/s$/, "") === b.toLowerCase().replace(/s$/, "")
-const list = (items: string[]) => (items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`)
 
 // What a feat does, and for Skilled what it was spent on.
 function featDescription(id: string, context: GlossaryContext) {
   if (id === "Skilled") {
-    const picks = picksOf(context, "skilled-picks").map((pick) => (pick.startsWith("skill:") ? skillLabel(pick.slice(6)) : pick.slice(5)))
-    if (picks.length > 0) return `Proficiency in ${list(picks)}`
+    const picks = picksOf(context, "skilled-picks").map(skillName)
+    if (picks.length > 0) return `Proficiency in ${joinList(picks)}`
   }
   return featById(id)?.benefit ?? ""
 }
@@ -82,7 +81,7 @@ function featureOf(name: string, summary: string, source: string, context: Gloss
     const option = decl.options.find((candidate) => candidate.id === chosen[0])
     return { ...feature, value: option?.label ?? chosen[0], description: option?.note ?? summary }
   }
-  if (decl.kind === "skills" || decl.kind === "expertise") return { ...feature, value: list(chosen.map(skillLabel)) }
+  if (decl.kind === "skills" || decl.kind === "expertise") return { ...feature, value: joinList(chosen.map(skillName)) }
   return { ...feature, value: chosen.join(", ") }
 }
 
@@ -100,7 +99,7 @@ export function featuresOf(context: GlossaryContext): FeatureCard[] {
     : []
 
   const size = SIZES.find((candidate) => candidate.id === (chosenOption(context, "size")?.id ?? species?.size))
-  const abilities = background?.abilities.map((id) => ABILITIES.find(([ability]) => ability === id)?.[1].slice(0, 3)).join(", ")
+  const abilities = background?.abilities.map(abilityShort).join(", ")
 
   return [
     ...(species ? [{ label: "Species" as const, slot: "species" as const, name: species.label, meta: `Species · ${size?.label} · ${species.speed} ft`, features: (SPECIES_TRAIT_LIST[species.id] ?? []).map((trait) => featureOf(trait.name, trait.summary, species.label, context, state, cards)) }] : []),

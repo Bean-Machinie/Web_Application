@@ -40,7 +40,7 @@ export const isQuickBuilt = (values: Values) => Array.isArray(values[SUGGESTED_F
 
 // A marker covers one field of the builder, and the six scores with the background's
 // increase count as one.
-const ABILITY_FIELDS = /^(str|dex|con|int|wis|cha)$/
+const ABILITY_FIELD_PATTERN = /^(str|dex|con|int|wis|cha)$/
 export const MARKED = [
   "class-skills", "species-skill", "skilled-picks", "class-style", "species-feat", "class-masteries", "class-expertise", "languages", "equipment-class", "equipment-background",
   "size", "species-option", "species-ability", "class-order", "class-invocation", "class-tools", "background-tool", "origin-feat.ability", "species-feat.ability",
@@ -48,14 +48,14 @@ export const MARKED = [
 
 // The marker a change to this field takes away: the player has now chosen it themselves.
 export function markerOfField(fieldId: string) {
-  if (ABILITY_FIELDS.test(fieldId) || fieldId === "ability-increase") return "abilities"
+  if (ABILITY_FIELD_PATTERN.test(fieldId) || fieldId === "ability-increase") return "abilities"
   return MARKED.includes(fieldId) ? fieldId : null
 }
 
 // The marker to show beside a field of the sheet, if what it holds was suggested.
 export function markerShownFor(fieldId: string, values: Values) {
   const suggested = readSuggested(values)
-  if (ABILITY_FIELDS.test(fieldId)) return suggested.includes("abilities") ? "abilities" : null
+  if (ABILITY_FIELD_PATTERN.test(fieldId)) return suggested.includes("abilities") ? "abilities" : null
   if (fieldId === "inventory") return ["equipment-class", "equipment-background"].find((key) => suggested.includes(key)) ?? null
   const skill = fieldId.match(/^skill\.([a-z-]+)\.prof$/)?.[1]
   if (!skill) return null

@@ -3,6 +3,8 @@ import { choiceState } from "@/lib/character-choices"
 import { isEdited } from "@/lib/character-derive"
 import type { SheetField } from "@/lib/character-sheet"
 import type { SheetActions } from "./character-actions"
+import { calculatedText } from "./character-calculated"
+import { resetPicks } from "./character-reset"
 import { EditedMarker } from "./EditedMarker"
 
 const CLEAR = "__clear"
@@ -34,7 +36,7 @@ export function CharacterChoiceValue({ field, actions }: Props) {
           ))}
         </SelectContent>
       </Select>
-      {isEdited(field, actions.values) && <EditedMarker onReset={() => actions.onValue(field.id, null)} />}
+      {isEdited(field, actions.values) && <EditedMarker calculated={calculatedText(actions, field)} onReset={() => resetPicks(actions, [field.id], field.label)} />}
     </span>
   )
 }
