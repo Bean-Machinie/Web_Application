@@ -20,10 +20,12 @@ export type StatCell = {
   openLabel?: string
   // Under the cell's content, like the Edited marker.
   extra?: ReactNode
-  // The large grid only: what sets the value, under it; a muted line under that; and what sits in
-  // the cell's top right corner.
-  control?: ReactNode
+  // The large grid only, under the value in this order: a muted caption ("Modifier"), a muted line of
+  // working ("Score 17 = 15 + 2 Soldier"), what sets the value, and what sits in the cell's top
+  // right corner. The Edited marker goes at the end of the caption.
+  detail?: ReactNode
   note?: string
+  control?: ReactNode
   corner?: ReactNode
   // For a link to scroll to the cell, and a ring for a moment.
   id?: string
@@ -33,7 +35,7 @@ export type StatCell = {
 type Props = {
   cells: StatCell[]
   label: string
-  // Larger cells with room for a control: 24px of padding, a 40px value, all of one height.
+  // Larger cells with room for working and a control: 24px of padding, a 40px value, all of one height.
   large?: boolean
 }
 
@@ -51,16 +53,17 @@ export function StatGrid({ cells, label, large }: Props) {
             </GlossaryLabel>
             <span className={cn("leading-tight font-semibold tabular-nums", large ? "text-[40px] leading-none" : "text-[22px]")}><QuickValue value={cell.value} changed={cell.changed} /></span>
             {cell.sub !== undefined && <span className="text-muted-foreground text-xs tabular-nums"><QuickValue value={cell.sub} changed={!!cell.subChanged} /></span>}
-            {large && cell.control}
             {large && (
-              <span className="text-muted-foreground flex min-h-5 items-center gap-2 text-xs">
-                {cell.note}
+              <span className="text-muted-foreground -mt-1 flex min-h-5 items-center gap-2 text-[13px]">
+                {cell.detail}
                 {cell.extra}
               </span>
             )}
+            {large && <span className="text-muted-foreground min-h-5 text-[13px] tabular-nums">{cell.note}</span>}
+            {large && cell.control}
           </>
         )
-        const look = cn("flex flex-1 flex-col items-center text-center", large ? "gap-3 p-6" : "gap-1 p-3")
+        const look = cn("flex flex-1 flex-col items-center text-center", large ? "gap-2 p-6" : "gap-1 p-3")
         return (
           <li key={cell.key} id={cell.id} className={cn("bg-card relative flex flex-col transition-shadow duration-500", cell.highlighted ? "ring-ring ring-2 ring-inset" : "ring-2 ring-transparent ring-inset")}>
             {large && cell.corner && <span className="absolute top-2 right-2">{cell.corner}</span>}

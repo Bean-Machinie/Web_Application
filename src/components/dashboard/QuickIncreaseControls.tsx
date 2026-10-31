@@ -46,16 +46,16 @@ export function QuickIncreaseControls({ actions }: { actions: SheetActions }) {
         value={parsed?.mode ?? "split"}
         onValueChange={(mode) => save(mode === "spread" ? spreadIncreaseId(listed) : splitIncreaseId(two, one))}
         options={[
-          { value: "split", label: "+2 / +1" },
-          { value: "spread", label: "+1 / +1 / +1" },
+          { value: "split", label: `+2 / +1 ${background.label}` },
+          { value: "spread", label: `+1 each ${background.label}` },
         ]}
       />
       {parsed?.mode === "spread" ? (
-        <p className="text-muted-foreground text-xs">+1 to {listed.map(abilityName).join(", ")}.</p>
+        <p className="text-muted-foreground text-xs">+1 {background.label} to {listed.map(abilityName).join(", ")}.</p>
       ) : (
         <>
-          <AbilityField label="+2 to" value={two} options={listed} onChange={(id) => save(splitIncreaseId(id, id === one ? listed.find((other) => other !== id)! : one))} />
-          <AbilityField label="+1 to" value={one} options={listed.filter((id) => id !== two)} onChange={(id) => save(splitIncreaseId(two, id))} />
+          <AbilityField label={`+2 ${background.label} to`} value={two} options={listed} onChange={(id) => save(splitIncreaseId(id, id === one ? listed.find((other) => other !== id)! : one))} />
+          <AbilityField label={`+1 ${background.label} to`} value={one} options={listed.filter((id) => id !== two)} onChange={(id) => save(splitIncreaseId(two, id))} />
         </>
       )}
     </div>

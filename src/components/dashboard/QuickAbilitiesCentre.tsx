@@ -37,8 +37,9 @@ const HINT: Record<AbilityMethod, string> = {
   own: "Roll six scores, then give each ability one.",
 }
 
-// The centre of the Abilities workspace: the six abilities in one grid, each with its modifier and
-// what sets its score. The background's increase is chosen in the left panel and said under the score.
+// The centre of the Abilities workspace: the six abilities in one grid, each with its modifier large,
+// its score and the working of it ("Score 17 = 15 + 2 Soldier"), and what sets its base score. The background's
+// increase is chosen in the left panel, and always named by its source.
 export function QuickAbilitiesCentre({ actions, rules, inset, focus, onFocused }: Props) {
   const [lit, setLit] = useState<AbilityId | null>(null)
   const timer = useRef<number | undefined>(undefined)
@@ -86,6 +87,8 @@ export function QuickAbilitiesCentre({ actions, rules, inset, focus, onFocused }
           label="Ability scores"
           cells={ABILITIES.map(([id, label]) => {
             const bonus = bonusFor(facts, id)
+            const base = rules.method === "point-buy" ? buyScore(scores[id]) : scores[id]
+            const total = derived[`${id}.total`]
             const field = actions.byId.get(id)
             return {
               key: id,
@@ -93,10 +96,13 @@ export function QuickAbilitiesCentre({ actions, rules, inset, focus, onFocused }
               highlighted: lit === id,
               label,
               explanation: field ? explain(field, actions) : null,
+              // The modifier is what is added to a roll, so it is the large number, captioned; under it
+              // the score and how it comes about.
               value: signed(derived[`${id}.mod`]),
               changed: false,
+              detail: "Modifier",
+              note: total === null || total === undefined || base === null ? "—" : bonus > 0 && facts.background ? `Score ${total} = ${base} + ${bonus} ${facts.background.label}` : `Score ${total}`,
               control: <QuickAbilityControl label={label} method={rules.method} base={scores[id]} options={unassigned(pool, scores, id)} left={left} onScore={(score) => setScore(actions, id, score)} />,
-              note: bonus > 0 && facts.background ? `+${bonus} ${facts.background.label}` : "",
               extra: <FieldEditedMarker actions={actions} fields={[`${id}.total`, `${id}.mod`]} label={label} />,
               corner: !suggestion ? null : scores[id] === suggestion.scores[id] ? (
                 <span role="img" aria-label="Suggested" title="Suggested" className="bg-foreground/60 m-1.5 block size-1.5 rounded-full" />
