@@ -1,10 +1,11 @@
-import { useState } from "react"
 import { AnimatePresence } from "motion/react"
+import { Accordion } from "@/components/ui/accordion"
 import type { CardModel } from "@/lib/quick-card"
 import { has } from "@/lib/quick-card-format"
 import { FEATURE_SLOTS } from "@/lib/quick-card-features"
 import { QuickFeatureSlot } from "./QuickFeatureSlot"
 import { QuickSection } from "./QuickSection"
+import { SLOT_ICONS } from "./quick-icons"
 
 type Props = { shown: CardModel; base: CardModel; onPick: ((pick: string) => void) | null; onOpenSlot: (slot: string) => void }
 
@@ -16,40 +17,31 @@ const SECTIONS = [
 ] as const
 
 // The sections come one at a time, each easing in under the last once that is chosen, with room for
-// all its possible rows until something is chosen, then only its own: the others collapse. One row is open at a time.
+// all its possible rows until something is chosen, then only its own: the others collapse. The rows
+// are items of one Accordion, so one is open at a time.
 export function QuickFeaturesTab({ shown, base, onPick, onOpenSlot }: Props) {
-  const [open, setOpen] = useState<string | null>(null)
   const known = base.features.flatMap((card) => card.features)
   // What is chosen counts, not what is only tried on, so hovering does not bring a section in.
   const chosen = (label: string | null) => label === null || base.features.some((card) => card.label === label)
 
   return (
-    <div className="flex flex-col">
+    <Accordion type="single" collapsible>
       <AnimatePresence initial={false}>
         {SECTIONS.filter(({ label, after }) => chosen(after) || chosen(label)).map(({ label, slot }) => {
           const card = shown.features.find((candidate) => candidate.label === label)
           return (
-            <QuickSection
-              key={label}
-              reveal
-              label={label}
-              name={card?.name ?? "Not chosen"}
-              placeholder={!card}
-              onOpen={() => onOpenSlot(slot)}
-              end={card?.level != null && <span className="text-muted-foreground text-xs">Level {card.level}</span>}
-            >
-              <ul className="-mx-2 flex flex-col">
+            <QuickSection key={label} reveal icon={SLOT_ICONS[slot]} title={card?.name ?? "Not chosen"} subtitle={card?.meta ?? label} placeholder={!card} onOpen={() => onOpenSlot(slot)}>
+              <div className="flex flex-col">
                 {Array.from({ length: FEATURE_SLOTS[label] }, (_, index) => {
                   const feature = card?.features[index]
-                  const key = `${label}:${index}`
                   const hidden = !!card && index >= card.features.length
-                  return <QuickFeatureSlot key={key} feature={feature} hidden={hidden} changed={!!feature && !has(known, feature)} open={open === key} onToggle={() => setOpen(open === key ? null : key)} onPick={onPick} />
+                  return <QuickFeatureSlot key={index} feature={feature} value={`${label}:${index}`} hidden={hidden} changed={!!feature && !has(known, feature)} onPick={onPick} />
                 })}
-              </ul>
+              </div>
             </QuickSection>
           )
         })}
       </AnimatePresence>
-    </div>
+    </Accordion>
   )
 }

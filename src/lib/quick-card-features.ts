@@ -2,7 +2,7 @@ import { cardsFor } from "./character-cards"
 import type { Card } from "./character-cards"
 import type { GlossaryContext } from "./character-glossary"
 import { chosenOption, origins, picksOf } from "./character-grants"
-import { SKILLS } from "./character-templates/srd-5-2-1"
+import { ABILITIES, SIZES, SKILLS } from "./character-templates/srd-5-2-1"
 import { CLASS_BUILD } from "./character-templates/srd-5-2-1-classes"
 import { featById } from "./character-templates/srd-5-2-1-feats"
 import { weaponById } from "./character-templates/srd-5-2-1-gear"
@@ -25,8 +25,8 @@ export type Feature = {
   pick: string | null
 }
 // The features of one source: the class, the background or the species. `slot` is the word of
-// the sentence that picks it; `level` is only for the class.
-export type FeatureCard = { label: "Class" | "Background" | "Species"; slot: "class" | "background" | "species"; name: string; level: number | null; features: Feature[] }
+// the sentence that picks it; `meta` is its line under the name: "Class · Level 1 · d10".
+export type FeatureCard = { label: "Class" | "Background" | "Species"; slot: "class" | "background" | "species"; name: string; meta: string; features: Feature[] }
 
 // How many rows each source has room for: the most any class or species lists, so the panel
 // keeps its size whichever is tried on. The background gives one feat.
@@ -56,8 +56,12 @@ function featureOf(name: string, summary: string, source: string, context: Gloss
   const plain: Feature = { name, value: range ? `${range} ft` : (FEATURE_STATE[name] ?? ""), effect: null, description: summary, picks: [], chosen: false, suggested: false, pick: null }
   if (!card) return plain
 
-  const { decl, chosen } = card
-  const feature = { ...plain, value: "Choose", pick: decl.field, chosen: chosen.length > 0, suggested: readSuggested(context.values).includes(decl.field) }
+  const { decl } = card
+  // Nothing stored yet: the builder's own suggestion where it does not depend on the other picks.
+  const fallback = decl.kind === "feat" ? decl.recommended : decl.kind === "options" && !decl.options.some((option) => option.lineage) ? decl.options[0].id : undefined
+  const chosen = card.chosen.length > 0 ? card.chosen : fallback ? [fallback] : []
+  const suggested = card.chosen.length > 0 ? readSuggested(context.values).includes(decl.field) : chosen.length > 0
+  const feature = { ...plain, value: "Not chosen", pick: decl.field, chosen: chosen.length > 0, suggested }
   if (chosen.length === 0) return feature
   if (decl.kind === "weapons") {
     const weapons = chosen.map((id) => weaponById(id))
@@ -76,20 +80,24 @@ function featureOf(name: string, summary: string, source: string, context: Gloss
   return { ...feature, value: chosen.join(", ") }
 }
 
-// One card each for the class, the background and the species, in that order. The feats sit in
+// One card each for the species, the class and the background, in the order of the sentence. The feats sit in
 // the card of whoever gives them.
 export function featuresOf(context: GlossaryContext): FeatureCard[] {
   const { cls, background, species } = origins(context)
   const cards = cardsFor(context)
   const feat = chosenOption(context, "origin-feat")
   const level = readStat(context.values.level?.value) ?? 1
+  // The background's own feat, until the player picks another in its panel.
   const originFeat: Feature[] = background && feat
-    ? [{ name: "Origin feat", value: feat.id, effect: null, description: featDescription(feat.id, context), picks: [], chosen: true, suggested: false, pick: "origin-feat" }]
+    ? [{ name: "Origin feat", value: feat.id, effect: null, description: featDescription(feat.id, context), picks: [], chosen: true, suggested: context.values["origin-feat"]?.value == null, pick: "origin-feat" }]
     : []
 
+  const size = SIZES.find((candidate) => candidate.id === (chosenOption(context, "size")?.id ?? species?.size))
+  const abilities = background?.abilities.map((id) => ABILITIES.find(([ability]) => ability === id)?.[1].slice(0, 3)).join(", ")
+
   return [
-    ...(cls ? [{ label: "Class" as const, slot: "class" as const, name: cls.label, level, features: CLASS_BUILD[cls.id].features.map((item) => featureOf(item.name, item.summary, cls.label, context, cards)) }] : []),
-    ...(background ? [{ label: "Background" as const, slot: "background" as const, name: background.label, level: null, features: originFeat }] : []),
-    ...(species ? [{ label: "Species" as const, slot: "species" as const, name: species.label, level: null, features: (SPECIES_TRAIT_LIST[species.id] ?? []).map((trait) => featureOf(trait.name, trait.summary, species.label, context, cards)) }] : []),
+    ...(species ? [{ label: "Species" as const, slot: "species" as const, name: species.label, meta: `Species · ${size?.label} · ${species.speed} ft`, features: (SPECIES_TRAIT_LIST[species.id] ?? []).map((trait) => featureOf(trait.name, trait.summary, species.label, context, cards)) }] : []),
+    ...(cls ? [{ label: "Class" as const, slot: "class" as const, name: cls.label, meta: `Class · Level ${level} · d${cls.hitDie}`, features: CLASS_BUILD[cls.id].features.map((item) => featureOf(item.name, item.summary, cls.label, context, cards)) }] : []),
+    ...(background ? [{ label: "Background" as const, slot: "background" as const, name: background.label, meta: `Background · ${abilities}`, features: originFeat }] : []),
   ].filter((card) => card.features.length > 0)
 }

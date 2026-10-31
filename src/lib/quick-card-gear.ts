@@ -3,9 +3,10 @@ import { chosenOption, origins } from "./character-grants"
 import { BACKGROUND_KITS, CLASS_KITS } from "./character-templates/srd-5-2-1-kits"
 import { readAttacks, readList, readStat } from "./character-values"
 import { NONE, number, signed } from "./quick-card-format"
+import { readSuggested } from "./quick-state"
 
 export type GearModel = {
-  kits: { source: string; choice: string }[]
+  kits: { source: string; choice: string; suggested: boolean }[]
   inventory: string[]
   gold: string
   attacks: { name: string; hit: string; damage: string }[]
@@ -14,10 +15,10 @@ export type GearModel = {
 const KITS = [...Object.values(CLASS_KITS), ...Object.values(BACKGROUND_KITS)].flat()
 
 // "Kit A", or "50 gp instead" for the gold option, for the class or background it comes from.
-function kitOf(source: string | undefined, id: string | undefined) {
+function kitOf(source: string | undefined, id: string | undefined, suggested: boolean) {
   const kit = KITS.find((candidate) => candidate.id === id)
   if (!source || !kit) return null
-  return { source, choice: kit.label === "Gold" ? `${kit.gp} gp instead` : `Kit ${kit.label}` }
+  return { source, choice: kit.label === "Gold" ? `${kit.gp} gp instead` : `Kit ${kit.label}`, suggested }
 }
 
 // What the sheet's Attacks would show: the to-hit worked out as the sheet does, and the
@@ -34,9 +35,10 @@ function attacksOf({ values, derived }: GlossaryContext) {
 
 export function gearOf(context: GlossaryContext): GearModel {
   const { cls, background } = origins(context)
+  const suggested = readSuggested(context.values)
   const gold = readStat(context.values["coin.gp"]?.value)
   return {
-    kits: [kitOf(cls?.label, chosenOption(context, "equipment-class")?.id), kitOf(background?.label, chosenOption(context, "equipment-background")?.id)].filter((kit) => kit !== null),
+    kits: [kitOf(cls?.label, chosenOption(context, "equipment-class")?.id, suggested.includes("equipment-class")), kitOf(background?.label, chosenOption(context, "equipment-background")?.id, suggested.includes("equipment-background"))].filter((kit) => kit !== null),
     inventory: readList(context.values.inventory?.value).map((item) => item.text),
     gold: gold === null ? NONE : number(gold, " gp"),
     attacks: attacksOf(context),
