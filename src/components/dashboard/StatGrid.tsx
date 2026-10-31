@@ -8,8 +8,10 @@ export type StatCell = {
   key: string
   // Short, and never wrapped: "HP", "Initiative".
   label: string
-  // With it the label explains itself on hover, as the sheet's do.
+  // With it the label explains itself on hover, as the sheet's do; `labelCard` shortens that card or
+  // adds a section to it.
   explanation?: Explanation | null
+  labelCard?: { brief?: boolean; note?: { title: string; text: string } }
   value: string
   changed: boolean
   // A small line under the value: the score under an ability's modifier.
@@ -24,9 +26,11 @@ export type StatCell = {
   // working ("Score 17 = 15 + 2 Soldier"), what sets the value, and what sits in the cell's top
   // right corner. The Edited marker goes at the end of the caption.
   detail?: ReactNode
-  note?: string
+  note?: ReactNode
   control?: ReactNode
   corner?: ReactNode
+  // Over the cell's left and right edges, like point buy's minus and plus.
+  sides?: ReactNode
   // For a link to scroll to the cell, and a ring for a moment.
   id?: string
   highlighted?: boolean
@@ -48,8 +52,8 @@ export function StatGrid({ cells, label, large }: Props) {
       {cells.map((cell) => {
         const body = (
           <>
-            <GlossaryLabel explanation={cell.explanation ?? null}>
-              <span className={cn("text-muted-foreground leading-none font-medium tracking-wide whitespace-nowrap uppercase", large ? "text-xs" : "text-[11px]")}>{cell.label}</span>
+            <GlossaryLabel explanation={cell.explanation ?? null} brief={cell.labelCard?.brief} note={cell.labelCard?.note}>
+              <span className={cn("text-muted-foreground leading-none font-medium tracking-wide whitespace-nowrap uppercase", large ? "text-xs" : "text-[11px]", cell.sides && "relative z-10")}>{cell.label}</span>
             </GlossaryLabel>
             <span className={cn("leading-tight font-semibold tabular-nums", large ? "text-[40px] leading-none" : "text-[22px]")}><QuickValue value={cell.value} changed={cell.changed} /></span>
             {cell.sub !== undefined && <span className="text-muted-foreground text-xs tabular-nums"><QuickValue value={cell.sub} changed={!!cell.subChanged} /></span>}
@@ -59,13 +63,14 @@ export function StatGrid({ cells, label, large }: Props) {
                 {cell.extra}
               </span>
             )}
-            {large && <span className="text-muted-foreground min-h-5 text-[13px] tabular-nums">{cell.note}</span>}
+            {large && <span className="text-muted-foreground border-border/60 mt-3 min-h-5 border-t px-4 pt-3 text-[13px] tabular-nums">{cell.note}</span>}
             {large && cell.control}
           </>
         )
         const look = cn("flex flex-1 flex-col items-center text-center", large ? "gap-2 p-6" : "gap-1 p-3")
         return (
-          <li key={cell.key} id={cell.id} className={cn("bg-card relative flex flex-col transition-shadow duration-500", cell.highlighted ? "ring-ring ring-2 ring-inset" : "ring-2 ring-transparent ring-inset")}>
+          <li key={cell.key} id={cell.id} className={cn("bg-card relative flex flex-col transition-shadow duration-500", large && cell.sides && "select-none", cell.highlighted ? "ring-ring ring-2 ring-inset" : "ring-2 ring-transparent ring-inset")}>
+            {large && cell.sides}
             {large && cell.corner && <span className="absolute top-2 right-2">{cell.corner}</span>}
             {cell.onOpen ? (
               <button type="button" aria-label={cell.openLabel} onClick={cell.onOpen} className={`${look} hover:bg-accent/60 focus-visible:ring-ring cursor-pointer outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset`}>

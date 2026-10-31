@@ -27,7 +27,7 @@ export type AbilityMethod = "standard" | "point-buy" | "own"
 export const ABILITY_METHODS: { id: AbilityMethod; label: string; note: string }[] = [
   { id: "standard", label: "Standard array", note: "The SRD’s suggested scores for your class." },
   { id: "point-buy", label: "Point buy", note: "The same scores, ready to adjust with 27 points." },
-  { id: "own", label: "Roll", note: "Four dice for each score, or agreed with your GM." },
+  { id: "own", label: "Custom", note: "Any score you like: rolled, or agreed with your GM." },
 ]
 
 // How a class fights, for the classes whose primary ability is a choice (p. 47: a Fighter's is

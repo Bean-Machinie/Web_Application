@@ -12,8 +12,6 @@ export const SUGGESTED_FIELD = "quick.suggested"
 export const CREATED_FIELD = "quick.created"
 // What the builder last wrote for the starting kits, so a later difference is the player's edit.
 export const KITS_FIELD = "quick.kits"
-// The six scores last rolled for the ability scores, to hand out among the abilities.
-export const ROLLED_FIELD = "quick.rolled"
 // How the character fights, when the player chose; none means the class’s first.
 export const APPROACH_FIELD = "quick.approach"
 
@@ -26,11 +24,6 @@ export function readRules(values: Values): QuickRules {
   const stored = values[RULES_FIELD]?.value as Partial<QuickRules> | null | undefined
   const method = ABILITY_METHODS.find((candidate) => candidate.id === stored?.method)?.id
   return { level: Math.min(Math.max(readStat(stored?.level) ?? 1, 1), 20), method: method ?? DEFAULT_RULES.method }
-}
-
-export function readRolled(values: Values) {
-  const stored = values[ROLLED_FIELD]?.value
-  return Array.isArray(stored) ? stored.filter((value): value is number => typeof value === "number") : []
 }
 
 export const readSuggested = (values: Values) => readPicks(values[SUGGESTED_FIELD]?.value)

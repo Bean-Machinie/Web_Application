@@ -4,12 +4,19 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import type { Explanation } from "@/lib/character-glossary"
 import { cn } from "@/lib/utils"
 
-type Props = { explanation: Explanation | null; children: ReactElement }
+type Props = {
+  explanation: Explanation | null
+  children: ReactElement
+  // Only what it is: no "Used for" and no working of this character's value.
+  brief?: boolean
+  // A short section of its own, under the explanation.
+  note?: { title: string; text: string }
+}
 
 // A label that explains itself on hover, the same way everywhere: what it is, what it is
 // used for, the calculation with this character’s numbers, and where the SRD says so. A
 // label the SRD has nothing on stays as it is.
-export function GlossaryLabel({ explanation, children }: Props) {
+export function GlossaryLabel({ explanation, children, brief, note }: Props) {
   if (!explanation) return children
   const { entry, yours } = explanation
 
@@ -30,11 +37,13 @@ export function GlossaryLabel({ explanation, children }: Props) {
           <p className="font-medium">{entry.title}</p>
           <p className="text-muted-foreground">{entry.what}</p>
         </div>
-        <p>
-          <span className="text-muted-foreground">Used for: </span>
-          {entry.use}
-        </p>
-        {yours.length > 0 && (
+        {!brief && (
+          <p>
+            <span className="text-muted-foreground">Used for: </span>
+            {entry.use}
+          </p>
+        )}
+        {!brief && yours.length > 0 && (
           <div className="bg-muted grid gap-0.5 rounded-md px-2.5 py-2">
             <p className="text-muted-foreground text-xs font-medium">Your value</p>
             {yours.map((line) => (
@@ -42,6 +51,12 @@ export function GlossaryLabel({ explanation, children }: Props) {
                 {line}
               </p>
             ))}
+          </div>
+        )}
+        {note && (
+          <div className="grid gap-0.5">
+            <p className="font-medium">{note.title}</p>
+            <p className="text-muted-foreground">{note.text}</p>
           </div>
         )}
         <p className="text-muted-foreground text-xs">SRD 5.2.1 p. {entry.page}</p>

@@ -81,7 +81,7 @@ export function planQuickBuild(cls: SrdClass, species: SrdSpecies, background: S
   const { two, one } = suggestIncrease(background, scores, approach ? [approach.ability] : cls.primary)
   if (!("abilities" in fixed)) {
     values["ability-increase"] = splitIncreaseId(two, one)
-    if (rules.method !== "own") for (const [id] of ABILITIES) values[id] = scores[id]
+    for (const [id] of ABILITIES) values[id] = scores[id]
   }
   const total = (id: AbilityId) => Math.min(ABILITY_CAP, scores[id] + (id === two ? 2 : id === one ? 1 : 0))
 

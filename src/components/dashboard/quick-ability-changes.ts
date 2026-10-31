@@ -1,8 +1,8 @@
 import { ABILITIES } from "@/lib/character-templates/srd-5-2-1"
 import type { AbilityId } from "@/lib/character-templates/srd-5-2-1"
 import type { AbilityMethod } from "@/lib/character-templates/srd-5-2-1-quick"
-import { ABILITY_FIELDS, rollScores } from "@/lib/quick-abilities"
-import { ROLLED_FIELD } from "@/lib/quick-state"
+import { ABILITY_FIELDS } from "@/lib/quick-abilities"
+import type { Scores } from "@/lib/quick-abilities"
 import type { QuickRules } from "@/lib/quick-state"
 import type { SheetActions } from "./character-actions"
 import { changeCharacter } from "./character-change"
@@ -13,16 +13,18 @@ import { resetPicks } from "./character-reset"
 
 const noScores = () => Object.fromEntries(ABILITIES.map(([id]) => [id, null]))
 
-export const setScore = (actions: SheetActions, id: AbilityId, value: number | null) =>
-  changeCharacter(actions, { pick: { values: { [id]: value } } }, "Changed ability score")
+export const setScore = (actions: SheetActions, id: AbilityId, value: number | null) => setScores(actions, { [id]: value })
 
-// A new method starts the scores again, from the class's suggestion (none for Roll).
+// Several at once: a number handed from one ability to another.
+export const setScores = (actions: SheetActions, values: Partial<Scores>) =>
+  changeCharacter(actions, { pick: { values } }, "Changed ability score")
+
+// Every score emptied, for the player to fill again.
+export const clearScores = (actions: SheetActions) => setScores(actions, noScores())
+
+// A new method starts the scores again, from the class's suggestion.
 export const setMethod = (actions: SheetActions, rules: QuickRules, method: AbilityMethod) =>
   changeCharacter(actions, { rules: { ...rules, method }, pick: { values: noScores(), reset: true } }, "Changed ability method")
-
-// Six new numbers, which no ability holds yet.
-export const rollAll = (actions: SheetActions) =>
-  changeCharacter(actions, { pick: { values: { ...noScores(), [ROLLED_FIELD]: rollScores() } } }, "Rolled ability scores")
 
 export const setIncrease = (actions: SheetActions, id: string) =>
   changeCharacter(actions, { pick: { values: { "ability-increase": id } } }, "Changed ability increase")

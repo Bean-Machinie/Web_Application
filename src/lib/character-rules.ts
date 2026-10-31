@@ -142,7 +142,6 @@ export function reconcile(state: RuleState, change: RuleChange): RuleResult {
       sugg.add(marker)
     }
     if (!state.suggested || change.rules) out.level = rules.level
-    if (rules.method === "own" && sugg.has("abilities")) for (const field of SCORES) out[field] = null
     // What was suggested and now has no suggestion is cleared.
     for (const marker of [...sugg].filter((key) => !plan.suggested.includes(key))) {
       for (const field of marker === "abilities" ? [...SCORES, "ability-increase"] : [marker]) out[field] = null

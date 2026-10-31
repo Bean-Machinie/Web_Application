@@ -1,4 +1,4 @@
-import { Coins, Dices, ListOrdered } from "lucide-react"
+import { Coins, ListOrdered, Pencil } from "lucide-react"
 import { abilityFacts } from "./ability-facts"
 import { ABILITY_METHODS } from "@/lib/character-templates/srd-5-2-1-quick"
 import type { AbilityMethod } from "@/lib/character-templates/srd-5-2-1-quick"
@@ -12,11 +12,11 @@ import { QuickIncreaseControls } from "./QuickIncreaseControls"
 type Props = { actions: SheetActions; rules: QuickRules }
 
 // What each method is, from the SRD's Generate Your Scores (p. 21): the Standard Array
-// (15, 14, 13, 12, 10, 8), Point Cost (27 points, scores 8 to 15) and Random Generation (four d6, the best three).
-const METHODS: Record<AbilityMethod, { icon: typeof Dices; detail: string }> = {
+// (15, 14, 13, 12, 10, 8) and Point Cost (27 points, scores 8 to 15); Custom takes any score, for rolled ones or a GM's.
+const METHODS: Record<AbilityMethod, { icon: typeof Coins; detail: string }> = {
   standard: { icon: ListOrdered, detail: "15, 14, 13, 12, 10, 8" },
   "point-buy": { icon: Coins, detail: "27 points, 8 to 15" },
-  own: { icon: Dices, detail: "Four dice, keep the best three" },
+  own: { icon: Pencil, detail: "Any score you like" },
 }
 
 // The left panel of the Abilities workspace, made as the map builder's tool panel is: the methods
