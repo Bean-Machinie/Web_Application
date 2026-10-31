@@ -23,7 +23,7 @@ const AWAY = "-translate-x-56"
 // stays where it is, and the details slide back too, and so stay where they are, being cut off
 // by the edge of the button as it goes, as the dashboard's are by the edge of its sidebar; the
 // first of them is at the edge when it is done, so they are hidden then, not before.
-export function MapAccount({ expanded, beforeLeave }: Props) {
+export function BuilderAccount({ expanded, beforeLeave }: Props) {
   return (
     <div className="pointer-events-none absolute bottom-0 left-0 h-[68px] w-72 overflow-hidden">
       <div aria-hidden="true" className={cn("bg-sidebar border-sidebar-border absolute inset-0 border-t border-r", SLIDE, !expanded && AWAY)} />

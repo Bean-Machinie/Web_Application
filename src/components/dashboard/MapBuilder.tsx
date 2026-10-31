@@ -18,6 +18,7 @@ import { getStamps, subscribeStamps } from "@/lib/stamps/stamp-file"
 import { TOOL_PANEL_INSET } from "@/lib/map-builder-tools"
 import type { WorldImage } from "@/lib/world-images"
 import type { LoadedScene } from "@/lib/world-map-scenes"
+import { BuilderShell } from "./BuilderShell"
 import { ConfirmDialog } from "./ConfirmDialog"
 import { MapBuilderBanners } from "./MapBuilderBanners"
 import { MapBuilderCanvas } from "./MapBuilderCanvas"
@@ -26,9 +27,8 @@ import { MapRightPanel } from "./MapRightPanel"
 import { MapSettings } from "./MapSettings"
 import { MapShortcutDialog } from "./MapShortcutDialog"
 import { MapStatusBar } from "./MapStatusBar"
-import { MapAccount } from "./MapAccount"
 import { MapToolPanel } from "./MapToolPanel"
-import { MapToolStrip } from "./MapToolStrip"
+import { MapToolButtons } from "./MapToolButtons"
 import { useWorldScope } from "./useWorldScope"
 
 type Props = {
@@ -43,8 +43,8 @@ type Props = {
   onSaveImage: (value: WorldImage) => Promise<boolean>
 }
 
-// The full-screen map builder, laid out like a design tool: tools down the left,
-// a panel for the tool in use, the canvas, and the properties and library on
+// The full-screen map builder, in the shared builder layout (see BuilderShell): tools down the
+// left, a panel for the tool in use, the canvas, and the properties and library on
 // the right. Publishing renders the canvas and hands the picture to
 // the same upload an image picked by hand goes through, so the rest of the app
 // cannot tell, and then opens the map.
@@ -119,44 +119,46 @@ export function MapBuilder({ folder, mapId, name, onRename, loaded, image, onSav
     history.change((old) => ({ ...old, assets: removeAssets(old.assets, ids) }))
 
   return (
-    <div className="bg-background fixed inset-0 z-50 flex flex-col">
-      <MapBuilderTopBar
-        name={name}
-        onRename={onRename}
-        store={autosave.store}
-        publishing={publishing}
-        canUndo={(history.canUndo || tools.placement.canUndo) && !publishing}
-        canRedo={(history.canRedo || tools.placement.canRedo) && !publishing}
-        onUndo={undoAny}
-        onRedo={redoAny}
-        onBack={goBack}
-        onPublish={async () => {
-          if (await publish()) leave()
-        }}
-      />
-      <MapBuilderBanners store={autosave.store} error={error} />
-      <div className="relative flex min-h-0 flex-1">
-        <MapToolStrip
+    <BuilderShell
+      topBar={
+        <MapBuilderTopBar
+          name={name}
+          onRename={onRename}
+          store={autosave.store}
+          publishing={publishing}
+          canUndo={(history.canUndo || tools.placement.canUndo) && !publishing}
+          canRedo={(history.canRedo || tools.placement.canRedo) && !publishing}
+          onUndo={undoAny}
+          onRedo={redoAny}
+          onBack={goBack}
+          onPublish={async () => {
+            if (await publish()) leave()
+          }}
+        />
+      }
+      banners={<MapBuilderBanners store={autosave.store} error={error} />}
+      rail={
+        <MapToolButtons
           tool={tools.tool}
           biome={tools.brush.biome}
           detail={tools.brush.layer === "details" ? tools.brush.detail : null}
           background={scene.canvas.background}
           modes={{ land: cutting ? "cut" : "add", landTool: tools.landTool, select: tools.selectMode, hand: tools.panMode, brush: tools.brush.layer, eraser: tools.brush.erase }}
-          disabled={publishing}
-          account={<MapAccount expanded={panelOpen} beforeLeave={autosave.flushNow} />}
           onTool={tools.changeTool}
         />
+      }
+      railLabel="Tools"
+      beforeLeave={autosave.flushNow}
+      disabled={publishing}
+      leftPanel={
         <MapToolPanel
           tool={tools.tool}
-          open={panelOpen}
           cutting={cutting}
           brush={tools.brush}
           background={scene.canvas.background}
           showAssets={!tools.hideAssets}
           hasAssets={scene.assets.length > 0}
           zoom={viewport.view.scale}
-          disabled={publishing}
-          onOpen={setPanelOpen}
           onMode={tools.setMode}
           landTool={tools.landTool}
           onLandTool={tools.setLandTool}
@@ -172,45 +174,50 @@ export function MapBuilder({ folder, mapId, name, onRename, loaded, image, onSav
           onZoom={viewport.zoomTo}
           onFit={viewport.fit}
         />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="relative flex min-h-0 flex-1 overflow-hidden">
-            <MapBuilderCanvas
-              scene={landStyle.shown}
-              terrain={terrain}
-              tool={tools.activeTool}
-              rotating={tools.rotating}
-              cutting={cutting}
-              selectMode={tools.selectMode}
-              editable={!publishing && !tools.armed}
-              shift={shift}
-              alt={alt}
-              editing={editing}
-              showAssets={tools.showAssets}
-              armed={tools.armed}
-              onStamp={(asset, at) => void editing.place(asset, at, true)}
-              brush={tools.brush}
-              onPaint={paintBiomes}
-              onPaintDetails={paintDetails}
-              onEraseAssets={eraseAssets}
-              viewport={viewport}
-              stageRef={stage}
-              pointer={pointer}
-              onLasso={drawLand}
-              landTool={tools.landTool}
-              stamp={stamp}
-              placement={tools.placement}
-              onShape={drawStamp}
-            />
-          </div>
-          <MapStatusBar
-            view={viewport.view}
-            onZoomBy={viewport.zoomBy}
-            onZoomTo={viewport.zoomTo}
-            onFit={viewport.fit}
-            onResetTurn={viewport.resetTurn}
-            onHelp={() => setHelpOpen(true)}
-          />
-        </div>
+      }
+      leftPanelName="tool panel"
+      leftPanelOpen={panelOpen}
+      onLeftPanelOpenChange={setPanelOpen}
+      centre={
+        <MapBuilderCanvas
+          scene={landStyle.shown}
+          terrain={terrain}
+          tool={tools.activeTool}
+          rotating={tools.rotating}
+          cutting={cutting}
+          selectMode={tools.selectMode}
+          editable={!publishing && !tools.armed}
+          shift={shift}
+          alt={alt}
+          editing={editing}
+          showAssets={tools.showAssets}
+          armed={tools.armed}
+          onStamp={(asset, at) => void editing.place(asset, at, true)}
+          brush={tools.brush}
+          onPaint={paintBiomes}
+          onPaintDetails={paintDetails}
+          onEraseAssets={eraseAssets}
+          viewport={viewport}
+          stageRef={stage}
+          pointer={pointer}
+          onLasso={drawLand}
+          landTool={tools.landTool}
+          stamp={stamp}
+          placement={tools.placement}
+          onShape={drawStamp}
+        />
+      }
+      statusBar={
+        <MapStatusBar
+          view={viewport.view}
+          onZoomBy={viewport.zoomBy}
+          onZoomTo={viewport.zoomTo}
+          onFit={viewport.fit}
+          onResetTurn={viewport.resetTurn}
+          onHelp={() => setHelpOpen(true)}
+        />
+      }
+      rightPanel={
         <MapRightPanel
           scene={scene}
           editing={editing}
@@ -228,7 +235,8 @@ export function MapBuilder({ folder, mapId, name, onRename, loaded, image, onSav
           onArm={tools.armAsset}
           disabled={publishing}
         />
-      </div>
+      }
+    >
       <MapShortcutDialog open={helpOpen} onOpenChange={setHelpOpen} />
       <ConfirmDialog
         open={leaveAsk}
@@ -240,6 +248,6 @@ export function MapBuilder({ folder, mapId, name, onRename, loaded, image, onSav
         onCancel={() => setLeaveAsk(false)}
         onConfirm={leave}
       />
-    </div>
+    </BuilderShell>
   )
 }
