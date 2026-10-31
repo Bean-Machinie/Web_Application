@@ -9,6 +9,8 @@ type Props = {
   placeholder: string
   label: string
   maxLength?: number
+  // A larger, firmer title, for the name of a card instead of the top bar's.
+  large?: boolean
   // Saves the name; false if it could not be.
   onSave: (name: string) => Promise<boolean>
 }
@@ -18,7 +20,8 @@ type Props = {
 // is kept (unseen) while editing to give the cell its width, so nothing around it moves when
 // editing starts or ends and the cell grows with what is typed. Enter or leaving the field
 // saves; Escape puts the name back. An empty name is not saved.
-export function EditableTitle({ value, placeholder, label, maxLength = 80, onSave }: Props) {
+export function EditableTitle({ value, placeholder, label, maxLength = 80, large, onSave }: Props) {
+  const weight = large ? "font-semibold tracking-tight" : "font-medium"
   const [draft, setDraft] = useState<string | null>(null)
   // What was just saved, shown until the page has the new name.
   const [saved, setSaved] = useState<string | null>(null)
@@ -48,7 +51,7 @@ export function EditableTitle({ value, placeholder, label, maxLength = 80, onSav
   const text = (editing ? draft : shown) || placeholder
 
   return (
-    <h1 className="relative -ml-2 grid max-w-[min(32rem,40vw)] min-w-0 items-center text-base">
+    <h1 className={cn("relative -ml-2 grid max-w-[min(32rem,40vw)] min-w-0 items-center", large ? "w-[calc(100%+1rem)] max-w-none text-lg" : "text-base")}>
       <button
         type="button"
         aria-label={`${label}: ${shown || placeholder}. Click to rename`}
@@ -58,7 +61,9 @@ export function EditableTitle({ value, placeholder, label, maxLength = 80, onSav
           setDraft(shown)
         }}
         className={cn(
-          "hover:bg-accent focus-visible:ring-ring col-start-1 row-start-1 min-w-24 cursor-text truncate rounded-md px-2 py-1 text-left font-medium outline-none focus-visible:ring-2",
+          "hover:bg-accent focus-visible:ring-ring col-start-1 row-start-1 min-w-24 cursor-text truncate rounded-md px-2 py-1 text-left outline-none focus-visible:ring-2",
+          weight,
+          large && "py-0.5",
           shown === "" && "text-muted-foreground",
           editing && "invisible"
         )}
@@ -82,7 +87,7 @@ export function EditableTitle({ value, placeholder, label, maxLength = 80, onSav
               setDraft(null)
             }
           }}
-          className="bg-background ring-ring placeholder:text-muted-foreground absolute inset-0 w-full min-w-0 rounded-md px-2 py-1 font-medium ring-2 outline-none"
+          className={cn("bg-background ring-ring placeholder:text-muted-foreground absolute inset-0 w-full min-w-0 rounded-md px-2 py-1 ring-2 outline-none", weight, large && "py-0.5")}
         />
       )}
     </h1>

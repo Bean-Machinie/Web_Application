@@ -10,6 +10,9 @@ import { EditedMarker } from "./EditedMarker"
 import { QuickSwap } from "./QuickSwap"
 
 type Props = {
+  id: string
+  // Lit for a moment, when the card of the character opened this one.
+  highlighted: boolean
   label: string
   method: AbilityMethod
   // The base score, before the background's increase.
@@ -32,7 +35,7 @@ type Props = {
 
 // One ability, as large as the Overview's tile: the modifier, the score it comes to, and what
 // sets it: a list of the numbers still to hand out, or buttons that spend points.
-export function QuickAbilityCard({ label, method, base: stored, bonus, total, mod, options, left, onScore, suggested, onReset, edited }: Props) {
+export function QuickAbilityCard({ id, highlighted, label, method, base: stored, bonus, total, mod, options, left, onScore, suggested, onReset, edited }: Props) {
   const score = buyScore(stored)
   // Point buy starts every score at its lowest, as the points left count it.
   const base = method === "point-buy" ? score : stored
@@ -40,7 +43,7 @@ export function QuickAbilityCard({ label, method, base: stored, bonus, total, mo
   const values = base !== null && !options.includes(base) ? [base, ...options] : options
 
   return (
-    <li className="bg-muted/40 relative flex flex-col items-center gap-3 rounded-xl border p-5">
+    <li id={`ability-${id}`} className={`bg-muted/40 relative flex flex-col items-center gap-3 rounded-xl border p-5 transition-shadow duration-500 ${highlighted ? "ring-ring ring-2" : "ring-transparent ring-2"}`}>
       {suggested !== null && stored !== suggested && (
         <Tooltip>
           <TooltipTrigger asChild>

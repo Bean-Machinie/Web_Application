@@ -1,5 +1,7 @@
+import { useEffect, useRef, useState } from "react"
 import { deriveAll, isEdited } from "@/lib/character-derive"
 import { ABILITIES } from "@/lib/character-templates/srd-5-2-1"
+import type { AbilityId } from "@/lib/character-templates/srd-5-2-1"
 import { ruleStateOf } from "@/lib/character-rules-state"
 import { buyScore, pointsLeft, poolFor, readScores, suggestedAbilities, unassigned } from "@/lib/quick-abilities"
 import type { QuickRules } from "@/lib/quick-state"
@@ -17,10 +19,24 @@ type Props = {
   rules: QuickRules
   // The left panel is open, over the left of the centre.
   inset: boolean
+  // An ability to scroll to and light up for a moment, and the call that says it was done.
+  focus: { ability: AbilityId; at: number } | null
+  onFocused: () => void
 }
 
 // The centre of the Abilities workspace: the six abilities as cards, three across.
-export function QuickAbilitiesCentre({ actions, rules, inset }: Props) {
+export function QuickAbilitiesCentre({ actions, rules, inset, focus, onFocused }: Props) {
+  const [lit, setLit] = useState<AbilityId | null>(null)
+  const timer = useRef<number | undefined>(undefined)
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+  useEffect(() => {
+    if (!focus) return
+    document.getElementById(`ability-${focus.ability}`)?.scrollIntoView({ block: "center", behavior: "smooth" })
+    setLit(focus.ability)
+    window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(() => setLit(null), 1400)
+    onFocused()
+  }, [focus, onFocused])
   const scores = readScores(actions.values)
   const facts = abilityFacts(actions)
   const pool = poolFor(rules.method, actions.values)
@@ -49,6 +65,8 @@ export function QuickAbilitiesCentre({ actions, rules, inset }: Props) {
             return (
             <QuickAbilityCard
               key={id}
+              id={id}
+              highlighted={lit === id}
               label={label}
               method={rules.method}
               base={scores[id]}

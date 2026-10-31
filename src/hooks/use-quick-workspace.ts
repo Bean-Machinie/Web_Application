@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
+import type { AbilityId } from "@/lib/character-templates/srd-5-2-1"
 import { WORKSPACES } from "@/lib/quick-workspace"
 import type { Workspace } from "@/lib/quick-workspace"
 import { useQuickShortcuts } from "./use-quick-shortcuts"
@@ -7,6 +8,7 @@ import { useQuickShortcuts } from "./use-quick-shortcuts"
 // Which workspace of the character builder is open, and whether its left panel is (shut to begin
 // with, so the centre has the room). A pick of the ability scores opens their workspace; every
 // other pick opens its panel (`showPick`). A word of the sentence is in the Build workspace (`showSlot`).
+// An ability of the card opens the Abilities workspace on it (`focus`, until taken with `clearFocus`).
 // A link can open a workspace with `?workspace=abilities`, which is then taken off the address.
 export function useQuickWorkspace(showPick: (key: string) => void, showSlot: (slot: string | null) => void) {
   const [params, setParams] = useSearchParams()
@@ -16,6 +18,7 @@ export function useQuickWorkspace(showPick: (key: string) => void, showSlot: (sl
     if (linked) setParams((old) => (old.delete("workspace"), old), { replace: true })
   }, [linked, setParams])
   const [panelOpen, setPanelOpen] = useState(false)
+  const [focus, setFocus] = useState<{ ability: AbilityId; at: number } | null>(null)
   useQuickShortcuts(useCallback((next: Workspace) => setWorkspace(next), []))
 
   return {
@@ -23,6 +26,12 @@ export function useQuickWorkspace(showPick: (key: string) => void, showSlot: (sl
     setWorkspace,
     panelOpen,
     setPanelOpen,
+    focus,
+    clearFocus: useCallback(() => setFocus(null), []),
+    openAbility: (ability: AbilityId) => {
+      setWorkspace("abilities")
+      setFocus({ ability, at: Date.now() })
+    },
     openPick: (key: string) => (key === "abilities" ? setWorkspace("abilities") : showPick(key)),
     openSlot: (slot: string | null) => {
       setWorkspace("build")

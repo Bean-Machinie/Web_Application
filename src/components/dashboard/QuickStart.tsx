@@ -48,7 +48,7 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
   const setPick = (next: string | null) => setParams(next ? { pick: next } : {}, { replace: true })
   // Languages are words of the sentence, so the sentence lists them.
   const needs = needsAttention(actions).filter((need) => need.key !== "languages")
-  const { workspace, setWorkspace, panelOpen, setPanelOpen, openPick, openSlot } = useQuickWorkspace(setPick, build.show)
+  const { workspace, setWorkspace, panelOpen, setPanelOpen, openPick, openSlot, openAbility, focus, clearFocus } = useQuickWorkspace(setPick, build.show)
   const [suggestions, setSuggestions] = useShowSuggestions()
   const [learning, setLearning] = useState<string | null>(null)
   const [rulesOpen, setRulesOpen] = useState(false)
@@ -60,7 +60,7 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
   const select = (id: string) => build.choose(build.open!.id, id)
   useAcceptSuggestion(suggestions ? build.suggestion : null, select)
 
-  const card = (
+  const card = (part: "all" | "top" | "body") => (
     <QuickCharacterCard
       character={character}
       userId={userId}
@@ -70,11 +70,13 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
       base={build.base}
       onName={(name) => void sheet.edit("name", name)}
       onPortrait={(portrait) => sheet.edit("portrait", portrait)}
+      actions={actions}
       onOpenSlot={openSlot}
+      onOpenAbility={openAbility}
       onPick={ready ? openPick : null}
       needs={needs}
       sizeChoice={!!SPECIES.find((option) => option.id === build.view.species)?.sizeChoice}
-      compact={compact}
+      part={part}
     />
   )
 
@@ -108,7 +110,7 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
               <QuickBuildCentre
                 build={build}
                 actions={actions}
-                card={compact && card}
+                card={compact && card("all")}
                 needs={needs}
                 ready={ready}
                 creating={busy}
@@ -120,11 +122,11 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
                 onCreate={create}
               />
             ) : (
-              <QuickAbilitiesCentre actions={actions} rules={build.rules} inset={panelOpen} />
+              <QuickAbilitiesCentre actions={actions} rules={build.rules} inset={panelOpen} focus={focus} onFocused={clearFocus} />
             )
           }
           statusBar={<QuickStatusBar rules={build.rules} onRules={() => setRulesOpen(true)} />}
-          rightPanel={!compact && <QuickSidePanel overview={card} shown={build.tried} base={build.base} onPick={ready ? openPick : null} onOpenSlot={openSlot} onReset={ready ? (field, label) => resetPicks(actions, [field], label) : null} />}
+          rightPanel={!compact && <QuickSidePanel overviewTop={card("top")} overviewBottom={card("body")} shown={build.tried} base={build.base} onPick={ready ? openPick : null} onOpenSlot={openSlot} onReset={ready ? (field, label) => resetPicks(actions, [field], label) : null} />}
         />
         <QuickPickPanel
           pickKey={pick}

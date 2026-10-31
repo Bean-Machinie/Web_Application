@@ -6,6 +6,7 @@ import type { StoredValue } from "./characters"
 import { readLine } from "./character-values"
 import { abilityShort, NONE, signed } from "./character-format"
 import { number } from "./quick-card-format"
+import { lineOf } from "./quick-card-line"
 import { featuresOf } from "./quick-card-features"
 import type { FeatureCard } from "./quick-card-features"
 import { gearOf } from "./quick-card-gear"
@@ -19,6 +20,13 @@ export type CardModel = {
   hp: string
   ac: string
   speed: string
+  initiative: string
+  // "1d10": the Hit Dice and their die.
+  hitDice: string
+  // The Proficiency Bonus.
+  bonus: string
+  // What the species lets it see: "Darkvision 60 ft".
+  senses: string
   size: string
   alignment: string | null
   mods: { id: string; label: string; mod: string; score: string }[]
@@ -33,13 +41,17 @@ export type CardModel = {
 export function cardOf(fields: SheetField[], values: Record<string, StoredValue>): CardModel {
   const derived = deriveAll(fields, values)
   const context = { values, derived, byId: new Map(fields.map((field) => [field.id, field])) }
-  const { cls, species, background } = origins(context)
+  const { cls, species } = origins(context)
   const size = SIZES.find((candidate) => candidate.id === chosenOption(context, "size")?.id)
   return {
-    line: [[species?.label, cls?.label].filter(Boolean).join(" "), background?.label].filter(Boolean).join(" · ") || null,
+    line: lineOf(context),
     hp: cls ? number(derived["hp.max"]) : NONE,
     ac: cls ? number(derived.ac) : NONE,
     speed: species ? number(derived.speed, " ft") : NONE,
+    initiative: cls ? signed(derived.initiative) : NONE,
+    hitDice: cls && derived["hit-dice.max"] != null && derived["hit-die"] != null ? `${derived["hit-dice.max"]}d${derived["hit-die"]}` : NONE,
+    bonus: cls ? signed(derived["proficiency-bonus"]) : NONE,
+    senses: species && derived.darkvision != null ? (derived.darkvision > 0 ? `Darkvision ${derived.darkvision} ft` : "None") : NONE,
     size: size?.label ?? NONE,
     alignment: readLine(values.alignment?.value) || null,
     mods: ABILITIES.map(([id]) => ({
