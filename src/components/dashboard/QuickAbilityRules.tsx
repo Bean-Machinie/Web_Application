@@ -1,6 +1,5 @@
 import { useState } from "react"
-import { HoverIcon } from "@/components/icons/HoverIcon"
-import { InfoIcon } from "@/components/icons/InfoIcon"
+import { Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { SegmentedControl } from "@/components/ui/segmented-control"
@@ -23,7 +22,7 @@ export function QuickAbilityRules() {
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
             <Button variant="outline" size="icon" aria-label="Info">
-              <HoverIcon icon={InfoIcon} />
+              <Info />
             </Button>
           </PopoverTrigger>
         </TooltipTrigger>

@@ -1,7 +1,6 @@
-import { RefreshCcwDotIcon } from "@/components/icons/RefreshCcwDotIcon"
-import { SparkleIcon } from "@/components/icons/SparkleIcon"
+import { Eraser, RotateCcw } from "lucide-react"
 import { QuickAbilityRules } from "./QuickAbilityRules"
-import { QuickHeaderIconButton } from "./QuickHeaderIconButton"
+import { QuickHeaderButton } from "./QuickHeaderButton"
 import { QuickSwap } from "./QuickSwap"
 
 type Props = {
@@ -34,8 +33,8 @@ export function QuickAbilitiesHeader({ text, changed, onUseSuggested, onClear, c
             <QuickSwap text={`${points.left} of ${points.budget} points left`} className="px-0" />
           </span>
         )}
-        <QuickHeaderIconButton icon={SparkleIcon} text="Use suggested" label="Use the suggested scores and increase" disabled={changed === null || changed === 0} onClick={onUseSuggested} />
-        <QuickHeaderIconButton icon={RefreshCcwDotIcon} label="Clear all scores from the array" disabled={!canClear} onClick={onClear} />
+        <QuickHeaderButton icon={Eraser} text="Clear" tip="Clear all scores" disabled={!canClear} onClick={onClear} />
+        <QuickHeaderButton icon={RotateCcw} text="Use suggested" tip="Use the suggested scores and increase" disabled={changed === null || changed === 0} onClick={onUseSuggested} />
         <QuickAbilityRules />
       </div>
     </div>
