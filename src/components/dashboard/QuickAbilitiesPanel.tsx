@@ -41,7 +41,7 @@ export function QuickAbilitiesPanel({ actions, rules }: Props) {
                 const { icon: Icon, detail } = METHODS[id]
                 return (
                   <MapSubToolButton key={id} label={label} detail={detail} tall active={rules.method === id} onClick={() => id !== rules.method && setMethod(actions, rules, id)}>
-                    <HoverIcon icon={Icon} size={22} />
+                    <HoverIcon icon={Icon} size={id === "point-buy" ? 26 : id === "own" ? 20 : 22} />
                   </MapSubToolButton>
                 )
               })}

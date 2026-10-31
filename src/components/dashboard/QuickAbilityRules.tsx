@@ -1,9 +1,10 @@
 import { useState } from "react"
 import { HoverIcon } from "@/components/icons/HoverIcon"
-import { ScrollTextIcon } from "@/components/icons/ScrollTextIcon"
+import { InfoIcon } from "@/components/icons/InfoIcon"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { SegmentedControl } from "@/components/ui/segmented-control"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { ScrollShadow } from "./ScrollShadow"
 import { GeneratingSection, ModifiersSection, ScoresSection } from "./AbilityRulesSections"
 
@@ -18,12 +19,16 @@ export function QuickAbilityRules() {
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline">
-          <HoverIcon icon={ScrollTextIcon} />
-          Rules
-        </Button>
-      </PopoverTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="icon" aria-label="Info">
+              <HoverIcon icon={InfoIcon} />
+            </Button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent>The rules behind ability scores (SRD 5.2.1)</TooltipContent>
+      </Tooltip>
       <PopoverContent align="end" className="h-[min(34rem,var(--radix-popover-content-available-height))] w-[26rem] gap-4 overflow-hidden p-4" onOpenAutoFocus={(event) => event.preventDefault()}>
         <header className="flex items-baseline justify-between gap-3">
           <h2 className="text-sm font-semibold">Ability scores</h2>

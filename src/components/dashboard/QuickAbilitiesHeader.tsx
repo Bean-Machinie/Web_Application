@@ -1,7 +1,7 @@
-import { Eraser, RotateCcw } from "lucide-react"
-import { HoverIcon } from "@/components/icons/HoverIcon"
-import { Button } from "@/components/ui/button"
+import { RefreshCcwDotIcon } from "@/components/icons/RefreshCcwDotIcon"
+import { SparkleIcon } from "@/components/icons/SparkleIcon"
 import { QuickAbilityRules } from "./QuickAbilityRules"
+import { QuickHeaderIconButton } from "./QuickHeaderIconButton"
 import { QuickSwap } from "./QuickSwap"
 
 type Props = {
@@ -22,25 +22,20 @@ export function QuickAbilitiesHeader({ text, changed, onUseSuggested, onClear, c
   const status = changed === null ? text : changed === 0 ? "Suggested scores" : `${changed} changed from suggested`
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-      <div className="text-muted-foreground flex min-h-9 items-center gap-2 text-sm">
-        {changed === 0 && <span aria-hidden className="bg-foreground/60 size-1.5 rounded-full" />}
-        <QuickSwap text={status} className="px-0" />
+    // One line always: the status gives way (and is cut) before the buttons move.
+    <div className="flex items-center justify-between gap-4">
+      <div className="text-muted-foreground flex min-h-9 min-w-0 items-center gap-2 overflow-hidden text-sm whitespace-nowrap">
+        {changed === 0 && <span aria-hidden className="bg-foreground/60 size-1.5 shrink-0 rounded-full" />}
+        <QuickSwap text={status} className="min-w-0 truncate px-0" />
       </div>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         {points && (
-          <span className="bg-muted/50 text-muted-foreground flex h-9 items-center rounded-md border px-3 text-sm tabular-nums">
+          <span className="bg-muted/50 text-muted-foreground flex h-9 items-center rounded-md border px-3 text-sm whitespace-nowrap tabular-nums">
             <QuickSwap text={`${points.left} of ${points.budget} points left`} className="px-0" />
           </span>
         )}
-        <Button variant="outline" disabled={changed === null || changed === 0} onClick={onUseSuggested}>
-          <HoverIcon icon={RotateCcw} />
-          Use suggested
-        </Button>
-        <Button variant="outline" disabled={!canClear} onClick={onClear}>
-          <HoverIcon icon={Eraser} />
-          Clear
-        </Button>
+        <QuickHeaderIconButton icon={SparkleIcon} text="Use suggested" label="Use the suggested scores and increase" disabled={changed === null || changed === 0} onClick={onUseSuggested} />
+        <QuickHeaderIconButton icon={RefreshCcwDotIcon} label="Clear all scores from the array" disabled={!canClear} onClick={onClear} />
         <QuickAbilityRules />
       </div>
     </div>
