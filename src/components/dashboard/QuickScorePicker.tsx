@@ -18,6 +18,11 @@ type Props = {
 export function QuickScorePicker({ id, label, scores, onPick }: Props) {
   const [open, setOpen] = useState(false)
   const value = scores[id]
+  // Laid out as the cells are, each place holding the number its ability has; numbers nobody has fill
+  // the places of abilities with none.
+  const held = ABILITIES.map(([other]) => (STANDARD_ARRAY.includes(scores[other] ?? Number.NaN) ? scores[other]! : null))
+  const free = STANDARD_ARRAY.filter((number) => !held.includes(number)).sort((a, b) => b - a)
+  const places = ABILITIES.map(([other], index) => (held[index] === null ? { number: free.shift()!, owner: null } : { number: held[index]!, owner: other }))
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -32,25 +37,22 @@ export function QuickScorePicker({ id, label, scores, onPick }: Props) {
       </PopoverTrigger>
       <PopoverContent className="w-auto p-2" align="center">
         <div role="listbox" aria-label={`${label} score`} className="grid grid-cols-3 gap-1">
-          {STANDARD_ARRAY.map((number) => {
-            const holder = ABILITIES.find(([other]) => other !== id && scores[other] === number)?.[0]
-            return (
-              <button
-                key={number}
-                type="button"
-                role="option"
-                aria-selected={value === number}
-                className={cn("hover:bg-accent focus-visible:ring-ring flex h-11 w-12 flex-col items-center justify-center rounded-md text-sm font-medium tabular-nums outline-none focus-visible:ring-2", value === number && "bg-accent ring-foreground/30 ring-1")}
-                onClick={() => {
-                  onPick(number)
-                  setOpen(false)
-                }}
-              >
-                {number}
-                <span className="text-muted-foreground text-[10px] leading-none font-normal uppercase">{holder ?? (value === number ? id : "free")}</span>
-              </button>
-            )
-          })}
+          {places.map(({ number, owner }) => (
+            <button
+              key={owner ?? `free-${number}`}
+              type="button"
+              role="option"
+              aria-selected={owner === id}
+              className={cn("hover:bg-accent focus-visible:ring-ring flex h-11 w-12 flex-col items-center justify-center rounded-md text-sm font-medium tabular-nums outline-none focus-visible:ring-2", owner === id && "bg-accent ring-foreground/30 ring-1")}
+              onClick={() => {
+                onPick(number)
+                setOpen(false)
+              }}
+            >
+              {number}
+              <span className="text-muted-foreground text-[10px] leading-none font-normal uppercase">{owner ?? "free"}</span>
+            </button>
+          ))}
         </div>
       </PopoverContent>
     </Popover>
