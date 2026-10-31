@@ -1,4 +1,8 @@
-import { Coins, ListOrdered, Pencil } from "lucide-react"
+import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { LayoutListIcon } from "@/components/icons/LayoutListIcon"
+import { MousePointerClickIcon } from "@/components/icons/MousePointerClickIcon"
+import { SquarePenIcon } from "@/components/icons/SquarePenIcon"
 import { abilityFacts } from "./ability-facts"
 import { ABILITY_METHODS } from "@/lib/character-templates/srd-5-2-1-quick"
 import type { AbilityMethod } from "@/lib/character-templates/srd-5-2-1-quick"
@@ -13,10 +17,10 @@ type Props = { actions: SheetActions; rules: QuickRules }
 
 // What each method is, from the SRD's Generate Your Scores (p. 21): the Standard Array
 // (15, 14, 13, 12, 10, 8) and Point Cost (27 points, scores 8 to 15); Custom takes any score, for rolled ones or a GM's.
-const METHODS: Record<AbilityMethod, { icon: typeof Coins; detail: string }> = {
-  standard: { icon: ListOrdered, detail: "15, 14, 13, 12, 10, 8" },
-  "point-buy": { icon: Coins, detail: "27 points, 8 to 15" },
-  own: { icon: Pencil, detail: "Any score you like" },
+const METHODS: Record<AbilityMethod, { icon: AnimatedIconComponent; detail: string }> = {
+  standard: { icon: LayoutListIcon, detail: "15, 14, 13, 12, 10, 8" },
+  "point-buy": { icon: MousePointerClickIcon, detail: "27 points, 8 to 15" },
+  own: { icon: SquarePenIcon, detail: "Any score you like" },
 }
 
 // The left panel of the Abilities workspace, made as the map builder's tool panel is: the methods
@@ -36,8 +40,8 @@ export function QuickAbilitiesPanel({ actions, rules }: Props) {
               {ABILITY_METHODS.map(({ id, label }) => {
                 const { icon: Icon, detail } = METHODS[id]
                 return (
-                  <MapSubToolButton key={id} label={label} hint={detail} active={rules.method === id} onClick={() => id !== rules.method && setMethod(actions, rules, id)}>
-                    <Icon />
+                  <MapSubToolButton key={id} label={label} detail={detail} tall active={rules.method === id} onClick={() => id !== rules.method && setMethod(actions, rules, id)}>
+                    <HoverIcon icon={Icon} size={22} />
                   </MapSubToolButton>
                 )
               })}

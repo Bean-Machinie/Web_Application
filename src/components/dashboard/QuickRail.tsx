@@ -1,3 +1,4 @@
+import { HoverIcon } from "@/components/icons/HoverIcon"
 import { WORKSPACES } from "@/lib/quick-workspace"
 import type { Workspace } from "@/lib/quick-workspace"
 import { BuilderRailButton } from "./BuilderRailButton"
@@ -11,7 +12,7 @@ export function QuickRail({ workspace, onWorkspace }: Props) {
     <>
       {WORKSPACES.map(({ id, label, key, Icon }) => (
         <BuilderRailButton key={id} label={label} active={workspace === id} keys={[key]} onClick={() => onWorkspace(id)}>
-          <Icon />
+          <HoverIcon icon={Icon} size={22} />
         </BuilderRailButton>
       ))}
     </>
