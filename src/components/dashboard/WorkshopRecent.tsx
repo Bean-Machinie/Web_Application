@@ -11,6 +11,9 @@ import { RecentRowsSkeleton } from "./RecentRowsSkeleton"
 import { useCampaign } from "./useCampaign"
 
 const SHOWN = 10
+// The right column: beside the left one, under it when narrow. Its card is laid over the
+// column, so the column is as tall as the left side and never taller for its rows.
+const SIDE = "lg:relative lg:w-[360px] lg:shrink-0"
 // What the skeleton shows before anything has loaded.
 const FIRST_LOAD = [3, 4]
 
@@ -26,12 +29,12 @@ function groupByDay(items: RecentEntry[], by: RecentBy) {
   return groups
 }
 
-// "Recent" under the entries, the full width of the column, in a card like the
-// campaign cards: the newest entries in your library and in the campaigns you run, by
+// "Recent" in the right column, beside the tools and entries (under them when narrow), in a card like
+// the campaign cards: the newest entries in your library and in the campaigns you run, by
 // when they were changed or made, grouped by day. The card stays put when the sort
 // changes: the rows turn into a skeleton of the same shape while the new ones load.
 // Whether room is made for it before loading follows what it held last time, so the
-// page does not shift. With nothing to show it takes no room at all.
+// left side does not shift. With nothing to show it takes no room at all.
 export function WorkshopRecent() {
   const { campaigns } = useCampaign()
   const [by, setBy] = useState<RecentBy>("updated")
@@ -57,7 +60,7 @@ export function WorkshopRecent() {
     <LoadingGate
       loading={entries === null}
       className={
-        entries ? (entries.length > 0 ? "" : "hidden") : hadRecent ? "" : "hidden"
+        entries ? (entries.length > 0 ? SIDE : "hidden") : hadRecent ? SIDE : "hidden"
       }
       skeleton={
         <RecentCard by={by} onBy={setBy}>

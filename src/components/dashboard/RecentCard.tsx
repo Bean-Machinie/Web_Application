@@ -16,11 +16,12 @@ type Props = {
 
 // The frame of the recent list: a card like the campaign cards, with the heading and the
 // Edited / Created switch on top and the way to the library at the foot. The frame never
-// changes while the rows inside it do. The Create page's drafts use it without the switch.
+// changes while the rows inside it do: it takes the height of the column it is in, however
+// many rows there are, and the rows scroll. The Create page's drafts use it without the switch.
 export function RecentCard({ title = "Recent", by, onBy, children }: Props) {
   return (
-    <section className="bg-card flex flex-col rounded-lg border">
-      <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-2">
+    <section className="flex max-h-[480px] flex-col gap-4 lg:absolute lg:inset-0 lg:max-h-none">
+      <div className="flex h-9 items-center justify-between gap-3">
         <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
         {by && onBy && (
           <SegmentedControl<RecentBy>
@@ -34,14 +35,16 @@ export function RecentCard({ title = "Recent", by, onBy, children }: Props) {
           />
         )}
       </div>
-      <div className="flex flex-col px-2 pb-2">{children}</div>
-      <Link
-        to="/app/library"
-        className="text-muted-foreground hover:text-foreground hover:bg-accent/50 flex items-center justify-center gap-1.5 rounded-b-lg border-t py-3 text-sm font-medium transition-colors"
-      >
-        View library
-        <ArrowRight className="size-4" />
-      </Link>
+      <div className="bg-card flex min-h-0 flex-1 flex-col rounded-lg border">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-2">{children}</div>
+        <Link
+          to="/app/library"
+          className="text-muted-foreground hover:text-foreground hover:bg-accent/50 flex shrink-0 items-center justify-center gap-1.5 rounded-b-lg border-t py-3 text-sm font-medium transition-colors"
+        >
+          View library
+          <ArrowRight className="size-4" />
+        </Link>
+      </div>
     </section>
   )
 }
