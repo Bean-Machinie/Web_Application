@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import type { RefObject } from "react"
 import type Konva from "konva"
-import { Group, Image as KonvaImage, Layer, Rect, Stage } from "react-konva"
+import { Layer, Stage } from "react-konva"
 import type { BuilderView } from "@/hooks/use-builder-viewport"
 import { useShownLand } from "@/hooks/use-shown-land"
 import type { MapScene } from "@/lib/map-scene"
@@ -21,17 +21,12 @@ import { DETAIL_CELL, DETAIL_REACH } from "@/lib/details/details"
 import type { Terrain } from "@/lib/terrain"
 import { stageProps } from "@/lib/view-matrix"
 import type { Paint } from "@/lib/biomes/paint-tiles"
-import { MapAssetsLayer } from "./MapAssetsLayer"
-import { MapBiomeLayer } from "./MapBiomeLayer"
 import { MapBrushLayer } from "./MapBrushLayer"
-import { MapDetailLayer } from "./MapDetailLayer"
 import { MapBrushResize } from "./MapBrushResize"
 import { MapEraseAssetsLayer } from "./MapEraseAssetsLayer"
-import { MapRiverLayer } from "./MapRiverLayer"
-import { MapLandLayer } from "./MapLandLayer"
-import { MapWaterLayer } from "./MapWaterLayer"
 import { MapLandmassPick } from "./MapLandmassPick"
 import { MapLassoLayer } from "./MapLassoLayer"
+import { MapSceneLayers } from "./MapSceneLayers"
 import { MapStampLayer } from "./MapStampLayer"
 import { MapSelectionLayer } from "./MapSelectionLayer"
 
@@ -124,50 +119,23 @@ export function MapBuilderStage(props: Props) {
         if (event.target === event.target.getStage()) onPan(event.target.x(), event.target.y())
       }}
     >
-      <Layer name="surfaces" listening={false}>
-        {/* The canvas lies on the surface like a sheet. */}
-        <Group name="chrome">
-          <Rect
-            width={canvas.width}
-            height={canvas.height}
-            fill="#000"
-            shadowColor="#000"
-            shadowBlur={90}
-            shadowOffsetY={24}
-            shadowOpacity={0.3}
-          />
-        </Group>
-        <KonvaImage name="sea" image={terrain.sea} width={canvas.width} height={canvas.height} />
-        <MapWaterLayer land={land} style={scene.style} canvas={canvas} view={view} size={size} />
-        <MapLandLayer land={land} background={canvas.background} texture={terrain.land} textureScale={terrain.scale} />
-        <MapBiomeLayer
-          land={land}
-          canvas={canvas}
-          style={scene.style}
-          paint={scene.paint}
-          surface={surface}
-          after={<MapRiverLayer canvas={canvas} surface={detailSurface} />}
-        >
-          <MapDetailLayer land={land} canvas={canvas} details={scene.details} surface={detailSurface} />
-        </MapBiomeLayer>
-      </Layer>
-      <MapAssetsLayer
-        canvas={canvas}
-        land={land}
-        paint={scene.paint}
-        surface={surface}
+      <MapSceneLayers
+        scene={scene}
         terrain={terrain}
-        backdrop={terrain.sea}
+        land={land}
+        surface={surface}
+        detailSurface={detailSurface}
         view={view}
         size={size}
-        assets={scene.assets}
-        visible={props.showAssets}
-        altHeld={props.altHeld}
-        selected={editing.selected}
-        fading={fading}
-        editable={editable && tool === "select"}
-        onSelect={editing.select}
-        onChange={editing.commit}
+        assets={{
+          visible: props.showAssets,
+          altHeld: props.altHeld,
+          selected: editing.selected,
+          fading,
+          editable: editable && tool === "select",
+          onSelect: editing.select,
+          onChange: editing.commit,
+        }}
       />
       <Layer name="chrome">
         <MapLassoLayer

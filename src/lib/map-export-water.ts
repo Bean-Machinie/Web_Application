@@ -9,7 +9,7 @@ import { renderWater } from "./map-water-render"
 // The builder draws the water for the screen. The published picture is far
 // larger, so the water is drawn again for it, sharp at that size, and put in
 // place of the screen's. The returned function puts the screen's back.
-export function sharpWater(stage: Konva.Stage, scene: MapScene) {
+export function sharpWater(stage: Konva.Stage, scene: MapScene, scale = renderScale(scene.canvas)) {
   const node = stage.findOne<Konva.Image>(".water")
   if (!node || scene.land.length === 0) return () => {}
 
@@ -20,7 +20,7 @@ export function sharpWater(stage: Konva.Stage, scene: MapScene) {
     y: 0,
     width: canvas.width,
     height: canvas.height,
-    scale: renderScale(canvas),
+    scale,
   })
 
   const before = { image: node.image(), x: node.x(), y: node.y(), width: node.width(), height: node.height() }

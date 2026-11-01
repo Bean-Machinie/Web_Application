@@ -18,7 +18,8 @@ import { themeFor } from "./map-theme"
 export async function exportAssets(
   scene: MapScene,
   biomes: HTMLCanvasElement | null,
-  terrain: Terrain
+  terrain: Terrain,
+  scale = renderScale(scene.canvas)
 ): Promise<Picture | null> {
   const { canvas } = scene
   await Promise.all(scene.assets.map((asset) => loadAssetInfo(asset.asset)))
@@ -35,7 +36,7 @@ export async function exportAssets(
     biomes,
   }
   const theme = themeFor(canvas.background)
-  const picture = blankPicture({ x: 0, y: 0, width: canvas.width, height: canvas.height }, renderScale(canvas))
+  const picture = blankPicture({ x: 0, y: 0, width: canvas.width, height: canvas.height }, scale)
   const colours = { ink: theme.ink, fill: theme.land.fill }
   const drawing = { pieces, near: indexPieces(pieces, canvas), ground, colours }
   await bakeAll(picture, () => drawing)

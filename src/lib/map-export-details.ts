@@ -10,9 +10,14 @@ export type DetailPictures = { details: HTMLCanvasElement; river: HTMLCanvasElem
 // The builder draws the details for the screen. The published picture is far
 // larger, so they are drawn again for it, sharp at that size, from the larger ground of the
 // sea and the land as it is shown ("land", rounded). Null if there are none.
-export function exportDetails(scene: MapScene, terrain: Terrain, land: MultiPolygon): DetailPictures | null {
+export function exportDetails(
+  scene: MapScene,
+  terrain: Terrain,
+  land: MultiPolygon,
+  scale = renderScale(scene.canvas)
+): DetailPictures | null {
   if (scene.details.size === 0) return null
-  const surface = createDetailSurface(scene.canvas, renderScale(scene.canvas), terrain.sea)
+  const surface = createDetailSurface(scene.canvas, scale, terrain.sea)
   surface.setLand(land)
   surface.drawAll(scene.details)
   return { details: surface.picture, river: surface.river }

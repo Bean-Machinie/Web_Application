@@ -2,6 +2,7 @@ import { useMemo, useState } from "react"
 import { useLocation } from "react-router-dom"
 import "leaflet/dist/leaflet.css"
 import { FormAlert } from "@/components/auth/FormAlert"
+import { useAccountDialog } from "@/components/auth/useAccountDialog"
 import { useLeafletMap } from "@/hooks/use-leaflet-map"
 import { useMapGrid } from "@/hooks/use-map-grid"
 import { useMapMarkerLayer } from "@/hooks/use-map-marker-layer"
@@ -48,6 +49,7 @@ export function MapViewer({ mapId, mapName, image, canManage, onDetails }: Props
     () => ({ width: image.width, height: image.height }),
     [image.width, image.height]
   )
+  const { gate } = useAccountDialog()
   const { container, map, ready } = useLeafletMap(image.url, size, image.maxZoom)
   const { markers, error, add, move, relink, remove } = useMapMarkers(mapId)
   useMapGrid(map)
@@ -174,10 +176,13 @@ export function MapViewer({ mapId, mapName, image, canManage, onDetails }: Props
           <MapEditBar
             placing={placing}
             editing={editing}
-            onPlace={() => {
-              clear()
-              setPlacing(true)
-            }}
+            // A guest is asked for an account before adding pins.
+            onPlace={() =>
+              gate("add pins", () => {
+                clear()
+                setPlacing(true)
+              })
+            }
             onCancel={() => setPlacing(false)}
             onToggleEditing={selection.toggleEditing}
           />

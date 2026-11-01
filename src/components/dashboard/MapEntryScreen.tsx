@@ -9,13 +9,12 @@ import { cn } from "@/lib/utils"
 import { toWorldImage } from "@/lib/world-images"
 import { COVER_FIELD } from "@/lib/world-kinds"
 import { ConfirmDialog } from "./ConfirmDialog"
-import { MapBuildAction } from "./MapBuildAction"
 import { MapBuilderLink } from "./MapBuilderLink"
 import { MapLoader } from "./MapLoader"
 import { MapImageInput } from "./MapImageInput"
 import { MapDetailsButton } from "./MapDetailsButton"
 import { MapTitlePill } from "./MapTitlePill"
-import { MapUploadPrompt } from "./MapUploadPrompt"
+import { MapNoImage } from "./MapNoImage"
 import { SaveIndicator } from "./SaveIndicator"
 import { EditableName } from "./EditableName"
 import { EntryConnections } from "./EntryConnections"
@@ -67,16 +66,14 @@ export function MapEntryScreen(props: EntryProps) {
           />
         </Suspense>
       ) : (
-        <div className="absolute inset-0 flex items-center justify-center p-6">
-          <div className="w-full max-w-xl">
-            <MapUploadPrompt canManage={canManage} upload={upload} />
-            {canManage && (
-              <div className="mt-3 flex justify-center">
-                <MapBuildAction mapId={entryId} built={built} />
-              </div>
-            )}
-          </div>
-        </div>
+        <MapNoImage
+          mapId={entryId}
+          mapName={name}
+          canManage={canManage}
+          upload={upload}
+          built={built}
+          onDetails={() => props.onDetailsOpenChange(true)}
+        />
       )}
       <MapTitlePill revealed={revealed} />
       {!hasImage && <MapDetailsButton onClick={() => props.onDetailsOpenChange(true)} />}

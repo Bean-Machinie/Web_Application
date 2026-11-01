@@ -15,23 +15,23 @@ import type { MapScene } from "./map-scene"
 // Tried in turn, until the picture fits what the bucket accepts.
 const QUALITIES = [0.92, 0.85, 0.75]
 
-// Renders the canvas of a stage to the picture of the map, as large as the
-// scene's render size allows, and encodes it as WebP once (no lossless middle
-// step, and so no second round of loss). The view is put to one-to-one for the
-// instant of the drawing and put back before anything can paint, and the
-// layers and groups named "chrome" (what only the editor shows) are left out. Drawing goes
-// straight onto a canvas of the picture's size, so the stage itself is never
-// resized.
-export async function exportCanvas(
+// Draws the scene on a stage to the picture of the map. The scale is how many times larger
+// than the canvas it is drawn: the most the scene's render size allows, for publishing, and
+// less for a preview. The view is put to one-to-one for the instant of the drawing and put
+// back before anything can paint, and the layers and groups named "chrome" (what only the
+// editor shows) are left out. Drawing goes straight onto a canvas of the picture's size, so
+// the stage itself is never resized. Nothing is saved or uploaded here.
+export async function drawScene(
   stage: Konva.Stage,
-  scene: MapScene
-): Promise<PreparedMap> {
+  scene: MapScene,
+  scale = renderScale(scene.canvas)
+): Promise<HTMLCanvasElement> {
   const { canvas } = scene
   // The slow, asynchronous drawing is done before the stage is touched.
-  const terrain = await exportTerrain(scene)
-  const biomes = exportBiomes(scene, terrain)
-  const details = exportDetails(scene, terrain, smoothLand(scene.land, scene.style.roundness, canvas, pinSet(scene.pinned)))
-  const art = await exportAssets(scene, biomes, terrain)
+  const terrain = await exportTerrain(scene, scale)
+  const biomes = exportBiomes(scene, terrain, scale)
+  const details = exportDetails(scene, terrain, smoothLand(scene.land, scene.style.roundness, canvas, pinSet(scene.pinned)), scale)
+  const art = await exportAssets(scene, biomes, terrain, scale)
   // The view, turned and mirrored too, is put back as it was: none of it is the map's.
   const { x, y, rotation, scaleX, scaleY } = stage.attrs
   const chrome = stage.find<Konva.Node>(".chrome")
@@ -45,7 +45,7 @@ export async function exportCanvas(
   let restoreTerrain = () => {}
   let drawn: HTMLCanvasElement
   try {
-    restoreWater = sharpWater(stage, scene)
+    restoreWater = sharpWater(stage, scene, scale)
     restoreTerrain = sharpTerrain(stage, terrain)
     restoreBiomes = sharpBiomes(stage, biomes)
     restoreDetails = sharpDetails(stage, details)
@@ -55,7 +55,7 @@ export async function exportCanvas(
       y: 0,
       width: canvas.width,
       height: canvas.height,
-      pixelRatio: renderScale(canvas),
+      pixelRatio: scale,
     })
   } finally {
     restoreWater()
@@ -66,6 +66,17 @@ export async function exportCanvas(
     stage.setAttrs({ x, y, rotation, scaleX, scaleY })
     chrome.forEach((layer) => layer.show())
   }
+
+  return drawn
+}
+
+// Draws the scene for publishing, as large as its render size allows, and encodes it as WebP
+// once (no lossless middle step, and so no second round of loss).
+export async function exportCanvas(
+  stage: Konva.Stage,
+  scene: MapScene
+): Promise<PreparedMap> {
+  const drawn = await drawScene(stage, scene)
 
   for (const quality of QUALITIES) {
     const blob = await canvasToWebp(drawn, quality)

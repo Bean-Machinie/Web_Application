@@ -1,6 +1,8 @@
 import { useContext } from "react"
 import { Link } from "react-router-dom"
 import type { WorldEntry } from "@/lib/world-entries"
+import { useMapPreview } from "@/hooks/use-map-preview"
+import { useSeen } from "@/hooks/use-seen"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { HiddenBadge } from "./HiddenBadge"
 import { KindLabel } from "./KindLabel"
@@ -13,16 +15,22 @@ export function WorldNameCell({ entry }: { entry: WorldEntry }) {
   const { basePath, hasVisibility } = useWorldScope()
   const { icon: KindIcon } = WORLD_KINDS[entry.kind]
   const hidden = hasVisibility && !entry.revealed
+  // A map with no published image may still have a saved scene, drawn once the row is in view.
+  const { ref, seen } = useSeen<HTMLSpanElement>()
+  const draft = useMapPreview(entry.id, entry.kind === "map" && !entry.imageUrl && seen, 96)
 
   return (
     <div className="flex items-center gap-3">
       <span
+        ref={ref}
         className={`bg-muted text-muted-foreground flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border ${
           hidden ? "opacity-60 grayscale" : ""
         }`}
       >
         {entry.imageUrl ? (
           <img src={entry.imageUrl} alt="" loading="lazy" className="size-full object-cover" />
+        ) : draft.status === "draft" ? (
+          <img src={draft.url} alt="" className="size-full object-cover" />
         ) : (
           <KindIcon className="size-5" />
         )}
@@ -42,6 +50,7 @@ export function WorldNameCell({ entry }: { entry: WorldEntry }) {
           >
             {entry.name}
           </Link>
+          {draft.status === "draft" && <span className="text-muted-foreground shrink-0 text-xs">Draft</span>}
           {hidden && <HiddenBadge className="shrink-0" />}
         </div>
         {entry.role && (

@@ -8,10 +8,10 @@ import { loadTiles } from "./terrain-tiles"
 // The builder lays the painted ground out for the screen. The published picture
 // is larger, so it is laid out again for it, from the same tiles and the same
 // seed, so that it is the same ground and as sharp as the picture allows.
-export async function exportTerrain(scene: MapScene): Promise<Terrain> {
+export async function exportTerrain(scene: MapScene, scale = renderScale(scene.canvas)): Promise<Terrain> {
   const tiles = await loadTiles()
   const { canvas } = scene
-  return makeTerrain(tiles, canvas, canvas.background, renderScale(canvas))
+  return makeTerrain(tiles, canvas, canvas.background, scale)
 }
 
 // Puts the larger sea and land in place of the screen's for the instant of

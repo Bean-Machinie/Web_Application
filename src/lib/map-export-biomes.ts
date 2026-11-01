@@ -7,10 +7,10 @@ import type { Terrain } from "./terrain"
 // The builder draws the biomes for the screen. The published picture is far
 // larger, so they are drawn again for it, sharp at that size. Null if nothing
 // is painted.
-export function exportBiomes(scene: MapScene, terrain: Terrain) {
+export function exportBiomes(scene: MapScene, terrain: Terrain, scale = renderScale(scene.canvas)) {
   if (scene.paint.size === 0) return null
   const { canvas } = scene
-  const surface = createSurface(canvas, renderScale(canvas), terrain.biomes)
+  const surface = createSurface(canvas, scale, terrain.biomes)
   surface.drawAll(scene.paint)
   return surface.picture
 }

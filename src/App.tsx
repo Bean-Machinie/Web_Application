@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import { useTouchGuest } from "@/hooks/use-touch-guest"
 import { AccountDialogProvider } from "@/components/auth/AccountDialogProvider"
+import { MapPreviewHost } from "@/components/dashboard/MapPreviewHost"
 import { CampaignScope } from "@/components/dashboard/CampaignScope"
 import { CampaignShell } from "@/components/dashboard/CampaignShell"
 import { CampaignWorldScope } from "@/components/dashboard/CampaignWorldScope"
@@ -91,6 +92,7 @@ export default function App() {
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <MapPreviewHost />
     </AccountDialogProvider>
   )
 }

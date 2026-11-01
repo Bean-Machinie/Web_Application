@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom"
 import { TiltCard } from "@/components/TiltCard"
+import { Badge } from "@/components/ui/badge"
 import { tiltCardSkin } from "@/components/tilt-card-styles"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
+import { useMapPreview } from "@/hooks/use-map-preview"
+import { useSeen } from "@/hooks/use-seen"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { HiddenBadge } from "./HiddenBadge"
@@ -26,6 +29,9 @@ export function WorldEntryCard({ entry, manage, selection, wide }: Props) {
   // A library has no visibility, so nothing in it is drawn as hidden.
   const hidden = hasVisibility && !entry.revealed
   const { icon: KindIcon } = WORLD_KINDS[entry.kind]
+  // A map with no published image may still have a saved scene, drawn once the card is in view.
+  const { ref, seen } = useSeen<HTMLDivElement>()
+  const draft = useMapPreview(entry.id, entry.kind === "map" && !entry.imageUrl && seen, 640)
 
   const save = manage?.onSaveToLibrary
   const actions = manage && [
@@ -53,6 +59,7 @@ export function WorldEntryCard({ entry, manage, selection, wide }: Props) {
       } ${selected ? "border-primary ring-primary ring-2" : ""}`}>
       <div className="overflow-hidden rounded-[inherit]">
       <div
+        ref={ref}
         className={`bg-muted text-muted-foreground relative flex items-center justify-center overflow-hidden ${
           wide ? "aspect-video" : "aspect-square"
         }`}
@@ -64,6 +71,13 @@ export function WorldEntryCard({ entry, manage, selection, wide }: Props) {
             loading="lazy"
             className={`size-full object-cover ${hidden ? "opacity-60 grayscale" : ""}`}
           />
+        ) : draft.status === "draft" ? (
+          <>
+            <img src={draft.url} alt="" className="size-full object-cover" />
+            <Badge variant="secondary" className="absolute top-2 left-2">
+              Draft
+            </Badge>
+          </>
         ) : (
           <KindIcon className="size-10" />
         )}
