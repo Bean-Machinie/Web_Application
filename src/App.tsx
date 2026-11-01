@@ -15,7 +15,6 @@ import { Campaigns } from "@/pages/Campaigns"
 import { CharacterStartRoute } from "@/pages/CharacterStart"
 import { CharacterSheetPage } from "@/pages/CharacterSheet"
 import { Characters } from "@/pages/Characters"
-import { Create } from "@/pages/Create"
 import { CreateAccount } from "@/pages/CreateAccount"
 import { ForgotPassword } from "@/pages/ForgotPassword"
 import { Invite } from "@/pages/Invite"
@@ -35,6 +34,7 @@ import { SettingsRedirect } from "@/pages/SettingsRedirect"
 import { Support } from "@/pages/Support"
 import { World } from "@/pages/World"
 import { WorldEntry } from "@/pages/WorldEntry"
+import { Workshop } from "@/pages/Workshop"
 
 export default function App() {
   useTouchGuest()
@@ -54,7 +54,8 @@ export default function App() {
         <Route path="/invite" element={<Invite />} />
         <Route element={<CampaignShell />}>
           <Route path="/app" element={<DashboardLayout />}>
-            <Route index element={<Campaigns />} />
+            <Route index element={<Navigate to="workshop" replace />} />
+            <Route path="campaigns" element={<Campaigns />} />
             <Route path="campaigns/new" element={<NewCampaign />} />
             <Route path="campaigns/join" element={<JoinCampaign />} />
             <Route path="c/:campaignId" element={<CampaignScope />}>
@@ -76,8 +77,9 @@ export default function App() {
             </Route>
             <Route path="characters/:characterId" element={<CharacterSheetPage />} />
             <Route path="characters/:characterId/start" element={<CharacterStartRoute />} />
-            <Route path="create" element={<LibraryWorldScope />}>
-              <Route index element={<Create />} />
+            <Route path="create" element={<Navigate to="/app/workshop" replace />} />
+            <Route path="workshop" element={<LibraryWorldScope />}>
+              <Route index element={<Workshop />} />
             </Route>
             <Route path="library" element={<LibraryWorldScope />}>
               <Route index element={<Library />} />

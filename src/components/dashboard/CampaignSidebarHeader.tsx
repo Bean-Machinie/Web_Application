@@ -60,7 +60,7 @@ export function CampaignSidebarHeader({ campaign }: { campaign: Campaign | null 
             className="relative h-14 min-h-14 p-0! group-data-[collapsible=icon]:size-12!"
           >
             <Link
-              to="/app"
+              to="/app/campaigns"
               aria-label="All campaigns"
               onClick={() => isMobile && setOpenMobile(false)}
               onPointerEnter={() => setActive(true)}

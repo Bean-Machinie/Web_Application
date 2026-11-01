@@ -21,7 +21,7 @@ export function MapEmptyState({ mapId, upload }: { mapId: string; upload: MapIma
       <div className="flex flex-wrap justify-center gap-3">
         <Button onClick={() => setBuilding(true)}>
           <HoverIcon icon={HammerIcon} />
-          Open map builder
+          Open Map Maker
         </Button>
         <MapImageInput busy={upload.busy} onPick={upload.pick} className={buttonVariants({ variant: "outline" })}>
           <HoverIcon icon={ImagePlusIcon} />

@@ -28,7 +28,7 @@ export function NewCampaign() {
 
   if (template === undefined) {
     return (
-      <TemplateGallery onChoose={setTemplate} backTo="/app" />
+      <TemplateGallery onChoose={setTemplate} backTo="/app/campaigns" />
     )
   }
 

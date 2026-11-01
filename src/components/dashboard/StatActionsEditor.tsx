@@ -1,4 +1,5 @@
-import { Plus } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { PlusIcon } from "@/components/icons/PlusIcon"
 import { Button } from "@/components/ui/button"
 import { useRowReorder } from "@/hooks/use-row-reorder"
 import { readStatBlock, toStoredStatBlock } from "@/lib/stat-block"
@@ -41,7 +42,7 @@ export function StatActionsEditor({ value, onChange }: FieldEditorProps) {
         className="w-fit"
         onClick={() => save([...actions, { id: crypto.randomUUID(), name: "", text: "" }])}
       >
-        <Plus />
+        <HoverIcon icon={PlusIcon} size={16} />
         Add action
       </Button>
     </div>

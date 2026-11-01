@@ -37,7 +37,7 @@ export function DeleteCampaignDialog({ campaign, open, onClose }: Props) {
     try {
       await deleteCampaign(campaign, typed)
       // Leave first: refreshing while still here would show "Campaign not found".
-      navigate("/app")
+      navigate("/app/campaigns")
       await refresh()
     } catch (failure) {
       setError(errorMessage(failure))

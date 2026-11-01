@@ -7,10 +7,11 @@ import { CreateTools } from "./CreateTools"
 import { NewMapDialog } from "./NewMapDialog"
 import { useNewCharacter } from "./useNewCharacter"
 import { useWorldScope } from "./useWorldScope"
+import { WorkshopRecent } from "./WorkshopRecent"
 
 // Where things are made. What is made ends up in the library, which is the scope the
-// route gives it. The content is in a column of the width of Home's campaigns.
-export function CreatePage() {
+// route gives it. The content is in a column of the width of the campaigns page.
+export function WorkshopPage() {
   const scope = useWorldScope()
   const { entries } = useWorldEntries(scope)
   const createEntry = useCreateEntry(scope)
@@ -29,6 +30,7 @@ export function CreatePage() {
     <div className="mx-auto flex w-[1104px] max-w-full flex-col gap-10">
       <CreateTools image={toolImage} onNewMap={() => setMakingMap(true)} onNewCharacter={newCharacter.open} />
       <CreateEntries kinds={scope.kinds.filter((kind) => kind !== "map")} onPick={createEntry} />
+      <WorkshopRecent />
       <NewMapDialog open={makingMap} onClose={() => setMakingMap(false)} />
       {newCharacter.dialog}
     </div>

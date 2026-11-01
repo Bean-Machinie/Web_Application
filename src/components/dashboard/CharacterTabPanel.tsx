@@ -1,4 +1,5 @@
-import { Plus } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { PlusIcon } from "@/components/icons/PlusIcon"
 import { Button } from "@/components/ui/button"
 import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
 import { isShown, sectionStarted, tabContents } from "@/lib/character-sheet"
@@ -53,7 +54,7 @@ export function CharacterTabPanel({ template, tab, fields, actions, opened, onOp
         </EmptyHeader>
         <AddFieldMenu onAdd={onAdd}>
           <Button variant="outline">
-            <Plus />
+            <HoverIcon icon={PlusIcon} size={16} />
             Add…
           </Button>
         </AddFieldMenu>
@@ -99,7 +100,7 @@ export function CharacterTabPanel({ template, tab, fields, actions, opened, onOp
       ))}
       <AddFieldMenu onAdd={onAdd}>
         <Button variant="ghost" size="sm" className="text-muted-foreground w-fit">
-          <Plus />
+          <HoverIcon icon={PlusIcon} size={16} />
           Add
         </Button>
       </AddFieldMenu>

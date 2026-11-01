@@ -113,7 +113,7 @@ export function MapEntryScreen(props: EntryProps) {
         {canManage && built && (
           <section className="flex flex-col gap-3 border-b px-5 py-4">
             <div>
-              <h3 className="text-sm font-medium">Map builder</h3>
+              <h3 className="text-sm font-medium">Map Maker</h3>
               <p className="text-muted-foreground mt-0.5 text-[13px] leading-snug">
                 This map was built here. Editing it reopens the canvas; publishing renders a new
                 image.

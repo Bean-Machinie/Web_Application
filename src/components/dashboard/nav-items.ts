@@ -1,12 +1,12 @@
 import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
 import { CalendarFoldIcon } from "@/components/icons/CalendarFoldIcon"
-import { LayoutGridIcon } from "@/components/icons/LayoutGridIcon"
 import { LifeBuoyIcon } from "@/components/icons/LifeBuoyIcon"
 import { MonitorIcon } from "@/components/icons/MonitorIcon"
 import { PackageIcon } from "@/components/icons/PackageIcon"
 import { PlusIcon } from "@/components/icons/PlusIcon"
 import { ScrollTextIcon } from "@/components/icons/ScrollTextIcon"
 import { SettingsIcon } from "@/components/icons/SettingsIcon"
+import { SwordsIcon } from "@/components/icons/SwordsIcon"
 import { UserRoundIcon } from "@/components/icons/UserRoundIcon"
 import { UsersRoundIcon } from "@/components/icons/UsersRoundIcon"
 import { campaignPath } from "@/lib/campaign-paths"
@@ -36,8 +36,8 @@ export const campaignSettingsNav = (id: string): NavItem[] => [
 
 // What the sidebar shows outside a campaign.
 export const homeNav: NavItem[] = [
-  { title: "Home", to: "/app", icon: LayoutGridIcon, exact: true },
-  { title: "Create", to: "/app/create", icon: PlusIcon, iconClassName: "scale-125" },
+  { title: "Workshop", to: "/app/workshop", icon: PlusIcon, iconClassName: "scale-125" },
+  { title: "Campaigns", to: "/app/campaigns", icon: SwordsIcon },
   { title: "Your library", to: "/app/library", icon: PackageIcon },
 ]
 

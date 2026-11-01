@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { Plus } from "lucide-react"
 import { HoverIcon } from "@/components/icons/HoverIcon"
+import { PlusIcon } from "@/components/icons/PlusIcon"
 import { XIcon } from "@/components/icons/XIcon"
 import { Button } from "@/components/ui/button"
 import { readList } from "@/lib/character-values"
@@ -46,7 +46,7 @@ export function CharacterListValue({ value, onChange }: { value: unknown; onChan
         />
       ) : (
         <Button variant="ghost" size="sm" className="text-muted-foreground -ml-2 w-fit" onClick={() => setAdding(true)}>
-          <Plus />
+          <HoverIcon icon={PlusIcon} size={16} />
           Add
         </Button>
       )}

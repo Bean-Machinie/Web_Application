@@ -13,9 +13,6 @@ import { useCampaign } from "./useCampaign"
 const SHOWN = 10
 // What the skeleton shows before anything has loaded.
 const FIRST_LOAD = [3, 4]
-// Beside the campaigns its top lines up with the toolbar: under the heading row
-// (2.25rem) and the gap below it (1rem).
-const SIDE = "xl:mt-[3.25rem] xl:w-[340px] xl:shrink-0"
 
 // Rows are grouped by the day they are dated by, in the order they come.
 function groupByDay(items: RecentEntry[], by: RecentBy) {
@@ -29,13 +26,13 @@ function groupByDay(items: RecentEntry[], by: RecentBy) {
   return groups
 }
 
-// "Recent" beside the campaigns (under them on a narrow screen), in a card like the
+// "Recent" under the entries, the full width of the column, in a card like the
 // campaign cards: the newest entries in your library and in the campaigns you run, by
 // when they were changed or made, grouped by day. The card stays put when the sort
 // changes: the rows turn into a skeleton of the same shape while the new ones load.
 // Whether room is made for it before loading follows what it held last time, so the
-// campaigns beside it do not shift. With nothing to show it takes no room at all.
-export function HomeRecent() {
+// page does not shift. With nothing to show it takes no room at all.
+export function WorkshopRecent() {
   const { campaigns } = useCampaign()
   const [by, setBy] = useState<RecentBy>("updated")
   const running = useMemo(
@@ -60,7 +57,7 @@ export function HomeRecent() {
     <LoadingGate
       loading={entries === null}
       className={
-        entries ? (entries.length > 0 ? SIDE : "hidden") : hadRecent ? SIDE : "hidden"
+        entries ? (entries.length > 0 ? "" : "hidden") : hadRecent ? "" : "hidden"
       }
       skeleton={
         <RecentCard by={by} onBy={setBy}>

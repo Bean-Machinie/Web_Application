@@ -1,6 +1,6 @@
-import { CreatePage } from "@/components/dashboard/CreatePage"
+import { WorkshopPage } from "@/components/dashboard/WorkshopPage"
 
 // Where things are made, from the sidebar.
-export function Create() {
-  return <CreatePage />
+export function Workshop() {
+  return <WorkshopPage />
 }

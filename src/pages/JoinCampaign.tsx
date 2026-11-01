@@ -5,5 +5,5 @@ import { Navigate, useSearchParams } from "react-router-dom"
 export function JoinCampaign() {
   const code = useSearchParams()[0].get("code")
 
-  return <Navigate to={code ? `/invite?code=${code}` : "/app"} replace />
+  return <Navigate to={code ? `/invite?code=${code}` : "/app/campaigns"} replace />
 }

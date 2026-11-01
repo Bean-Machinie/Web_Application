@@ -1,4 +1,5 @@
 import { Map as MapIcon, User } from "lucide-react"
+import { CHARACTER_CREATOR_IMAGE } from "@/lib/tool-images"
 import { SectionHeading } from "./SectionHeading"
 import { ToolTile } from "./ToolTile"
 
@@ -12,17 +13,17 @@ export function CreateTools({ image, onNewMap, onNewCharacter }: Props) {
       <SectionHeading>Tools</SectionHeading>
       <div className="flex flex-wrap items-start gap-4">
         <ToolTile
-          name="Map builder"
+          name="Map Maker"
           description="Draw land, paint biomes and place art."
           icon={MapIcon}
           image={image}
           onOpen={onNewMap}
         />
         <ToolTile
-          name="Character creator"
+          name="Character Creator"
           description="Build a player character."
           icon={User}
-          image={null}
+          image={CHARACTER_CREATOR_IMAGE}
           onOpen={onNewCharacter}
         />
       </div>

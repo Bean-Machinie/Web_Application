@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
-import { Plus } from "lucide-react"
 import { HoverIcon } from "@/components/icons/HoverIcon"
+import { PlusIcon } from "@/components/icons/PlusIcon"
 import { SearchIcon } from "@/components/icons/SearchIcon"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
@@ -82,7 +82,7 @@ export function MarkerEntryPicker({ exceptId, disabled, onPick, onCreate, compac
             className={compact ? "size-11 shrink-0 px-0" : undefined}
             onClick={() => onCreate(kind)}
           >
-            <Plus />
+            <HoverIcon icon={PlusIcon} size={16} />
             {!compact && "New entry"}
           </Button>
         </div>

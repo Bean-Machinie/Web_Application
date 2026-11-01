@@ -19,7 +19,7 @@ export function CampaignNotFound() {
       </EmptyHeader>
       <EmptyContent>
         <Button asChild>
-          <Link to="/app">Back to campaigns</Link>
+          <Link to="/app/campaigns">Back to campaigns</Link>
         </Button>
       </EmptyContent>
     </Empty>

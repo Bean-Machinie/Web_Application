@@ -1,4 +1,5 @@
-import { Plus } from "lucide-react"
+import { HoverIcon } from "@/components/icons/HoverIcon"
+import { PlusIcon } from "@/components/icons/PlusIcon"
 import { Button } from "@/components/ui/button"
 import type { SheetField } from "@/lib/character-sheet"
 import { toHitOf } from "@/lib/character-weapons"
@@ -41,7 +42,7 @@ export function CharacterAttacksValue({ field, actions }: { field: SheetField; a
         className="text-muted-foreground -ml-2 w-fit"
         onClick={() => save([...attacks, { id: crypto.randomUUID(), name: "", ability: "str", proficient: true, toHit: null, damage: "" }])}
       >
-        <Plus />
+        <HoverIcon icon={PlusIcon} size={16} />
         Add attack
       </Button>
     </div>

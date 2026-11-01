@@ -5,14 +5,15 @@ import { BreadcrumbContext } from "./BreadcrumbContext"
 import { campaignNav, campaignSettingsNav } from "./nav-items"
 import { useRouteCampaign } from "./useCurrentCampaign"
 
-// Pages outside a campaign that are not the campaigns home.
+// Pages outside a campaign that are not the workshop.
 const userPages = [
   { title: "Support", to: "/app/support" },
   { title: "Legal notices", to: "/app/legal" },
-  { title: "Create", to: "/app/create" },
+  { title: "Workshop", to: "/app/workshop" },
   { title: "Your library", to: "/app/library" },
   { title: "New campaign", to: "/app/campaigns/new" },
   { title: "Join campaign", to: "/app/campaigns/join" },
+  { title: "Campaigns", to: "/app/campaigns" },
 ]
 
 // A page the sidebar does not list is named after its own route.
@@ -40,9 +41,9 @@ export function usePageCrumbs(): Crumb[] {
 
   if (trail) return trail
   if (inCampaign) {
-    return [{ label: campaign ? campaignPageTitle(campaign.id, pathname) : "Home" }]
+    return [{ label: campaign ? campaignPageTitle(campaign.id, pathname) : "Overview" }]
   }
 
   const page = userPages.find((item) => pathname.startsWith(item.to))
-  return [{ label: page?.title ?? "Home" }]
+  return [{ label: page?.title ?? "Workshop" }]
 }

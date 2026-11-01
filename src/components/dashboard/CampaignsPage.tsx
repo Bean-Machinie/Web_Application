@@ -16,9 +16,9 @@ import { useCampaignViewMode } from "@/hooks/use-campaign-view-mode"
 import { viewCampaigns } from "@/lib/campaign-list"
 import type { Campaign } from "@/lib/campaigns"
 
-// The main column of Home: the heading, the toolbar (with Join and New campaign at its
+// The campaigns page: the heading, the toolbar (with Join and New campaign at its
 // right end), and every campaign you belong to as cards or a table.
-export function HomeCampaigns() {
+export function CampaignsPage() {
   const { campaigns, loading, error } = useCampaign()
   const members = useCampaignMembers(campaigns)
   const [mode, setMode] = useCampaignViewMode()
