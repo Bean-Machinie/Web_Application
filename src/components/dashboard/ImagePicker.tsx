@@ -5,6 +5,7 @@ import { HoverIcon } from "@/components/icons/HoverIcon"
 import { XIcon } from "@/components/icons/XIcon"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
+import { useAccountDialog } from "@/components/auth/useAccountDialog"
 import { useFileUpload } from "@/hooks/use-file-upload"
 import { AVATAR_MAX_BYTES, AVATAR_TYPES } from "@/lib/avatar"
 import { cn } from "@/lib/utils"
@@ -22,6 +23,9 @@ type Props = {
 // dialog as the campaign image.
 export function ImagePicker({ url, fallback, disabled, onPick, onRemove }: Props) {
   const [cropSource, setCropSource] = useState<File | null>(null)
+  const { isGuest, openFor } = useAccountDialog()
+  // A guest sees the control, but it asks for an account instead of taking a file.
+  const askForAccount = () => openFor("upload images")
 
   const [
     { isDragging, errors },
@@ -50,11 +54,11 @@ export function ImagePicker({ url, fallback, disabled, onPick, onRemove }: Props
           type="button"
           aria-label={url ? "Change image" : "Upload image"}
           disabled={disabled}
-          onClick={openFileDialog}
+          onClick={isGuest ? askForAccount : openFileDialog}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}
-          onDrop={handleDrop}
+          onDrop={isGuest ? (event) => { event.preventDefault(); askForAccount() } : handleDrop}
           className={cn(
             "bg-muted text-muted-foreground focus-visible:ring-ring relative flex size-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border outline-none focus-visible:ring-2 disabled:cursor-default",
             isDragging && "ring-primary ring-2"

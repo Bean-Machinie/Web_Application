@@ -42,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         session,
         loading,
+        isGuest: session?.user.is_anonymous === true,
         profile: mine?.profile ?? EMPTY_PROFILE,
         profileReady: !!mine,
         refreshProfile,

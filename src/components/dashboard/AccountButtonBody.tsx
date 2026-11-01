@@ -1,25 +1,26 @@
+import { User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAccount } from "@/hooks/use-account"
 import { MenuChevron } from "./MenuChevron"
 
 export function AccountAvatar() {
-  const { initials, avatarUrl } = useAccount()
+  const { initials, avatarUrl, isGuest } = useAccount()
   return (
     <Avatar className="size-8 shrink-0">
       <AvatarImage src={avatarUrl} alt="" />
-      <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+      <AvatarFallback className="text-xs">{isGuest ? <User className="size-4" /> : initials}</AvatarFallback>
     </Avatar>
   )
 }
 
 // The name and email, and the chevron that turns while the menu is open.
 export function AccountDetails() {
-  const { name, email } = useAccount()
+  const { name, detail } = useAccount()
   return (
     <>
       <div className="grid flex-1 text-left text-[14.5px] leading-tight">
         <span className="truncate font-medium">{name}</span>
-        <span className="text-muted-foreground truncate text-[12.5px]">{email}</span>
+        <span className="text-muted-foreground truncate text-[12.5px]">{detail}</span>
       </div>
       <MenuChevron className="ml-auto" />
     </>

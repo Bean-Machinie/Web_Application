@@ -1,6 +1,5 @@
-import { useState } from "react"
 import { toast } from "sonner"
-import { supabase } from "@/lib/supabase"
+import { useSetPassword } from "@/hooks/use-set-password"
 import { PASSWORD_MIN_LENGTH } from "@/lib/password-strength"
 import { PasswordField } from "./PasswordField"
 import { PasswordStrength } from "./PasswordStrength"
@@ -9,45 +8,35 @@ import { useSettingsForm, useSettingsNotice } from "./settings-form"
 
 // For someone who signed up through a provider and has no password yet.
 export function SetPasswordForm({ onDone }: { onDone: () => Promise<void> }) {
-  const [password, setPassword] = useState("")
-  const [confirm, setConfirm] = useState("")
-  const [busy, setBusy] = useState(false)
+  const { password, setPassword, confirm, setConfirm, busy, dirty, reset, save } = useSetPassword()
   const notify = useSettingsNotice()
-  const dirty = password.length > 0 || confirm.length > 0
 
-  function reset() {
-    setPassword("")
-    setConfirm("")
+  async function submit() {
     notify(null)
-  }
+    const failure = await save()
+    if (failure) return notify({ tone: "error", text: failure })
 
-  async function save() {
-    if (password.length < PASSWORD_MIN_LENGTH) {
-      return notify({ tone: "error", text: `Use at least ${PASSWORD_MIN_LENGTH} characters.` })
-    }
-    if (password !== confirm) {
-      return notify({ tone: "error", text: "The passwords do not match." })
-    }
-
-    setBusy(true)
-    notify(null)
-    const { error } = await supabase.auth.updateUser({ password })
-    setBusy(false)
-
-    if (error) return notify({ tone: "error", text: error.message })
     reset()
     // A toast, since this form is replaced by the change-password one straight after.
     toast.success("Password set. You can now log in with your email too.")
     await onDone()
   }
 
-  useSettingsForm({ dirty, busy, save, discard: reset })
+  useSettingsForm({
+    dirty,
+    busy,
+    save: submit,
+    discard: () => {
+      reset()
+      notify(null)
+    },
+  })
 
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault()
-        if (dirty && !busy) void save()
+        if (dirty && !busy) void submit()
       }}
       className="divide-y"
     >

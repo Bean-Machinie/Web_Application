@@ -6,6 +6,7 @@ import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
 import { campaignPath } from "@/lib/campaign-paths"
 import { errorMessage } from "@/lib/campaigns"
+import { useAccountDialog } from "@/components/auth/useAccountDialog"
 import { useCampaign } from "./useCampaign"
 
 // Accept and Decline for a pending invitation. Reading the notification does
@@ -19,10 +20,15 @@ type Props = {
 export function InvitationActions({ invitationId, campaignId, campaignName }: Props) {
   const navigate = useNavigate()
   const { respond } = useCampaign()
+  const { gate } = useAccountDialog()
   const [busy, setBusy] = useState<"accept" | "decline" | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  async function answer(accept: boolean) {
+  function answer(accept: boolean) {
+    gate(accept ? "accept an invitation" : "answer an invitation", () => void respondTo(accept))
+  }
+
+  async function respondTo(accept: boolean) {
     setBusy(accept ? "accept" : "decline")
     setError(null)
     try {

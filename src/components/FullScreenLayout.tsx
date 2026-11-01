@@ -1,3 +1,4 @@
+import { useState } from "react"
 import type { ReactNode } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import blackName from "@/assets/logo/Black/HELIOSYN_Name_Black.png"
@@ -5,15 +6,18 @@ import whiteName from "@/assets/logo/White/HELIOSYN_Name_White.png"
 import { Button } from "@/components/ui/button"
 import { LogoMark } from "@/components/LogoMark"
 import { useAuth } from "@/auth/useAuth"
+import { LeaveGuestDialog } from "@/components/auth/LeaveGuestDialog"
 import { supabase } from "@/lib/supabase"
 
 // For screens shown before there is a campaign, so there is no sidebar and
 // therefore no account menu. The header keeps a way to log out.
 export function FullScreenLayout({ children }: { children: ReactNode }) {
-  const { session } = useAuth()
+  const { session, isGuest } = useAuth()
+  const [leaving, setLeaving] = useState(false)
   const navigate = useNavigate()
 
   async function handleSignOut() {
+    if (isGuest) return setLeaving(true)
     await supabase.auth.signOut()
     navigate("/log-in", { replace: true })
   }
@@ -44,6 +48,7 @@ export function FullScreenLayout({ children }: { children: ReactNode }) {
       <main className="flex flex-1 items-center justify-center p-6 pb-24">
         {children}
       </main>
+      <LeaveGuestDialog open={leaving} onClose={() => setLeaving(false)} />
     </div>
   )
 }

@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { useAuth } from "@/auth/useAuth"
+import { useAccountDialog } from "@/components/auth/useAccountDialog"
+import { Button } from "@/components/ui/button"
 import { NO_AVATAR_CHANGE, hasAvatarChange } from "@/lib/avatar"
 import { errorMessage } from "@/lib/campaigns"
 import { getInitials } from "@/lib/profile"
@@ -13,7 +15,8 @@ import { UsernameSection } from "./UsernameSection"
 import { useSettingsForm, useSettingsNotice } from "./settings-form"
 
 export function PersonalDetailsForm() {
-  const { session, profile, refreshProfile } = useAuth()
+  const { session, profile, refreshProfile, isGuest } = useAuth()
+  const { openFor } = useAccountDialog()
   const { username, description, avatarUrl } = profile
   const userId = session!.user.id
   const email = session!.user.email ?? ""
@@ -72,33 +75,45 @@ export function PersonalDetailsForm() {
       className="flex flex-col gap-10"
     >
       <SettingsGroup title="Public profile">
-        <SettingsRow width="wide" title="Your photo" description="This will be displayed on your profile.">
-          <PhotoField
-            change={avatar}
-            onChange={setAvatar}
-            disabled={busy}
-            currentUrl={avatarUrl}
-            fallback={getInitials(username, email)}
-          />
-        </SettingsRow>
-        <UsernameSection
-          value={usernameInput ?? username}
-          onChange={setUsernameInput}
-          disabled={busy}
-        />
+        {isGuest ? (
+          <SettingsRow center width="wide" title="Create an account to set your name and photo">
+            <Button type="button" variant="outline" onClick={() => openFor()}>
+              Create account
+            </Button>
+          </SettingsRow>
+        ) : (
+          <>
+            <SettingsRow width="wide" title="Your photo" description="This will be displayed on your profile.">
+              <PhotoField
+                change={avatar}
+                onChange={setAvatar}
+                disabled={busy}
+                currentUrl={avatarUrl}
+                fallback={getInitials(username, email)}
+              />
+            </SettingsRow>
+            <UsernameSection
+              value={usernameInput ?? username}
+              onChange={setUsernameInput}
+              disabled={busy}
+            />
+          </>
+        )}
         <AboutField
           value={descriptionInput ?? description}
           onChange={setDescriptionInput}
           disabled={busy}
         />
       </SettingsGroup>
-      <SettingsGroup title="Account">
-        <SettingsRow center width="wide" title="Email">
-          <p className="flex h-8 items-center text-sm">
-            <span className="truncate">{email}</span>
-          </p>
-        </SettingsRow>
-      </SettingsGroup>
+      {!isGuest && (
+        <SettingsGroup title="Account">
+          <SettingsRow center width="wide" title="Email">
+            <p className="flex h-8 items-center text-sm">
+              <span className="truncate">{email}</span>
+            </p>
+          </SettingsRow>
+        </SettingsGroup>
+      )}
     </form>
   )
 }

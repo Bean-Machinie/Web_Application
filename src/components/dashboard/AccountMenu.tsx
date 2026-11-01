@@ -1,4 +1,6 @@
+import { useState } from "react"
 import type { ReactNode } from "react"
+import { UserPlus } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import {
   DropdownMenu,
@@ -9,6 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { LeaveGuestDialog } from "@/components/auth/LeaveGuestDialog"
+import { useAccountDialog } from "@/components/auth/useAccountDialog"
 import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
 import { CreditCardIcon } from "@/components/icons/CreditCardIcon"
 import { HoverIcon } from "@/components/icons/HoverIcon"
@@ -44,6 +48,10 @@ type Props = {
 export function AccountMenu({ children, side, align, onChoose, beforeLeave }: Props) {
   const navigate = useNavigate()
   const settingsWindow = useSettingsWindow()
+  const { isGuest, openFor } = useAccountDialog()
+  const [leaving, setLeaving] = useState(false)
+  // A guest has no billing, and the look of the app is in Settings.
+  const items = isGuest ? menuItems.filter((item) => item.tab === "profile") : menuItems
 
   const choose = (action: () => void | Promise<void>) => async () => {
     onChoose?.()
@@ -56,6 +64,7 @@ export function AccountMenu({ children, side, align, onChoose, beforeLeave }: Pr
     })
 
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent
@@ -71,7 +80,13 @@ export function AccountMenu({ children, side, align, onChoose, beforeLeave }: Pr
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          {menuItems.map((item) => (
+          {isGuest && (
+            <DropdownMenuItem onClick={choose(() => openFor())}>
+              <HoverIcon icon={UserPlus} size={16} />
+              Create account
+            </DropdownMenuItem>
+          )}
+          {items.map((item) => (
             <DropdownMenuItem key={item.label} onClick={choose(() => settingsWindow.open(item.tab))}>
               <HoverIcon icon={item.icon} size={16} />
               {item.label}
@@ -91,6 +106,7 @@ export function AccountMenu({ children, side, align, onChoose, beforeLeave }: Pr
         <DropdownMenuItem
           variant="destructive"
           onClick={leaveTo(async () => {
+            if (isGuest) return setLeaving(true)
             await supabase.auth.signOut()
             navigate("/log-in", { replace: true })
           })}
@@ -100,5 +116,7 @@ export function AccountMenu({ children, side, align, onChoose, beforeLeave }: Pr
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    <LeaveGuestDialog open={leaving} onClose={() => setLeaving(false)} />
+    </>
   )
 }

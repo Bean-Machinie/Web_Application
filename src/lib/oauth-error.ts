@@ -1,5 +1,5 @@
 const PROVIDER_NAMES: Record<string, string> = { discord: "Discord", google: "Google" }
-const ERROR_PARAMS = ["error", "error_code", "error_description", "provider"]
+const ERROR_PARAMS = ["error", "error_code", "error_description", "provider", "converted"]
 
 // Supabase reports a failed provider login or link in the query or the hash,
 // depending on the flow.
@@ -13,6 +13,7 @@ function readParams(search: string, hash: string) {
     code: get("error_code"),
     description: get("error_description"),
     provider: get("provider"),
+    converted: get("converted"),
   }
 }
 
@@ -32,9 +33,10 @@ export function readOAuthError(search: string, hash: string) {
 // What happened when someone came back from connecting a provider: nothing
 // when they did not just try to, otherwise the provider and, if it failed, why.
 export function readLinkResult(search: string, hash: string) {
-  const { error, code, description, provider } = readParams(search, hash)
+  const { error, code, description, provider, converted } = readParams(search, hash)
   const name = nameOf(provider)
-  if (!name) return undefined
+  // A guest turning into an account is reported by readGuestReturn.
+  if (!name || converted) return undefined
   if (!error) return { name }
 
   if (code === "identity_already_exists" || /already linked/i.test(description ?? "")) {
@@ -42,6 +44,28 @@ export function readLinkResult(search: string, hash: string) {
   }
   if (error === "access_denied") return { name, error: `Connecting ${name} was cancelled.` }
   return { name, error: `${name} couldn't be connected. Try again.` }
+}
+
+// What happened when a guest came back from becoming an account: what they used, and, if it
+// failed, why.
+export function readGuestReturn(search: string, hash: string) {
+  const { error, code, description, converted } = readParams(search, hash)
+  if (!converted) return undefined
+  if (!error) return { kind: converted }
+
+  const name = nameOf(converted) ?? "provider"
+  if (code === "identity_already_exists" || /already linked/i.test(description ?? "")) {
+    return {
+      kind: converted,
+      error: `That ${name} account already has a Heliosyn account. Log in to it instead; your guest work stays here for 30 days.`,
+    }
+  }
+  if (code === "email_exists") {
+    return { kind: converted, error: "That email already has an account. Log in instead." }
+  }
+  if (error === "access_denied") return { kind: converted, error: "Creating your account was cancelled." }
+  if (code === "otp_expired") return { kind: converted, error: "That link has expired. Try again." }
+  return { kind: converted, error: "Your account couldn't be created. Try again." }
 }
 
 // The same address without the error parameters, for replacing in history.

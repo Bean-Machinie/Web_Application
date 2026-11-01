@@ -1,11 +1,13 @@
 import { useState } from "react"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { AuthLayout } from "@/components/auth/AuthLayout"
+import { useAuth } from "@/auth/useAuth"
 import { CheckEmail } from "@/components/auth/CheckEmail"
 import { CreateAccountFields } from "@/components/auth/CreateAccountFields"
 import type { AccountValues } from "@/components/auth/CreateAccountFields"
 import { EmailReveal } from "@/components/auth/EmailReveal"
 import { FormAlert } from "@/components/auth/FormAlert"
+import { GuestCreateAccount } from "@/components/auth/GuestCreateAccount"
 import { OAuthButtons } from "@/components/auth/OAuthButtons"
 import { OrDivider } from "@/components/auth/OrDivider"
 import { Button } from "@/components/ui/button"
@@ -31,6 +33,7 @@ export function CreateAccountForm() {
   const [busy, setBusy] = useState(false)
   const [sentTo, setSentTo] = useState<string>()
   const navigate = useNavigate()
+  const { isGuest } = useAuth()
   const rawNext = useSearchParams()[0].get("next")
   const next = safeNext(rawNext)
   const redirectTo = `${window.location.origin}${next}`
@@ -79,6 +82,9 @@ export function CreateAccountForm() {
     })
     return error ? authProblem(error).message : undefined
   }
+
+  // A guest converts the account they have; signing up would start another.
+  if (isGuest) return <GuestCreateAccount next={rawNext ?? undefined} />
 
   if (sentTo) return <CheckEmail email={sentTo} onResend={resend} />
 

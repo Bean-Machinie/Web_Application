@@ -8,6 +8,7 @@ import { useBuilderViewport } from "@/hooks/use-builder-viewport"
 import { useTerrain } from "@/hooks/use-terrain"
 import { useHeldModifiers } from "@/hooks/use-held-modifiers"
 import { useLandDrawing } from "@/hooks/use-land-drawing"
+import { useAccountDialog } from "@/components/auth/useAccountDialog"
 import { useMapImageUpload } from "@/hooks/use-map-image-upload"
 import { useMapPublish } from "@/hooks/use-map-publish"
 import { useSceneAutosave } from "@/hooks/use-scene-autosave"
@@ -69,6 +70,7 @@ export function MapBuilder({ folder, mapId, name, onRename, loaded, image, onSav
     onSave: onSaveImage,
   })
   const { publishing, error, publish } = useMapPublish(stage, scene, autosave, upload)
+  const { gate } = useAccountDialog()
 
   const navigate = useNavigate()
   const { basePath } = useWorldScope()
@@ -131,9 +133,9 @@ export function MapBuilder({ folder, mapId, name, onRename, loaded, image, onSav
           onUndo={undoAny}
           onRedo={redoAny}
           onBack={goBack}
-          onPublish={async () => {
+          onPublish={() => gate("publish a map", async () => {
             if (await publish()) leave()
-          }}
+          })}
         />
       }
       banners={<MapBuilderBanners store={autosave.store} error={error} />}

@@ -69,7 +69,8 @@ export function CampaignProvider({ children }: { children: ReactNode }) {
     <CampaignContext.Provider
       value={{
         campaigns,
-        loading,
+        // Without a user there is nothing to wait for.
+        loading: loading && !!userId,
         error,
         refresh,
         unreadCount,

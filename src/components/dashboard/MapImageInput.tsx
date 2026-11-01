@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { useAccountDialog } from "@/components/auth/useAccountDialog"
 import { MAP_INPUT_TYPES } from "@/lib/resize-map-image"
 import { cn } from "@/lib/utils"
 
@@ -12,6 +13,10 @@ type Props = {
 // A click or drop target that picks an image file. Style it through
 // className; the file input itself is hidden but stays reachable by keyboard.
 export function MapImageInput({ busy, onPick, className, children }: Props) {
+  const { isGuest, openFor } = useAccountDialog()
+  // A guest sees the control, but it asks for an account instead of taking a file.
+  const askForAccount = () => openFor("upload images")
+
   return (
     <label
       className={cn(
@@ -19,9 +24,11 @@ export function MapImageInput({ busy, onPick, className, children }: Props) {
         busy && "pointer-events-none opacity-60",
         className
       )}
+      onClick={isGuest ? (event) => { event.preventDefault(); askForAccount() } : undefined}
       onDragOver={(event) => event.preventDefault()}
       onDrop={(event) => {
         event.preventDefault()
+        if (isGuest) return askForAccount()
         const file = event.dataTransfer.files[0]
         if (file) onPick(file)
       }}

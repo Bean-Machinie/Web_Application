@@ -8,6 +8,7 @@ import { CampaignToolbar } from "@/components/dashboard/CampaignToolbar"
 import { JoinCampaignDialog } from "@/components/dashboard/JoinCampaignDialog"
 import { LeaveCampaignDialog } from "@/components/dashboard/LeaveCampaignDialog"
 import { SectionHeading } from "@/components/dashboard/SectionHeading"
+import { useAccountDialog } from "@/components/auth/useAccountDialog"
 import { useCampaign } from "@/components/dashboard/useCampaign"
 import { useCampaignMembers } from "@/hooks/use-campaign-members"
 import { useCampaignListPrefs } from "@/hooks/use-campaign-list-prefs"
@@ -24,6 +25,8 @@ export function HomeCampaigns() {
   const [query, setQuery] = useState("")
   const { role, setRole, sort, setSort } = useCampaignListPrefs()
   const [joining, setJoining] = useState(false)
+  const { gate } = useAccountDialog()
+  const join = () => gate("join a campaign", () => setJoining(true))
   const [leaving, setLeaving] = useState<Campaign | null>(null)
 
   if (loading) {
@@ -43,7 +46,7 @@ export function HomeCampaigns() {
       {error && <FormAlert tone="error">{error}</FormAlert>}
 
       {campaigns.length === 0 ? (
-        <CampaignEmpty onJoin={() => setJoining(true)} />
+        <CampaignEmpty onJoin={join} />
       ) : (
         <>
           <CampaignToolbar
@@ -55,7 +58,7 @@ export function HomeCampaigns() {
             onSort={setSort}
             mode={mode}
             onMode={setMode}
-            onJoin={() => setJoining(true)}
+            onJoin={join}
           />
           {shown.length === 0 ? (
             <p className="text-muted-foreground py-12 text-center text-sm">

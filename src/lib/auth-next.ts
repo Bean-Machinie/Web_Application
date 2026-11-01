@@ -22,3 +22,12 @@ export function oauthReturnUrl(next: string, provider: string) {
   const params = new URLSearchParams({ next, provider })
   return `${window.location.origin}/log-in?${params}`
 }
+
+// Where a guest comes back to after becoming an account: this same page, saying what they
+// used ("discord", "email") so the app can finish the job.
+export function guestReturnUrl(kind: string) {
+  const url = new URL(window.location.href)
+  url.hash = ""
+  url.searchParams.set("converted", kind)
+  return url.toString()
+}

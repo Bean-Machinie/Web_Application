@@ -1,10 +1,11 @@
 import { ChevronRight } from "lucide-react"
 import { Link } from "react-router-dom"
+import { useAuth } from "@/auth/useAuth"
 import { Icon } from "@/components/Icon"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { AccountIdentity } from "./AccountIdentity"
-import { SETTINGS_GROUPS } from "./settings-tabs"
+import { settingsGroups } from "./settings-tabs"
 import type { SettingsTab } from "./settings-tabs"
 import { useCampaign } from "./useCampaign"
 
@@ -14,6 +15,7 @@ type Props = { tab: SettingsTab; onPick: (tab: SettingsTab) => void; onLegal: ()
 // first page, and the tab picked slides in over it.
 export function SettingsNav({ tab, onPick, onLegal }: Props) {
   const pending = useCampaign().unreadCount
+  const { isGuest } = useAuth()
 
   return (
     <nav
@@ -24,7 +26,7 @@ export function SettingsNav({ tab, onPick, onLegal }: Props) {
       <div className="flex items-center gap-2.5 px-2.5">
         <AccountIdentity />
       </div>
-      {SETTINGS_GROUPS.map((group) => (
+      {settingsGroups(isGuest).map((group) => (
         <div key={group.label} className="flex flex-col gap-0.5">
           <h3 className="text-muted-foreground px-2.5 pb-1 text-xs font-medium">{group.label}</h3>
           {group.tabs.map(({ id, label, icon }) => (

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
+import { useAuth } from "@/auth/useAuth"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useSettingsWindow } from "@/hooks/use-settings-window"
 import { cn } from "@/lib/utils"
@@ -10,6 +11,7 @@ import { SettingsNav } from "./SettingsNav"
 import { SettingsSaveBar } from "./SettingsSaveBar"
 import { SettingsFormContext } from "./settings-form"
 import type { FormActions, FormStatus, Notice } from "./settings-form"
+import { GUEST_HIDDEN } from "./settings-tabs"
 import type { SettingsTab } from "./settings-tabs"
 
 // Account settings as a window over the page, shown when the address has "?settings=" (see
@@ -18,7 +20,9 @@ export function SettingsWindow() {
   const { tab, open, close } = useSettingsWindow()
   const navigate = useNavigate()
   const isMobile = useIsMobile()
-  const active: SettingsTab = tab ?? "profile"
+  const { isGuest } = useAuth()
+  const requested: SettingsTab = tab ?? "profile"
+  const active: SettingsTab = isGuest && GUEST_HIDDEN.includes(requested) ? "profile" : requested
   const isOpen = tab !== null
   // On a small screen the list of tabs comes first and a tab slides in over it.
   const [showTab, setShowTab] = useState(false)

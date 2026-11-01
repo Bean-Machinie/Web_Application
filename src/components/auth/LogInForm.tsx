@@ -6,6 +6,7 @@ import { AuthLayout } from "@/components/auth/AuthLayout"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { OAuthButtons } from "@/components/auth/OAuthButtons"
 import { OrDivider } from "@/components/auth/OrDivider"
+import { TryAsGuest } from "@/components/auth/TryAsGuest"
 import { SubmitButton } from "@/components/auth/SubmitButton"
 import { PasswordField } from "@/components/dashboard/PasswordField"
 import { Input } from "@/components/ui/input"
@@ -23,7 +24,7 @@ export function LogInForm() {
   const navigate = useNavigate()
   const rawNext = useSearchParams()[0].get("next")
   const next = safeNext(rawNext)
-  const { session } = useAuth()
+  const { session, isGuest } = useAuth()
   const location = useLocation()
   // Read once, since the address is cleaned straight afterwards.
   const [oauthError] = useState(() => readOAuthError(location.search, location.hash))
@@ -45,13 +46,19 @@ export function LogInForm() {
   }
 
   // Coming back from a provider signed in: carry on to where they were going.
-  if (session && !oauthError) return <Navigate to={next} replace />
+  // A guest stays here: logging in to another account is a choice they can make.
+  if (session && !isGuest && !oauthError) return <Navigate to={next} replace />
 
   const errorFor = (field: AuthProblem["field"]) =>
     problem?.field === field ? problem.message : undefined
 
   return (
     <AuthLayout title="Welcome back" description="Log in to your account">
+      {isGuest && (
+        <p className="text-muted-foreground text-center text-sm">
+          You&apos;re using Heliosyn as a guest. Logging in to another account leaves your guest work behind.
+        </p>
+      )}
       <OAuthButtons next={next} disabled={busy} initialError={oauthError} />
       <OrDivider />
       <form onSubmit={submit} className="flex flex-col gap-4">
@@ -95,6 +102,7 @@ export function LogInForm() {
           Create account
         </Link>
       </p>
+      {!isGuest && <TryAsGuest />}
     </AuthLayout>
   )
 }

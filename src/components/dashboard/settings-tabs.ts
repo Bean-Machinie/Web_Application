@@ -16,7 +16,15 @@ export const SETTINGS_TABS = [
 
 export type SettingsTab = (typeof SETTINGS_TABS)[number]["id"]
 
-export const SETTINGS_GROUPS = ["Account", "Preferences", "Billing"].map((label) => ({
-  label,
-  tabs: SETTINGS_TABS.filter((tab) => tab.group === label),
-}))
+// A guest has no email or password to secure, and no plan to pay for.
+export const GUEST_HIDDEN: readonly SettingsTab[] = ["security", "billing"]
+
+export const settingsGroups = (isGuest: boolean) =>
+  ["Account", "Preferences", "Billing"]
+    .map((label) => ({
+      label,
+      tabs: SETTINGS_TABS.filter(
+        (tab) => tab.group === label && !(isGuest && GUEST_HIDDEN.includes(tab.id))
+      ),
+    }))
+    .filter((group) => group.tabs.length > 0)

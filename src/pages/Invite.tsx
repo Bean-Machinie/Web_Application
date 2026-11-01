@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { useAuth } from "@/auth/useAuth"
+import { useAccountDialog } from "@/components/auth/useAccountDialog"
 import { errorMessage, joinCampaign } from "@/lib/campaigns"
 import { createAccountPath, logInPath } from "@/lib/auth-next"
 import { campaignPath } from "@/lib/campaign-paths"
@@ -27,6 +28,7 @@ export function Invite() {
   const code = useSearchParams()[0].get("code") ?? ""
   const { session, loading: authLoading } = useAuth()
   const navigate = useNavigate()
+  const { gate } = useAccountDialog()
   const [preview, setPreview] = useState<Preview | null | undefined>(undefined)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -40,7 +42,11 @@ export function Invite() {
       })
   }, [code])
 
-  async function accept() {
+  function accept() {
+    gate("join this campaign", () => void join())
+  }
+
+  async function join() {
     setBusy(true)
     setError(null)
     try {

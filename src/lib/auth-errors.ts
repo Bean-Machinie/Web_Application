@@ -21,6 +21,7 @@ const BY_CODE: Record<string, AuthProblem> = {
   manual_linking_disabled: { field: "form", message: "Connecting accounts isn't turned on yet." },
   identity_already_exists: { field: "form", message: "That account is already connected to another user." },
   single_identity_not_deletable: { field: "form", message: "Connect another account before disconnecting this one." },
+  anonymous_provider_disabled: { field: "form", message: "Guest mode isn't available right now." },
   provider_disabled: { field: "form", message: "That way of logging in isn't available yet." },
 }
 

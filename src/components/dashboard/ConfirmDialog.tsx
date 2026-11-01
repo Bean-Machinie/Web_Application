@@ -17,6 +17,8 @@ type Props = {
   confirmLabel: string
   busy: boolean
   error: string | null
+  // Offered in place of Cancel, such as "Create account" when leaving a guest session.
+  alternative?: { label: string; onClick: () => void }
   onCancel: () => void
   onConfirm: () => void
 }
@@ -34,9 +36,15 @@ export function ConfirmDialog(props: Props) {
         </DialogHeader>
         {error && <FormAlert tone="error">{error}</FormAlert>}
         <DialogFooter>
-          <Button variant="outline" onClick={props.onCancel} disabled={busy}>
-            Cancel
-          </Button>
+          {props.alternative ? (
+            <Button variant="outline" onClick={props.alternative.onClick} disabled={busy}>
+              {props.alternative.label}
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={props.onCancel} disabled={busy}>
+              Cancel
+            </Button>
+          )}
           <Button variant="destructive" onClick={props.onConfirm} disabled={busy}>
             {busy && <Loader2 className="size-4 animate-spin" />}
             {confirmLabel}
