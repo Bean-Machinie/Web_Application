@@ -8,11 +8,13 @@ import { AuthContext } from './AuthContext'
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  const [username, setUsername] = useState('')
+  // Tagged with whose it is, so a stale name is never shown for the next person.
+  const [profile, setProfile] = useState<{ userId: string; username: string }>()
   const userId = session?.user.id
+  const mine = profile?.userId === userId ? profile : undefined
 
   const refreshUsername = useCallback(async () => {
-    setUsername(userId ? await fetchOwnUsername(userId) : '')
+    if (userId) setProfile({ userId, username: await fetchOwnUsername(userId) })
   }, [userId])
 
   useEffect(() => {
@@ -30,11 +32,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Outside onAuthStateChange, where awaiting a Supabase call can deadlock.
   useEffect(() => {
-    refreshUsername().catch(() => {})
-  }, [refreshUsername])
+    // A failed lookup still counts as done, so the app is not held up.
+    refreshUsername().catch(() => userId && setProfile({ userId, username: '' }))
+  }, [refreshUsername, userId])
 
   return (
-    <AuthContext.Provider value={{ session, loading, username, refreshUsername }}>
+    <AuthContext.Provider value={{
+        session,
+        loading,
+        username: mine?.username ?? '',
+        profileReady: !!mine,
+        refreshUsername,
+      }}>
       {children}
     </AuthContext.Provider>
   )

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { Navigate, useLocation } from "react-router-dom"
-import { Loader2 } from "lucide-react"
+import { FullScreenSpinner } from "@/components/FullScreenSpinner"
 import { signInPath } from "@/lib/auth-next"
 import { useAuth } from "./useAuth"
 
@@ -9,11 +9,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   const location = useLocation()
 
   if (loading) {
-    return (
-      <div className="flex min-h-svh items-center justify-center">
-        <Loader2 className="text-muted-foreground size-5 animate-spin" />
-      </div>
-    )
+    return <FullScreenSpinner />
   }
 
   if (!session) {

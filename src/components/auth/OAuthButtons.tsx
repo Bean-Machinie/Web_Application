@@ -16,7 +16,10 @@ export function OAuthButtons({ next, disabled, initialError }: Props) {
     setError(undefined)
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: oauthReturnUrl(next, provider) },
+      options: {
+        redirectTo: oauthReturnUrl(next, provider),
+        ...(provider === "discord" && { queryParams: { prompt: "none" } }),
+      },
     })
     if (error) setError(authProblem(error).message)
   }
