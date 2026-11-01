@@ -1,20 +1,21 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
+import { EMPTY_PROFILE, fetchOwnProfile } from '@/lib/profile'
+import type { OwnProfile } from '@/lib/profile'
 import { supabase } from '@/lib/supabase'
-import { fetchOwnUsername } from '@/lib/username'
 import { AuthContext } from './AuthContext'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  // Tagged with whose it is, so a stale name is never shown for the next person.
-  const [profile, setProfile] = useState<{ userId: string; username: string }>()
+  // Tagged with whose it is, so a stale profile is never shown for the next person.
+  const [loaded, setLoaded] = useState<{ userId: string; profile: OwnProfile }>()
   const userId = session?.user.id
-  const mine = profile?.userId === userId ? profile : undefined
+  const mine = loaded?.userId === userId ? loaded : undefined
 
-  const refreshUsername = useCallback(async () => {
-    if (userId) setProfile({ userId, username: await fetchOwnUsername(userId) })
+  const refreshProfile = useCallback(async () => {
+    if (userId) setLoaded({ userId, profile: await fetchOwnProfile(userId) })
   }, [userId])
 
   useEffect(() => {
@@ -33,17 +34,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Outside onAuthStateChange, where awaiting a Supabase call can deadlock.
   useEffect(() => {
     // A failed lookup still counts as done, so the app is not held up.
-    refreshUsername().catch(() => userId && setProfile({ userId, username: '' }))
-  }, [refreshUsername, userId])
+    refreshProfile().catch(() => userId && setLoaded({ userId, profile: EMPTY_PROFILE }))
+  }, [refreshProfile, userId])
 
   return (
-    <AuthContext.Provider value={{
+    <AuthContext.Provider
+      value={{
         session,
         loading,
-        username: mine?.username ?? '',
+        profile: mine?.profile ?? EMPTY_PROFILE,
         profileReady: !!mine,
-        refreshUsername,
-      }}>
+        refreshProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

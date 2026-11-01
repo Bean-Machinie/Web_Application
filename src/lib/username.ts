@@ -20,19 +20,6 @@ export async function setUsername(username: string) {
   if (error) throw error
 }
 
-// The signed-in person's own name. It is read from the profile row, never from
-// user metadata, which the person can edit.
-export async function fetchOwnUsername(userId: string) {
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("username")
-    .eq("id", userId)
-    .maybeSingle()
-  if (error) throw error
-
-  return data?.username ?? ""
-}
-
 // Callable before signing in, so the create account form can check first.
 export async function isUsernameAvailable(username: string) {
   const { data, error } = await supabase.rpc("username_available", {

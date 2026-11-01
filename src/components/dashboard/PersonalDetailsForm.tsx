@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useAuth } from "@/auth/useAuth"
 import { NO_AVATAR_CHANGE, hasAvatarChange } from "@/lib/avatar"
 import { errorMessage } from "@/lib/campaigns"
-import { getInitials, getProfile } from "@/lib/profile"
+import { getInitials } from "@/lib/profile"
 import { saveProfile } from "@/lib/save-profile"
 import { normalizeUsername } from "@/lib/username"
 import { AboutField } from "./AboutField"
@@ -13,9 +13,10 @@ import { UsernameSection } from "./UsernameSection"
 import { useSettingsForm, useSettingsNotice } from "./settings-form"
 
 export function PersonalDetailsForm() {
-  const { session, username, refreshUsername } = useAuth()
-  const user = session!.user
-  const { description, email, avatarUrl } = getProfile(user)
+  const { session, profile, refreshProfile } = useAuth()
+  const { username, description, avatarUrl } = profile
+  const userId = session!.user.id
+  const email = session!.user.email ?? ""
   // null until the person edits a field, so it shows what is saved meanwhile
   // (and again once a save has come back).
   const [usernameInput, setUsernameInput] = useState<string | null>(null)
@@ -43,8 +44,9 @@ export function PersonalDetailsForm() {
 
     try {
       await saveProfile({
-        user,
-        description: descriptionInput ?? description,
+        userId,
+        current: profile,
+        description: descriptionChanged ? descriptionInput!.trim() : null,
         username: usernameChanged ? usernameInput : null,
         avatar,
       })
@@ -53,7 +55,7 @@ export function PersonalDetailsForm() {
       return notify({ tone: "error", text: errorMessage(error) })
     }
 
-    await refreshUsername().catch(() => {})
+    await refreshProfile().catch(() => {})
     setBusy(false)
     reset()
     notify({ tone: "success", text: "Your details have been saved." })

@@ -1,4 +1,3 @@
-import type { User } from "@supabase/supabase-js"
 import { supabase } from "@/lib/supabase"
 
 const BUCKET = "avatars"
@@ -12,10 +11,6 @@ export const NO_AVATAR_CHANGE: AvatarChange = { file: null, remove: false }
 
 export const hasAvatarChange = (change: AvatarChange) =>
   change.file !== null || change.remove
-
-function storedPath(user: User) {
-  return (user.user_metadata as { avatar_path?: string }).avatar_path
-}
 
 // Uploads into "<folder>/<timestamp>.<ext>" and returns where it went.
 export async function uploadImage(
@@ -44,15 +39,14 @@ export async function deleteImage(bucket: string, path?: string | null) {
   if (path) await supabase.storage.from(bucket).remove([path])
 }
 
-// Uploads the new file (if any) and returns the metadata to save with the
-// rest of the profile. Nothing is deleted until the metadata is saved.
-export async function uploadPendingAvatar(user: User, change: AvatarChange) {
-  if (change.remove) return { avatar_url: null, avatar_path: null }
-  if (!change.file) return {}
+// Uploads the new file, if there is one, and returns the path to save: a string for a new
+// photo, null to remove it, undefined for no change. The database makes the URL from the
+// path. Nothing is deleted until the path is saved.
+export async function uploadPendingAvatar(userId: string, change: AvatarChange) {
+  if (change.remove) return null
+  if (!change.file) return undefined
 
-  const { url, path } = await uploadImage(BUCKET, user.id, change.file)
-  return { avatar_url: url, avatar_path: path }
+  return (await uploadImage(BUCKET, userId, change.file)).path
 }
 
-export const deletePreviousAvatar = (user: User) =>
-  deleteImage(BUCKET, storedPath(user))
+export const deleteAvatarFile = (path?: string | null) => deleteImage(BUCKET, path)

@@ -1,15 +1,35 @@
-import type { User } from "@supabase/supabase-js"
+import { supabase } from "@/lib/supabase"
 
-// A person's own details, read from their Supabase user metadata so they are
-// available without a lookup. The username is not among them: it lives in the
-// profiles table (see useAuth), because metadata is editable by the person.
-export function getProfile(user: User) {
-  const meta = user.user_metadata as Record<string, string | undefined>
+// A person's own details, from the profiles table. User metadata is editable by the
+// person, and providers rewrite parts of it on every login, so nothing is read from it.
+export type OwnProfile = {
+  username: string
+  avatarUrl: string
+  avatarPath: string | null
+  description: string
+}
+
+export const EMPTY_PROFILE: OwnProfile = {
+  username: "",
+  avatarUrl: "",
+  avatarPath: null,
+  description: "",
+}
+
+export async function fetchOwnProfile(userId: string): Promise<OwnProfile> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("username, avatar_url, avatar_path, description")
+    .eq("id", userId)
+    .maybeSingle()
+  if (error) throw error
+  if (!data) return EMPTY_PROFILE
 
   return {
-    description: meta.description ?? "",
-    email: user.email ?? "",
-    avatarUrl: meta.avatar_url ?? "",
+    username: data.username ?? "",
+    avatarUrl: data.avatar_url ?? "",
+    avatarPath: data.avatar_path,
+    description: data.description ?? "",
   }
 }
 

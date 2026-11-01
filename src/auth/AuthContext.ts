@@ -1,20 +1,22 @@
 import { createContext } from 'react'
 import type { Session } from '@supabase/supabase-js'
+import { EMPTY_PROFILE } from '@/lib/profile'
+import type { OwnProfile } from '@/lib/profile'
 
 export type AuthState = {
   session: Session | null
   loading: boolean
-  // From the profiles table; empty until loaded, or when none is set.
-  username: string
-  // False until the name has been looked up, so screens can wait for it.
+  // From the profiles table; empty until loaded.
+  profile: OwnProfile
+  // False until the profile has been looked up, so screens can wait for it.
   profileReady: boolean
-  refreshUsername: () => Promise<void>
+  refreshProfile: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthState>({
   session: null,
   loading: true,
-  username: "",
+  profile: EMPTY_PROFILE,
   profileReady: false,
-  refreshUsername: async () => {},
+  refreshProfile: async () => {},
 })
