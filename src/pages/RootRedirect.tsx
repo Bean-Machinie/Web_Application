@@ -7,5 +7,5 @@ export function RootRedirect() {
   const { session, loading } = useAuth()
 
   if (loading) return <FullScreenSpinner />
-  return <Navigate to={session ? APP_HOME : "/sign-in"} replace />
+  return <Navigate to={session ? APP_HOME : "/log-in"} replace />
 }

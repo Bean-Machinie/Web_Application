@@ -3,7 +3,6 @@ import { useAuth } from "@/auth/useAuth"
 import { supabase } from "@/lib/supabase"
 import { PasswordField } from "./PasswordField"
 import { PasswordStrength } from "./PasswordStrength"
-import { SettingsCard } from "./SettingsCard"
 import { SettingsHelp, SettingsRow } from "./SettingsRow"
 import { useSettingsForm, useSettingsNotice } from "./settings-form"
 
@@ -63,21 +62,19 @@ export function PasswordForm() {
         event.preventDefault()
         if (dirty && !busy) void save()
       }}
-      className="grid gap-4"
+      className="divide-y"
     >
-      <SettingsCard>
-        <SettingsRow width="field" title="Current password" description="To confirm it's you.">
-          <PasswordField label="Current password" autoComplete="current-password" value={current} onChange={setCurrent} disabled={busy} />
-        </SettingsRow>
-        <SettingsRow width="field" title="New password" description="What you'll sign in with.">
-          <PasswordField label="New password" autoComplete="new-password" value={password} onChange={setPassword} disabled={busy} />
-          <PasswordStrength password={password} minLength={MIN_LENGTH} />
-          <SettingsHelp>At least {MIN_LENGTH} characters. Mix cases, digits and symbols for a stronger one.</SettingsHelp>
-        </SettingsRow>
-        <SettingsRow width="field" title="Confirm password" description="Type the new one again.">
-          <PasswordField label="Confirm new password" autoComplete="new-password" value={confirm} onChange={setConfirm} disabled={busy} />
-        </SettingsRow>
-      </SettingsCard>
+      <SettingsRow width="field" title="Current password" description="To confirm it's you.">
+        <PasswordField label="Current password" autoComplete="current-password" value={current} onChange={setCurrent} disabled={busy} />
+      </SettingsRow>
+      <SettingsRow width="field" title="New password" description="What you'll log in with.">
+        <PasswordField label="New password" autoComplete="new-password" value={password} onChange={setPassword} disabled={busy} />
+        <PasswordStrength password={password} minLength={MIN_LENGTH} />
+        <SettingsHelp>At least {MIN_LENGTH} characters. Mix cases, digits and symbols for a stronger one.</SettingsHelp>
+      </SettingsRow>
+      <SettingsRow width="field" title="Confirm password" description="Type the new one again.">
+        <PasswordField label="Confirm new password" autoComplete="new-password" value={confirm} onChange={setConfirm} disabled={busy} />
+      </SettingsRow>
     </form>
   )
 }

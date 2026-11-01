@@ -52,8 +52,8 @@ export function ForgotPasswordForm() {
         <SubmitButton busy={busy}>Send reset link</SubmitButton>
       </form>
       <p className="text-center text-sm">
-        <Link to="/sign-in" className="text-muted-foreground underline underline-offset-4">
-          Back to sign in
+        <Link to="/log-in" className="text-muted-foreground underline underline-offset-4">
+          Back to log in
         </Link>
       </p>
     </AuthLayout>

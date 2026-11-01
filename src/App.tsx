@@ -13,8 +13,10 @@ import { CharacterStartRoute } from "@/pages/CharacterStart"
 import { CharacterSheetPage } from "@/pages/CharacterSheet"
 import { Characters } from "@/pages/Characters"
 import { Create } from "@/pages/Create"
+import { CreateAccount } from "@/pages/CreateAccount"
 import { ForgotPassword } from "@/pages/ForgotPassword"
 import { Invite } from "@/pages/Invite"
+import { LegacyAuthRedirect } from "@/pages/LegacyAuthRedirect"
 import { JoinCampaign } from "@/pages/JoinCampaign"
 import { Legal } from "@/pages/Legal"
 import { Library } from "@/pages/Library"
@@ -25,8 +27,7 @@ import { Party } from "@/pages/Party"
 import { ResetPassword } from "@/pages/ResetPassword"
 import { RootRedirect } from "@/pages/RootRedirect"
 import { Sessions } from "@/pages/Sessions"
-import { SignIn } from "@/pages/SignIn"
-import { SignUp } from "@/pages/SignUp"
+import { LogIn } from "@/pages/LogIn"
 import { SettingsRedirect } from "@/pages/SettingsRedirect"
 import { Support } from "@/pages/Support"
 import { World } from "@/pages/World"
@@ -36,8 +37,12 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<RootRedirect />} />
-      <Route path="/sign-in" element={<SignIn />} />
-      <Route path="/sign-up" element={<SignUp />} />
+      <Route path="/log-in" element={<LogIn />} />
+      <Route path="/create-account" element={<CreateAccount />} />
+      <Route path="/sign-in" element={<LegacyAuthRedirect to="/log-in" />} />
+      <Route path="/login" element={<LegacyAuthRedirect to="/log-in" />} />
+      <Route path="/sign-up" element={<LegacyAuthRedirect to="/create-account" />} />
+      <Route path="/signup" element={<LegacyAuthRedirect to="/create-account" />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/invite" element={<Invite />} />

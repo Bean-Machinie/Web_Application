@@ -1,5 +1,5 @@
-import { SignUpForm } from "@/components/auth/SignUpForm"
+import { CreateAccountForm } from "@/components/auth/CreateAccountForm"
 
-export function SignUp() {
-  return <SignUpForm />
+export function CreateAccount() {
+  return <CreateAccountForm />
 }

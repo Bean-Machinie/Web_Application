@@ -8,7 +8,7 @@ import shieldLock from "@/assets/icons/shield-lock.svg"
 
 export const SETTINGS_TABS = [
   { id: "profile", group: "Account", label: "Profile", description: "Your photo and the details others see.", icon: settings },
-  { id: "password", group: "Account", label: "Password", description: "Choose a new password for your account.", icon: shieldLock },
+  { id: "security", group: "Account", label: "Security", description: "Your email, password and the accounts you can log in with.", icon: shieldLock },
   { id: "appearance", group: "Preferences", label: "Appearance", description: "Choose how the workspace looks on this device.", icon: desktop },
   { id: "notifications", group: "Preferences", label: "Notifications", description: "Invitations and campaign updates.", icon: bell },
   { id: "billing", group: "Billing", label: "Billing", description: "Your plan, payment method and invoices.", icon: file },

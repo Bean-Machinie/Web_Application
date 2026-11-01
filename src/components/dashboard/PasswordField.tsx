@@ -30,6 +30,8 @@ export function PasswordField({ id, label, value, onChange, disabled, autoComple
       />
       <button
         type="button"
+        // Tab moves on to the next field, not to the eye.
+        tabIndex={-1}
         aria-label={shown ? "Hide password" : "Show password"}
         aria-pressed={shown}
         onClick={() => setShown((now) => !now)}

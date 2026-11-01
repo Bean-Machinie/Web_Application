@@ -1,18 +1,17 @@
 import { useState } from "react"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
-import { AuthField } from "@/components/auth/AuthField"
 import { AuthLayout } from "@/components/auth/AuthLayout"
 import { CheckEmail } from "@/components/auth/CheckEmail"
+import { CreateAccountFields } from "@/components/auth/CreateAccountFields"
+import type { AccountValues } from "@/components/auth/CreateAccountFields"
+import { EmailReveal } from "@/components/auth/EmailReveal"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { OAuthButtons } from "@/components/auth/OAuthButtons"
 import { OrDivider } from "@/components/auth/OrDivider"
-import { SubmitButton } from "@/components/auth/SubmitButton"
-import { PasswordField } from "@/components/dashboard/PasswordField"
-import { PasswordStrength } from "@/components/dashboard/PasswordStrength"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { authProblem } from "@/lib/auth-errors"
 import type { AuthProblem } from "@/lib/auth-errors"
-import { safeNext, signInPath } from "@/lib/auth-next"
+import { logInPath, safeNext } from "@/lib/auth-next"
 import { errorMessage } from "@/lib/campaigns"
 import { PASSWORD_MIN_LENGTH } from "@/lib/password-strength"
 import { supabase } from "@/lib/supabase"
@@ -25,10 +24,9 @@ import {
 
 type Problem = { field: AuthProblem["field"] | "username"; message: string }
 
-export function SignUpForm() {
-  const [username, setUsername] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+export function CreateAccountForm() {
+  const [values, setValues] = useState<AccountValues>({ username: "", email: "", password: "" })
+  const [withEmail, setWithEmail] = useState(false)
   const [problem, setProblem] = useState<Problem>()
   const [busy, setBusy] = useState(false)
   const [sentTo, setSentTo] = useState<string>()
@@ -38,6 +36,7 @@ export function SignUpForm() {
   const redirectTo = `${window.location.origin}${next}`
 
   async function register(): Promise<Problem | undefined> {
+    const { username, email, password } = values
     if (!isValidUsername(username)) return { field: "username", message: USERNAME_HINT }
     if (password.length < PASSWORD_MIN_LENGTH) {
       return { field: "password", message: `Use at least ${PASSWORD_MIN_LENGTH} characters.` }
@@ -58,7 +57,7 @@ export function SignUpForm() {
     if (error) return authProblem(error)
     // With confirmation on, Supabase hides existing accounts by returning no identities.
     if (data.user?.identities?.length === 0) {
-      return { field: "email", message: "An account with this email already exists. Try signing in." }
+      return { field: "email", message: "An account with this email already exists. Try logging in." }
     }
     if (data.session) navigate(next, { replace: true })
     else setSentTo(email)
@@ -90,49 +89,30 @@ export function SignUpForm() {
     <AuthLayout title="Create your account" description="Start building your world">
       <OAuthButtons next={next} disabled={busy} />
       <OrDivider />
-      <form onSubmit={submit} className="flex flex-col gap-4">
-        <AuthField id="username" label="Display name" error={errorFor("username")}>
-          <Input
-            id="username"
-            autoComplete="username"
-            spellCheck={false}
-            required
-            maxLength={50}
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            disabled={busy}
+      {withEmail ? (
+        <EmailReveal>
+          <CreateAccountFields
+            values={values}
+            onChange={(field, value) => setValues((now) => ({ ...now, [field]: value }))}
+            errors={{
+              username: errorFor("username"),
+              email: errorFor("email"),
+              password: errorFor("password"),
+            }}
+            busy={busy}
+            onSubmit={submit}
           />
-        </AuthField>
-        <AuthField id="email" label="Email" error={errorFor("email")}>
-          <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            disabled={busy}
-          />
-        </AuthField>
-        <AuthField id="password" label="Password" error={errorFor("password")}>
-          <PasswordField
-            id="password"
-            label="Password"
-            autoComplete="new-password"
-            value={password}
-            onChange={setPassword}
-            disabled={busy}
-          />
-          <PasswordStrength password={password} minLength={PASSWORD_MIN_LENGTH} />
-        </AuthField>
-        {errorFor("form") && <FormAlert tone="error">{errorFor("form")!}</FormAlert>}
-        <SubmitButton busy={busy}>Create account</SubmitButton>
-      </form>
+        </EmailReveal>
+      ) : (
+        <Button variant="outline" className="w-full" onClick={() => setWithEmail(true)}>
+          Continue with email
+        </Button>
+      )}
+      {errorFor("form") && <FormAlert tone="error">{errorFor("form")!}</FormAlert>}
       <p className="text-muted-foreground text-center text-sm">
         Already have an account?{" "}
-        <Link to={signInPath(rawNext ?? undefined)} className="text-foreground underline underline-offset-4">
-          Sign in
+        <Link to={logInPath(rawNext ?? undefined)} className="text-foreground underline underline-offset-4">
+          Log in
         </Link>
       </p>
     </AuthLayout>

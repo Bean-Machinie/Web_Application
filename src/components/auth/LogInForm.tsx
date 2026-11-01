@@ -11,11 +11,11 @@ import { PasswordField } from "@/components/dashboard/PasswordField"
 import { Input } from "@/components/ui/input"
 import { authProblem } from "@/lib/auth-errors"
 import type { AuthProblem } from "@/lib/auth-errors"
-import { safeNext, signUpPath } from "@/lib/auth-next"
+import { safeNext, createAccountPath } from "@/lib/auth-next"
 import { readOAuthError, withoutOAuthError } from "@/lib/oauth-error"
 import { supabase } from "@/lib/supabase"
 
-export function SignInForm() {
+export function LogInForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [problem, setProblem] = useState<AuthProblem>()
@@ -51,7 +51,7 @@ export function SignInForm() {
     problem?.field === field ? problem.message : undefined
 
   return (
-    <AuthLayout title="Welcome back" description="Sign in to your account">
+    <AuthLayout title="Welcome back" description="Log in to your account">
       <OAuthButtons next={next} disabled={busy} initialError={oauthError} />
       <OrDivider />
       <form onSubmit={submit} className="flex flex-col gap-4">
@@ -87,12 +87,12 @@ export function SignInForm() {
           />
         </AuthField>
         {errorFor("form") && <FormAlert tone="error">{errorFor("form")!}</FormAlert>}
-        <SubmitButton busy={busy}>Sign in</SubmitButton>
+        <SubmitButton busy={busy}>Log in</SubmitButton>
       </form>
       <p className="text-muted-foreground text-center text-sm">
-        Don&apos;t have an account?{" "}
-        <Link to={signUpPath(rawNext ?? undefined)} className="text-foreground underline underline-offset-4">
-          Sign up
+        New to Heliosyn?{" "}
+        <Link to={createAccountPath(rawNext ?? undefined)} className="text-foreground underline underline-offset-4">
+          Create account
         </Link>
       </p>
     </AuthLayout>

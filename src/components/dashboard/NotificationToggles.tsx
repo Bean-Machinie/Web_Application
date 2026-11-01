@@ -1,7 +1,7 @@
 import { Switch } from "@/components/ui/switch"
 import { useNotificationPrefs } from "@/hooks/use-notification-prefs"
 import type { NotificationPref } from "@/hooks/use-notification-prefs"
-import { SettingsCard } from "./SettingsCard"
+import { SettingsGroup } from "./SettingsGroup"
 import { SettingsRow } from "./SettingsRow"
 
 const GROUPS: { label: string; items: { pref: NotificationPref; title: string; description: string }[] }[] = [
@@ -30,22 +30,19 @@ export function NotificationToggles() {
   const { prefs, set } = useNotificationPrefs()
 
   return (
-    <div className="grid gap-8">
+    <div className="flex flex-col gap-10">
       {GROUPS.map((group) => (
-        <section key={group.label}>
-          <h4 className="mb-1 text-sm font-semibold">{group.label}</h4>
-          <SettingsCard>
-            {group.items.map(({ pref, title, description }) => (
-              <SettingsRow key={pref} title={title} description={description}>
-                <Switch
-                  aria-label={title}
-                  checked={prefs[pref]}
-                  onCheckedChange={(on) => set(pref, on)}
-                />
-              </SettingsRow>
-            ))}
-          </SettingsCard>
-        </section>
+        <SettingsGroup key={group.label} title={group.label}>
+          {group.items.map(({ pref, title, description }) => (
+            <SettingsRow key={pref} center title={title} description={description}>
+              <Switch
+                aria-label={title}
+                checked={prefs[pref]}
+                onCheckedChange={(on) => set(pref, on)}
+              />
+            </SettingsRow>
+          ))}
+        </SettingsGroup>
       ))}
     </div>
   )

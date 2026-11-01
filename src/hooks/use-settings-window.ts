@@ -14,7 +14,9 @@ const isTab = (value: string): value is SettingsTab => SETTINGS_TABS.some((tab) 
 export function useSettingsWindow() {
   const location = useLocation()
   const navigate = useNavigate()
-  const raw = new URLSearchParams(location.search).get(PARAM)
+  const param = new URLSearchParams(location.search).get(PARAM)
+  // The Password tab is now Security; old links still land there.
+  const raw = param === "password" ? "security" : param
   const tab: SettingsTab | null = raw === null ? null : isTab(raw) ? raw : "profile"
   const state = location.state as { settingsWindow?: boolean } | null
 

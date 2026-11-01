@@ -358,3 +358,13 @@
 .map-placing .leaflet-marker-icon {
   cursor: none !important;
 }
+
+/* Chrome paints autofilled fields with its own opaque background and colour.
+   Holding the background transition for good keeps the normal input look. */
+.auth-form input:-webkit-autofill,
+.auth-form input:-webkit-autofill:hover,
+.auth-form input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--foreground);
+  caret-color: var(--foreground);
+  transition: background-color 600000s 0s, color 600000s 0s;
+}

@@ -7,7 +7,7 @@ import { saveProfile } from "@/lib/save-profile"
 import { normalizeUsername } from "@/lib/username"
 import { AboutField } from "./AboutField"
 import { PhotoField } from "./PhotoField"
-import { SettingsCard } from "./SettingsCard"
+import { SettingsGroup } from "./SettingsGroup"
 import { SettingsRow } from "./SettingsRow"
 import { UsernameSection } from "./UsernameSection"
 import { useSettingsForm, useSettingsNotice } from "./settings-form"
@@ -67,10 +67,10 @@ export function PersonalDetailsForm() {
         event.preventDefault()
         if (dirty && !busy) void save()
       }}
-      className="grid gap-4"
+      className="flex flex-col gap-10"
     >
-      <SettingsCard flush>
-        <SettingsRow first width="wide" title="Your photo" description="This will be displayed on your profile.">
+      <SettingsGroup title="Public profile">
+        <SettingsRow width="wide" title="Your photo" description="This will be displayed on your profile.">
           <PhotoField
             change={avatar}
             onChange={setAvatar}
@@ -84,17 +84,19 @@ export function PersonalDetailsForm() {
           onChange={setUsernameInput}
           disabled={busy}
         />
-        <SettingsRow center width="wide" title="Email">
-          <p className="flex h-8 items-center text-sm">
-            <span className="truncate">{email}</span>
-          </p>
-        </SettingsRow>
         <AboutField
           value={descriptionInput ?? description}
           onChange={setDescriptionInput}
           disabled={busy}
         />
-      </SettingsCard>
+      </SettingsGroup>
+      <SettingsGroup title="Account">
+        <SettingsRow center width="wide" title="Email">
+          <p className="flex h-8 items-center text-sm">
+            <span className="truncate">{email}</span>
+          </p>
+        </SettingsRow>
+      </SettingsGroup>
     </form>
   )
 }

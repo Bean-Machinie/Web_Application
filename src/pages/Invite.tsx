@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card"
 import { useAuth } from "@/auth/useAuth"
 import { errorMessage, joinCampaign } from "@/lib/campaigns"
-import { signInPath, signUpPath } from "@/lib/auth-next"
+import { createAccountPath, logInPath } from "@/lib/auth-next"
 import { campaignPath } from "@/lib/campaign-paths"
 import { fetchInvitePreview } from "@/lib/invitations"
 
@@ -102,12 +102,12 @@ export function Invite() {
                 Create an account to accept, or log in if you already have one.
               </p>
               <Button asChild>
-                <Link to={signUpPath(here)}>
+                <Link to={createAccountPath(here)}>
                   Create an account
                 </Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to={signInPath(here)}>
+                <Link to={logInPath(here)}>
                   Log in
                 </Link>
               </Button>

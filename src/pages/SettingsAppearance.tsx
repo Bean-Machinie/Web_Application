@@ -1,4 +1,4 @@
-import { SettingsCard } from "@/components/dashboard/SettingsCard"
+import { SettingsGroup } from "@/components/dashboard/SettingsGroup"
 import { SettingsRow } from "@/components/dashboard/SettingsRow"
 import { ThemeOptionCard } from "@/components/dashboard/ThemeOptionCard"
 import { useTheme } from "@/theme/useTheme"
@@ -15,8 +15,8 @@ export function SettingsAppearance() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <SettingsCard>
-      <SettingsRow width="wide" title="Theme" description="System follows your device.">
+    <SettingsGroup title="Theme">
+      <SettingsRow width="wide" title="Interface theme" description="System follows your device.">
         <div role="radiogroup" aria-label="Interface theme" className="grid grid-cols-3 gap-3">
           {options.map((option) => (
             <ThemeOptionCard
@@ -29,6 +29,6 @@ export function SettingsAppearance() {
           ))}
         </div>
       </SettingsRow>
-    </SettingsCard>
+    </SettingsGroup>
   )
 }

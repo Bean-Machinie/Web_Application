@@ -8,17 +8,17 @@ export function safeNext(next: string | null) {
   return next
 }
 
-export function signInPath(next?: string) {
-  return next ? `/sign-in?next=${encodeURIComponent(next)}` : "/sign-in"
+export function logInPath(next?: string) {
+  return next ? `/log-in?next=${encodeURIComponent(next)}` : "/log-in"
 }
 
-export function signUpPath(next?: string) {
-  return next ? `/sign-up?next=${encodeURIComponent(next)}` : "/sign-up"
+export function createAccountPath(next?: string) {
+  return next ? `/create-account?next=${encodeURIComponent(next)}` : "/create-account"
 }
 
-// Where a provider sends people back to. It is the sign-in page so a failure
+// Where a provider sends people back to. It is the log in page so a failure
 // can be shown there; a success is passed straight on to `next` from it.
 export function oauthReturnUrl(next: string, provider: string) {
   const params = new URLSearchParams({ next, provider })
-  return `${window.location.origin}/sign-in?${params}`
+  return `${window.location.origin}/log-in?${params}`
 }

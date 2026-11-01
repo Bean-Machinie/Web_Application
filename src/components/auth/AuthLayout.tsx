@@ -11,7 +11,7 @@ type Props = {
 export function AuthLayout({ title, description, children }: Props) {
   return (
     <div className="grid min-h-svh md:grid-cols-2">
-      <div className="flex items-center justify-center p-6">
+      <div className="auth-form flex items-center justify-center p-6">
         <div className="flex w-full max-w-sm flex-col gap-6">
           <BrandLogo />
           <div className="flex flex-col gap-1 text-center">

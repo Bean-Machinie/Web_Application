@@ -33,7 +33,7 @@ export async function fetchOwnUsername(userId: string) {
   return data?.username ?? ""
 }
 
-// Callable before signing in, so the sign-up form can check first.
+// Callable before signing in, so the create account form can check first.
 export async function isUsernameAvailable(username: string) {
   const { data, error } = await supabase.rpc("username_available", {
     candidate: username,
