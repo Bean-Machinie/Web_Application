@@ -18,6 +18,8 @@
 - Do not refactor or reformat code outside the task.
 - Ask before creating new folders or adding dependencies.
 - Read DESIGN.md before any UI work, once it exists.
+- Guests (is_anonymous) can't use shared features. Any new function that creates or joins
+  campaigns, invites, publishes or uploads must call deny_guest first.
 
 ## Character builder conventions
 Shared code lives in one place each. New code uses it; do not write a local copy.
