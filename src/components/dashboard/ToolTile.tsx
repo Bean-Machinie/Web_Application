@@ -1,3 +1,4 @@
+import { ArrowUpRight } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
@@ -13,8 +14,8 @@ type Props = {
 
 // A tool as a square picture, like a card in an app store: its icon and name at the
 // bottom left, on a fade so they read over any picture. The whole tile is one button.
-// On hover or focus the picture grows a little inside its frame and the frame takes a
-// ring in the primary colour.
+// On hover or focus the picture grows a little inside its frame, the frame takes a
+// ring in the primary colour and an "Open" chip shows at the corner.
 export function ToolTile({ name, description, icon: ToolIcon, image, onOpen }: Props) {
   return (
     <Tooltip>
@@ -22,7 +23,7 @@ export function ToolTile({ name, description, icon: ToolIcon, image, onOpen }: P
         <button
           type="button"
           onClick={onOpen}
-          className="group/tile bg-muted focus-visible:border-primary focus-visible:ring-primary hover:border-primary hover:ring-primary relative block aspect-square w-[280px] max-w-full overflow-hidden rounded-lg border text-left outline-none transition-[border-color,box-shadow] duration-150 hover:ring-1 focus-visible:ring-1"
+          className="group/tile bg-muted focus-visible:border-primary focus-visible:ring-primary hover:border-primary hover:ring-primary relative block aspect-square w-full overflow-hidden rounded-lg border text-left outline-none transition-[border-color,box-shadow] duration-150 hover:ring-1 focus-visible:ring-1"
         >
           {image && (
             <img
@@ -32,6 +33,10 @@ export function ToolTile({ name, description, icon: ToolIcon, image, onOpen }: P
             />
           )}
           <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/70 to-transparent" />
+          <span className="absolute top-2 right-2 flex h-6 items-center gap-1 rounded-full bg-black/45 px-2 text-xs font-medium text-white opacity-0 transition-opacity duration-200 group-hover/tile:opacity-100 group-focus-visible/tile:opacity-100">
+            Open
+            <ArrowUpRight className="size-3.5" />
+          </span>
           <span className="absolute bottom-3 left-3 flex items-center gap-2">
             <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-black/45 text-white">
               <ToolIcon className="size-3.5" />

@@ -14,7 +14,9 @@ type Props = { kinds: WorldEntryKind[]; onPick: (kind: WorldEntryKind) => void }
 export function CreateEntries({ kinds, onPick }: Props) {
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeading>New entry</SectionHeading>
+      <SectionHeading description="Quickly add a person, creature, place, item or piece of lore to your world.">
+        New entry
+      </SectionHeading>
       <div className="grid grid-cols-3 gap-4 md:grid-cols-5">
         {kinds.map((kind) => {
           const { label, icon: KindIcon } = WORLD_KINDS[kind]
