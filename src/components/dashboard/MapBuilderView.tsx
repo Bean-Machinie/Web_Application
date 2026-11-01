@@ -13,6 +13,7 @@ import type { LoadedScene } from "@/lib/world-map-scenes"
 import { MapBuilder } from "./MapBuilder"
 import { MapBuilderTooSmall } from "./MapBuilderTooSmall"
 import { MapLoader } from "./MapLoader"
+import { usePlainBackground } from "./plain-background"
 import { useWorldScope } from "./useWorldScope"
 
 // Loads what the builder needs and lets in only someone who manages the
@@ -26,6 +27,7 @@ export function MapBuilderView({ entryId }: { entryId: string }) {
   const [sceneError, setSceneError] = useState<string | null>(null)
   const allowed = canManage && entry?.kind === "map"
   const wide = useWideScreen()
+  usePlainBackground()
 
   useEffect(() => {
     if (!allowed) return

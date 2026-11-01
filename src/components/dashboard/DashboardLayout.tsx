@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Outlet } from "react-router-dom"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { readSidebarState } from "@/lib/sidebar-state"
@@ -5,8 +6,12 @@ import { AppSidebar } from "./AppSidebar"
 import { BreadcrumbProvider } from "./BreadcrumbProvider"
 import { CommandPaletteProvider } from "./CommandPaletteProvider"
 import { DashboardHeader } from "./DashboardHeader"
+import { DitherBackground } from "./DitherBackground"
+import { PlainBackgroundContext } from "./plain-background"
 
 export function DashboardLayout() {
+  const [plain, setPlain] = useState(false)
+
   return (
     <SidebarProvider
       defaultOpen={readSidebarState()}
@@ -22,13 +27,17 @@ export function DashboardLayout() {
         {/* min-w-0 all the way down: a flex child is never narrower than its content
             unless told so, and a graph canvas still at its old width would hold the
             page wider than the window after the sidebar opens. */}
-        <SidebarInset className="min-w-0">
-          <BreadcrumbProvider>
-            <DashboardHeader />
-            <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
-              <Outlet />
-            </div>
-          </BreadcrumbProvider>
+        <SidebarInset className="dither-surface min-w-0">
+          {!plain && <DitherBackground />}
+          <PlainBackgroundContext.Provider value={setPlain}>
+            <BreadcrumbProvider>
+              <DashboardHeader />
+              {/* Positioned, so that it paints over the background, which comes first. */}
+              <div className="relative flex min-w-0 flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
+                <Outlet />
+              </div>
+            </BreadcrumbProvider>
+          </PlainBackgroundContext.Provider>
         </SidebarInset>
       </CommandPaletteProvider>
     </SidebarProvider>

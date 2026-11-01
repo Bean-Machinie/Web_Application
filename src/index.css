@@ -368,3 +368,8 @@
   caret-color: var(--foreground);
   transition: background-color 600000s 0s, color 600000s 0s;
 }
+
+/* In the dark theme the cards in the content area let a little of the dither through. */
+.dark .dither-surface {
+    --card: oklch(0.252 0 0 / 0.9);
+}

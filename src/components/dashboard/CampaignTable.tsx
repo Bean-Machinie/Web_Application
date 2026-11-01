@@ -29,7 +29,7 @@ export function CampaignTable({ campaigns, members, sort, onSort, onLeave }: Pro
     onSort(sort.by === by ? { by, dir: sort.dir === "asc" ? "desc" : "asc" } : defaultSort(by))
 
   return (
-    <div className="overflow-hidden rounded-lg border">
+    <div className="bg-card overflow-hidden rounded-lg border">
       <Table>
         <TableHeader className="bg-muted/40">
           <TableRow className="hover:bg-transparent">

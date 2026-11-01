@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react"
 import { useElementSize } from "@/hooks/use-element-size"
 import { cn } from "@/lib/utils"
+import { PlainBackground } from "./PlainBackground"
 
 type Props = {
   // On the left of the toolbar: usually tabs.
@@ -30,6 +31,7 @@ export function CollectionPage({ tabs, actions, bleed, children }: Props) {
         bleed ? "h-[calc(100svh-var(--header-height))] flex-none" : "flex-1"
       )}
     >
+      {bleed && <PlainBackground />}
       {/* Above the content, whatever that lifts (a hovered card), and solid. */}
       <div ref={ref} className="bg-background sticky top-(--header-height) z-30 shrink-0">
         <div className="flex flex-col gap-2 border-b px-4 pt-2 md:h-12 md:flex-row md:items-end md:justify-between md:gap-4 md:px-6 md:pt-0">
