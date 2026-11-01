@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 
 type Props = {
+  id?: string
   label: string
   value: string
   onChange: (value: string) => void
@@ -12,12 +13,13 @@ type Props = {
   autoComplete: "current-password" | "new-password"
 }
 
-export function PasswordField({ label, value, onChange, disabled, autoComplete }: Props) {
+export function PasswordField({ id, label, value, onChange, disabled, autoComplete }: Props) {
   const [shown, setShown] = useState(false)
 
   return (
     <div className="relative">
       <Input
+        id={id}
         aria-label={label}
         type={shown ? "text" : "password"}
         autoComplete={autoComplete}
@@ -31,7 +33,7 @@ export function PasswordField({ label, value, onChange, disabled, autoComplete }
         aria-label={shown ? "Hide password" : "Show password"}
         aria-pressed={shown}
         onClick={() => setShown((now) => !now)}
-        className="text-muted-foreground hover:text-foreground focus-visible:ring-ring absolute top-1/2 right-2 -translate-y-1/2 rounded-sm p-1 outline-none focus-visible:ring-2"
+        className="text-muted-foreground hover:text-foreground focus-visible:ring-ring absolute flex items-center justify-center top-1/2 right-2 -translate-y-1/2 rounded-sm p-1 outline-none focus-visible:ring-2"
       >
         {shown ? <HoverIcon icon={EyeOffIcon} size={16} /> : <Eye className="size-4" />}
       </button>

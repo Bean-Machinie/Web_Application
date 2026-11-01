@@ -12,3 +12,6 @@ export function passwordStrength(password: string, minLength: number) {
   ]
   return Math.max(1, checks.filter(Boolean).length)
 }
+
+// Matches Supabase's default minimum.
+export const PASSWORD_MIN_LENGTH = 6

@@ -92,7 +92,7 @@ export function AccountMenu({ children, side, align, onChoose, beforeLeave }: Pr
           variant="destructive"
           onClick={leaveTo(async () => {
             await supabase.auth.signOut()
-            navigate("/login", { replace: true })
+            navigate("/sign-in", { replace: true })
           })}
         >
           <HoverIcon icon={LogOutIcon} size={16} />

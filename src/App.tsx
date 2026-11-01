@@ -13,19 +13,21 @@ import { CharacterStartRoute } from "@/pages/CharacterStart"
 import { CharacterSheetPage } from "@/pages/CharacterSheet"
 import { Characters } from "@/pages/Characters"
 import { Create } from "@/pages/Create"
-import { Home } from "@/pages/Home"
+import { ForgotPassword } from "@/pages/ForgotPassword"
 import { Invite } from "@/pages/Invite"
 import { JoinCampaign } from "@/pages/JoinCampaign"
 import { Legal } from "@/pages/Legal"
 import { Library } from "@/pages/Library"
-import { Login } from "@/pages/Login"
 import { MapBuild } from "@/pages/MapBuild"
 import { NewCampaign } from "@/pages/NewCampaign"
 import { Overview } from "@/pages/Overview"
 import { Party } from "@/pages/Party"
+import { ResetPassword } from "@/pages/ResetPassword"
+import { RootRedirect } from "@/pages/RootRedirect"
 import { Sessions } from "@/pages/Sessions"
+import { SignIn } from "@/pages/SignIn"
+import { SignUp } from "@/pages/SignUp"
 import { SettingsRedirect } from "@/pages/SettingsRedirect"
-import { Signup } from "@/pages/Signup"
 import { Support } from "@/pages/Support"
 import { World } from "@/pages/World"
 import { WorldEntry } from "@/pages/WorldEntry"
@@ -33,9 +35,11 @@ import { WorldEntry } from "@/pages/WorldEntry"
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route path="/" element={<RootRedirect />} />
+      <Route path="/sign-in" element={<SignIn />} />
+      <Route path="/sign-up" element={<SignUp />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/invite" element={<Invite />} />
       <Route element={<CampaignShell />}>
         <Route path="/app" element={<DashboardLayout />}>

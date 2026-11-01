@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card"
 import { useAuth } from "@/auth/useAuth"
 import { errorMessage, joinCampaign } from "@/lib/campaigns"
+import { signInPath, signUpPath } from "@/lib/auth-next"
 import { campaignPath } from "@/lib/campaign-paths"
 import { fetchInvitePreview } from "@/lib/invitations"
 
@@ -52,7 +53,7 @@ export function Invite() {
 
   if (authLoading || preview === undefined) return <FullScreenSpinner />
 
-  const here = { from: `/invite?code=${encodeURIComponent(code)}` }
+  const here = `/invite?code=${encodeURIComponent(code)}`
 
   return (
     <FullScreenLayout>
@@ -101,12 +102,12 @@ export function Invite() {
                 Create an account to accept, or log in if you already have one.
               </p>
               <Button asChild>
-                <Link to="/signup" state={here}>
+                <Link to={signUpPath(here)}>
                   Create an account
                 </Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to="/login" state={here}>
+                <Link to={signInPath(here)}>
                   Log in
                 </Link>
               </Button>

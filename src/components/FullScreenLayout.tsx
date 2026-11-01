@@ -15,7 +15,7 @@ export function FullScreenLayout({ children }: { children: ReactNode }) {
 
   async function handleSignOut() {
     await supabase.auth.signOut()
-    navigate("/login", { replace: true })
+    navigate("/sign-in", { replace: true })
   }
 
   return (

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { Navigate, useLocation } from "react-router-dom"
 import { Loader2 } from "lucide-react"
+import { signInPath } from "@/lib/auth-next"
 import { useAuth } from "./useAuth"
 
 export function RequireAuth({ children }: { children: ReactNode }) {
@@ -16,7 +17,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   }
 
   if (!session) {
-    return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />
+    return <Navigate to={signInPath(location.pathname + location.search)} replace />
   }
 
   return children
