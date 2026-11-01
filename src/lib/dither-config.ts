@@ -2,12 +2,13 @@
 export type DitherMode = "bayer" | "bayer4" | "bayer2" | "halftone" | "lines" | "crosshatch" | "noise" | "none"
 
 export const DITHER = {
-  waveColor: "#bcbcbc",
+  // A muted slate blue. A neutral grey alternative: "#2a2a2a".
+  waveColor: "#2f3a4f",
   backgroundColor: "#111111",
   ditherMode: "noise" as DitherMode,
   colorNum: 4,
   // The size of a dither cell, in CSS pixels.
-  pixelSize: 3,
+  pixelSize: 4,
   waveSpeed: 0.005,
   waveFrequency: 4.5,
   waveAmplitude: 0.3,

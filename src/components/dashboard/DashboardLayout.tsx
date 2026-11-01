@@ -8,9 +8,11 @@ import { CommandPaletteProvider } from "./CommandPaletteProvider"
 import { DashboardHeader } from "./DashboardHeader"
 import { DitherBackground } from "./DitherBackground"
 import { PlainBackgroundContext } from "./plain-background"
+import { useBackground } from "@/theme/useBackground"
 
 export function DashboardLayout() {
   const [plain, setPlain] = useState(false)
+  const { background } = useBackground()
 
   return (
     <SidebarProvider
@@ -28,7 +30,7 @@ export function DashboardLayout() {
             unless told so, and a graph canvas still at its old width would hold the
             page wider than the window after the sidebar opens. */}
         <SidebarInset className="dither-surface min-w-0">
-          {!plain && <DitherBackground />}
+          {!plain && background !== "off" && <DitherBackground still={background === "still"} />}
           <PlainBackgroundContext.Provider value={setPlain}>
             <BreadcrumbProvider>
               <DashboardHeader />

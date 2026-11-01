@@ -19,7 +19,6 @@ export function CreateTools({ image, onNewMap, onNewCharacter }: Props) {
     {
       name: "Map Maker",
       tagline: "Paint world and region maps",
-      description: "Draw land, paint biomes and place art.",
       icon: MapIcon,
       image,
       onOpen: onNewMap,
@@ -27,7 +26,6 @@ export function CreateTools({ image, onNewMap, onNewCharacter }: Props) {
     {
       name: "Character Creator",
       tagline: "Build a character in minutes",
-      description: "Build a player character.",
       icon: User,
       image: CHARACTER_CREATOR_IMAGE,
       onOpen: onNewCharacter,

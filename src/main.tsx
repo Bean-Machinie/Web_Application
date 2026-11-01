@@ -4,19 +4,22 @@ import { BrowserRouter } from "react-router-dom"
 import "./index.css"
 import App from "./App.tsx"
 import { AuthProvider } from "@/auth/AuthProvider"
+import { BackgroundProvider } from "@/theme/BackgroundProvider"
 import { ThemeProvider } from "@/theme/ThemeProvider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
-      <TooltipProvider>
-        <BrowserRouter>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
+      <BackgroundProvider>
+        <TooltipProvider>
+          <BrowserRouter>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </BackgroundProvider>
     </ThemeProvider>
   </StrictMode>
 )

@@ -1,6 +1,7 @@
 // The second pass of React Bits' Dither, without its palette and transparent modes: it reads the
 // wave texture at one texel per cell, adds the cell's threshold for the chosen dither mode, and
-// rounds to colorNum levels between the background and the wave colour.
+// rounds to colorNum levels between the background and the wave colour. (The quantizing differs
+// from the original's, for a wave colour close to the background: see main.)
 export const DITHER_FRAGMENT = `#version 300 es
 precision highp float;
 precision highp int;
@@ -76,13 +77,12 @@ void main() {
   float t = threshold(cell) - 0.25;
 
   float levels = max(uColorNum, 1.01) - 1.0;
-  float base = dot(uBackground, vec3(0.2126, 0.7152, 0.0722));
-  vec3 offset = (uWave - vec3(base)) * f + t / levels;
-  float luminance = dot(uBackground + offset, vec3(0.2126, 0.7152, 0.0722));
-  offset -= mix(0.2, 0.0, smoothstep(0.45, 0.8, luminance));
-  bool rising = dot(uWave, vec3(0.2126, 0.7152, 0.0722)) >= base;
-  float lower = rising ? 0.0 : -max(uBackground.r, max(uBackground.g, uBackground.b));
-  float upper = rising ? 1.0 - min(uBackground.r, min(uBackground.g, uBackground.b)) : 0.0;
-  offset = floor(clamp(offset, lower, upper) * levels + 0.5) / levels;
-  outColor = vec4(toSrgb(uBackground + offset), 1.0);
+  // The wave value is quantized, then mixed from the background to the wave colour. The original
+  // quantizes the colour itself, in steps of the whole 0-1 range, so a wave colour only a little
+  // lighter than the background never gets over the 0.2 bias and the whole screen rounds to
+  // the background.
+  float v = f + t / levels;
+  v = clamp(v - mix(0.2, 0.0, smoothstep(0.45, 0.8, v)), 0.0, 1.0);
+  float level = floor(v * levels + 0.5) / levels;
+  outColor = vec4(toSrgb(mix(uBackground, uWave, level)), 1.0);
 }`

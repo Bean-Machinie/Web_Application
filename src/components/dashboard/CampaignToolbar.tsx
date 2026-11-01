@@ -21,42 +21,55 @@ type Props = {
   onJoin: () => void
 }
 
+// Each control sits on a solid background, so the page's pattern never shows through its text.
+const SOLID = "bg-background rounded-md"
+
 export function CampaignToolbar(props: Props) {
   const { query, onQuery, role, onRole, sort, onSort, mode, onMode, onJoin } = props
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <InputGroup className="w-full sm:w-56 sm:flex-none">
-        <InputGroupAddon>
-          <HoverIcon icon={SearchIcon} size={16} />
-        </InputGroupAddon>
-        <InputGroupInput
-          value={query}
-          onChange={(event) => onQuery(event.target.value)}
-          placeholder="Search campaigns"
-          aria-label="Search campaigns"
+      <div className={`${SOLID} w-full sm:w-56 sm:flex-none`}>
+        <InputGroup>
+          <InputGroupAddon>
+            <HoverIcon icon={SearchIcon} size={16} />
+          </InputGroupAddon>
+          <InputGroupInput
+            value={query}
+            onChange={(event) => onQuery(event.target.value)}
+            placeholder="Search campaigns"
+            aria-label="Search campaigns"
+          />
+        </InputGroup>
+      </div>
+      <div className={SOLID}>
+        <FilterPopover
+          groups={[
+            {
+              label: "Role",
+              value: role,
+              options: [
+                { value: "all", label: "All" },
+                { value: "gm", label: "GM" },
+                { value: "player", label: "Player" },
+              ],
+              onChange: (value) => onRole(value as RoleFilter),
+            },
+          ]}
         />
-      </InputGroup>
-      <FilterPopover
-        groups={[
-          {
-            label: "Role",
-            value: role,
-            options: [
-              { value: "all", label: "All" },
-              { value: "gm", label: "GM" },
-              { value: "player", label: "Player" },
-            ],
-            onChange: (value) => onRole(value as RoleFilter),
-          },
-        ]}
-      />
-      <CampaignSortMenu sort={sort} onSort={onSort} className="min-w-0 flex-1 sm:w-56 sm:flex-none" />
-      <CampaignViewToggle mode={mode} onChange={onMode} />
+      </div>
+      <div className={`${SOLID} min-w-0 flex-1 sm:w-56 sm:flex-none`}>
+        <CampaignSortMenu sort={sort} onSort={onSort} className="w-full" />
+      </div>
+      <div className={SOLID}>
+        <CampaignViewToggle mode={mode} onChange={onMode} />
+      </div>
       <div className="flex w-full gap-2 sm:ml-auto sm:w-auto">
-        <Button variant="outline" className="flex-1 sm:flex-none" onClick={onJoin}>
-          Join with invite link
-        </Button>
+        <div className={`${SOLID} flex-1 sm:flex-none`}>
+          <Button variant="outline" className="w-full" onClick={onJoin}>
+            Join with invite link
+          </Button>
+        </div>
         <Button asChild className="flex-1 sm:flex-none">
           <Link to="/app/campaigns/new">New campaign</Link>
         </Button>

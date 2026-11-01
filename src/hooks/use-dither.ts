@@ -7,11 +7,11 @@ const FRAME_MS = 1000 / DITHER.fps
 const INTRO_SECONDS = 1.8
 
 // Runs the dither in a canvas it makes inside the box it is given, and only while it can be seen:
-// the loop stops when the tab is hidden or the box is off screen, and with reduced motion one
-// frame is drawn and that is all. It is capped at DITHER.fps. A new canvas for each run, and no
+// the loop stops when the tab is hidden or the box is off screen, and when still, or with
+// reduced motion, one frame is drawn and that is all. It is capped at DITHER.fps. A new canvas for each run, and no
 // loseContext on cleanup: React runs effects twice in development, and a canvas whose context
 // was lost gives that same dead context back.
-export function useDither(boxRef: RefObject<HTMLElement | null>) {
+export function useDither(boxRef: RefObject<HTMLElement | null>, still: boolean) {
   useEffect(() => {
     const box = boxRef.current
     if (!box) return
@@ -21,7 +21,8 @@ export function useDither(boxRef: RefObject<HTMLElement | null>) {
     if (!renderer) return
     box.append(canvas)
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    // A still background, and reduced motion, which forces it: one frame, drawn at full reveal.
+    const reduced = still || window.matchMedia("(prefers-reduced-motion: reduce)").matches
     const intro = DITHER.intro && !reduced
     const state = { time: 0, reveal: intro ? 0 : 1 }
     let visible = false
@@ -77,5 +78,5 @@ export function useDither(boxRef: RefObject<HTMLElement | null>) {
       renderer.destroy()
       canvas.remove()
     }
-  }, [boxRef])
+  }, [boxRef, still])
 }
