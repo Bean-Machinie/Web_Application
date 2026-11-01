@@ -1,7 +1,6 @@
 import { useState } from "react"
 import type { UserIdentity } from "@supabase/supabase-js"
 import { toast } from "sonner"
-import { Skeleton } from "@/components/ui/skeleton"
 import { authProblem } from "@/lib/auth-errors"
 import { supabase } from "@/lib/supabase"
 import { ConfirmDialog } from "./ConfirmDialog"
@@ -10,23 +9,11 @@ import type { ConnectedProvider } from "./connected-providers"
 import { ProviderRow } from "./ProviderRow"
 import { SettingsGroup } from "./SettingsGroup"
 
-type Props = { identities: UserIdentity[] | undefined; reload: () => Promise<void> }
+type Props = { identities: UserIdentity[]; reload: () => Promise<void> }
 
 export function ConnectedAccounts({ identities, reload }: Props) {
   const [leaving, setLeaving] = useState<ConnectedProvider | null>(null)
   const [busy, setBusy] = useState(false)
-
-  const title = "Connected accounts"
-
-  if (!identities) {
-    return (
-      <SettingsGroup title={title}>
-        <div className="py-4">
-          <Skeleton className="h-8 w-full" />
-        </div>
-      </SettingsGroup>
-    )
-  }
 
   const identityOf = (id: string) => identities.find((identity) => identity.provider === id)
 
@@ -62,7 +49,7 @@ export function ConnectedAccounts({ identities, reload }: Props) {
   }
 
   return (
-    <SettingsGroup title={title}>
+    <SettingsGroup title="Connected accounts">
       {CONNECTED_PROVIDERS.map((provider) => (
         <ProviderRow
           key={provider.id}
