@@ -35,7 +35,7 @@ export function ToolTile({ name, description, tagline, icon: ToolIcon, image, on
             />
           )}
           <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/70 to-transparent" />
-          <span className="absolute top-2 right-2 flex h-6 items-center gap-1 rounded-full bg-black/45 px-2 text-xs font-medium text-white opacity-0 transition-opacity duration-200 group-hover/tile:opacity-100 group-focus-visible/tile:opacity-100">
+          <span className="absolute top-2 right-2 flex h-6 items-center gap-1 rounded-md bg-black/45 px-2 text-xs font-medium text-white opacity-0 transition-opacity duration-200 group-hover/tile:opacity-100 group-focus-visible/tile:opacity-100">
             Open
             <ArrowUpRight className="size-3.5" />
           </span>
@@ -44,13 +44,13 @@ export function ToolTile({ name, description, tagline, icon: ToolIcon, image, on
               <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-black/45 text-white">
                 <ToolIcon className="size-3.5" />
               </span>
-              <span className="text-sm font-medium text-white">{name}</span>
+              <span className="text-base font-semibold text-white">{name}</span>
             </span>
             <span className="text-[13px] text-white/70">{tagline}</span>
           </span>
         </button>
       </TooltipTrigger>
-      <TooltipContent>{description}</TooltipContent>
+      <TooltipContent side="bottom">{description}</TooltipContent>
     </Tooltip>
   )
 }
