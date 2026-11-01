@@ -9,15 +9,13 @@ import { supabase } from "@/lib/supabase"
 import {
   USERNAME_HINT,
   isValidUsername,
-  normalizeUsername,
   setUsername,
 } from "@/lib/username"
 
 // Saves everything on the Profile tab. `username` is only passed when it
 // changed. It goes first because it is the step most likely to be refused
-// (taken), and nothing has been uploaded by then. The database records it
-// (that is where uniqueness is checked); it is also written to the user's
-// metadata, which is where the app reads the person's own name from.
+// (taken), and nothing has been uploaded by then. The database records it,
+// and that is the only place the app reads it from.
 export async function saveProfile(options: {
   user: User
   description: string
@@ -34,7 +32,6 @@ export async function saveProfile(options: {
   const photo = await uploadPendingAvatar(user, avatar)
   const { error } = await supabase.auth.updateUser({
     data: {
-      ...(username !== null && { username: normalizeUsername(username) }),
       description: description.trim(),
       // Clears the old display name, and any real name or job title saved by
       // earlier versions.

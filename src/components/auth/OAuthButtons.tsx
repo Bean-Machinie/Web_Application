@@ -4,18 +4,19 @@ import { DiscordIcon, GoogleIcon } from "@/components/auth/BrandIcons"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
 import { authProblem } from "@/lib/auth-errors"
+import { oauthReturnUrl } from "@/lib/auth-next"
 import { supabase } from "@/lib/supabase"
 
-type Props = { next: string; disabled: boolean }
+type Props = { next: string; disabled: boolean; initialError?: string }
 
-export function OAuthButtons({ next, disabled }: Props) {
-  const [error, setError] = useState<string>()
+export function OAuthButtons({ next, disabled, initialError }: Props) {
+  const [error, setError] = useState(initialError)
 
   async function start(provider: Provider) {
     setError(undefined)
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}${next}` },
+      options: { redirectTo: oauthReturnUrl(next, provider) },
     })
     if (error) setError(authProblem(error).message)
   }

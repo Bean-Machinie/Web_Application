@@ -13,8 +13,9 @@ import { UsernameSection } from "./UsernameSection"
 import { useSettingsForm, useSettingsNotice } from "./settings-form"
 
 export function PersonalDetailsForm() {
-  const user = useAuth().session!.user
-  const { username, description, email, avatarUrl } = getProfile(user)
+  const { session, username, refreshUsername } = useAuth()
+  const user = session!.user
+  const { description, email, avatarUrl } = getProfile(user)
   // null until the person edits a field, so it shows what is saved meanwhile
   // (and again once a save has come back).
   const [usernameInput, setUsernameInput] = useState<string | null>(null)
@@ -52,6 +53,7 @@ export function PersonalDetailsForm() {
       return notify({ tone: "error", text: errorMessage(error) })
     }
 
+    await refreshUsername().catch(() => {})
     setBusy(false)
     reset()
     notify({ tone: "success", text: "Your details have been saved." })
@@ -74,7 +76,7 @@ export function PersonalDetailsForm() {
             onChange={setAvatar}
             disabled={busy}
             currentUrl={avatarUrl}
-            fallback={getInitials(user)}
+            fallback={getInitials(username, email)}
           />
         </SettingsRow>
         <UsernameSection
