@@ -17,6 +17,8 @@ type Props<T extends string> = {
   "aria-label": string
   className?: string
   disabled?: boolean
+  // "sm" is 28px tall, "default" 32px.
+  size?: "default" | "sm"
 }
 
 // A segmented control: a few options side by side, one of them always chosen. The chosen
@@ -26,7 +28,7 @@ type Props<T extends string> = {
 // by aria-checked, not data-state, which a tooltip around an option takes for its own. It is a Radix toggle group,
 // so the arrow keys move the choice and a screen reader hears a radio group. Two to five
 // options with short labels; the thumb does not slide for someone who asks for less motion.
-function SegmentedControl<T extends string>({ value, onValueChange, options, className, disabled, ...props }: Props<T>) {
+function SegmentedControl<T extends string>({ value, onValueChange, options, className, disabled, size = "default", ...props }: Props<T>) {
   const index = Math.max(
     options.findIndex((option) => option.value === value),
     0
@@ -55,7 +57,7 @@ function SegmentedControl<T extends string>({ value, onValueChange, options, cla
           <ToggleGroup.Item
             key={option.value}
             value={option.value}
-            className="text-muted-foreground hover:text-foreground focus-visible:ring-ring aria-checked:text-primary-foreground aria-checked:hover:text-primary-foreground relative z-10 flex h-7 items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium outline-none transition-colors duration-200 focus-visible:ring-2 [&_svg]:size-3.5 [&_svg]:shrink-0"
+            className={cn("text-muted-foreground hover:text-foreground focus-visible:ring-ring aria-checked:text-primary-foreground aria-checked:hover:text-primary-foreground relative z-10 flex items-center justify-center gap-1.5 rounded-md px-2 text-xs font-medium outline-none transition-colors duration-200 focus-visible:ring-2 [&_svg]:size-3.5 [&_svg]:shrink-0", size === "sm" ? "h-6" : "h-7")}
           >
             {option.icon}
             {option.label}

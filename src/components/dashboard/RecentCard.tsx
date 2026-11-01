@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { ArrowRight } from "lucide-react"
+import { SectionLabel } from "./SectionLabel"
 import { SegmentedControl } from "@/components/ui/segmented-control"
 import type { RecentBy } from "@/lib/world-recent"
 
@@ -20,11 +21,13 @@ type Props = {
 // many rows there are, and the rows scroll. The Create page's drafts use it without the switch.
 export function RecentCard({ title = "Recent", by, onBy, children }: Props) {
   return (
-    <section className="flex max-h-[480px] flex-col gap-4 lg:absolute lg:inset-0 lg:max-h-none">
-      <div className="flex h-9 items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-        {by && onBy && (
+    <section className="flex max-h-[480px] flex-col lg:absolute lg:inset-0 lg:max-h-none">
+      <SectionLabel
+        action={
+          by &&
+          onBy && (
           <SegmentedControl<RecentBy>
+            size="sm"
             aria-label="Sort recent"
             value={by}
             onValueChange={onBy}
@@ -33,8 +36,11 @@ export function RecentCard({ title = "Recent", by, onBy, children }: Props) {
               { value: "created", label: "Created" },
             ]}
           />
-        )}
-      </div>
+          )
+        }
+      >
+        {title}
+      </SectionLabel>
       <div className="bg-card flex min-h-0 flex-1 flex-col rounded-lg border">
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-2">{children}</div>
         <Link

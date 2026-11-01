@@ -10,7 +10,7 @@ import { useWorldScope } from "./useWorldScope"
 import { WorkshopRecent } from "./WorkshopRecent"
 
 // Where things are made. What is made ends up in the library, which is the scope the
-// route gives it. Two columns in the width of the campaigns page: the tools and the new
+// route gives it. Two columns in up to 1360px: the tools and the new
 // entries on the left, the recent list on the right at the height of the left.
 export function WorkshopPage() {
   const scope = useWorldScope()
@@ -29,10 +29,9 @@ export function WorkshopPage() {
 
   return (
     <>
-      <div className="mx-auto flex w-[1104px] max-w-full flex-col gap-10 lg:flex-row lg:gap-12">
-        <div className="flex min-w-0 flex-1 flex-col gap-10">
+      <div className="mx-auto flex w-full max-w-[1360px] flex-col gap-12 lg:flex-row">
+        <div className="flex min-w-0 flex-1 flex-col gap-16">
           <CreateTools image={toolImage} onNewMap={() => setMakingMap(true)} onNewCharacter={newCharacter.open} />
-          <div className="border-t" />
           <CreateEntries kinds={scope.kinds.filter((kind) => kind !== "map")} onPick={createEntry} />
         </div>
         <WorkshopRecent />

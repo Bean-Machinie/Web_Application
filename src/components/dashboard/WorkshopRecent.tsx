@@ -13,7 +13,7 @@ import { useCampaign } from "./useCampaign"
 const SHOWN = 10
 // The right column: beside the left one, under it when narrow. Its card is laid over the
 // column, so the column is as tall as the left side and never taller for its rows.
-const SIDE = "lg:relative lg:w-[360px] lg:shrink-0"
+const SIDE = "lg:relative lg:w-[320px] lg:shrink-0"
 // What the skeleton shows before anything has loaded.
 const FIRST_LOAD = [3, 4]
 
