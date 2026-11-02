@@ -1,7 +1,7 @@
 import { npc, entry, fact, statBlock } from "./campaign-template-types"
 import type { CampaignTemplate } from "./campaign-template-types"
 
-// Generic and system-agnostic on purpose. Everything starts hidden.
+// Generic and system-agnostic on purpose. Entries start revealed.
 export const STARTER_VILLAGE: CampaignTemplate = {
   id: "starter-village",
   name: "Starter village",
