@@ -1,6 +1,7 @@
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { CreateMenu } from "./CreateMenu"
+import { DiceRoller } from "./DiceRoller"
 import { NotificationBell } from "./NotificationBell"
 import { PageBreadcrumbs } from "./PageBreadcrumbs"
 
@@ -18,6 +19,7 @@ export function DashboardHeader() {
         <PageBreadcrumbs />
         <div className="ml-auto flex items-center gap-2">
           <CreateMenu />
+          <DiceRoller />
           <NotificationBell />
         </div>
       </div>
