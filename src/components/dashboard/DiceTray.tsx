@@ -4,6 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useDicePreview } from "@/hooks/use-dice-preview"
 import { rollLabel } from "@/lib/dice"
 import { cn } from "@/lib/utils"
+import { DiceFelt } from "./DiceFelt"
 import { DiceOptions } from "./DiceOptions"
 import type { D20Mode, Sides } from "@/lib/dice"
 
@@ -68,8 +69,8 @@ export function DiceTray({ modifier, onModifier, mode, onMode, onRoll }: Props) 
   return (
     <div className="grid gap-3">
       <div className="relative">
-        {/* A dark, blurred rectangle where a tray would be, with no edge to it, and a faint lighter glow over it. */}
-        <div aria-hidden className="pointer-events-none absolute inset-x-2 inset-y-1 rounded-2xl bg-black/35 blur-xl" />
+        {/* Grain where a tray would be, with no edge to it, and a faint lighter glow over it. */}
+        <DiceFelt />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(closest-side,rgb(255_255_255/0.04),transparent)]" />
         <div className="relative grid grid-cols-5 gap-1 p-3">
           {LAYOUT.map((sides) => (
