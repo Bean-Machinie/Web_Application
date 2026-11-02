@@ -17,7 +17,7 @@ export function DiceRoller() {
   const [open, setOpen] = useState(false)
   const [modifier, setModifier] = useState(0)
   const [mode, setMode] = useState<D20Mode>("normal")
-  const { history, shown, visible, roll, clear } = useDiceRoller()
+  const { history, layers, totals, roll, clear } = useDiceRoller()
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -51,7 +51,7 @@ export function DiceRoller() {
           <DiceHistory rolls={history} onClear={clear} />
         </PopoverContent>
       </Popover>
-      <DiceOverlay shown={shown} visible={visible} />
+      <DiceOverlay layers={layers} totals={totals} />
     </>
   )
 }

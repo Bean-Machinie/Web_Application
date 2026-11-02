@@ -1,6 +1,7 @@
 import { useRef, useState } from "react"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
-import { getDiceBox } from "@/lib/dice-box"
+import { acquireDiceBox, DICE_SLOTS } from "@/lib/dice-box"
+import type { HeldBox } from "@/lib/dice-box"
 import { rollDice, throwNotation } from "@/lib/dice"
 import type { D20Mode, Roll, Sides } from "@/lib/dice"
 
@@ -9,41 +10,55 @@ const HOLD_MS = 2000
 const FADE_MS = 500
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// The result is drawn first; the 3D dice are only told where to land. A roll that is still
-// showing blocks the next one, so the dice never pile up.
+export type ShownTotal = { roll: Roll; visible: boolean }
+
+// The result is drawn first; the 3D dice are only told where to land. Every roll has a layer and a
+// total of its own and plays through on its own, so rolls can follow one another without cutting
+// each other short.
 export function useDiceRoller() {
   const reducedMotion = useReducedMotion()
-  const busy = useRef(false)
+  // Rolls still playing. A click past the number of layers is ignored, so spamming cannot pile up rolls.
+  const active = useRef(0)
   const [history, setHistory] = useState<Roll[]>([])
-  const [shown, setShown] = useState<Roll | null>(null)
-  const [visible, setVisible] = useState(false)
+  const [layers, setLayers] = useState<boolean[]>([])
+  const [totals, setTotals] = useState<ShownTotal[]>([])
+
+  const setLayer = (slot: number, on: boolean) =>
+    setLayers((current) => Object.assign([], current, { [slot]: on }))
+  const setTotal = (roll: Roll, visible: boolean | null) =>
+    setTotals((current) =>
+      visible === null
+        ? current.filter((total) => total.roll.id !== roll.id)
+        : [...current.filter((total) => total.roll.id !== roll.id), { roll, visible }]
+    )
 
   async function roll(sides: Sides, modifier: number, mode: D20Mode) {
-    if (busy.current) return
-    busy.current = true
+    if (active.current >= DICE_SLOTS) return
+    active.current++
     const result = rollDice(sides, modifier, mode)
-    let box: Awaited<ReturnType<typeof getDiceBox>> | undefined
+    setHistory((rolls) => [result, ...rolls].slice(0, HISTORY_SIZE))
 
+    let held: HeldBox | undefined
     if (!reducedMotion) {
-      setVisible(true)
       try {
-        box = await getDiceBox()
-        await box.roll(throwNotation(result))
+        held = await acquireDiceBox()
+        setLayer(held.slot, true)
+        await held.box.roll(throwNotation(result))
       } catch {
         // The engine could not start; the result is still shown below.
       }
     }
 
-    setShown(result)
-    setVisible(true)
-    setHistory((rolls) => [result, ...rolls].slice(0, HISTORY_SIZE))
+    setTotal(result, true)
     await wait(HOLD_MS)
-    setVisible(false)
+    if (held) setLayer(held.slot, false)
+    setTotal(result, false)
     await wait(FADE_MS)
-    box?.clearDice()
-    setShown(null)
-    busy.current = false
+    held?.box.clearDice()
+    held?.release()
+    setTotal(result, null)
+    active.current--
   }
 
-  return { history, shown, visible, roll, clear: () => setHistory([]) }
+  return { history, layers, totals, roll, clear: () => setHistory([]) }
 }

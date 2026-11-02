@@ -51,6 +51,7 @@ declare module "@3d-dice/dice-box-threejs" {
     DiceFactory: { create(type: string, colorset: unknown): DiceMesh | null }
     initialize(): Promise<void>
     roll(notation: string): Promise<unknown>
+    add(notation: string): Promise<unknown>
     clearDice(): void
   }
 }

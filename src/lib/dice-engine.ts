@@ -60,6 +60,18 @@ export function createRenderer(created: DiceBox, ratio: number) {
   return renderer
 }
 
+// A browser allows only so many WebGL contexts, and the page's background needs one, so the panel and the
+// snapshots each keep a single renderer for good instead of making one per use.
+const shared = new Map<string, DiceRenderer>()
+export function sharedRenderer(created: DiceBox, key: "panel" | "snapshot", ratio: number) {
+  let renderer = shared.get(key)
+  if (!renderer) {
+    renderer = createRenderer(created, ratio)
+    shared.set(key, renderer)
+  }
+  return renderer
+}
+
 export function createCamera(created: DiceBox) {
   const Camera = created.camera.constructor as new (fov: number, aspect: number, near: number, far: number) => DiceCamera
   return new Camera(20, 1, 1, 5000)

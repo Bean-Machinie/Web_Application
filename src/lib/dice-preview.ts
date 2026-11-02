@@ -1,6 +1,6 @@
 import type DiceBox from "@3d-dice/dice-box-threejs"
 import type { DiceCamera, DiceMesh } from "@3d-dice/dice-box-threejs"
-import { createCamera, createRenderer, drawDice, getEngine, meshesOf } from "@/lib/dice-engine"
+import { createCamera, drawDice, getEngine, meshesOf, sharedRenderer } from "@/lib/dice-engine"
 import type { Sides } from "@/lib/dice"
 
 const PADDING = 8
@@ -12,6 +12,10 @@ const THROW_MS = 450
 const SETTLE_MS = 600
 
 type Tile = { element: HTMLElement; dice: DiceMesh[]; camera: DiceCamera; scale: number; spin: number; throwUntil: number }
+// The canvas is one for the whole page, so only the newest preview may take it away again: an older one
+// that closes late (a panel closed and reopened, or React starting an effect twice) must leave it alone.
+let owner: object | null = null
+
 export type DicePreview = { hover(sides: Sides | null): void; throwDie(sides: Sides): void; close(): void }
 
 // The dice of the tray, drawn into their tiles' areas on one canvas laid over the row, by a renderer of
@@ -22,7 +26,9 @@ export async function openDicePreview(
   reducedMotion: boolean
 ): Promise<DicePreview> {
   const created: DiceBox = await getEngine()
-  const renderer = createRenderer(created, Math.min(window.devicePixelRatio, 2))
+  const renderer = sharedRenderer(created, "panel", Math.min(window.devicePixelRatio, 2))
+  const token = {}
+  owner = token
   host.appendChild(renderer.domElement)
   renderer.domElement.style.display = "block"
 
@@ -113,8 +119,10 @@ export async function openDicePreview(
       cancelAnimationFrame(frame)
       observer.disconnect()
       popover?.removeEventListener("animationend", wake)
-      renderer.domElement.remove()
-      renderer.dispose()
+      if (owner === token) {
+        renderer.domElement.remove()
+        owner = null
+      }
     },
   }
 }

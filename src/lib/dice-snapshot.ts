@@ -1,4 +1,4 @@
-import { createCamera, createRenderer, drawDice, getEngine, meshesOf } from "@/lib/dice-engine"
+import { createCamera, drawDice, getEngine, meshesOf, sharedRenderer } from "@/lib/dice-engine"
 import type { Sides } from "@/lib/dice"
 
 const SIZE = 96
@@ -17,12 +17,11 @@ export function dieSnapshot(sides: Sides) {
 
 async function render(sides: Sides) {
   const created = await getEngine()
-  const renderer = createRenderer(created, 1)
+  const renderer = sharedRenderer(created, "snapshot", 1)
   renderer.setSize(SIZE, SIZE)
   renderer.clear()
   drawDice(created, renderer, createCamera(created), meshesOf(created, sides), { x: 0, y: 0, width: SIZE, height: SIZE, pad: 0 }, { scale: 1, spin: 0 })
   // Read straight after drawing, before the browser clears the canvas.
   const url = renderer.domElement.toDataURL("image/png")
-  renderer.dispose()
   return url
 }
