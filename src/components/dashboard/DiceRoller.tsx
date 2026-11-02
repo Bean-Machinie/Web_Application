@@ -8,7 +8,6 @@ import { useDiceRoller } from "@/hooks/use-dice-roller"
 import { isTyping } from "@/lib/entry-selection"
 import type { D20Mode } from "@/lib/dice"
 import { DiceHistory } from "./DiceHistory"
-import { DiceOptions } from "./DiceOptions"
 import { DiceOverlay } from "./DiceOverlay"
 import { DiceTray } from "./DiceTray"
 
@@ -43,13 +42,12 @@ export function DiceRoller() {
             Roll dice <KeyChips keys={["R"]} />
           </TooltipContent>
         </Tooltip>
-        <PopoverContent align="end" sideOffset={8} className="h-[min(34rem,var(--radix-popover-content-available-height))] w-[26rem] gap-4 overflow-hidden p-4" onOpenAutoFocus={(event) => event.preventDefault()}>
+        <PopoverContent align="end" sideOffset={8} className="h-[min(34rem,var(--radix-popover-content-available-height))] w-[22.5rem] gap-4 overflow-hidden p-4" onOpenAutoFocus={(event) => event.preventDefault()}>
           <header className="-mx-4 flex items-baseline justify-between gap-3 border-b px-4 pb-3">
             <h2 className="text-sm font-semibold">Roll dice</h2>
             <KeyChips keys={["R"]} className="opacity-70" />
           </header>
-          <DiceTray modifier={modifier} mode={mode} onRoll={(sides) => roll(sides, modifier, mode)} />
-          <DiceOptions modifier={modifier} onModifier={setModifier} mode={mode} onMode={setMode} />
+          <DiceTray modifier={modifier} onModifier={setModifier} mode={mode} onMode={setMode} onRoll={(sides) => roll(sides, modifier, mode)} />
           <DiceHistory rolls={history} onClear={clear} />
         </PopoverContent>
       </Popover>

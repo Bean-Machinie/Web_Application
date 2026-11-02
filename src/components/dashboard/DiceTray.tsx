@@ -4,6 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useDicePreview } from "@/hooks/use-dice-preview"
 import { rollLabel } from "@/lib/dice"
 import { cn } from "@/lib/utils"
+import { DiceOptions } from "./DiceOptions"
 import type { D20Mode, Sides } from "@/lib/dice"
 
 // The d20 first, large on the left; the rest fill the three columns beside it, row by row.
@@ -50,35 +51,48 @@ function DieCell({ sides, label, loading, area, onRoll, onHover }: TileProps) {
   )
 }
 
-type Props = { modifier: number; mode: D20Mode; onRoll: (sides: Sides) => void }
+type Props = {
+  modifier: number
+  onModifier: (value: number) => void
+  mode: D20Mode
+  onMode: (mode: D20Mode) => void
+  onRoll: (sides: Sides) => void
+}
 
-export function DiceTray({ modifier, mode, onRoll }: Props) {
+// The dice on a very soft glow, with the roll options in a plain row under them.
+export function DiceTray({ modifier, onModifier, mode, onMode, onRoll }: Props) {
   const host = useRef<HTMLDivElement>(null)
   const areas = useRef<Partial<Record<Sides, HTMLElement | null>>>({})
   const preview = useDicePreview(host, areas)
 
   return (
-    <div className="relative">
-      <div className="grid grid-cols-5 gap-1">
-        {LAYOUT.map((sides) => (
-          <DieCell
-            key={sides}
-            sides={sides}
-            label={rollLabel(sides, modifier, mode)}
-            loading={preview.state === "loading"}
-            area={(element) => {
-              areas.current[sides] = element
-            }}
-            onRoll={() => {
-              preview.throwDie(sides)
-              onRoll(sides)
-            }}
-            onHover={(hovered) => preview.hover(hovered ? sides : null)}
-          />
-        ))}
+    <div className="grid gap-3">
+      <div className="relative">
+        {/* A dark, blurred rectangle where a tray would be, with no edge to it, and a faint lighter glow over it. */}
+        <div aria-hidden className="pointer-events-none absolute inset-x-2 inset-y-1 rounded-2xl bg-black/35 blur-xl" />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(closest-side,rgb(255_255_255/0.04),transparent)]" />
+        <div className="relative grid grid-cols-5 gap-1 p-3">
+          {LAYOUT.map((sides) => (
+            <DieCell
+              key={sides}
+              sides={sides}
+              label={rollLabel(sides, modifier, mode)}
+              loading={preview.state === "loading"}
+              area={(element) => {
+                areas.current[sides] = element
+              }}
+              onRoll={() => {
+                preview.throwDie(sides)
+                onRoll(sides)
+              }}
+              onHover={(hovered) => preview.hover(hovered ? sides : null)}
+            />
+          ))}
+        </div>
+        {/* Covers the dice, with the padding as room for a die that grows; out of the way of the pointer. */}
+        <div ref={host} aria-hidden className="pointer-events-none absolute inset-0 [&_canvas]:block" />
       </div>
-      {/* Covers the whole grid, with room around it for a die that grows; out of the way of the pointer. */}
-      <div ref={host} aria-hidden className="pointer-events-none absolute -inset-2 [&_canvas]:block" />
+      <DiceOptions modifier={modifier} onModifier={onModifier} mode={mode} onMode={onMode} />
     </div>
   )
 }
