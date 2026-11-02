@@ -1,21 +1,57 @@
-import { DICE } from "@/lib/dice"
-import type { Sides } from "@/lib/dice"
+import { motion, useAnimationControls } from "motion/react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { DICE, rollLabel } from "@/lib/dice"
+import type { D20Mode, Sides } from "@/lib/dice"
 import { DieIcon } from "./DieIcon"
 
-// One tile per die; a click rolls it at once.
-export function DiceTray({ onRoll }: { onRoll: (sides: Sides) => void }) {
+const SPRING = { type: "spring", stiffness: 600, damping: 18, mass: 0.6 } as const
+const DIE_VARIANTS = { rest: { rotate: 0, scale: 1 }, hover: { rotate: 8, scale: 1.1 } }
+
+type TileProps = { sides: Sides; modifier: number; mode: D20Mode; onRoll: (sides: Sides) => void }
+
+// Lifts on hover like the template cards; the die tilts, and spins away when it is thrown.
+function DieTile({ sides, modifier, mode, onRoll }: TileProps) {
+  const spin = useAnimationControls()
+
+  function throwDie() {
+    onRoll(sides)
+    spin.start({ rotate: 360, scale: [1, 0.7, 1], transition: { duration: 0.45 } }).then(() => spin.set({ rotate: 0 }))
+  }
+
   return (
-    <div className="grid grid-cols-4 gap-2">
-      {DICE.map((sides) => (
-        <button
-          key={sides}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <motion.button
           type="button"
-          onClick={() => onRoll(sides)}
-          className="hover:bg-muted focus-visible:ring-ring flex flex-col items-center gap-1.5 rounded-lg border px-1 py-2.5 outline-none transition-colors focus-visible:ring-2"
+          onClick={throwDie}
+          initial="rest"
+          animate="rest"
+          whileHover="hover"
+          whileTap={{ scale: 0.97 }}
+          variants={{ rest: { y: 0 }, hover: { y: -4 } }}
+          transition={SPRING}
+          className="bg-card hover:bg-muted/60 focus-visible:ring-ring flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg border py-2 outline-none focus-visible:ring-2"
         >
-          <DieIcon sides={sides} className="size-7" />
-          <span className="text-muted-foreground text-xs font-medium">d{sides}</span>
-        </button>
+          <motion.span variants={DIE_VARIANTS} transition={SPRING} className="flex">
+            <motion.span animate={spin} className="flex">
+              <DieIcon sides={sides} className="size-8" />
+            </motion.span>
+          </motion.span>
+          <span className="text-muted-foreground text-[11px] font-medium">d{sides}</span>
+        </motion.button>
+      </TooltipTrigger>
+      <TooltipContent>{rollLabel(sides, modifier, mode)}</TooltipContent>
+    </Tooltip>
+  )
+}
+
+type Props = { modifier: number; mode: D20Mode; onRoll: (sides: Sides) => void }
+
+export function DiceTray({ modifier, mode, onRoll }: Props) {
+  return (
+    <div className="flex gap-1.5 pt-1">
+      {DICE.map((sides) => (
+        <DieTile key={sides} sides={sides} modifier={modifier} mode={mode} onRoll={onRoll} />
       ))}
     </div>
   )

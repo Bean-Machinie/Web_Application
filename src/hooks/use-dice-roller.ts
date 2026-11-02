@@ -4,7 +4,7 @@ import { getDiceBox } from "@/lib/dice-box"
 import { rollDice, throwNotation } from "@/lib/dice"
 import type { D20Mode, Roll, Sides } from "@/lib/dice"
 
-const HISTORY_SIZE = 5
+const HISTORY_SIZE = 50
 const HOLD_MS = 2000
 const FADE_MS = 500
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -45,5 +45,5 @@ export function useDiceRoller() {
     busy.current = false
   }
 
-  return { history, shown, visible, roll }
+  return { history, shown, visible, roll, clear: () => setHistory([]) }
 }

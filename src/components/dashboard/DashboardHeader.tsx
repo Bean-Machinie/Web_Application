@@ -18,8 +18,9 @@ export function DashboardHeader() {
         />
         <PageBreadcrumbs />
         <div className="ml-auto flex items-center gap-2">
-          <CreateMenu />
           <DiceRoller />
+          <Separator orientation="vertical" className="mx-1.5 data-vertical:h-6 data-vertical:self-center" />
+          <CreateMenu />
           <NotificationBell />
         </div>
       </div>

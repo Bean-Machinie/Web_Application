@@ -4,11 +4,12 @@ import type { Variants } from "motion/react"
 import { AnimatedIcon } from "@/components/AnimatedIcon"
 import type { IconHandle, IconProps } from "@/components/AnimatedIcon"
 
-// The one plus of the app: it grows a little when played. Reduced motion is handled by
+// The one plus of the app: it springs up a size when played. Reduced motion is handled by
 // AnimatedIcon, which does not play it.
+const SPRING = { type: "spring", stiffness: 520, damping: 14, mass: 0.7 } as const
 const grow: Variants = {
-  normal: { scale: 1, transition: { duration: 0.15, ease: "easeOut" } },
-  animate: { scale: 1.1, transition: { duration: 0.15, ease: "easeOut" } },
+  normal: { scale: 1, transition: SPRING },
+  animate: { scale: 1.2, transition: SPRING },
 }
 
 export const PlusIcon = forwardRef<IconHandle, IconProps>((props, ref) => (
