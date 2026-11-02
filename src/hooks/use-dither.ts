@@ -33,7 +33,7 @@ export function useDither(boxRef: RefObject<HTMLElement | null>, still: boolean,
     const box = boxRef.current
     if (!box) return
     const canvas = document.createElement("canvas")
-    canvas.className = "block h-full w-full"
+    canvas.className = "block max-w-none"
     const renderer = createDitherRenderer(canvas)
     if (!renderer) return
     box.append(canvas)

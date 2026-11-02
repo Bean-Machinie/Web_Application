@@ -65,6 +65,10 @@ export function createDitherRenderer(canvas: HTMLCanvasElement): DitherRenderer 
     resize(width, height) {
       view.width = width
       view.height = height
+      // A fixed size, so while a resize waits to be redrawn the old picture is cropped or
+      // left short rather than stretched.
+      canvas.style.width = `${width}px`
+      canvas.style.height = `${height}px`
       canvas.width = Math.max(1, Math.round(width * ratio))
       canvas.height = Math.max(1, Math.round(height * ratio))
       view.cols = Math.max(1, Math.ceil(canvas.width / cell))
