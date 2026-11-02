@@ -21,7 +21,7 @@ const MIN_RADIUS_PER_CARD = 1.1
 // Dragging this far, as a share of the ring's radius, turns it one card.
 const DRAG_PER_CARD = 0.5
 
-const ARROW = "bg-card absolute top-1/2 z-[200] -translate-y-1/2 rounded-full shadow-xs"
+const ARROW = "absolute inset-y-0 z-[200] my-auto"
 
 // The entries as a ring that goes round: one in front, the rest circling behind it. The
 // buttons, the wheel, the arrow keys and dragging turn it, and a card at the side comes to
@@ -65,7 +65,7 @@ export function TemplateRing({ template, entries }: Props) {
       tabIndex={0}
       onKeyDown={onKeyDown}
       {...drag}
-      className="focus-visible:ring-ring relative min-h-0 w-full flex-1 touch-pan-y overflow-hidden rounded-lg outline-none select-none focus-visible:ring-2"
+      className="focus-visible:ring-ring relative isolate min-h-0 w-full flex-1 touch-pan-y overflow-hidden rounded-lg outline-none select-none focus-visible:ring-2"
     >
       {entries.map((entry, index) => (
         <TemplateRingItem

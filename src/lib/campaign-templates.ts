@@ -25,3 +25,6 @@ export function countSummary(template: CampaignTemplate) {
   })
   return [`${template.entries.length} entries`, ...counts].join(" · ")
 }
+
+// What a blank campaign is, in a line.
+export const BLANK_DESCRIPTION = "Start empty and build your world as you go."

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import type { CoverChoice } from "@/lib/campaign-covers"
-import { CAMPAIGN_TEMPLATES, summarize } from "@/lib/campaign-templates"
+import { BLANK_DESCRIPTION, CAMPAIGN_TEMPLATES, summarize } from "@/lib/campaign-templates"
 import type { CampaignTemplate } from "@/lib/campaign-template-types"
 import { TemplateCard } from "./TemplateCard"
 import { CoverImage } from "./CoverImage"
@@ -36,7 +36,7 @@ export function TemplateGallery({ onChoose, blankCover, backTo }: Props) {
         ))}
         <TemplateCard
           title="Blank campaign"
-          description="Start empty and build your world as you go."
+          description={BLANK_DESCRIPTION}
           cover={<CoverImage cover={blankCover} />}
           onSelect={() => onChoose(null)}
         />

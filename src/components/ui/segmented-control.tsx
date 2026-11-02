@@ -4,7 +4,7 @@ import { ToggleGroup } from "radix-ui"
 
 type Option<T extends string> = {
   value: T
-  label: string
+  label: React.ReactNode
   icon?: React.ReactNode
   // Wraps the option, as a tooltip does: it is given the option to put its trigger on.
   wrap?: (option: React.ReactElement) => React.ReactElement

@@ -1,52 +1,62 @@
 import { useState } from "react"
-import { ImageIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import type { ReactNode } from "react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { CoverChoice } from "@/lib/campaign-covers"
 import { CoverGallery } from "./CoverGallery"
-import { CoverUpload } from "./CoverUpload"
+import { ImagePicker } from "./ImagePicker"
 
-type Props = { cover: CoverChoice; onChange: (cover: CoverChoice) => void }
+type Props = {
+  cover: CoverChoice
+  onChange: (cover: CoverChoice) => void
+  // What falls back to when a picture of one's own is removed.
+  fallback: CoverChoice
+  // What opens it.
+  children: ReactNode
+}
 
-// "Change cover": the default covers, or a picture of one's own.
-export function CoverPicker({ cover, onChange }: Props) {
+// The default covers, and the app's usual image upload for a picture of one's own.
+export function CoverPicker({ cover, onChange, fallback, children }: Props) {
   const [open, setOpen] = useState(false)
 
-  function pickFile(file: File) {
-    // The old preview is let go once nothing shows it.
+  function release() {
+    // The preview is let go once nothing shows it.
     if (cover.kind === "upload") URL.revokeObjectURL(cover.url)
-    onChange({ kind: "upload", file, url: URL.createObjectURL(file) })
-    setOpen(false)
   }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button type="button" variant="secondary" size="sm" className="shadow-xs">
-          <ImageIcon className="size-3.5" />
-          Change cover
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="end" className="w-80">
-        <Tabs defaultValue="gallery">
-          <TabsList>
-            <TabsTrigger value="gallery">Gallery</TabsTrigger>
-            <TabsTrigger value="upload">Upload</TabsTrigger>
-          </TabsList>
-          <TabsContent value="gallery">
-            <CoverGallery
-              cover={cover}
-              onPick={(next) => {
-                onChange(next)
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent align="start" className="w-80 gap-3 p-3">
+        <div className="flex flex-col gap-1.5">
+          <p className="text-sm font-medium">Default covers</p>
+          <CoverGallery
+            cover={cover}
+            onPick={(next) => {
+              release()
+              onChange(next)
+              setOpen(false)
+            }}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <p className="text-sm font-medium">Your own</p>
+          <div className="[--image-size:6rem]">
+            <ImagePicker
+              url={cover.kind === "upload" ? cover.url : null}
+              fallback={null}
+              disabled={false}
+              onPick={(file) => {
+                release()
+                onChange({ kind: "upload", file, url: URL.createObjectURL(file) })
                 setOpen(false)
               }}
+              onRemove={() => {
+                release()
+                onChange(fallback)
+              }}
             />
-          </TabsContent>
-          <TabsContent value="upload">
-            <CoverUpload onPick={pickFile} />
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </PopoverContent>
     </Popover>
   )

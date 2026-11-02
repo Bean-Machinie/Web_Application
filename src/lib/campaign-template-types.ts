@@ -20,8 +20,6 @@ export type CampaignTemplate = {
   id: string
   name: string
   description: string
-  // Who made it, shown beside the description. Absent when there is nothing to credit.
-  credits?: string
   // The id of the default cover a campaign made from it starts with.
   cover: string
   // Where the template's portraits live, one WebP per entry named after it
