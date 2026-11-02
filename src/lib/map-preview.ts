@@ -36,10 +36,22 @@ function notify() {
   listeners.forEach((listener) => listener())
 }
 
+// Drawing a picture holds the page for a moment, so each one waits for the browser to be idle and
+// for a short pause after the one before, keeping scrolling and navigating smooth.
+const PAUSE_MS = 300
+let waiting = false
+
 function next() {
-  if (current || queue.length === 0) return
-  current = queue.shift()!
-  notify()
+  if (current || waiting || queue.length === 0) return
+  waiting = true
+  const start = () => {
+    waiting = false
+    current = queue.shift() ?? null
+    if (current) notify()
+  }
+  // Safari has no requestIdleCallback.
+  if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(start, { timeout: 2000 })
+  else window.setTimeout(start, 100)
 }
 
 export function requestPreview(key: string, scene: MapScene, maxSide: number) {
@@ -62,7 +74,7 @@ export function finishPreview(job: PreviewJob, outcome: { preview: Preview } | {
   else job.reject(outcome.error)
   current = null
   notify()
-  next()
+  window.setTimeout(next, PAUSE_MS)
 }
 
 export const currentPreview = () => current

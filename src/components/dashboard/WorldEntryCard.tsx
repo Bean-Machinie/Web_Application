@@ -25,13 +25,13 @@ type Props = {
 
 export function WorldEntryCard({ entry, manage, selection, wide }: Props) {
   const selected = selection?.isSelected(entry.id) ?? false
-  const { basePath, hasVisibility } = useWorldScope()
+  const { basePath, hasVisibility, imageFolder } = useWorldScope()
   // A library has no visibility, so nothing in it is drawn as hidden.
   const hidden = hasVisibility && !entry.revealed
   const { icon: KindIcon } = WORLD_KINDS[entry.kind]
   // A map with no published image may still have a saved scene, drawn once the card is in view.
   const { ref, seen } = useSeen<HTMLDivElement>()
-  const draft = useMapPreview(entry.id, entry.kind === "map" && !entry.imageUrl && seen, 640)
+  const draft = useMapPreview(entry.id, entry.kind === "map" && !entry.imageUrl && seen, 480, imageFolder)
 
   const save = manage?.onSaveToLibrary
   const actions = manage && [

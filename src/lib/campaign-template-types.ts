@@ -20,6 +20,8 @@ export type CampaignTemplate = {
   id: string
   name: string
   description: string
+  // The id of the default cover a campaign made from it starts with.
+  cover: string
   // Where the template's portraits live, one WebP per entry named after it
   // ("Bram Hollis" is bram-hollis.webp). Entries without a file get none.
   portraits?: string

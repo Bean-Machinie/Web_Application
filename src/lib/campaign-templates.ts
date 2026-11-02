@@ -16,3 +16,12 @@ export function summarize(template: CampaignTemplate) {
   const kinds = templateKinds(template).map((kind) => WORLD_KINDS[kind].nouns)
   return `${template.entries.length} entries · ${kinds.join(", ")}`
 }
+
+// "13 entries · 4 NPCs · 3 locations", counted from the entries themselves.
+export function countSummary(template: CampaignTemplate) {
+  const counts = templateKinds(template).map((kind) => {
+    const count = template.entries.filter((entry) => entry.kind === kind).length
+    return `${count} ${count === 1 ? WORLD_KINDS[kind].label : WORLD_KINDS[kind].nouns}`
+  })
+  return [`${template.entries.length} entries`, ...counts].join(" · ")
+}

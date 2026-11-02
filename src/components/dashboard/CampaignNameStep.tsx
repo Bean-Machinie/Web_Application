@@ -1,34 +1,34 @@
 import { useState } from "react"
-import { ArrowLeft, Loader2, Plus } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { summarize, templateKinds } from "@/lib/campaign-templates"
+import type { CoverChoice } from "@/lib/campaign-covers"
 import type { CampaignTemplate } from "@/lib/campaign-template-types"
 import { errorMessage } from "@/lib/campaigns"
-import { TemplateCover } from "./TemplateCover"
+import { CampaignCover } from "./CampaignCover"
+import { CampaignTitle } from "./CampaignTitle"
+import { TemplateContents } from "./TemplateContents"
 
 type Props = {
   // Null is a blank campaign.
   template: CampaignTemplate | null
-  onCreate: (name: string) => Promise<void>
+  initialCover: CoverChoice
+  onCreate: (name: string, cover: CoverChoice) => Promise<void>
   onBack: () => void
 }
 
-// Step 2: name it. The chosen start sits small beside the form.
-export function CampaignNameStep({ template, onCreate, onBack }: Props) {
+// Step 2, as a page: the cover, the name, and for a starter what comes with it.
+export function CampaignNameStep({ template, initialCover, onCreate, onBack }: Props) {
   const [name, setName] = useState("")
+  const [cover, setCover] = useState(initialCover)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault()
+  async function handleCreate() {
     setBusy(true)
     setError(null)
     try {
-      await onCreate(name)
+      await onCreate(name, cover)
     } catch (failure) {
       setError(errorMessage(failure))
       setBusy(false)
@@ -36,60 +36,26 @@ export function CampaignNameStep({ template, onCreate, onBack }: Props) {
   }
 
   return (
-    <section className="mx-auto flex w-full max-w-2xl flex-col gap-4 pt-6 sm:flex-row sm:items-start">
-      <div className="bg-card flex flex-col gap-3 rounded-lg border p-4 sm:w-52 sm:shrink-0">
-        {template ? (
-          <TemplateCover kinds={templateKinds(template)} small />
-        ) : (
-          <span className="text-muted-foreground flex size-8 items-center justify-center rounded-full border border-dashed">
-            <Plus className="size-4" />
-          </span>
-        )}
-        <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-medium">{template?.name ?? "Blank campaign"}</span>
-          <span className="text-muted-foreground text-xs">
-            {template ? summarize(template) : "No starter entries"}
-          </span>
-        </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="-ml-2 w-fit"
-          onClick={onBack}
-          disabled={busy}
-        >
-          <ArrowLeft className="size-3.5" />
-          Change
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        if (name.trim() !== "" && !busy) void handleCreate()
+      }}
+      className="mx-auto flex w-full max-w-5xl flex-col gap-6"
+    >
+      <CampaignCover cover={cover} onChange={setCover} />
+      <CampaignTitle value={name} disabled={busy} onChange={setName} />
+      {template && <TemplateContents template={template} />}
+      {error && <FormAlert tone="error">{error}</FormAlert>}
+      <div className="bg-card sticky bottom-4 z-10 flex items-center justify-between rounded-lg border p-3 shadow-xs">
+        <Button type="button" variant="ghost" onClick={onBack} disabled={busy}>
+          Change template
+        </Button>
+        <Button type="submit" disabled={busy || name.trim() === ""}>
+          {busy && <Loader2 className="size-4 animate-spin" />}
+          Create campaign
         </Button>
       </div>
-      <Card className="flex-1">
-        <CardHeader>
-          <CardTitle className="text-xl">Name your campaign</CardTitle>
-          <CardDescription>You can change this later in the campaign settings.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="campaign-name">Campaign name</Label>
-              <Input
-                id="campaign-name"
-                required
-                autoFocus
-                maxLength={60}
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                disabled={busy}
-              />
-            </div>
-            {error && <FormAlert tone="error">{error}</FormAlert>}
-            <Button type="submit" disabled={busy || name.trim() === ""}>
-              {busy && <Loader2 className="size-4 animate-spin" />}
-              Create campaign
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </section>
+    </form>
   )
 }

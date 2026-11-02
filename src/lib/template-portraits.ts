@@ -13,6 +13,10 @@ async function exists(url: string) {
   }
 }
 
+// Where an entry's portrait would be; the file may not exist.
+export const portraitUrl = (template: CampaignTemplate, entry: TemplateEntry) =>
+  template.portraits ? `${template.portraits}/${slug(entry.name)}.webp` : null
+
 // The template's entries, each given its portrait if the file is there.
 export async function entriesWithPortraits(template: CampaignTemplate): Promise<TemplateEntry[]> {
   const base = template.portraits

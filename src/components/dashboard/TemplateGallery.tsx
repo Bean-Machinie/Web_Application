@@ -1,18 +1,20 @@
 import { Link } from "react-router-dom"
-import { Plus } from "lucide-react"
-import { CAMPAIGN_TEMPLATES, summarize, templateKinds } from "@/lib/campaign-templates"
+import type { CoverChoice } from "@/lib/campaign-covers"
+import { CAMPAIGN_TEMPLATES, summarize } from "@/lib/campaign-templates"
 import type { CampaignTemplate } from "@/lib/campaign-template-types"
 import { TemplateCard } from "./TemplateCard"
-import { TemplateCover } from "./TemplateCover"
+import { CoverImage } from "./CoverImage"
 
 type Props = {
   // Null starts a blank campaign.
   onChoose: (template: CampaignTemplate | null) => void
+  // The cover a blank campaign will start with.
+  blankCover: CoverChoice
   backTo: string
 }
 
 // Step 1: how do you want to start?
-export function TemplateGallery({ onChoose, backTo }: Props) {
+export function TemplateGallery({ onChoose, blankCover, backTo }: Props) {
   return (
     <section className="mx-auto flex w-full max-w-2xl flex-col gap-6 pt-6">
       <div className="flex flex-col gap-1 text-center">
@@ -28,19 +30,14 @@ export function TemplateGallery({ onChoose, backTo }: Props) {
             title={template.name}
             summary={summarize(template)}
             description={template.description}
-            cover={<TemplateCover kinds={templateKinds(template)} />}
+            cover={<CoverImage cover={{ kind: "default", id: template.cover }} />}
             onSelect={() => onChoose(template)}
           />
         ))}
         <TemplateCard
-          dashed
           title="Blank campaign"
           description="Start empty and build your world as you go."
-          cover={
-            <span className="text-muted-foreground flex size-12 items-center justify-center rounded-full border border-dashed">
-              <Plus className="size-5" />
-            </span>
-          }
+          cover={<CoverImage cover={blankCover} />}
           onSelect={() => onChoose(null)}
         />
       </div>
