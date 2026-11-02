@@ -48,7 +48,7 @@
     --radius-xl: calc(var(--radius) * 3 / 2);
 }
 
-:root {
+:root, .light {
     /* Radix gray, light: page step 4, sidebar and fills 5-6, cards step 1, borders 8, text 11-12. */
     --background: oklch(0.931 0 0);
     /* The one colour of the app: what the player has chosen, in the start page's sentence. */
