@@ -24,7 +24,10 @@ export function useDicePreview(host: RefObject<HTMLElement | null>, areas: Areas
         opened = preview.current = result
         setState("ready")
       })
-      .catch(() => !closed && setState("failed"))
+      .catch((error) => {
+        console.error("The dice preview could not start", error)
+        if (!closed) setState("failed")
+      })
     return () => {
       closed = true
       opened?.close()

@@ -1,52 +1,51 @@
 import { useRef } from "react"
-import { motion } from "motion/react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useDicePreview } from "@/hooks/use-dice-preview"
-import { DICE, rollLabel } from "@/lib/dice"
-import { PREVIEW_ID } from "@/lib/dice-preview"
+import { rollLabel } from "@/lib/dice"
+import { cn } from "@/lib/utils"
 import type { D20Mode, Sides } from "@/lib/dice"
 
-const SPRING = { type: "spring", stiffness: 600, damping: 18, mass: 0.6 } as const
+// The d20 first, large on the left; the rest fill the three columns beside it, row by row.
+const LAYOUT: Sides[] = [20, 4, 6, 8, 10, 12, 100]
 
 type TileProps = {
   sides: Sides
-  modifier: number
-  mode: D20Mode
+  label: string
   loading: boolean
   area: (element: HTMLElement | null) => void
   onRoll: () => void
   onHover: (hovered: boolean) => void
 }
 
-// Lifts on hover like the template cards. The die itself is drawn on the canvas over the row,
-// into this tile's area.
-function DieTile({ sides, modifier, mode, loading, area, onRoll, onHover }: TileProps) {
+// The die is the button. It is drawn on the canvas over the grid, into this cell; the cell only
+// holds the soft shadow under it and the focus ring.
+function DieCell({ sides, label, loading, area, onRoll, onHover }: TileProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <motion.button
+        <button
+          ref={area}
           type="button"
+          aria-label={label}
           onClick={onRoll}
           onPointerEnter={() => onHover(true)}
           onPointerLeave={() => onHover(false)}
           onFocus={() => onHover(true)}
           onBlur={() => onHover(false)}
-          initial="rest"
-          animate="rest"
-          whileHover="hover"
-          whileTap={{ scale: 0.97 }}
-          variants={{ rest: { y: 0 }, hover: { y: -4 } }}
-          transition={SPRING}
-          className="bg-card hover:bg-muted/60 focus-visible:ring-ring flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg border py-1.5 outline-none focus-visible:ring-2"
+          className={cn(
+            "group focus-visible:ring-ring relative flex aspect-square items-center justify-center rounded-lg outline-none focus-visible:ring-2",
+            sides === 20 && "col-span-2 row-span-2"
+          )}
         >
-          <span ref={area} className="flex h-11 w-full items-center justify-center">
-            {loading && <Skeleton className="size-7 rounded-md" />}
-          </span>
-          <span className="text-muted-foreground text-[11px] font-medium">d{sides}</span>
-        </motion.button>
+          <span
+            aria-hidden
+            className="absolute bottom-[9%] left-1/2 h-[10%] w-3/5 -translate-x-1/2 rounded-full bg-black/50 opacity-0 blur-md transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
+          />
+          {loading && <Skeleton className="size-3/5 rounded-lg" />}
+        </button>
       </TooltipTrigger>
-      <TooltipContent>{rollLabel(sides, modifier, mode)}</TooltipContent>
+      <TooltipContent>{label}</TooltipContent>
     </Tooltip>
   )
 }
@@ -59,14 +58,13 @@ export function DiceTray({ modifier, mode, onRoll }: Props) {
   const preview = useDicePreview(host, areas)
 
   return (
-    <div className="relative pt-1">
-      <div className="flex gap-1.5">
-        {DICE.map((sides) => (
-          <DieTile
+    <div className="relative">
+      <div className="grid grid-cols-5 gap-1">
+        {LAYOUT.map((sides) => (
+          <DieCell
             key={sides}
             sides={sides}
-            modifier={modifier}
-            mode={mode}
+            label={rollLabel(sides, modifier, mode)}
             loading={preview.state === "loading"}
             area={(element) => {
               areas.current[sides] = element
@@ -79,8 +77,8 @@ export function DiceTray({ modifier, mode, onRoll }: Props) {
           />
         ))}
       </div>
-      {/* Over the tiles but out of the way of the pointer; room above for the lift. */}
-      <div ref={host} id={PREVIEW_ID} aria-hidden className="pointer-events-none absolute -inset-x-1 -top-2 bottom-0 [&_canvas]:block" />
+      {/* Covers the whole grid, with room around it for a die that grows; out of the way of the pointer. */}
+      <div ref={host} aria-hidden className="pointer-events-none absolute -inset-2 [&_canvas]:block" />
     </div>
   )
 }

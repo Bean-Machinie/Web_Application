@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { notation, rollAge } from "@/lib/dice"
 import type { Roll } from "@/lib/dice"
+import { useDieSnapshot } from "@/hooks/use-die-snapshot"
 import { DieIcon } from "./DieIcon"
 
 const MODE_NAMES = { normal: "", advantage: "Advantage", disadvantage: "Disadvantage" }
@@ -31,6 +32,12 @@ function Values({ roll }: { roll: Roll }) {
   )
 }
 
+// The die as thrown; its small drawing stands in until the picture is ready.
+function RollDie({ sides }: { sides: Roll["sides"] }) {
+  const picture = useDieSnapshot(sides)
+  return picture ? <img src={picture} alt="" className="size-7 shrink-0" /> : <DieIcon sides={sides} showNumber={false} className="size-7 shrink-0" />
+}
+
 function RollRow({ roll, now }: { roll: Roll; now: number }) {
   return (
     <motion.li
@@ -40,7 +47,7 @@ function RollRow({ roll, now }: { roll: Roll; now: number }) {
       transition={{ type: "spring", stiffness: 500, damping: 34 }}
       className="border-border/60 hover:bg-muted/40 flex items-center gap-3 border-b px-4 py-2.5 last:border-b-0"
     >
-      <DieIcon sides={roll.sides} showNumber={false} className="size-6 shrink-0" />
+      <RollDie sides={roll.sides} />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium tabular-nums">{notation(roll)}</p>
         <Values roll={roll} />
