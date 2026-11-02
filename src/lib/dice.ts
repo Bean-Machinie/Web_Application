@@ -9,7 +9,8 @@ export type Roll = {
   // Only a d20 is ever rolled with advantage or disadvantage.
   mode: D20Mode
   at: number
-  // Every die thrown; on advantage or disadvantage the kept one is at `kept`.
+  // Every die thrown; on advantage or disadvantage the kept one is at `kept`. A d100 is two:
+  // the tens (00 to 90) and the units (0 to 9).
   dice: number[]
   kept: number
   total: number
@@ -26,7 +27,15 @@ function randomInt(sides: number) {
 
 let nextId = 0
 
+// 1 to 100 as the percentile die and the d10 show it: 47 is 40 and 7, and 100 is 00 and 0.
+function rollPercentile(modifier: number): Roll {
+  const value = randomInt(100)
+  const dice = [(Math.floor(value / 10) * 10) % 100, value % 10]
+  return { id: nextId++, sides: 100, modifier, mode: "normal", at: Date.now(), dice, kept: 0, total: value + modifier }
+}
+
 export function rollDice(sides: Sides, modifier: number, mode: D20Mode): Roll {
+  if (sides === 100) return rollPercentile(modifier)
   const applied: D20Mode = sides === 20 ? mode : "normal"
   const count = applied === "normal" ? 1 : 2
   const dice = Array.from({ length: count }, () => randomInt(sides))
@@ -54,4 +63,5 @@ export function rollAge(at: number, now: number) {
 }
 
 // What the 3D dice are told to land on, in dice-box-threejs's notation.
-export const throwNotation = ({ sides, dice }: Roll) => `${dice.length}d${sides}@${dice.join(",")}`
+export const throwNotation = ({ sides, dice }: Roll) =>
+  sides === 100 ? `1d100+1d10@${dice.join(",")}` : `${dice.length}d${sides}@${dice.join(",")}`

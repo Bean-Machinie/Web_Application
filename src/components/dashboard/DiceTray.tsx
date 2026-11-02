@@ -1,42 +1,48 @@
-import { motion, useAnimationControls } from "motion/react"
+import { useRef } from "react"
+import { motion } from "motion/react"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useDicePreview } from "@/hooks/use-dice-preview"
 import { DICE, rollLabel } from "@/lib/dice"
+import { PREVIEW_ID } from "@/lib/dice-preview"
 import type { D20Mode, Sides } from "@/lib/dice"
-import { DieIcon } from "./DieIcon"
 
 const SPRING = { type: "spring", stiffness: 600, damping: 18, mass: 0.6 } as const
-const DIE_VARIANTS = { rest: { rotate: 0, scale: 1 }, hover: { rotate: 8, scale: 1.1 } }
 
-type TileProps = { sides: Sides; modifier: number; mode: D20Mode; onRoll: (sides: Sides) => void }
+type TileProps = {
+  sides: Sides
+  modifier: number
+  mode: D20Mode
+  loading: boolean
+  area: (element: HTMLElement | null) => void
+  onRoll: () => void
+  onHover: (hovered: boolean) => void
+}
 
-// Lifts on hover like the template cards; the die tilts, and spins away when it is thrown.
-function DieTile({ sides, modifier, mode, onRoll }: TileProps) {
-  const spin = useAnimationControls()
-
-  function throwDie() {
-    onRoll(sides)
-    spin.start({ rotate: 360, scale: [1, 0.7, 1], transition: { duration: 0.45 } }).then(() => spin.set({ rotate: 0 }))
-  }
-
+// Lifts on hover like the template cards. The die itself is drawn on the canvas over the row,
+// into this tile's area.
+function DieTile({ sides, modifier, mode, loading, area, onRoll, onHover }: TileProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <motion.button
           type="button"
-          onClick={throwDie}
+          onClick={onRoll}
+          onPointerEnter={() => onHover(true)}
+          onPointerLeave={() => onHover(false)}
+          onFocus={() => onHover(true)}
+          onBlur={() => onHover(false)}
           initial="rest"
           animate="rest"
           whileHover="hover"
           whileTap={{ scale: 0.97 }}
           variants={{ rest: { y: 0 }, hover: { y: -4 } }}
           transition={SPRING}
-          className="bg-card hover:bg-muted/60 focus-visible:ring-ring flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg border py-2 outline-none focus-visible:ring-2"
+          className="bg-card hover:bg-muted/60 focus-visible:ring-ring flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg border py-1.5 outline-none focus-visible:ring-2"
         >
-          <motion.span variants={DIE_VARIANTS} transition={SPRING} className="flex">
-            <motion.span animate={spin} className="flex">
-              <DieIcon sides={sides} className="size-8" />
-            </motion.span>
-          </motion.span>
+          <span ref={area} className="flex h-11 w-full items-center justify-center">
+            {loading && <Skeleton className="size-7 rounded-md" />}
+          </span>
           <span className="text-muted-foreground text-[11px] font-medium">d{sides}</span>
         </motion.button>
       </TooltipTrigger>
@@ -48,11 +54,33 @@ function DieTile({ sides, modifier, mode, onRoll }: TileProps) {
 type Props = { modifier: number; mode: D20Mode; onRoll: (sides: Sides) => void }
 
 export function DiceTray({ modifier, mode, onRoll }: Props) {
+  const host = useRef<HTMLDivElement>(null)
+  const areas = useRef<Partial<Record<Sides, HTMLElement | null>>>({})
+  const preview = useDicePreview(host, areas)
+
   return (
-    <div className="flex gap-1.5 pt-1">
-      {DICE.map((sides) => (
-        <DieTile key={sides} sides={sides} modifier={modifier} mode={mode} onRoll={onRoll} />
-      ))}
+    <div className="relative pt-1">
+      <div className="flex gap-1.5">
+        {DICE.map((sides) => (
+          <DieTile
+            key={sides}
+            sides={sides}
+            modifier={modifier}
+            mode={mode}
+            loading={preview.state === "loading"}
+            area={(element) => {
+              areas.current[sides] = element
+            }}
+            onRoll={() => {
+              preview.throwDie(sides)
+              onRoll(sides)
+            }}
+            onHover={(hovered) => preview.hover(hovered ? sides : null)}
+          />
+        ))}
+      </div>
+      {/* Over the tiles but out of the way of the pointer; room above for the lift. */}
+      <div ref={host} id={PREVIEW_ID} aria-hidden className="pointer-events-none absolute -inset-x-1 -top-2 bottom-0 [&_canvas]:block" />
     </div>
   )
 }

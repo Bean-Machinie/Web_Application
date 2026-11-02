@@ -9,14 +9,20 @@ import { DieIcon } from "./DieIcon"
 
 const MODE_NAMES = { normal: "", advantage: "Advantage", disadvantage: "Disadvantage" }
 
-// The values thrown; with two d20s the dropped one is struck through and muted.
+// The values thrown. With two d20s the dropped one is struck through and muted; a d100 shows its
+// two dice, "40 + 7".
 function Values({ roll }: { roll: Roll }) {
+  if (roll.sides === 100) {
+    const [tens, units] = roll.dice
+    return <p className="text-muted-foreground text-xs tabular-nums">{`${String(tens).padStart(2, "0")} + ${units}`}</p>
+  }
   const name = MODE_NAMES[roll.mode]
+  const compared = roll.mode !== "normal"
   return (
     <p className="text-muted-foreground text-xs tabular-nums">
       {name && `${name} · `}
       {roll.dice.map((die, index) => (
-        <span key={index} className={cn(index !== roll.kept && "line-through opacity-60", index === roll.kept && roll.dice.length > 1 && "text-foreground")}>
+        <span key={index} className={cn(compared && index !== roll.kept && "line-through opacity-60", compared && index === roll.kept && "text-foreground")}>
           {index > 0 && ", "}
           {die}
         </span>
