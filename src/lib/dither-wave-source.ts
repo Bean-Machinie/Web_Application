@@ -12,7 +12,8 @@ precision highp float;
 precision highp int;
 uniform vec2 uResolution;
 uniform float uCell;
-uniform float uTime;
+uniform vec2 uOffset;
+uniform float uWipe;
 uniform float uWaveSpeed;
 uniform float uWaveFrequency;
 uniform float uWaveAmplitude;
@@ -71,7 +72,7 @@ float fbm(vec2 p) {
 }
 
 float pattern(vec2 p) {
-  vec2 p2 = p - uTime * uWaveSpeed;
+  vec2 p2 = p - uOffset * uWaveSpeed;
   return fbm(p + fbm(p2));
 }
 
@@ -82,6 +83,10 @@ void main() {
 
   float f = pattern(uv / uScale);
   f = (f - 0.5) * uContrast + 0.5 + uBrightness;
+  // The bright front of a change of scene, travelling out from the middle with the colour wipe.
+  float front = uWipe * uReach;
+  float ring = sin(3.14159265 * uWipe) * exp(-pow((length(uv) - front) / 0.09, 2.0));
+  f += 0.3 * ring;
   float show = clamp((uIntro * uReach - length(uv)) / 0.45, 0.0, 1.0);
   float v = clamp(f, 0.0, 1.0) * show * show * (3.0 - 2.0 * show);
   outColor = vec4(floor(v * 255.0) / 255.0, fract(v * 255.0), 0.0, 1.0);

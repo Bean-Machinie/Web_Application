@@ -10,7 +10,10 @@ uniform ivec2 uFieldSize;
 uniform float uCellDevice;
 uniform int uMode;
 uniform float uColorNum;
-uniform vec3 uWave;
+uniform vec3 uFrom;
+uniform vec3 uTo;
+uniform float uWipe;
+uniform float uReach;
 uniform vec3 uBackground;
 out vec4 outColor;
 
@@ -84,5 +87,9 @@ void main() {
   float v = f + t / levels;
   v = clamp(v - mix(0.2, 0.0, smoothstep(0.45, 0.8, v)), 0.0, 1.0);
   float level = floor(v * levels + 0.5) / levels;
-  outColor = vec4(toSrgb(mix(uBackground, uWave, level)), 1.0);
+  // The new colour spreads from the middle, behind the front the wave pass lights.
+  vec2 uv = (cell + 0.5) / vec2(uFieldSize) - 0.5;
+  uv.x *= float(uFieldSize.x) / float(uFieldSize.y);
+  vec3 waveColor = mix(uFrom, uTo, clamp((uWipe * uReach - length(uv)) / 0.25, 0.0, 1.0));
+  outColor = vec4(toSrgb(mix(uBackground, waveColor, level)), 1.0);
 }`

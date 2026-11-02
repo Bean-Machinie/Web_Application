@@ -9,10 +9,12 @@ import { DashboardHeader } from "./DashboardHeader"
 import { DitherBackground } from "./DitherBackground"
 import { PlainBackgroundContext } from "./plain-background"
 import { useBackground } from "@/theme/useBackground"
+import { useScopeId } from "@/hooks/use-scope-id"
 
 export function DashboardLayout() {
   const [plain, setPlain] = useState(false)
   const { background } = useBackground()
+  const campaignId = useScopeId()
 
   return (
     <SidebarProvider
@@ -35,7 +37,8 @@ export function DashboardLayout() {
             <BreadcrumbProvider>
               <DashboardHeader />
               {/* Positioned, so that it paints over the background, which comes first. */}
-              <div className="relative flex min-w-0 flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
+              {/* Keyed by campaign, so crossing into or out of one plays the entrance. */}
+              <div key={campaignId ?? "home"} className="scope-enter relative flex min-w-0 flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
                 <Outlet />
               </div>
             </BreadcrumbProvider>

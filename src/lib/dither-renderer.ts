@@ -4,10 +4,20 @@ import { DITHER_FRAGMENT } from "./dither-pass-source"
 import { link } from "./dither-program"
 import { WAVE_FRAGMENT } from "./dither-wave-source"
 
+export type DitherFrame = {
+  // How far the waves have drifted, in seconds of travel along each axis.
+  offset: [number, number]
+  // How far the intro has come, from 0 to 1.
+  intro: number
+  // How far the change of scene has come, from 0 to 1, and the colours it goes between.
+  wipe: number
+  from: Float32Array
+  to: Float32Array
+}
+
 export type DitherRenderer = {
   resize: (width: number, height: number) => void
-  // The time of the waves in seconds, and how far the intro has come, from 0 to 1.
-  draw: (time: number, intro: number) => void
+  draw: (frame: DitherFrame) => void
   destroy: () => void
 }
 
@@ -46,7 +56,6 @@ export function createDitherRenderer(canvas: HTMLCanvasElement): DitherRenderer 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
   const framebuffer = gl.createFramebuffer()
 
-  const waveColor = toLinearRgb(DITHER.waveColor)
   const backgroundColor = toLinearRgb(DITHER.backgroundColor)
   const ratio = DITHER.dpr
   const cell = Math.max(1, Math.round(DITHER.pixelSize * ratio))
@@ -67,9 +76,10 @@ export function createDitherRenderer(canvas: HTMLCanvasElement): DitherRenderer 
       gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     },
 
-    draw(time, intro) {
+    draw({ offset, intro, wipe, from, to }) {
       if (gl.isContextLost()) return
       gl.bindVertexArray(vao)
+      const reach = 0.5 * Math.hypot(view.width / view.height, 1) + 0.45
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
       gl.viewport(0, 0, view.cols, view.rows)
@@ -77,7 +87,8 @@ export function createDitherRenderer(canvas: HTMLCanvasElement): DitherRenderer 
       const w = wave.uniforms
       gl.uniform2f(w.uResolution, canvas.width / ratio, canvas.height / ratio)
       gl.uniform1f(w.uCell, cell / ratio)
-      gl.uniform1f(w.uTime, time)
+      gl.uniform2f(w.uOffset, offset[0], offset[1])
+      gl.uniform1f(w.uWipe, wipe)
       gl.uniform1f(w.uWaveSpeed, DITHER.waveSpeed)
       gl.uniform1f(w.uWaveFrequency, DITHER.waveFrequency)
       gl.uniform1f(w.uWaveAmplitude, DITHER.waveAmplitude)
@@ -85,7 +96,7 @@ export function createDitherRenderer(canvas: HTMLCanvasElement): DitherRenderer 
       gl.uniform1f(w.uContrast, DITHER.contrast)
       gl.uniform1f(w.uBrightness, DITHER.brightness)
       gl.uniform1f(w.uIntro, intro)
-      gl.uniform1f(w.uReach, 0.5 * Math.hypot(view.width / view.height, 1) + 0.45)
+      gl.uniform1f(w.uReach, reach)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, null)
@@ -99,7 +110,10 @@ export function createDitherRenderer(canvas: HTMLCanvasElement): DitherRenderer 
       gl.uniform1f(d.uCellDevice, cell)
       gl.uniform1i(d.uMode, MODES[DITHER.ditherMode])
       gl.uniform1f(d.uColorNum, DITHER.colorNum)
-      gl.uniform3fv(d.uWave, waveColor)
+      gl.uniform3fv(d.uFrom, from)
+      gl.uniform3fv(d.uTo, to)
+      gl.uniform1f(d.uWipe, wipe)
+      gl.uniform1f(d.uReach, reach)
       gl.uniform3fv(d.uBackground, backgroundColor)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
     },
