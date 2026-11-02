@@ -157,6 +157,7 @@ export function WorldEntryList() {
                 onSort={setSort}
                 cardSize={cardSize}
                 connections={connections}
+                reachMargins
               />
             )
           }

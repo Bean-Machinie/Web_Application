@@ -26,9 +26,11 @@ type Props = {
   connections: ReadonlyMap<string, number> | null
   // Landscape cards in the grid, for maps.
   wide?: boolean
+  // True when the results sit directly in the page's padding.
+  reachMargins?: boolean
 }
 
-export function WorldEntryResults({ entries, mode, kind, filtered, canManage, manage, selection, sort, onSort, cardSize, connections, wide }: Props) {
+export function WorldEntryResults({ entries, mode, kind, filtered, canManage, manage, selection, sort, onSort, cardSize, connections, wide, reachMargins }: Props) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {entries.length === 0 ? (
@@ -36,7 +38,7 @@ export function WorldEntryResults({ entries, mode, kind, filtered, canManage, ma
       ) : mode === "graph" ? (
         <WorldEntryGraph entries={entries} />
       ) : mode === "grid" ? (
-        <WorldEntryGrid entries={entries} manage={manage} selection={selection} size={cardSize} wide={wide} />
+        <WorldEntryGrid entries={entries} manage={manage} selection={selection} size={cardSize} wide={wide} reachMargins={reachMargins} />
       ) : (
         <WorldEntryTable
           entries={entries}

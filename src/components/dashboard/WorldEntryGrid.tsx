@@ -4,6 +4,7 @@ import type { CardSize } from "@/hooks/use-world-card-size"
 import { useRowReorder } from "@/hooks/use-row-reorder"
 import { useSelectionBox } from "@/hooks/use-selection-box"
 import type { WorldEntry } from "@/lib/world-entries"
+import { cn } from "@/lib/utils"
 import { SelectHint } from "./SelectHint"
 import { SelectionBox } from "./SelectionBox"
 import { WorldEntryCard } from "./WorldEntryCard"
@@ -18,11 +19,13 @@ type Props = {
   size: CardSize
   // Landscape cards, for maps.
   wide?: boolean
+  // True when the grid sits directly in the page's padding.
+  reachMargins?: boolean
 }
 
 const NOTHING: ReadonlySet<string> = new Set()
 
-export function WorldEntryGrid({ entries, manage, selection, size, wide }: Props) {
+export function WorldEntryGrid({ entries, manage, selection, size, wide, reachMargins }: Props) {
   const scroller = useRef<HTMLDivElement>(null)
   const { rowProps } = useRowReorder({
     ids: entries.map((entry) => entry.id),
@@ -44,7 +47,11 @@ export function WorldEntryGrid({ entries, manage, selection, size, wide }: Props
       ref={scroller}
       onPointerDown={onPointerDown}
       style={gridStyle(size, wide)}
-      className="relative grid flex-1 content-start gap-4"
+      className={cn(
+        "relative grid flex-1 content-start gap-4",
+        // Takes over the page's padding so a box can start in the margins too.
+        reachMargins && "-m-4 p-4 md:-m-6 md:p-6"
+      )}
     >
       <SelectionBox box={box} />
       {entries.map((entry, index) => {
