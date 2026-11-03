@@ -2,7 +2,7 @@ import { circle, ENGRAVING_OPACITY, engraving, GOLD, polygon } from "@/lib/dice-
 import { faceFitAvailable } from "@/lib/dice-face-fit"
 import { FACE_SHAPES } from "@/lib/dice-label-shapes"
 import type { FaceShape } from "@/lib/dice-label-shapes"
-import { drawCapsFace } from "@/lib/dice-label-caps"
+import { drawCapsD4, drawCapsFace } from "@/lib/dice-label-caps"
 import { newCanvas, seedOf, toImage } from "@/lib/dice-label-canvas"
 import { smoke } from "@/lib/dice-label-smoke"
 
@@ -21,10 +21,11 @@ export type LabelLayout = "engraved" | "caps"
 
 // The dice each layout draws; the others keep the library's own numerals. The caps need every corner of
 // the face inside the texture: the d6, d8, d10 and d12 have that, and the d20 has it when its layout is
-// fitted. The d4 never does, because the library puts its numbers in three fixed cells away from the corners.
+// fitted. The d4 never does, because the library puts its numbers in three fixed cells away from the corners,
+// so with caps it gets the numeral alone.
 export function typesOf(layout: LabelLayout) {
   if (layout === "engraved") return ["d4", "d6", "d8", "d10", "d100", "d12", "d20"]
-  return faceFitAvailable() ? ["d6", "d8", "d10", "d100", "d12", "d20"] : ["d6", "d8", "d10", "d100", "d12"]
+  return faceFitAvailable() ? ["d4", "d6", "d8", "d10", "d100", "d12", "d20"] : ["d4", "d6", "d8", "d10", "d100", "d12"]
 }
 
 // One face, drawn once and kept.
@@ -33,7 +34,7 @@ export function faceLabel(type: string, text: string, layout: LabelLayout) {
   let image = cache.get(key)
   if (!image) {
     const shape = FACE_SHAPES[type === "d20" && faceFitAvailable() ? "d20fit" : (SHAPE[type] ?? type)]
-    const canvas = layout === "caps" ? drawCapsFace(shape, text) : type === "d4" ? drawD4(text) : drawFace(shape, text)
+    const canvas = type === "d4" ? (layout === "caps" ? drawCapsD4(D4_CELL, text) : drawD4(text)) : layout === "caps" ? drawCapsFace(shape, text) : drawFace(shape, text)
     image = toImage(canvas)
     cache.set(key, image)
   }

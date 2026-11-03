@@ -6,8 +6,12 @@ import type { FaceShape } from "@/lib/dice-label-shapes"
 const SIZE = 512
 const GOLD = "#d4af37"
 const HIGHLIGHT = "#f0d27a"
-const NUMERAL = "#d4af37"
-const FONT = "DiceNumerals, sans-serif"
+// A classic serif from the system, with lining figures, so the numerals look engraved. Nothing is bundled for it.
+const FONT = '"Palatino Linotype", "Book Antiqua", Palatino, "Times New Roman", serif'
+const SHINE = ["#f0d27a", "#b8912f"]
+// The numerals are drawn smaller than the library's, which sat on the face's border, and two digits smaller still.
+const NUMERAL_SCALE = 0.85
+const TWO_DIGITS = 0.92
 // How far a cap runs along each edge, as a part of the edge's length.
 const REACH = 0.24
 // How far the inner curve bows toward the corner: 0 is a straight edge, 1 touches the corner.
@@ -64,17 +68,31 @@ function cap(ctx: CanvasRenderingContext2D, points: Point[], index: number, midd
   ctx.stroke()
 }
 
-// The numeral as the library would draw it, and a cap at every corner the texture shows. A 6 or a 9 gets
-// the library's own dot.
-export function drawCapsFace(shape: FaceShape, text: string) {
-  const { canvas, ctx } = newCanvas(SIZE)
-  ctx.font = `${shape.numeral.size}px ${FONT}`
-  ctx.fillStyle = NUMERAL
+// Bold gold with a faint shine from top to bottom. A 6 or a 9 gets the library's own dot.
+function numeral(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, size: number) {
+  const fitted = size * NUMERAL_SCALE * (text.length > 1 ? TWO_DIGITS : 1)
+  const shine = ctx.createLinearGradient(0, y - fitted * 0.4, 0, y + fitted * 0.4)
+  shine.addColorStop(0, SHINE[0])
+  shine.addColorStop(1, SHINE[1])
+  ctx.font = `700 ${fitted}px ${FONT}`
+  ctx.fillStyle = shine
   ctx.textAlign = "center"
   ctx.textBaseline = "middle"
-  const x = shape.numeral.x ?? SIZE / 2
-  ctx.fillText(text, x, shape.numeral.y)
-  if (text === "6" || text === "9") ctx.fillText("  .", x, shape.numeral.y)
+  ctx.fillText(text, x, y)
+  if (text === "6" || text === "9") ctx.fillText("  .", x, y)
+}
+
+// The d4 has no room for caps, only its numeral, drawn the same way in the cell the library gives it.
+export function drawCapsD4(cell: number, text: string) {
+  const { canvas, ctx } = newCanvas(cell)
+  numeral(ctx, text, cell / 2, cell / 2, cell * 0.6)
+  return canvas
+}
+
+// The numeral and a cap at every corner the texture shows.
+export function drawCapsFace(shape: FaceShape, text: string) {
+  const { canvas, ctx } = newCanvas(SIZE)
+  numeral(ctx, text, shape.numeral.x ?? SIZE / 2, shape.numeral.y, shape.numeral.size)
 
   const points = shape.points ?? []
   const middle = { x: SIZE / 2, y: SIZE / 2 }
