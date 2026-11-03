@@ -1,5 +1,4 @@
 import type { Roll } from "@/lib/dice"
-import type { DiceStyle } from "@/lib/dice-styles"
 
 export const CRITICAL_COLOR = "#d4af37"
 export const FUMBLE_COLOR = "#b4534b"
@@ -16,38 +15,28 @@ export function faceOf(roll: Roll) {
   return roll.dice[roll.kept]
 }
 
-// Only the d20 and the d100 have moments, on their highest and lowest faces. Only the kept die of a d20 counts,
-// so a natural 20 on advantage is still one.
+// Only a natural 20 or a natural 1 on a d20 is a moment, and only the kept die counts, so a natural 20 on
+// advantage is still one. What counts as a critical depends on the game system (in Call of Cthulhu, for
+// instance, 01 on a d100 is a critical and 100 a fumble), so this is the one place to make it system-aware.
+// Until then the d100 only gets the normal tint, like the other dice.
 export function momentOf(roll: Roll): Moment | null {
-  if (roll.sides !== 20 && roll.sides !== 100) return null
+  if (roll.sides !== 20) return null
   const face = faceOf(roll)
-  return face === roll.sides ? "critical" : face === 1 ? "fumble" : null
+  return face === 20 ? "critical" : face === 1 ? "fumble" : null
 }
 
-const rgbOf = (color: string) => {
-  const hex = /^#([0-9a-f]{6})$/i.exec(color === "white" ? "#ffffff" : color)?.[1]
-  return hex ? [0, 2, 4].map((at) => parseInt(hex.slice(at, at + 2), 16)) : null
-}
+const rgbOf = (hex: string) => [1, 3, 5].map((at) => parseInt(hex.slice(at, at + 2), 16))
 
-function luminance(color: string) {
-  const rgb = rgbOf(color)
-  if (!rgb) return 1
-  const [r, g, b] = rgb.map((channel) => channel / 255)
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b
-}
+// The result's own fixed scale, whatever the dice style: neutral in the middle, red for a low roll and gold
+// for a high one. The style only ever colours the 3D dice.
+const NEUTRAL = rgbOf("#e9e7e2")
+const LOW = rgbOf("#c0544b")
+const HIGH = rgbOf("#e0b84a")
 
-// A roll on the low half of its die leans toward red and on the high half toward gold, more the further out
-// it is: a 2 reads as poor next to a 19, and the middle keeps the style's own colour. The strongest ends
-// are left to the moments.
-export function tintOf(roll: Roll, base: string) {
-  const from = rgbOf(base)
-  if (!from) return base
+// How far a roll sits from the middle of its die, from neutral to the end of the scale. A 2 reads as poor
+// next to a 19 on any die; the d20 and the d100 hand their very ends over to the moments.
+export function tintOf(roll: Roll) {
   const spread = ((faceOf(roll) - 1) / (roll.sides - 1)) * 2 - 1
-  const toward = rgbOf(spread < 0 ? FUMBLE_COLOR : CRITICAL_COLOR)
-  if (!toward) return base
-  const amount = Math.abs(spread) * 0.55
-  return `rgb(${from.map((channel, at) => Math.round(channel + (toward[at] - channel) * amount)).join(" ")})`
+  const end = spread < 0 ? LOW : HIGH
+  return `rgb(${NEUTRAL.map((channel, at) => Math.round(channel + (end[at] - channel) * Math.abs(spread))).join(" ")})`
 }
-
-// The result sits on a dark backdrop, so a style whose numerals are dark (ivory, pewter) uses its body colour.
-export const numeralColor = (style: DiceStyle) => (luminance(style.foreground) < 0.4 ? style.background : style.foreground)

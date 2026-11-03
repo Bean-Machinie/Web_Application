@@ -1,10 +1,9 @@
 import { useEffect } from "react"
 import { createPortal } from "react-dom"
 import { motion } from "motion/react"
-import { useDiceStyle } from "@/hooks/use-dice-style"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { MODE_NAMES, notation } from "@/lib/dice"
-import { CRITICAL_COLOR, FUMBLE_COLOR, momentOf, numeralColor, tintOf } from "@/lib/dice-result"
+import { CRITICAL_COLOR, FUMBLE_COLOR, momentOf, tintOf } from "@/lib/dice-result"
 import type { ShownTotal } from "@/hooks/use-roll-presenter"
 import { MomentWord } from "./MomentWord"
 import { RollBreakdown } from "./RollBreakdown"
@@ -15,7 +14,6 @@ const MOMENT_COLORS = { critical: CRITICAL_COLOR, fumble: FUMBLE_COLOR }
 // The result of a roll over the bottom of the screen, as the dice settle; a new roll replaces it, and
 // Escape sends it away. It is drawn into the page body, out of the way of the pointer.
 export function RollResult({ shown, onDismiss }: { shown: ShownTotal | null; onDismiss: () => void }) {
-  const [style] = useDiceStyle()
   const reduced = useReducedMotion()
 
   useEffect(() => {
@@ -28,7 +26,7 @@ export function RollResult({ shown, onDismiss }: { shown: ShownTotal | null; onD
   if (!shown) return null
   const { roll, visible } = shown
   const moment = momentOf(roll)
-  const color = moment ? MOMENT_COLORS[moment] : tintOf(roll, numeralColor(style))
+  const color = moment ? MOMENT_COLORS[moment] : tintOf(roll)
   // One die and no modifier: the breakdown would only repeat the total.
   const plain = roll.sides !== 100 && roll.dice.length === 1 && roll.modifier === 0
   const label = roll.mode === "normal" ? notation(roll) : MODE_NAMES[roll.mode]
