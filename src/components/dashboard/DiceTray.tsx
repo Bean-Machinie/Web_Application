@@ -6,8 +6,6 @@ import { rollLabel } from "@/lib/dice"
 import { cn } from "@/lib/utils"
 import { DiceFelt } from "./DiceFelt"
 import { DiceOptions } from "./DiceOptions"
-import { DiceTotals } from "./DiceTotals"
-import type { ShownTotal } from "@/hooks/use-dice-roller"
 import type { D20Mode, Sides } from "@/lib/dice"
 
 // The d20 first, large on the left; the rest fill the three columns beside it, row by row.
@@ -57,7 +55,6 @@ function DieCell({ sides, label, loading, area, onRoll, onHover }: TileProps) {
 }
 
 type Props = {
-  totals: ShownTotal[]
   modifier: number
   onModifier: (value: number) => void
   mode: D20Mode
@@ -66,7 +63,7 @@ type Props = {
 }
 
 // The dice on a very soft glow, with the roll options in a plain row under them.
-export function DiceTray({ totals, modifier, onModifier, mode, onMode, onRoll }: Props) {
+export function DiceTray({ modifier, onModifier, mode, onMode, onRoll }: Props) {
   const host = useRef<HTMLDivElement>(null)
   const areas = useRef<Partial<Record<Sides, HTMLElement | null>>>({})
   const preview = useDicePreview(host, areas)
@@ -97,7 +94,6 @@ export function DiceTray({ totals, modifier, onModifier, mode, onMode, onRoll }:
         </div>
         {/* Covers the dice, with the padding as room for a die that grows; out of the way of the pointer. */}
         <div ref={host} aria-hidden className="pointer-events-none absolute inset-0 [&_canvas]:block" />
-        <DiceTotals totals={totals} />
       </div>
       <DiceOptions modifier={modifier} onModifier={onModifier} mode={mode} onMode={onMode} />
     </div>

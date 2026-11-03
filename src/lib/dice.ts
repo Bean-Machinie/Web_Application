@@ -1,6 +1,7 @@
 export const DICE = [4, 6, 8, 10, 12, 20, 100] as const
 export type Sides = (typeof DICE)[number]
 export type D20Mode = "normal" | "advantage" | "disadvantage"
+export const MODE_NAMES: Record<D20Mode, string> = { normal: "", advantage: "Advantage", disadvantage: "Disadvantage" }
 
 export type Roll = {
   id: number

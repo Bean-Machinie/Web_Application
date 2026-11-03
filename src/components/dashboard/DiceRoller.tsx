@@ -14,6 +14,7 @@ import { DiceHistory } from "./DiceHistory"
 import { DiceOverlay } from "./DiceOverlay"
 import { DiceStylePicker } from "./DiceStylePicker"
 import { DiceTray } from "./DiceTray"
+import { RollResult } from "./RollResult"
 
 // A dice roller in the header. The panel stays open while the dice roll; the history lives only
 // as long as the page.
@@ -21,7 +22,7 @@ export function DiceRoller() {
   const [open, setOpen] = useState(false)
   const [modifier, setModifier] = useState(0)
   const [mode, setMode] = useState<D20Mode>("normal")
-  const { history, layers, totals, roll, clear } = useDiceRoller()
+  const { history, layers, shown, dismiss, roll, clear } = useDiceRoller()
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -68,12 +69,13 @@ export function DiceRoller() {
               </PopoverContent>
             </Popover>
           </header>
-          <DiceTray totals={totals} modifier={modifier} onModifier={setModifier} mode={mode} onMode={setMode} onRoll={(sides) => roll(sides, modifier, mode)} />
+          <DiceTray modifier={modifier} onModifier={setModifier} mode={mode} onMode={setMode} onRoll={(sides) => roll(sides, modifier, mode)} />
           <DiceHistory rolls={history} onClear={clear} />
           </div>
         </PopoverContent>
       </Popover>
       <DiceOverlay layers={layers} />
+      <RollResult shown={shown} onDismiss={dismiss} />
     </>
   )
 }

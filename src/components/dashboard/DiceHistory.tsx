@@ -2,13 +2,11 @@ import { useEffect, useState } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { notation, rollAge } from "@/lib/dice"
+import { MODE_NAMES, notation, rollAge } from "@/lib/dice"
 import type { Roll } from "@/lib/dice"
 import { useDieSnapshot } from "@/hooks/use-die-snapshot"
 import { DieIcon } from "./DieIcon"
 import { ScrollShadow } from "./ScrollShadow"
-
-const MODE_NAMES = { normal: "", advantage: "Advantage", disadvantage: "Disadvantage" }
 
 // The values thrown. With two d20s the dropped one is struck through and muted; a d100 shows its
 // two dice, "40 + 7".
