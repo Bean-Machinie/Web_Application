@@ -1,20 +1,16 @@
 import { useEffect } from "react"
 import { createPortal } from "react-dom"
 import { motion } from "motion/react"
-import { SlidingNumber } from "@/components/SlidingNumber"
 import { useDiceStyle } from "@/hooks/use-dice-style"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { MODE_NAMES, notation } from "@/lib/dice"
 import { CRITICAL_COLOR, FUMBLE_COLOR, momentOf, numeralColor } from "@/lib/dice-result"
 import type { ShownTotal } from "@/hooks/use-roll-presenter"
+import { MomentWord } from "./MomentWord"
 import { RollBreakdown } from "./RollBreakdown"
+import { RollTotal } from "./RollTotal"
 
-const MOMENTS = {
-  critical: { color: CRITICAL_COLOR, word: "Critical" },
-  fumble: { color: FUMBLE_COLOR, word: "Fumble" },
-}
-
-const tapering = "h-px w-[120px] to-current opacity-50"
+const MOMENT_COLORS = { critical: CRITICAL_COLOR, fumble: FUMBLE_COLOR }
 
 // The result of a roll over the bottom of the screen, as the dice settle; a new roll replaces it, and
 // Escape sends it away. It is drawn into the page body, out of the way of the pointer.
@@ -32,7 +28,8 @@ export function RollResult({ shown, onDismiss }: { shown: ShownTotal | null; onD
   if (!shown) return null
   const { roll, visible } = shown
   const moment = momentOf(roll)
-  const color = moment ? MOMENTS[moment].color : numeralColor(style)
+  const numeral = numeralColor(style)
+  const color = moment ? MOMENT_COLORS[moment] : numeral
   // One die and no modifier: the breakdown would only repeat the total.
   const plain = roll.sides !== 100 && roll.dice.length === 1 && roll.modifier === 0
   const label = roll.mode === "normal" ? notation(roll) : MODE_NAMES[roll.mode]
@@ -48,21 +45,15 @@ export function RollResult({ shown, onDismiss }: { shown: ShownTotal | null; onD
     >
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-60 bg-gradient-to-t from-black/60 to-transparent" />
       <motion.div
-        initial={{ y: reduced ? 0 : 8 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        // A fumble starts in the style's own colour and drains to red.
+        initial={{ y: reduced ? 0 : 8, color: moment === "fumble" && !reduced ? numeral : color }}
+        animate={{ y: 0, color }}
+        transition={{ duration: 0.3, ease: "easeOut", color: { delay: 0.15, duration: 0.3 } }}
         className="relative mb-24 flex flex-col items-center gap-1 text-center"
-        style={{ color }}
       >
         <p className="text-xs tracking-[0.3em] text-white/60 uppercase">{label}</p>
-        {moment && <p className="text-xs font-medium tracking-[0.35em] uppercase">{MOMENTS[moment].word}</p>}
-        <div className="flex items-center gap-5">
-          <span aria-hidden className={`${tapering} bg-gradient-to-r from-transparent`} />
-          <p className="text-6xl leading-none font-semibold tabular-nums" style={moment === "critical" ? { textShadow: `0 0 28px ${color}99` } : undefined}>
-            {reduced ? roll.total : <SlidingNumber value={roll.total} />}
-          </p>
-          <span aria-hidden className={`${tapering} bg-gradient-to-l from-transparent`} />
-        </div>
+        {moment && <MomentWord moment={moment} reduced={reduced} />}
+        <RollTotal roll={roll} moment={moment} reduced={reduced} />
         {plain ? null : (
           <p className="text-xs tabular-nums text-white/60">
             <RollBreakdown roll={roll} />

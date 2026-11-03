@@ -10,6 +10,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useDiceRoller } from "@/hooks/use-dice-roller"
 import { isTyping } from "@/lib/entry-selection"
 import type { D20Mode } from "@/lib/dice"
+import { installDiceDev } from "@/lib/dice-dev"
+import { DiceDevRow } from "./DiceDevRow"
 import { DiceHistory } from "./DiceHistory"
 import { DiceOverlay } from "./DiceOverlay"
 import { DiceStylePicker } from "./DiceStylePicker"
@@ -22,7 +24,9 @@ export function DiceRoller() {
   const [open, setOpen] = useState(false)
   const [modifier, setModifier] = useState(0)
   const [mode, setMode] = useState<D20Mode>("normal")
-  const { history, layers, shown, dismiss, roll, clear } = useDiceRoller()
+  const { history, layers, shown, dismiss, replay, roll, clear } = useDiceRoller()
+
+  useEffect(() => (import.meta.env.DEV ? installDiceDev(replay) : undefined), [replay])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -71,6 +75,7 @@ export function DiceRoller() {
           </header>
           <DiceTray modifier={modifier} onModifier={setModifier} mode={mode} onMode={setMode} onRoll={(sides) => roll(sides, modifier, mode)} />
           <DiceHistory rolls={history} onClear={clear} />
+          {import.meta.env.DEV && <DiceDevRow onReplay={replay} />}
           </div>
         </PopoverContent>
       </Popover>

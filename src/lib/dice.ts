@@ -1,4 +1,6 @@
-export const DICE = [4, 6, 8, 10, 12, 20, 100] as const
+import { takeForcedFace } from "@/lib/dice-dev"
+
+export const DICE =[4, 6, 8, 10, 12, 20, 100] as const
 export type Sides = (typeof DICE)[number]
 export type D20Mode = "normal" | "advantage" | "disadvantage"
 export const MODE_NAMES: Record<D20Mode, string> = { normal: "", advantage: "Advantage", disadvantage: "Disadvantage" }
@@ -42,6 +44,7 @@ export function rollDice(sides: Sides, modifier: number, mode: D20Mode): Roll {
   const dice = Array.from({ length: count }, () => randomInt(sides))
   const pick = applied === "disadvantage" ? Math.min : Math.max
   const kept = dice.indexOf(pick(...dice))
+  if (import.meta.env.DEV && sides === 20) takeForcedFace(dice, kept, applied)
   return { id: nextId++, sides, modifier, mode: applied, at: Date.now(), dice, kept, total: dice[kept] + modifier }
 }
 

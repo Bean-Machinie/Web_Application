@@ -17,7 +17,7 @@ export function useDiceRoller() {
   // Rolls still playing. A click past the number of layers is ignored, so spamming cannot pile up rolls.
   const active = useRef(0)
   const [layers, setLayers] = useState<boolean[]>([])
-  const { history, shown, present, dismiss, clear } = useRollPresenter()
+  const { history, shown, present, replay, dismiss, clear } = useRollPresenter()
 
   const setLayer = (slot: number, on: boolean) =>
     setLayers((current) => Object.assign([], current, { [slot]: on }))
@@ -47,5 +47,5 @@ export function useDiceRoller() {
     active.current--
   }
 
-  return { history, layers, shown, dismiss, roll, clear }
+  return { history, layers, shown, dismiss, replay, roll, clear }
 }
