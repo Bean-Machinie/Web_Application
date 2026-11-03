@@ -45,18 +45,12 @@ function getEngine() {
   return engine
 }
 
-// The engine with the style's colorset ready, and the dice of other styles dropped from the scene.
+// The engine with the style's colorset ready. Dice of every style stay in the scene, since the style picker
+// shows them all at once; drawDice shows only the one it is asked for.
 export async function styledEngine(style: DiceStyle) {
   const created = await getEngine()
   if (!colorsets.has(style.id)) colorsets.set(style.id, await created.DiceColors.makeColorSet(style))
   await prepareLabels(created, style)
-  // A request for a style already replaced must not take the current style's dice away.
-  if (style.id !== getDiceStyle().id) return created
-  for (const [key, mesh] of meshes) {
-    if (key.startsWith(`${style.id}/`)) continue
-    created.scene.remove(mesh)
-    meshes.delete(key)
-  }
   return created
 }
 

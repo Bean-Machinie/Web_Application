@@ -1,9 +1,12 @@
+import { useState } from "react"
 import { CircleOff, Image, Sparkles } from "lucide-react"
 import { RadioGroup } from "radix-ui"
-import { DiceStylePicker } from "@/components/dashboard/DiceStylePicker"
+import { DiceStyleDialog } from "@/components/dashboard/DiceStyleDialog"
 import { SettingsHelp, SettingsRow } from "@/components/dashboard/SettingsRow"
 import { ThemeOptionCard } from "@/components/dashboard/ThemeOptionCard"
+import { Button } from "@/components/ui/button"
 import { SegmentedControl } from "@/components/ui/segmented-control"
+import { useDiceStyle } from "@/hooks/use-dice-style"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useBackground } from "@/theme/useBackground"
 import { useTheme } from "@/theme/useTheme"
@@ -27,6 +30,8 @@ export function SettingsAppearance() {
   const { theme, setTheme, resolved } = useTheme()
   const { background, setBackground } = useBackground()
   const reducedMotion = useReducedMotion()
+  const [diceStyle] = useDiceStyle()
+  const [styleOpen, setStyleOpen] = useState(false)
   const lightTheme = resolved === "light"
 
   return (
@@ -58,7 +63,12 @@ export function SettingsAppearance() {
         )}
       </SettingsRow>
       <SettingsRow width="wide" title="Dice" description="The look of the dice you roll.">
-        <DiceStylePicker />
+        <Button variant="outline" onClick={() => setStyleOpen(true)}>
+          <span aria-hidden style={{ backgroundColor: diceStyle.background }} className="ring-foreground/20 size-3.5 rounded-full ring-1" />
+          {diceStyle.label}
+          <span className="text-muted-foreground">Change</span>
+        </Button>
+        <DiceStyleDialog open={styleOpen} onOpenChange={setStyleOpen} />
       </SettingsRow>
     </div>
   )

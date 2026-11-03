@@ -41,6 +41,7 @@ declare module "@3d-dice/dice-box-threejs" {
     clear(): void
     render(scene: unknown, camera: DiceCamera): void
     dispose(): void
+    forceContextLoss(): void
   }
 
   export default class DiceBox {

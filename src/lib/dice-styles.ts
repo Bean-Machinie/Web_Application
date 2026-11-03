@@ -12,8 +12,6 @@ export type DiceStyle = {
   // A texture from the library's own list, which brings its material unless one is given.
   texture: string
   material?: string
-  // Still on trial; the picker says so.
-  experimental?: boolean
   // The numerals are drawn pictures in this layout (see dice-labels.ts) instead of the library's text.
   labels?: LabelLayout
   // Plastic's shininess; the library's own default when left out.
@@ -40,7 +38,8 @@ const style = (colors: Colors): DiceStyle => ({
   material: "none",
 })
 
-export const DICE_STYLES: DiceStyle[] = [
+// Plain colours of plastic.
+export const CLASSIC_STYLES: DiceStyle[] = [
   style({ id: "charcoal", label: "Charcoal", background: "#2b2b2f", foreground: "#ffffff", edge: "#55555c" }),
   style({ id: "ivory", label: "Ivory", background: "#e9e0cc", foreground: "#1c1a17", edge: "#f6efde" }),
   style({ id: "obsidian", label: "Obsidian", background: "#0c0c0e", foreground: "#d4af37", edge: "#2e2e34", shininess: 80, specular: 0x8a8a8a }),
@@ -55,15 +54,18 @@ const textured = (look: Pick<DiceStyle, "id" | "label" | "background" | "foregro
   outline: "none",
 })
 
-// The library's own marble and "astralsea" looks; the textures are copied to public/dice-textures.
-export const EXPERIMENTAL_STYLES: DiceStyle[] = ([
-  textured({ id: "marble", label: "Marble", background: "#c9ccd1", foreground: "#1f2328", edge: "#dfe2e6", texture: "marble" }),
-  textured({ id: "astral", label: "Astral", background: "white", foreground: "#565656", edge: "white", texture: "astral" }),
-  { ...textured({ id: "arcane", label: "Arcane", background: "#1d3a3c", foreground: "#d4af37", edge: "#16302f", texture: "none" }), material: "glass", labels: "engraved" as const },
+// Styles with a texture, a material or drawn numerals; the textures are copied to public/dice-textures.
+export const CRAFTED_STYLES: DiceStyle[] = [
   // Obsidian with a gold edge: the bevel faces take the edge colour and the same gloss as the body.
   { ...style({ id: "obsidian-gilt", label: "Obsidian Gilt", background: "#0c0c0e", foreground: "#d4af37", edge: "#c9a441", shininess: 80, specular: 0x8a8a8a }), labels: "caps" as const },
-]).map((style) => ({ ...style, experimental: true }))
+  { ...textured({ id: "arcane", label: "Arcane", background: "#1d3a3c", foreground: "#d4af37", edge: "#16302f", texture: "none" }), material: "glass", labels: "engraved" as const },
+  textured({ id: "marble", label: "Marble", background: "#c9ccd1", foreground: "#1f2328", edge: "#dfe2e6", texture: "marble" }),
+  textured({ id: "astral", label: "Astral", background: "white", foreground: "#565656", edge: "white", texture: "astral" }),
+]
 
-export const ALL_DICE_STYLES = [...DICE_STYLES, ...EXPERIMENTAL_STYLES]
+export const ALL_DICE_STYLES = [...CLASSIC_STYLES, ...CRAFTED_STYLES]
 
-export const findDiceStyle = (id: string | null) => ALL_DICE_STYLES.find((style) => style.id === id) ?? DICE_STYLES[0]
+// What anyone without a saved choice (or with one that no longer exists) gets.
+const DEFAULT_STYLE = CRAFTED_STYLES[0]
+
+export const findDiceStyle = (id: string | null) => ALL_DICE_STYLES.find((style) => style.id === id) ?? DEFAULT_STYLE
