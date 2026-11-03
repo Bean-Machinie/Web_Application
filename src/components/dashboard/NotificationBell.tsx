@@ -6,6 +6,7 @@ import { BellIcon } from "@/components/icons/BellIcon"
 import { Icon } from "@/components/Icon"
 import { HoverIcon } from "@/components/icons/HoverIcon"
 import { SettingsIcon } from "@/components/icons/SettingsIcon"
+import { PanelArrow } from "@/components/PanelArrow"
 import { IconButton } from "@/components/IconButton"
 import { Button } from "@/components/ui/button"
 import {
@@ -84,9 +85,12 @@ export function NotificationBell() {
       <PopoverContent
         ref={content}
         align="end"
-        sideOffset={8}
-        className="w-[min(26rem,calc(100vw-2rem))] gap-0 overflow-hidden rounded-xl p-0"
+        sideOffset={1}
+        arrowPadding={16}
+        className="w-[min(26rem,calc(100vw-2rem))] gap-0 rounded-xl p-0"
       >
+        <PanelArrow />
+        <div className="flex flex-col overflow-hidden rounded-[inherit]">
         <div className="flex items-center gap-2 border-b px-4 py-3">
           <h3 className="text-sm font-semibold">Notifications</h3>
           {unreadCount > 0 && (
@@ -113,6 +117,7 @@ export function NotificationBell() {
           >
             <HoverIcon icon={SettingsIcon} size={16} />
           </Button>
+        </div>
         </div>
       </PopoverContent>
     </Popover>

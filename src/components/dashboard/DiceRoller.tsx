@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Settings } from "lucide-react"
 import { Dice6Icon } from "@/components/icons/Dice6Icon"
 import { IconButton } from "@/components/IconButton"
+import { PanelArrow } from "@/components/PanelArrow"
 import { Button } from "@/components/ui/button"
 import { KeyChips } from "@/components/ui/key-chips"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -45,7 +46,9 @@ export function DiceRoller() {
             Roll dice <KeyChips keys={["R"]} />
           </TooltipContent>
         </Tooltip>
-        <PopoverContent align="end" sideOffset={8} className="h-[min(34rem,var(--radix-popover-content-available-height))] w-[22.5rem] gap-4 overflow-hidden p-4" onOpenAutoFocus={(event) => event.preventDefault()}>
+        <PopoverContent align="end" alignOffset={-400} sideOffset={1} arrowPadding={16} className="h-[min(34rem,var(--radix-popover-content-available-height))] w-[22.5rem] p-0" onOpenAutoFocus={(event) => event.preventDefault()}>
+          <PanelArrow />
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden rounded-[inherit] p-4">
           <header className="-mx-4 flex items-baseline justify-between gap-3 border-b px-4 pb-3">
             <h2 className="text-sm font-semibold">Roll dice</h2>
             <Popover>
@@ -67,6 +70,7 @@ export function DiceRoller() {
           </header>
           <DiceTray modifier={modifier} onModifier={setModifier} mode={mode} onMode={setMode} onRoll={(sides) => roll(sides, modifier, mode)} />
           <DiceHistory rolls={history} onClear={clear} />
+          </div>
         </PopoverContent>
       </Popover>
       <DiceOverlay layers={layers} totals={totals} />

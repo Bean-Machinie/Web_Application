@@ -1,14 +1,27 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useDiceStyle } from "@/hooks/use-dice-style"
-import { DICE_STYLES } from "@/lib/dice-styles"
+import { DICE_STYLES, EXPERIMENTAL_STYLES } from "@/lib/dice-styles"
+import type { DiceStyle } from "@/lib/dice-styles"
 import { cn } from "@/lib/utils"
 
 // Round swatches: the body colour with a small dot of the numeral colour, the current one ringed.
 export function DiceStylePicker({ className }: { className?: string }) {
+  return (
+    <div className={cn("grid gap-3", className)}>
+      <Swatches styles={DICE_STYLES} label="Dice style" />
+      <div className="grid gap-2">
+        <p className="text-muted-foreground text-xs">Experimental</p>
+        <Swatches styles={EXPERIMENTAL_STYLES} label="Experimental dice style" />
+      </div>
+    </div>
+  )
+}
+
+function Swatches({ styles, label }: { styles: DiceStyle[]; label: string }) {
   const [current, setStyle] = useDiceStyle()
   return (
-    <div role="radiogroup" aria-label="Dice style" className={cn("flex flex-wrap gap-2.5", className)}>
-      {DICE_STYLES.map((style) => (
+    <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-2.5">
+      {styles.map((style) => (
         <Tooltip key={style.id}>
           <TooltipTrigger asChild>
             <button
@@ -26,7 +39,7 @@ export function DiceStylePicker({ className }: { className?: string }) {
               <span aria-hidden style={{ backgroundColor: style.foreground }} className="absolute top-1/2 left-1/2 size-2 -translate-1/2 rounded-full" />
             </button>
           </TooltipTrigger>
-          <TooltipContent>{style.label}</TooltipContent>
+          <TooltipContent>{style.experimental ? `${style.label} · Experimental` : style.label}</TooltipContent>
         </Tooltip>
       ))}
     </div>

@@ -16,7 +16,7 @@ export function DiceOverlay({ layers, totals }: Props) {
           className={cn("absolute inset-0 transition-opacity duration-500", layers[slot] ? "opacity-100" : "opacity-0")}
         />
       ))}
-      <div className="fixed top-24 right-[25rem] flex flex-col items-end gap-1 max-md:right-1/2 max-md:translate-x-1/2">
+      <div className="fixed top-24 right-[24rem] flex flex-col items-end gap-1 max-md:right-1/2 max-md:translate-x-1/2">
         {totals.map(({ roll, visible }) => (
           <span key={roll.id} className={cn("text-7xl font-semibold tabular-nums drop-shadow-lg transition-opacity duration-500", visible ? "opacity-100" : "opacity-0")}>
             {roll.total}

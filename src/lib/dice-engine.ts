@@ -1,9 +1,9 @@
 import type DiceBox from "@3d-dice/dice-box-threejs"
 import type { DiceCamera, DiceMesh, DiceRenderer } from "@3d-dice/dice-box-threejs"
 import { getDiceStyle } from "@/lib/dice-style-store"
-import { loadDiceLib } from "@/lib/dice-box"
-import { applyDiceLighting } from "@/lib/dice-lighting"
-import { DEFAULT_SHININESS } from "@/lib/dice-styles"
+import { DICE_ASSET_PATH, loadDiceLib } from "@/lib/dice-box"
+import { applyTileLighting } from "@/lib/dice-lighting"
+import { glossOf } from "@/lib/dice-styles"
 import type { Sides } from "@/lib/dice"
 import type { DiceStyle } from "@/lib/dice-styles"
 
@@ -29,10 +29,10 @@ function getEngine() {
     hidden.id = "dice-engine"
     hidden.style.cssText = "position:fixed;width:256px;height:256px;visibility:hidden;pointer-events:none"
     document.body.appendChild(hidden)
-    const created = new Library("#dice-engine", { theme_customColorset: getDiceStyle(), theme_material: "none", shadows: false, sounds: false })
+    const created = new Library("#dice-engine", { assetPath: DICE_ASSET_PATH, theme_customColorset: getDiceStyle(), theme_material: "none", shadows: false, sounds: false })
     await created.initialize()
     created.desk.visible = false
-    applyDiceLighting(created)
+    applyTileLighting(created)
     return created
   })
   engine.catch(() => (engine = undefined))
@@ -59,7 +59,7 @@ function meshOf(created: DiceBox, type: string, style: DiceStyle) {
   if (!mesh) {
     const factory = created.DiceFactory
     factory.applyColorSet(colorsets.get(style.id))
-    factory.material_options.shininess = style.shininess ?? DEFAULT_SHININESS
+    Object.assign(factory.material_options, glossOf(style))
     mesh = factory.create(type) ?? undefined
     if (!mesh) throw new Error(`The library has no ${type} die`)
     mesh.geometry.computeBoundingSphere()
