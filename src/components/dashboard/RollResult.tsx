@@ -28,8 +28,7 @@ export function RollResult({ shown, onDismiss }: { shown: ShownTotal | null; onD
   if (!shown) return null
   const { roll, visible } = shown
   const moment = momentOf(roll)
-  const numeral = numeralColor(style)
-  const color = moment ? MOMENT_COLORS[moment] : numeral
+  const color = moment ? MOMENT_COLORS[moment] : numeralColor(style)
   // One die and no modifier: the breakdown would only repeat the total.
   const plain = roll.sides !== 100 && roll.dice.length === 1 && roll.modifier === 0
   const label = roll.mode === "normal" ? notation(roll) : MODE_NAMES[roll.mode]
@@ -45,11 +44,11 @@ export function RollResult({ shown, onDismiss }: { shown: ShownTotal | null; onD
     >
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-60 bg-gradient-to-t from-black/60 to-transparent" />
       <motion.div
-        // A fumble starts in the style's own colour and drains to red.
-        initial={{ y: reduced ? 0 : 8, color: moment === "fumble" && !reduced ? numeral : color }}
-        animate={{ y: 0, color }}
-        transition={{ duration: 0.3, ease: "easeOut", color: { delay: 0.15, duration: 0.3 } }}
+        initial={{ y: reduced ? 0 : 8 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         className="relative mb-24 flex flex-col items-center gap-1 text-center"
+        style={{ color }}
       >
         <p className="text-xs tracking-[0.3em] text-white/60 uppercase">{label}</p>
         {moment && <MomentWord moment={moment} reduced={reduced} />}
