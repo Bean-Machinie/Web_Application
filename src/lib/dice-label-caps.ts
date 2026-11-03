@@ -85,7 +85,7 @@ function numeral(ctx: CanvasRenderingContext2D, text: string, x: number, y: numb
 // The d4 has no room for caps, only its numeral, drawn the same way in the cell the library gives it.
 export function drawCapsD4(cell: number, text: string) {
   const { canvas, ctx } = newCanvas(cell)
-  numeral(ctx, text, cell / 2, cell / 2, cell * 0.6)
+  numeral(ctx, text, cell / 2, cell / 2, cell * 0.85)
   return canvas
 }
 

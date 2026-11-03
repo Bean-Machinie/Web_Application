@@ -23,7 +23,7 @@ type Piece = {
   round: boolean
 }
 
-// Confetti bursts out of the number, left and right: pieces are fired up and outward, tumble and flip as they
+// Confetti bursts out beside the number, left and right: pieces are fired up and outward, tumble and flip as they
 // slow, and then drift down and fade.
 export function createConfetti(rect: DOMRect): Effect {
   const centre = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
@@ -32,8 +32,8 @@ export function createConfetti(rect: DOMRect): Effect {
       const lean = between(0.15, 0.75)
       const speed = between(520, 1000)
       return {
-        // Out of the digits themselves: from the left half of the number to the left, from the right half to the right.
-        x: centre.x + side * between(0, rect.width * 0.4),
+        // Just outside the number, on its own side, so the pieces do not start on top of the digits.
+        x: centre.x + side * between(rect.width * 0.5 + 20, rect.width * 0.5 + 110),
         y: centre.y + between(-rect.height * 0.25, rect.height * 0.25),
         vx: side * Math.sin(lean) * speed,
         vy: -Math.cos(lean) * speed,

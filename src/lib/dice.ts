@@ -1,4 +1,4 @@
-import { takeForcedFace } from "@/lib/dice-dev"
+import { pinKept, takeForced } from "@/lib/dice-dev"
 
 export const DICE =[4, 6, 8, 10, 12, 20, 100] as const
 export type Sides = (typeof DICE)[number]
@@ -32,7 +32,7 @@ let nextId = 0
 
 // 1 to 100 as the percentile die and the d10 show it: 47 is 40 and 7, and 100 is 00 and 0.
 function rollPercentile(modifier: number): Roll {
-  const value = randomInt(100)
+  const value = (import.meta.env.DEV ? takeForced(100) : null) ?? randomInt(100)
   const dice = [(Math.floor(value / 10) * 10) % 100, value % 10]
   return { id: nextId++, sides: 100, modifier, mode: "normal", at: Date.now(), dice, kept: 0, total: value + modifier }
 }
@@ -44,7 +44,8 @@ export function rollDice(sides: Sides, modifier: number, mode: D20Mode): Roll {
   const dice = Array.from({ length: count }, () => randomInt(sides))
   const pick = applied === "disadvantage" ? Math.min : Math.max
   const kept = dice.indexOf(pick(...dice))
-  if (import.meta.env.DEV && sides === 20) takeForcedFace(dice, kept, applied)
+  const forced = import.meta.env.DEV ? takeForced(sides) : null
+  if (forced !== null) pinKept(dice, kept, applied, forced)
   return { id: nextId++, sides, modifier, mode: applied, at: Date.now(), dice, kept, total: dice[kept] + modifier }
 }
 

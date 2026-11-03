@@ -4,7 +4,7 @@ import { motion } from "motion/react"
 import { useDiceStyle } from "@/hooks/use-dice-style"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { MODE_NAMES, notation } from "@/lib/dice"
-import { CRITICAL_COLOR, FUMBLE_COLOR, momentOf, numeralColor } from "@/lib/dice-result"
+import { CRITICAL_COLOR, FUMBLE_COLOR, momentOf, numeralColor, tintOf } from "@/lib/dice-result"
 import type { ShownTotal } from "@/hooks/use-roll-presenter"
 import { MomentWord } from "./MomentWord"
 import { RollBreakdown } from "./RollBreakdown"
@@ -28,7 +28,7 @@ export function RollResult({ shown, onDismiss }: { shown: ShownTotal | null; onD
   if (!shown) return null
   const { roll, visible } = shown
   const moment = momentOf(roll)
-  const color = moment ? MOMENT_COLORS[moment] : numeralColor(style)
+  const color = moment ? MOMENT_COLORS[moment] : tintOf(roll, numeralColor(style))
   // One die and no modifier: the breakdown would only repeat the total.
   const plain = roll.sides !== 100 && roll.dice.length === 1 && roll.modifier === 0
   const label = roll.mode === "normal" ? notation(roll) : MODE_NAMES[roll.mode]
