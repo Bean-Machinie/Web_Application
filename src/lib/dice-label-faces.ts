@@ -45,7 +45,7 @@ export function applyLabels(box: DiceBox, style: DiceStyle) {
   }
 }
 
-// The caps style needs the d20's corners inside its texture, which its geometry builder is told to do.
+// A style with drawn labels needs the d20's corners inside its texture, which its geometry builder is told to do.
 export function applyFaceFit(box: DiceBox, style: DiceStyle) {
-  setFaceFit(box, style.labels === "caps" && faceFitAvailable())
+  setFaceFit(box, Boolean(style.labels) && faceFitAvailable())
 }

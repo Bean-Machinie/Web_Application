@@ -45,11 +45,20 @@ const kite = [
 const NUMERAL = { size: (SIZE / 3) * (4 / 3), y: SIZE / 2 + 10 }
 const D10_NUMERAL = { size: NUMERAL.size * 0.75, y: (SIZE / 2 + 10) * 1.15 - 10 }
 
+// The distance from a point to the nearest edge of a face: the largest circle about it that fits.
+const clearance = (corners: { x: number; y: number }[], about: { x: number; y: number }) =>
+  Math.min(
+    ...corners.map((a, index) => {
+      const b = corners[(index + 1) % corners.length]
+      return Math.abs((b.x - a.x) * (a.y - about.y) - (a.x - about.x) * (b.y - a.y)) / Math.hypot(b.x - a.x, b.y - a.y)
+    })
+  )
+
 export const FACE_SHAPES: Record<string, FaceShape> = {
   d6: { inradius: 0.32, circumradius: 0.4545, corners: corners(4, 45, 0), points: points(corners(4, 45, 0), 0.4545), numeral: NUMERAL },
   d8: { inradius: 0.25, circumradius: 0.5, corners: corners(3, -22.5, -7.5), points: points(corners(3, -22.5, -7.5), 0.5), numeral: NUMERAL },
-  // A kite with its own texture layout, so no corners are known to draw lines toward.
-  d10: { inradius: 0.2, circumradius: 0.385, corners: [], points: kite, numeral: D10_NUMERAL },
+  // A kite whose corners the library places by hand; the library puts its numeral at the middle of the circle that fits in it.
+  d10: { inradius: clearance(kite, { x: SIZE / 2, y: D10_NUMERAL.y }) / SIZE, circumradius: 0.385, corners: [], points: kite, numeral: D10_NUMERAL },
   d12: { inradius: 0.337, circumradius: 0.417, corners: corners(5, -22.5, 5), points: points(corners(5, -22.5, 5), 0.417), numeral: NUMERAL },
   // Its corners lie beyond the texture, so only the middle of each edge shows.
   d20: { inradius: 0.31, circumradius: 0.625, corners: corners(3, -22.5, -7.5), numeral: { ...NUMERAL, x: SIZE / 2 - 0.02 * (SIZE / 2) } },

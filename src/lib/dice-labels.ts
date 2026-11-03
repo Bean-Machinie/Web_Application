@@ -1,4 +1,4 @@
-import { around, circle, ENGRAVING_OPACITY, engraving, GOLD, polygon } from "@/lib/dice-label-engraving"
+import { circle, ENGRAVING_OPACITY, engraving, GOLD, polygon } from "@/lib/dice-label-engraving"
 import { faceFitAvailable } from "@/lib/dice-face-fit"
 import { FACE_SHAPES } from "@/lib/dice-label-shapes"
 import type { FaceShape } from "@/lib/dice-label-shapes"
@@ -32,7 +32,7 @@ export function faceLabel(type: string, text: string, layout: LabelLayout) {
   const key = `${layout}/${type}/${text}`
   let image = cache.get(key)
   if (!image) {
-    const shape = FACE_SHAPES[layout === "caps" && type === "d20" ? "d20fit" : (SHAPE[type] ?? type)]
+    const shape = FACE_SHAPES[type === "d20" && faceFitAvailable() ? "d20fit" : (SHAPE[type] ?? type)]
     const canvas = layout === "caps" ? drawCapsFace(shape, text) : type === "d4" ? drawD4(text) : drawFace(shape, text)
     image = toImage(canvas)
     cache.set(key, image)
@@ -74,21 +74,29 @@ function drawFace(shape: FaceShape, text: string) {
   return canvas
 }
 
-// The d4 is limited to the three small cells its numbers go in, so the triangle and dots go around each number.
+// The d4 is limited to the three small cells its numbers go in, which the face's edges cut into at the
+// top, so each number gets a larger numeral and a small ornament under it, and no figure around it.
 function drawD4(text: string) {
   const { canvas, ctx } = newCanvas(D4_CELL)
   const mid = D4_CELL / 2
-  const size = D4_CELL * 0.5
-  const line = Math.max(2, size * 0.033)
-  const center = { x: mid, y: mid + D4_CELL * 0.04 }
+  const line = 3
   ctx.save()
   ctx.globalAlpha = ENGRAVING_OPACITY
   ctx.strokeStyle = ctx.fillStyle = GOLD
   ctx.lineWidth = line
-  const turn = -Math.PI / 2
-  polygon(ctx, center, D4_CELL * 0.46, 3, turn)
-  for (let i = 0; i < 3; i++) circle(ctx, around(center, D4_CELL * 0.46, turn + (i * 2 * Math.PI) / 3), line * 1.6, true)
+  ctx.lineCap = "round"
+  const y = mid + D4_CELL * 0.43
+  const half = D4_CELL * 0.26
+  ctx.beginPath()
+  ctx.moveTo(mid - half, y)
+  ctx.lineTo(mid - D4_CELL * 0.05, y)
+  ctx.moveTo(mid + D4_CELL * 0.05, y)
+  ctx.lineTo(mid + half, y)
+  ctx.stroke()
+  polygon(ctx, { x: mid, y }, D4_CELL * 0.035, 4, Math.PI / 4)
+  circle(ctx, { x: mid - half - line * 2, y }, line * 1.2, true)
+  circle(ctx, { x: mid + half + line * 2, y }, line * 1.2, true)
   ctx.restore()
-  numeral(ctx, text, mid, mid + D4_CELL * 0.08, size)
+  numeral(ctx, text, mid, mid - D4_CELL * 0.02, D4_CELL * 0.73)
   return canvas
 }

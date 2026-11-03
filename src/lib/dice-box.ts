@@ -28,7 +28,10 @@ async function styleBox(box: DiceBoxType) {
   if (styled.get(box) === style.id) return
   styled.set(box, style.id)
   await box.updateConfig({ theme_customColorset: style, theme_material: "none" })
-  Object.assign(box.DiceFactory.material_options, glossOf(style))
+  // A thrown die turns every way under a light that never fades, so a face can catch it head on and go white;
+  // the gloss is held low enough that the numbers stay readable whatever the angle.
+  const { shininess, specular } = glossOf(style)
+  Object.assign(box.DiceFactory.material_options, { shininess: Math.min(shininess, 20), specular: Math.min(specular, 0x303030) })
 }
 
 subscribeDiceStyle(() => boxes.forEach((made) => made?.then(styleBox).catch(() => {})))

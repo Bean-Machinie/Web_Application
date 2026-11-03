@@ -26,11 +26,16 @@ export function circle(ctx: CanvasRenderingContext2D, center: Point, radius: num
   ctx[fill ? "fill" : "stroke"]()
 }
 
-// The point a line toward a face corner stops at: short of the corner, and inside the picture.
-function reachOf(shape: FaceShape, size: number, angle: number): Point {
-  const wanted = shape.circumradius * size * 0.92
-  const toEdge = (size / 2) * 0.93 / Math.max(Math.abs(Math.cos(angle)), Math.abs(Math.sin(angle)))
-  return around({ x: size / 2, y: size / 2 }, Math.min(wanted, toEdge), angle)
+// The corners of the face as points: exact where the layout is known, else from their angles.
+function cornersOf(shape: FaceShape, size: number): Point[] {
+  if (shape.points) return shape.points
+  return shape.corners.map((angle) => around({ x: size / 2, y: size / 2 }, shape.circumradius * size, angle))
+}
+
+// A line toward a corner stops a little short of it, and inside the picture.
+function stopShort(corner: Point, center: Point, size: number): Point {
+  const clamp = (value: number) => Math.min(size * 0.965, Math.max(size * 0.035, value))
+  return { x: clamp(corner.x + (center.x - corner.x) * 0.08), y: clamp(corner.y + (center.y - corner.y) * 0.08) }
 }
 
 const turnBetween = (a: number, b: number) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)))
@@ -66,13 +71,14 @@ export function engraving(ctx: CanvasRenderingContext2D, size: number, center: P
   ctx.stroke()
 
   ctx.lineWidth = line
+  const targets = cornersOf(shape, size)
   for (let i = 0; i < corners; i++) {
     const angle = turn + (i * 2 * Math.PI) / corners
     const vertex = around(center, reach, angle)
     circle(ctx, vertex, line * 1.6, true)
-    if (shape.corners.length === 0) continue
-    const corner = shape.corners.reduce((best, next) => (turnBetween(next, angle) < turnBetween(best, angle) ? next : best))
-    const end = reachOf(shape, size, corner)
+    if (targets.length === 0) continue
+    const facing = (corner: Point) => turnBetween(Math.atan2(corner.y - center.y, corner.x - center.x), angle)
+    const end = stopShort(targets.reduce((best, next) => (facing(next) < facing(best) ? next : best)), center, size)
     ctx.beginPath()
     ctx.moveTo(vertex.x, vertex.y)
     ctx.lineTo(end.x, end.y)
