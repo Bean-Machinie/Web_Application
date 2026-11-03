@@ -1,7 +1,11 @@
 import type DiceBox from "@3d-dice/dice-box-threejs"
 import type { DiceCamera, DiceMesh, DiceRenderer } from "@3d-dice/dice-box-threejs"
-import { CHARCOAL, loadDiceLib } from "@/lib/dice-box"
+import { getDiceStyle } from "@/lib/dice-style-store"
+import { loadDiceLib } from "@/lib/dice-box"
+import { applyDiceLighting } from "@/lib/dice-lighting"
+import { DEFAULT_SHININESS } from "@/lib/dice-styles"
 import type { Sides } from "@/lib/dice"
+import type { DiceStyle } from "@/lib/dice-styles"
 
 // The die or dice a tile shows, by the library's own names. A d100 is the percentile die and a d10.
 export const PARTS: Record<Sides, string[]> = {
@@ -11,44 +15,62 @@ export const PARTS: Record<Sides, string[]> = {
 // How much of its area a die fills.
 const FILL = 0.85
 
+// Dice by style and type. The library gives a die its look from the factory's state at the moment it
+// is made, so the style is set again before every one.
 const meshes = new Map<string, DiceMesh>()
+const colorsets = new Map<string, unknown>()
 let engine: Promise<DiceBox> | undefined
 
 // The library, started once and kept out of sight. Only its dice and lights are used: the panel and
 // the snapshots draw with renderers of their own, so nothing here touches the roll overlay.
-export function getEngine() {
+function getEngine() {
   engine ??= loadDiceLib().then(async (Library) => {
     const hidden = document.createElement("div")
     hidden.id = "dice-engine"
     hidden.style.cssText = "position:fixed;width:256px;height:256px;visibility:hidden;pointer-events:none"
     document.body.appendChild(hidden)
-    const created = new Library("#dice-engine", { theme_customColorset: CHARCOAL, theme_material: "none", shadows: false, sounds: false })
+    const created = new Library("#dice-engine", { theme_customColorset: getDiceStyle(), theme_material: "none", shadows: false, sounds: false })
     await created.initialize()
     created.desk.visible = false
-    // A key light from the upper left and a soft ambient one, set here so they do not depend on the engine size.
-    created.light.position.set(-250, 300, 700)
-    created.light.distance = 4000
-    created.light.intensity = 1.1
-    created.light_amb.intensity = 0.9
+    applyDiceLighting(created)
     return created
   })
   engine.catch(() => (engine = undefined))
   return engine
 }
 
-function meshOf(created: DiceBox, type: string) {
-  let mesh = meshes.get(type)
+// The engine with the style's colorset ready, and the dice of other styles dropped from the scene.
+export async function styledEngine(style: DiceStyle) {
+  const created = await getEngine()
+  if (!colorsets.has(style.id)) colorsets.set(style.id, await created.DiceColors.makeColorSet(style))
+  // A request for a style already replaced must not take the current style's dice away.
+  if (style.id !== getDiceStyle().id) return created
+  for (const [key, mesh] of meshes) {
+    if (key.startsWith(`${style.id}/`)) continue
+    created.scene.remove(mesh)
+    meshes.delete(key)
+  }
+  return created
+}
+
+function meshOf(created: DiceBox, type: string, style: DiceStyle) {
+  const key = `${style.id}/${type}`
+  let mesh = meshes.get(key)
   if (!mesh) {
-    mesh = created.DiceFactory.create(type, created.colorData) ?? undefined
+    const factory = created.DiceFactory
+    factory.applyColorSet(colorsets.get(style.id))
+    factory.material_options.shininess = style.shininess ?? DEFAULT_SHININESS
+    mesh = factory.create(type) ?? undefined
     if (!mesh) throw new Error(`The library has no ${type} die`)
     mesh.geometry.computeBoundingSphere()
     created.scene.add(mesh)
-    meshes.set(type, mesh)
+    meshes.set(key, mesh)
   }
   return mesh
 }
 
-export const meshesOf = (created: DiceBox, sides: Sides) => PARTS[sides].map((type) => meshOf(created, type))
+// Call styledEngine with the same style first.
+export const meshesOf = (created: DiceBox, sides: Sides, style: DiceStyle) => PARTS[sides].map((type) => meshOf(created, type, style))
 
 // Made from the library's own classes, so they match the dice they draw.
 export function createRenderer(created: DiceBox, ratio: number) {

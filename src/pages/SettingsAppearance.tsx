@@ -1,5 +1,6 @@
 import { CircleOff, Image, Sparkles } from "lucide-react"
 import { RadioGroup } from "radix-ui"
+import { DiceStylePicker } from "@/components/dashboard/DiceStylePicker"
 import { SettingsHelp, SettingsRow } from "@/components/dashboard/SettingsRow"
 import { ThemeOptionCard } from "@/components/dashboard/ThemeOptionCard"
 import { SegmentedControl } from "@/components/ui/segmented-control"
@@ -55,6 +56,9 @@ export function SettingsAppearance() {
         ) : (
           reducedMotion && <SettingsHelp>Your device prefers reduced motion, so Animated shows as Still.</SettingsHelp>
         )}
+      </SettingsRow>
+      <SettingsRow width="wide" title="Dice" description="The look of the dice you roll.">
+        <DiceStylePicker />
       </SettingsRow>
     </div>
   )

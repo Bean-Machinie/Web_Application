@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
+import { Settings } from "lucide-react"
 import { Dice6Icon } from "@/components/icons/Dice6Icon"
 import { IconButton } from "@/components/IconButton"
+import { Button } from "@/components/ui/button"
 import { KeyChips } from "@/components/ui/key-chips"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
@@ -9,6 +11,7 @@ import { isTyping } from "@/lib/entry-selection"
 import type { D20Mode } from "@/lib/dice"
 import { DiceHistory } from "./DiceHistory"
 import { DiceOverlay } from "./DiceOverlay"
+import { DiceStylePicker } from "./DiceStylePicker"
 import { DiceTray } from "./DiceTray"
 
 // A dice roller in the header. The panel stays open while the dice roll; the history lives only
@@ -45,7 +48,22 @@ export function DiceRoller() {
         <PopoverContent align="end" sideOffset={8} className="h-[min(34rem,var(--radix-popover-content-available-height))] w-[22.5rem] gap-4 overflow-hidden p-4" onOpenAutoFocus={(event) => event.preventDefault()}>
           <header className="-mx-4 flex items-baseline justify-between gap-3 border-b px-4 pb-3">
             <h2 className="text-sm font-semibold">Roll dice</h2>
-            <KeyChips keys={["R"]} className="opacity-70" />
+            <Popover>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon-sm" aria-label="Dice style" className="-my-1 -mr-1.5">
+                      <Settings />
+                    </Button>
+                  </PopoverTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Dice style</TooltipContent>
+              </Tooltip>
+              <PopoverContent align="end" className="w-auto gap-3 p-3">
+                <h3 className="text-sm font-semibold">Dice style</h3>
+                <DiceStylePicker className="max-w-48" />
+              </PopoverContent>
+            </Popover>
           </header>
           <DiceTray modifier={modifier} onModifier={setModifier} mode={mode} onMode={setMode} onRoll={(sides) => roll(sides, modifier, mode)} />
           <DiceHistory rolls={history} onClear={clear} />

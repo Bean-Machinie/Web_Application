@@ -1,6 +1,7 @@
 import type DiceBox from "@3d-dice/dice-box-threejs"
 import type { DiceCamera, DiceMesh } from "@3d-dice/dice-box-threejs"
-import { createCamera, drawDice, getEngine, meshesOf, sharedRenderer } from "@/lib/dice-engine"
+import { createCamera, drawDice, meshesOf, sharedRenderer, styledEngine } from "@/lib/dice-engine"
+import { getDiceStyle, subscribeDiceStyle } from "@/lib/dice-style-store"
 import type { Sides } from "@/lib/dice"
 
 const PADDING = 8
@@ -25,7 +26,7 @@ export async function openDicePreview(
   elements: () => Partial<Record<Sides, HTMLElement | null>>,
   reducedMotion: boolean
 ): Promise<DicePreview> {
-  const created: DiceBox = await getEngine()
+  const created: DiceBox = await styledEngine(getDiceStyle())
   const renderer = sharedRenderer(created, "panel", Math.min(window.devicePixelRatio, 2))
   const token = {}
   owner = token
@@ -36,7 +37,7 @@ export async function openDicePreview(
   for (const [key, element] of Object.entries(elements())) {
     if (!element) continue
     const sides = Number(key) as Sides
-    tiles.set(sides, { element, dice: meshesOf(created, sides), camera: createCamera(created), scale: 1, spin: 0, throwUntil: 0 })
+    tiles.set(sides, { element, dice: meshesOf(created, sides, getDiceStyle()), camera: createCamera(created), scale: 1, spin: 0, throwUntil: 0 })
   }
 
   let hovered: Sides | null = null
@@ -105,6 +106,18 @@ export async function openDicePreview(
   observer.observe(host)
   wake()
 
+  // The dice are made again in the new style, in the same tiles.
+  const unsubscribe = subscribeDiceStyle(() => {
+    const style = getDiceStyle()
+    styledEngine(style)
+      .then((engine) => {
+        if (style.id !== getDiceStyle().id) return
+        for (const [sides, tile] of tiles) tile.dice = meshesOf(engine, sides, style)
+        wake()
+      })
+      .catch((error) => console.error("The dice preview could not change style", error))
+  })
+
   return {
     hover(sides) {
       hovered = sides
@@ -118,6 +131,7 @@ export async function openDicePreview(
     close() {
       cancelAnimationFrame(frame)
       observer.disconnect()
+      unsubscribe()
       popover?.removeEventListener("animationend", wake)
       if (owner === token) {
         renderer.domElement.remove()
