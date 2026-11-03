@@ -54,7 +54,7 @@ export function DiceRoller() {
             Roll dice <KeyChips keys={["R"]} />
           </TooltipContent>
         </Tooltip>
-        <PopoverContent align="end" alignOffset={-400} sideOffset={1} arrowPadding={16} className="h-[min(34rem,var(--radix-popover-content-available-height))] w-[22.5rem] p-0" onOpenAutoFocus={(event) => event.preventDefault()}
+        <PopoverContent align="end" alignOffset={-400} sideOffset={1} arrowPadding={16} className="h-[min(38rem,var(--radix-popover-content-available-height))] w-[22.5rem] p-0" onOpenAutoFocus={(event) => event.preventDefault()}
           // The dice style dialog opens over the panel, which stays where it is.
           onInteractOutside={(event) => styleOpen && event.preventDefault()}
         >
