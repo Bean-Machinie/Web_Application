@@ -1,4 +1,5 @@
 import type DiceBoxType from "@3d-dice/dice-box-threejs"
+import { frameRollCamera } from "@/lib/dice-camera"
 import { DICE_ASSET_PATH, isolateDiceTextures, loadDiceFont } from "@/lib/dice-assets"
 import { installFaceFit } from "@/lib/dice-face-fit"
 import { applyFaceFit, applyLabels, prepareLabels } from "@/lib/dice-label-faces"
@@ -48,6 +49,7 @@ function boxFor(slot: number) {
     })
     isolateDiceTextures(created)
     installFaceFit(created)
+    frameRollCamera(created)
     await created.initialize()
     await loadDiceFont(created)
     await styleBox(created)

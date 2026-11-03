@@ -20,7 +20,11 @@ declare module "@3d-dice/dice-box-threejs" {
   export interface DiceCamera {
     fov: number
     aspect: number
-    position: { set(x: number, y: number, z: number): void }
+    near: number
+    far: number
+    position: { z: number; set(x: number, y: number, z: number): void }
+    projectionMatrix: { makeOrthographic(left: number, right: number, top: number, bottom: number, near: number, far: number): void }
+    projectionMatrixInverse: { copy(matrix: unknown): { invert(): unknown } }
     lookAt(x: number, y: number, z: number): void
     updateProjectionMatrix(): void
   }
