@@ -12,6 +12,8 @@ export type DiceStyle = {
   material?: string
   // Still on trial; the picker says so.
   experimental?: boolean
+  // The numerals are drawn pictures (see dice-labels.ts) instead of the library's text.
+  engraved?: boolean
   // Plastic's shininess; the library's own default when left out.
   shininess?: number
   // How strongly plastic mirrors the light, as a colour: a bright one gives glare.
@@ -49,15 +51,15 @@ const textured = (look: Pick<DiceStyle, "id" | "label" | "background" | "foregro
   ...look,
   name: `style-${look.id}`,
   outline: "none",
-  experimental: true,
 })
 
 // The library's own marble, bronze and "astralsea" looks; the textures are copied to public/dice-textures.
-export const EXPERIMENTAL_STYLES: DiceStyle[] = [
+export const EXPERIMENTAL_STYLES: DiceStyle[] = ([
   textured({ id: "marble", label: "Marble", background: "#c9ccd1", foreground: "#1f2328", edge: "#dfe2e6", texture: "marble" }),
   textured({ id: "bronze", label: "Bronze", background: "#b08d57", foreground: "#1a1209", edge: "#c9a56c", texture: "bronze03" }),
   textured({ id: "astral", label: "Astral", background: "white", foreground: "#565656", edge: "white", texture: "astral" }),
-]
+  { ...textured({ id: "arcane", label: "Arcane", background: "#1d3a3c", foreground: "#d4af37", edge: "#16302f", texture: "none" }), material: "glass", engraved: true },
+]).map((style) => ({ ...style, experimental: true }))
 
 export const ALL_DICE_STYLES = [...DICE_STYLES, ...EXPERIMENTAL_STYLES]
 

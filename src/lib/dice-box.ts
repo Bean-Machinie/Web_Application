@@ -1,12 +1,11 @@
 import type DiceBoxType from "@3d-dice/dice-box-threejs"
+import { DICE_ASSET_PATH, isolateDiceTextures, loadDiceFont } from "@/lib/dice-assets"
+import { applyLabels, prepareLabels } from "@/lib/dice-label-faces"
 import { applyRollLighting } from "@/lib/dice-lighting"
 import { getDiceStyle, subscribeDiceStyle } from "@/lib/dice-style-store"
 import { glossOf } from "@/lib/dice-styles"
 
 export const DICE_LAYER_ID = "dice-layer"
-
-// Where the library finds its textures; only the experimental styles use any.
-export const DICE_ASSET_PATH = `${import.meta.env.BASE_URL}dice-textures/`
 
 // The library is fetched once, whoever asks first: the panel when it opens, or a roll.
 export const loadDiceLib = () => import("@3d-dice/dice-box-threejs").then((module) => module.default)
@@ -43,7 +42,9 @@ function boxFor(slot: number) {
       shadows: true,
       sounds: false,
     })
+    isolateDiceTextures(created)
     await created.initialize()
+    await loadDiceFont(created)
     await styleBox(created)
     return created
   }))
@@ -69,6 +70,8 @@ export async function acquireDiceBox(): Promise<HeldBox> {
   try {
     const box = await boxFor(taken)
     await styleBox(box)
+    await prepareLabels(box, getDiceStyle())
+    applyLabels(box, getDiceStyle())
     applyRollLighting(box)
     return { slot: taken, box, release }
   } catch (error) {

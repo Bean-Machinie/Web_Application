@@ -46,13 +46,14 @@ declare module "@3d-dice/dice-box-threejs" {
     light: { position: { x: number; y: number; z: number; set(x: number, y: number, z: number): void }; distance: number; decay: number; intensity: number }
     light_amb: { intensity: number }
     scene: { add(object: DiceMesh): void; remove(object: DiceMesh): void }
-    DiceColors: { makeColorSet(colorset: object): Promise<unknown> }
+    DiceColors: { makeColorSet(colorset: object): Promise<unknown>; getTexture(name: unknown): unknown }
     camera: DiceCamera
     renderer: DiceRenderer
     DiceFactory: {
       material_options: { shininess: number; specular: number }
       applyColorSet(colorset: unknown): void
       create(type: string): DiceMesh | null
+      get(type: string): { font: string; labels: unknown[] }
     }
     initialize(): Promise<void>
     roll(notation: string): Promise<unknown>

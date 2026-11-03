@@ -1,7 +1,9 @@
 import type DiceBox from "@3d-dice/dice-box-threejs"
 import type { DiceCamera, DiceMesh, DiceRenderer } from "@3d-dice/dice-box-threejs"
 import { getDiceStyle } from "@/lib/dice-style-store"
-import { DICE_ASSET_PATH, loadDiceLib } from "@/lib/dice-box"
+import { DICE_ASSET_PATH, isolateDiceTextures, loadDiceFont } from "@/lib/dice-assets"
+import { applyLabels, prepareLabels } from "@/lib/dice-label-faces"
+import { loadDiceLib } from "@/lib/dice-box"
 import { applyTileLighting } from "@/lib/dice-lighting"
 import { glossOf } from "@/lib/dice-styles"
 import type { Sides } from "@/lib/dice"
@@ -30,7 +32,9 @@ function getEngine() {
     hidden.style.cssText = "position:fixed;width:256px;height:256px;visibility:hidden;pointer-events:none"
     document.body.appendChild(hidden)
     const created = new Library("#dice-engine", { assetPath: DICE_ASSET_PATH, theme_customColorset: getDiceStyle(), theme_material: "none", shadows: false, sounds: false })
+    isolateDiceTextures(created)
     await created.initialize()
+    await loadDiceFont(created)
     created.desk.visible = false
     applyTileLighting(created)
     return created
@@ -43,6 +47,7 @@ function getEngine() {
 export async function styledEngine(style: DiceStyle) {
   const created = await getEngine()
   if (!colorsets.has(style.id)) colorsets.set(style.id, await created.DiceColors.makeColorSet(style))
+  await prepareLabels(created, style)
   // A request for a style already replaced must not take the current style's dice away.
   if (style.id !== getDiceStyle().id) return created
   for (const [key, mesh] of meshes) {
@@ -60,7 +65,10 @@ function meshOf(created: DiceBox, type: string, style: DiceStyle) {
     const factory = created.DiceFactory
     factory.applyColorSet(colorsets.get(style.id))
     Object.assign(factory.material_options, glossOf(style))
+    applyLabels(created, style)
     mesh = factory.create(type) ?? undefined
+    // The labels are shared with the roll boxes, so they are left as the current style needs them.
+    applyLabels(created, getDiceStyle())
     if (!mesh) throw new Error(`The library has no ${type} die`)
     mesh.geometry.computeBoundingSphere()
     created.scene.add(mesh)

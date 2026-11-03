@@ -39,7 +39,7 @@ function Swatches({ styles, label }: { styles: DiceStyle[]; label: string }) {
               <span aria-hidden style={{ backgroundColor: style.foreground }} className="absolute top-1/2 left-1/2 size-2 -translate-1/2 rounded-full" />
             </button>
           </TooltipTrigger>
-          <TooltipContent>{style.experimental ? `${style.label} · Experimental` : style.label}</TooltipContent>
+          <TooltipContent>{style.experimental ? `${style.label} Â· Experimental` : style.label}</TooltipContent>
         </Tooltip>
       ))}
     </div>
