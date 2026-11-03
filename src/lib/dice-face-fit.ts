@@ -9,6 +9,8 @@ const FITTED_RADIUS = 0.46
 // What the library uses for the d20, and what it builds from.
 const D20_MARGIN = -0.2
 const D20_START = -Math.PI / 8
+// The d20 is drawn this much larger than the library makes it, which only reads as a size on thrown dice.
+const D20_SIZE = 1.3
 export const FITTED_MARGIN = 1 / (2 * FITTED_RADIUS) - 1
 
 type Builder = (this: unknown, ...args: unknown[]) => unknown
@@ -33,11 +35,12 @@ export function installFaceFit(box: DiceBox) {
   controls.set(factory, control)
   factory.make_geom = function (this: unknown, vectors, faces, scale, margin, start) {
     const isD20 = margin === D20_MARGIN && Math.abs((start as number) - D20_START) < 1e-9
+    const size = isD20 ? (scale as number) * D20_SIZE : scale
     try {
-      return (original as Builder).call(this, vectors, faces, scale, control.fit && isD20 ? FITTED_MARGIN : margin, start)
+      return (original as Builder).call(this, vectors, faces, size, control.fit && isD20 ? FITTED_MARGIN : margin, start)
     } catch (error) {
       console.warn("The d20's fitted layout failed, so the library's own was used.", error)
-      return (original as Builder).call(this, vectors, faces, scale, margin, start)
+      return (original as Builder).call(this, vectors, faces, size, margin, start)
     }
   } as Builder
   available = true

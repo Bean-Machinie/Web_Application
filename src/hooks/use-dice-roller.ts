@@ -36,7 +36,6 @@ export function useDiceRoller() {
     if (active.current >= DICE_SLOTS) return
     active.current++
     const result = rollDice(sides, modifier, mode)
-    setHistory((rolls) => [result, ...rolls].slice(0, HISTORY_SIZE))
 
     let held: HeldBox | undefined
     if (!reducedMotion) {
@@ -49,6 +48,8 @@ export function useDiceRoller() {
       }
     }
 
+    // The list waits for the dice to land, so it shows the result together with the total.
+    setHistory((rolls) => [result, ...rolls].slice(0, HISTORY_SIZE))
     setTotal(result, true)
     await wait(HOLD_MS)
     if (held) setLayer(held.slot, false)

@@ -55,10 +55,9 @@ const textured = (look: Pick<DiceStyle, "id" | "label" | "background" | "foregro
   outline: "none",
 })
 
-// The library's own marble, bronze and "astralsea" looks; the textures are copied to public/dice-textures.
+// The library's own marble and "astralsea" looks; the textures are copied to public/dice-textures.
 export const EXPERIMENTAL_STYLES: DiceStyle[] = ([
   textured({ id: "marble", label: "Marble", background: "#c9ccd1", foreground: "#1f2328", edge: "#dfe2e6", texture: "marble" }),
-  textured({ id: "bronze", label: "Bronze", background: "#b08d57", foreground: "#1a1209", edge: "#c9a56c", texture: "bronze03" }),
   textured({ id: "astral", label: "Astral", background: "white", foreground: "#565656", edge: "white", texture: "astral" }),
   { ...textured({ id: "arcane", label: "Arcane", background: "#1d3a3c", foreground: "#d4af37", edge: "#16302f", texture: "none" }), material: "glass", labels: "engraved" as const },
   // Obsidian with a gold edge: the bevel faces take the edge colour and the same gloss as the body.
