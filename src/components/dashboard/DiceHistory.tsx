@@ -70,8 +70,8 @@ export function DiceHistory({ rolls, onClear }: Props) {
   }, [])
 
   return (
-    // Takes what is left of the panel; the list scrolls between two hairlines, as in the rules panel.
-    <section className="flex min-h-0 flex-1 flex-col gap-2">
+    // Bleeds to the popover edges so a divider and tinted ground set it apart from the dice controls above.
+    <section className="bg-muted/40 -mx-4 -mb-4 flex min-h-0 flex-1 flex-col gap-2 border-t px-4 pt-3 pb-4">
       <div className="flex items-center justify-between">
         <h3 className="text-muted-foreground text-xs font-medium">Recent rolls</h3>
         <Button variant="ghost" size="xs" className="text-muted-foreground -mr-2" disabled={rolls.length === 0} onClick={onClear}>
