@@ -2,7 +2,8 @@ import type DiceBox from "@3d-dice/dice-box-threejs"
 import type { DiceCamera, DiceMesh, DiceRenderer } from "@3d-dice/dice-box-threejs"
 import { getDiceStyle } from "@/lib/dice-style-store"
 import { DICE_ASSET_PATH, isolateDiceTextures, loadDiceFont } from "@/lib/dice-assets"
-import { applyLabels, prepareLabels } from "@/lib/dice-label-faces"
+import { installFaceFit } from "@/lib/dice-face-fit"
+import { applyFaceFit, applyLabels, prepareLabels } from "@/lib/dice-label-faces"
 import { loadDiceLib } from "@/lib/dice-box"
 import { applyTileLighting } from "@/lib/dice-lighting"
 import { glossOf } from "@/lib/dice-styles"
@@ -33,6 +34,7 @@ function getEngine() {
     document.body.appendChild(hidden)
     const created = new Library("#dice-engine", { assetPath: DICE_ASSET_PATH, theme_customColorset: getDiceStyle(), theme_material: "none", shadows: false, sounds: false })
     isolateDiceTextures(created)
+    installFaceFit(created)
     await created.initialize()
     await loadDiceFont(created)
     created.desk.visible = false
@@ -66,6 +68,7 @@ function meshOf(created: DiceBox, type: string, style: DiceStyle) {
     factory.applyColorSet(colorsets.get(style.id))
     Object.assign(factory.material_options, glossOf(style))
     applyLabels(created, style)
+    applyFaceFit(created, style)
     mesh = factory.create(type) ?? undefined
     // The labels are shared with the roll boxes, so they are left as the current style needs them.
     applyLabels(created, getDiceStyle())

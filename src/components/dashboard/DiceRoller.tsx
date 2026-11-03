@@ -68,12 +68,12 @@ export function DiceRoller() {
               </PopoverContent>
             </Popover>
           </header>
-          <DiceTray modifier={modifier} onModifier={setModifier} mode={mode} onMode={setMode} onRoll={(sides) => roll(sides, modifier, mode)} />
+          <DiceTray totals={totals} modifier={modifier} onModifier={setModifier} mode={mode} onMode={setMode} onRoll={(sides) => roll(sides, modifier, mode)} />
           <DiceHistory rolls={history} onClear={clear} />
           </div>
         </PopoverContent>
       </Popover>
-      <DiceOverlay layers={layers} totals={totals} />
+      <DiceOverlay layers={layers} />
     </>
   )
 }

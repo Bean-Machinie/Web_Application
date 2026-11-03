@@ -1,6 +1,9 @@
 import { around, circle, ENGRAVING_OPACITY, engraving, GOLD, polygon } from "@/lib/dice-label-engraving"
+import { faceFitAvailable } from "@/lib/dice-face-fit"
 import { FACE_SHAPES } from "@/lib/dice-label-shapes"
 import type { FaceShape } from "@/lib/dice-label-shapes"
+import { drawCapsFace } from "@/lib/dice-label-caps"
+import { newCanvas, seedOf, toImage } from "@/lib/dice-label-canvas"
 import { smoke } from "@/lib/dice-label-smoke"
 
 // Numerals drawn as pictures, for the styles that engrave them. The library stretches a picture over the
@@ -14,33 +17,27 @@ const SHAPE: Record<string, string> = { d100: "d10" }
 
 const cache = new Map<string, Promise<HTMLImageElement>>()
 
+export type LabelLayout = "engraved" | "caps"
+
+// The dice each layout draws; the others keep the library's own numerals. The caps need every corner of
+// the face inside the texture: the d6, d8, d10 and d12 have that, and the d20 has it when its layout is
+// fitted. The d4 never does, because the library puts its numbers in three fixed cells away from the corners.
+export function typesOf(layout: LabelLayout) {
+  if (layout === "engraved") return ["d4", "d6", "d8", "d10", "d100", "d12", "d20"]
+  return faceFitAvailable() ? ["d6", "d8", "d10", "d100", "d12", "d20"] : ["d6", "d8", "d10", "d100", "d12"]
+}
+
 // One face, drawn once and kept.
-export function faceLabel(type: string, text: string) {
-  const key = `${type}/${text}`
+export function faceLabel(type: string, text: string, layout: LabelLayout) {
+  const key = `${layout}/${type}/${text}`
   let image = cache.get(key)
   if (!image) {
-    image = toImage(type === "d4" ? drawD4(text) : drawFace(FACE_SHAPES[SHAPE[type] ?? type], text))
+    const shape = FACE_SHAPES[layout === "caps" && type === "d20" ? "d20fit" : (SHAPE[type] ?? type)]
+    const canvas = layout === "caps" ? drawCapsFace(shape, text) : type === "d4" ? drawD4(text) : drawFace(shape, text)
+    image = toImage(canvas)
     cache.set(key, image)
   }
   return image
-}
-
-async function toImage(canvas: HTMLCanvasElement) {
-  const image = new Image()
-  image.src = canvas.toDataURL("image/png")
-  await image.decode()
-  return image
-}
-
-function newCanvas(size: number) {
-  const canvas = document.createElement("canvas")
-  canvas.width = canvas.height = size
-  return { canvas, ctx: canvas.getContext("2d")! }
-}
-
-// The same figure for a value every time, but not the same for every value.
-function seedOf(text: string) {
-  return [...text].reduce((sum, char) => sum * 31 + char.charCodeAt(0), 7)
 }
 
 // Bold gold with a faint shine from top to bottom; a 6 or a 9 is underlined.

@@ -1,5 +1,6 @@
 import type DiceBox from "@3d-dice/dice-box-threejs"
-import { faceLabel } from "@/lib/dice-labels"
+import { faceFitAvailable, setFaceFit } from "@/lib/dice-face-fit"
+import { faceLabel, typesOf } from "@/lib/dice-labels"
 import type { DiceStyle } from "@/lib/dice-styles"
 
 const TYPES = ["d4", "d6", "d8", "d10", "d100", "d12", "d20"]
@@ -23,11 +24,12 @@ function originalOf(box: DiceBox, type: string): Labels {
 
 // Draws every face of the style, once. Until it is done the style's dice use the library's own numerals.
 export async function prepareLabels(box: DiceBox, style: DiceStyle) {
-  if (!style.engraved) return
+  const layout = style.labels
+  if (!layout) return
   await Promise.all(
-    TYPES.flatMap((type) =>
+    typesOf(layout).flatMap((type) =>
       texts(originalOf(box, type)).map(async (text) => {
-        drawn.set(`${style.id}/${type}/${text}`, await faceLabel(type, text))
+        drawn.set(`${style.id}/${type}/${text}`, await faceLabel(type, text, layout))
       })
     )
   )
@@ -38,7 +40,12 @@ export async function prepareLabels(box: DiceBox, style: DiceStyle) {
 export function applyLabels(box: DiceBox, style: DiceStyle) {
   for (const type of TYPES) {
     const labels = originalOf(box, type)
-    const ready = style.engraved && drawn.has(`${style.id}/${type}/${texts(labels)[0]}`)
+    const ready = style.labels && typesOf(style.labels).includes(type) && drawn.has(`${style.id}/${type}/${texts(labels)[0]}`)
     box.DiceFactory.get(type).labels = ready ? replaced(labels, (text) => drawn.get(`${style.id}/${type}/${text}`)) : labels
   }
+}
+
+// The caps style needs the d20's corners inside its texture, which its geometry builder is told to do.
+export function applyFaceFit(box: DiceBox, style: DiceStyle) {
+  setFaceFit(box, style.labels === "caps" && faceFitAvailable())
 }

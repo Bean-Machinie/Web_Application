@@ -1,6 +1,7 @@
 import type DiceBoxType from "@3d-dice/dice-box-threejs"
 import { DICE_ASSET_PATH, isolateDiceTextures, loadDiceFont } from "@/lib/dice-assets"
-import { applyLabels, prepareLabels } from "@/lib/dice-label-faces"
+import { installFaceFit } from "@/lib/dice-face-fit"
+import { applyFaceFit, applyLabels, prepareLabels } from "@/lib/dice-label-faces"
 import { applyRollLighting } from "@/lib/dice-lighting"
 import { getDiceStyle, subscribeDiceStyle } from "@/lib/dice-style-store"
 import { glossOf } from "@/lib/dice-styles"
@@ -43,6 +44,7 @@ function boxFor(slot: number) {
       sounds: false,
     })
     isolateDiceTextures(created)
+    installFaceFit(created)
     await created.initialize()
     await loadDiceFont(created)
     await styleBox(created)
@@ -72,6 +74,7 @@ export async function acquireDiceBox(): Promise<HeldBox> {
     await styleBox(box)
     await prepareLabels(box, getDiceStyle())
     applyLabels(box, getDiceStyle())
+    applyFaceFit(box, getDiceStyle())
     applyRollLighting(box)
     return { slot: taken, box, release }
   } catch (error) {
