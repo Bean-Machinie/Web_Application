@@ -2,10 +2,14 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { motion } from "motion/react"
 import { TextShimmer } from "@/components/TextShimmer"
 import { CRITICAL_COLOR } from "@/lib/dice-result"
+import { createConfetti } from "@/lib/roll-confetti"
 import { createEmbers } from "@/lib/roll-embers"
+import { together } from "@/lib/roll-effect"
 import { MomentCanvas } from "./MomentCanvas"
 import { NUMBER_CLASS } from "./roll-number"
 import type { Roll } from "@/lib/dice"
+
+const fireworks = (rect: DOMRect) => together(createEmbers(rect), createConfetti(rect))
 
 const GLOW = [`0 0 0px ${CRITICAL_COLOR}00`, `0 0 24px ${CRITICAL_COLOR}cc`, `0 0 10px ${CRITICAL_COLOR}66`]
 
@@ -43,7 +47,8 @@ function Ring() {
   )
 }
 
-// The number lands hard from 1.6 times its size, with a ring, rays and a burst of embers, and then the light sweeps over it.
+// The number slams down from 1.6 times its size, bounces and wobbles, with a ring, rays, embers and a confetti
+// cannon on each side, and then the light sweeps over it.
 export function CriticalNumber({ roll, reduced }: { roll: Roll; reduced: boolean }) {
   const ref = useRef<HTMLSpanElement>(null)
   const [burst, setBurst] = useState(false)
@@ -63,15 +68,20 @@ export function CriticalNumber({ roll, reduced }: { roll: Roll; reduced: boolean
       <motion.span
         className="relative inline-block"
         initial={{ scale: 1.6 }}
-        animate={{ scale: 1, textShadow: GLOW }}
-        transition={{ scale: { type: "spring", stiffness: 520, damping: 17 }, textShadow: { delay: 0.1, duration: 0.9, times: [0, 0.4, 1] } }}
+        animate={{ scale: 1, y: [0, -16, 0, -6, 0], rotate: [-7, 5, -3, 1, 0], textShadow: GLOW }}
+        transition={{
+          scale: { type: "spring", stiffness: 420, damping: 10 },
+          y: { delay: 0.12, duration: 0.8, ease: "easeOut" },
+          rotate: { delay: 0.05, duration: 0.9, ease: "easeOut" },
+          textShadow: { delay: 0.1, duration: 0.9, times: [0, 0.4, 1] },
+        }}
       >
         {roll.total}
         <TextShimmer highlight="#f6e3a1" delay={0.5} duration={0.7} className="absolute inset-0 flex items-center justify-center">
           {String(roll.total).replace("-", "−")}
         </TextShimmer>
       </motion.span>
-      {burst && <MomentCanvas target={ref} make={createEmbers} onDone={done} />}
+      {burst && <MomentCanvas target={ref} make={fireworks} onDone={done} />}
     </span>
   )
 }

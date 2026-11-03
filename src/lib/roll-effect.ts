@@ -6,3 +6,11 @@ export type Effect = {
 }
 
 export const between = (low: number, high: number) => low + Math.random() * (high - low)
+
+// Several effects run side by side on one canvas.
+export function together(...effects: Effect[]): Effect {
+  return {
+    step: (dt) => effects.map((effect) => effect.step(dt)).some(Boolean),
+    draw: (ctx) => effects.forEach((effect) => effect.draw(ctx)),
+  }
+}

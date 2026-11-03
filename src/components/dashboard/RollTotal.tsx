@@ -7,12 +7,12 @@ import { NUMBER_CLASS } from "./roll-number"
 import type { Roll } from "@/lib/dice"
 import type { Moment } from "@/lib/dice-result"
 
-// What the side lines do: a critical widens and brightens them; on a fumble they snap in and dim as the number crumbles.
+// What the side lines do: a critical widens and brightens them; on a fumble they snap in and dim as the number comes loose.
 const LINES = { normal: { width: 120, opacity: 0.5 }, critical: { width: 220, opacity: 1 }, fumble: { width: 40, opacity: 0.2 } }
 const LINE_TIMING = {
   normal: { delay: 0.15, duration: 0.5 },
   critical: { delay: 0.35, duration: 0.5 },
-  fumble: { delay: 0.5, duration: 0.12 },
+  fumble: { delay: 0.7, duration: 0.15 },
 }
 
 function Line({ side, moment, reduced }: { side: "left" | "right"; moment: Moment | null; reduced: boolean }) {

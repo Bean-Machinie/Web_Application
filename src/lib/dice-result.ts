@@ -7,7 +7,7 @@ export const FUMBLE_COLOR = "#b4534b"
 export type Moment = "critical" | "fumble"
 
 // How long a result stays on screen; the moments have more to show, so they stay longer.
-export const holdOf = (roll: Roll) => ({ critical: 3000, fumble: 2500, none: 2000 })[momentOf(roll) ?? "none"]
+export const holdOf = (roll: Roll) => ({ critical: 3000, fumble: 3000, none: 2000 })[momentOf(roll) ?? "none"]
 
 // The face of the kept die of a d20, which neither the total nor the modifier changes.
 export const faceOf = (roll: Roll) => (roll.sides === 20 ? roll.dice[roll.kept] : undefined)
