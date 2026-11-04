@@ -11,16 +11,17 @@ type Props = {
   tab: Tab
   label: TabLabel
   active: boolean
+  // In the pane in focus (or the only one): the bar on the tab showing is drawn only there.
+  focused: boolean
   // The right-click menu.
   actions: MemberAction[]
   onShow: () => void
   onClose: () => void
 }
 
-// One tab: its kind's icon, its name and a close button; the one showing is lifted
-// to the page's colour. Drag it along the strip to reorder, or to the other pane. A
+// One tab: its kind's icon, its name and a close button; the one showing joins the panel. Drag it along the strip to reorder, or to the other pane. A
 // middle click closes it.
-export function JournalTab({ tab, label, active, actions, onShow, onClose }: Props) {
+export function JournalTab({ tab, label, active, focused, actions, onShow, onClose }: Props) {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
     id: tabKey(tab),
   })
@@ -44,8 +45,13 @@ export function JournalTab({ tab, label, active, actions, onShow, onClose }: Pro
           onClose()
         }}
         className={cn(
-          "group/tab flex max-w-52 min-w-24 shrink-0 cursor-default items-center gap-1.5 border-r px-2.5 text-sm outline-none select-none",
-          active ? "bg-background text-foreground" : "text-muted-foreground hover:bg-accent/50",
+          // Flat, as the tabs of the map maker are: no pill. The one showing has the
+          // page's own colour, so it joins the panel under it, and a bar across its top
+          // (only in the pane in focus).
+          "group/tab relative flex h-full max-w-52 min-w-24 shrink-0 cursor-default items-center gap-1.5 border-r px-3 text-xs outline-none select-none",
+          "after:bg-primary after:absolute after:inset-x-0 after:top-0 after:h-0.5 after:opacity-0 after:transition-opacity",
+          active ? "bg-background text-foreground" : "text-muted-foreground hover:text-foreground",
+          active && focused && "after:opacity-100",
           isDragging && "opacity-40"
         )}
       >

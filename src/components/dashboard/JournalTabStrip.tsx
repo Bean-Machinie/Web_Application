@@ -15,8 +15,11 @@ import type { TabLabel } from "./journal-tab-kinds"
 type Props = {
   index: number
   pane: Pane
-  // The pane the keyboard and the address follow, drawn only when there are two.
-  marked: boolean
+  // The pane the keyboard and the address follow, or the only one.
+  focused: boolean
+  // The panel below has been scrolled: the line under the strip shows then, and not
+  // before, so strip and panel are one piece at the top.
+  scrolled: boolean
   label: (tab: Tab) => TabLabel
   actionsFor: (tab: number) => MemberAction[]
   canSplit: boolean
@@ -34,11 +37,16 @@ type Props = {
 // showing as a page of its own (only when it has one) and that split the pane in
 // two. Dropping a tab on the strip puts it last.
 export function JournalTabStrip(props: Props) {
-  const { index, pane, marked, label, actionsFor, canSplit, slot, fullPage } = props
+  const { index, pane, focused, scrolled, label, actionsFor, canSplit, slot, fullPage } = props
   const { setNodeRef } = useDroppable({ id: `strip:${index}` })
 
   return (
-    <div className={cn("bg-muted/40 flex h-9 shrink-0 items-stretch border-t-2 border-b", marked ? "border-t-primary" : "border-t-transparent")}>
+    <div
+      className={cn(
+        "bg-muted/50 flex h-9 shrink-0 items-stretch border-b transition-colors duration-150",
+        !scrolled && "border-b-transparent"
+      )}
+    >
       <SortableContext items={pane.tabs.map(tabKey)} strategy={horizontalListSortingStrategy}>
         <div ref={setNodeRef} role="tablist" className="flex min-w-0 flex-1 items-stretch overflow-x-auto [scrollbar-width:none]">
           {pane.tabs.map((tab, i) => (
@@ -48,6 +56,7 @@ export function JournalTabStrip(props: Props) {
                 tab={tab}
                 label={label(tab)}
                 active={i === pane.active}
+                focused={focused}
                 actions={actionsFor(i)}
                 onShow={() => props.onShow(i)}
                 onClose={() => props.onClose(i)}

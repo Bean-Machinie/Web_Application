@@ -1,10 +1,11 @@
 import { useRef } from "react"
 import { DndContext, DragOverlay } from "@dnd-kit/core"
 import { useStoredValue } from "@/hooks/use-stored-value"
-import { restrictToHorizontalAxis, tabCollision, useJournalTabDrag } from "@/hooks/use-journal-tab-drag"
+import { tabCollision, useJournalTabDrag } from "@/hooks/use-journal-tab-drag"
 import type { JournalTreeState } from "@/hooks/use-journal-tree"
 import type { JournalWorkspaceState } from "@/hooks/use-journal-workspace"
 import { locate } from "@/lib/journal-workspace"
+import type { Workspace } from "@/lib/journal-workspace"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { JournalPane } from "./JournalPane"
 import { JournalTabOverlay } from "./JournalTabOverlay"
@@ -25,7 +26,14 @@ function readSplit(text: string | null): Record<string, number> | undefined {
   }
 }
 
-const writeSplit = (split: Record<string, number> | undefined) => JSON.stringify(split ?? null)
+// The panel of a tab, if it is the one its pane is showing.
+function panelOf(workspace: Workspace, key: string | null) {
+  const found = key ? locate(workspace, key) : null
+  if (!found || workspace.panes[found.pane].active !== found.index) return null
+  return document.querySelector<HTMLElement>(`[data-journal-panel="${found.pane}"]`)
+}
+
+const writeSplit =(split: Record<string, number> | undefined) => JSON.stringify(split ?? null)
 
 // The panes of the journal: one, or two side by side with a divider to drag, whose
 // place is remembered. A tab can be dragged between them, or to the right edge of
@@ -45,7 +53,7 @@ export function JournalWorkspace({ space, tree, ctx, canManage }: Props) {
       tree={tree}
       ctx={ctx}
       canManage={canManage}
-      dragging={drag.dragged !== null}
+      carrying={drag.dragged}
       slot={drag.slot?.pane === index ? drag.slot : null}
     />
   )
@@ -54,7 +62,6 @@ export function JournalWorkspace({ space, tree, ctx, canManage }: Props) {
     <DndContext
       sensors={drag.sensors}
       collisionDetection={tabCollision}
-      modifiers={[restrictToHorizontalAxis]}
       onDragStart={drag.onDragStart}
       onDragMove={drag.onDragMove}
       onDragEnd={drag.onDragEnd}
@@ -80,7 +87,9 @@ export function JournalWorkspace({ space, tree, ctx, canManage }: Props) {
           </>
         )}
       </ResizablePanelGroup>
-      <DragOverlay dropAnimation={null}>{label && <JournalTabOverlay label={label} />}</DragOverlay>
+      <DragOverlay dropAnimation={null}>
+        {label && <JournalTabOverlay label={label} source={panelOf(workspace, drag.dragged)} />}
+      </DragOverlay>
     </DndContext>
   )
 }

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 import { storage } from "@/lib/browser-storage"
 
 const STORAGE_KEY = "journal-scroll"
@@ -40,6 +40,8 @@ function remember(key: string, top: number) {
 export function usePaneScroll(key: string | null) {
   const box = useRef<HTMLDivElement>(null)
   const restoring = useRef(false)
+  // Scrolled at all, so the strip above can show its edge.
+  const [scrolled, setScrolled] = useState(false)
 
   useLayoutEffect(() => {
     const element = box.current
@@ -47,6 +49,7 @@ export function usePaneScroll(key: string | null) {
     const target = positions.get(key) ?? 0
     restoring.current = target > 0
     element.scrollTop = target
+    setScrolled(element.scrollTop > 0)
     if (!restoring.current) return
 
     // Each frame, since what is inside is swapped as it loads (a placeholder, then the
@@ -74,8 +77,9 @@ export function usePaneScroll(key: string | null) {
 
   // Not while it is being put back: a short page would overwrite the saved place.
   const onScroll = () => {
+    if (box.current) setScrolled(box.current.scrollTop > 0)
     if (key && box.current && !restoring.current) remember(key, box.current.scrollTop)
   }
 
-  return { box, onScroll }
+  return { box, onScroll, scrolled }
 }

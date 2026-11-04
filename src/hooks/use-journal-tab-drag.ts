@@ -1,12 +1,8 @@
 import { useState } from "react"
 import { closestCenter, PointerSensor, pointerWithin, useSensor, useSensors } from "@dnd-kit/core"
-import type { CollisionDetection, DragEndEvent, DragMoveEvent, Modifier } from "@dnd-kit/core"
+import type { CollisionDetection, DragEndEvent, DragMoveEvent } from "@dnd-kit/core"
 import { locate, MAX_PANES } from "@/lib/journal-workspace"
 import type { Place, Workspace } from "@/lib/journal-workspace"
-
-// Tabs slide along the strip and never up or down. Where one lands is decided by
-// the pointer and the nearest tab, which this does not move.
-export const restrictToHorizontalAxis: Modifier = ({ transform }) => ({ ...transform, y: 0 })
 
 // A pane's right edge wins while the pointer is on it; otherwise the nearest tab.
 export const tabCollision: CollisionDetection = (args) => {
