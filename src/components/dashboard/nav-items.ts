@@ -1,4 +1,5 @@
 import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
+import { BookOpenIcon } from "@/components/icons/BookOpenIcon"
 import { CalendarFoldIcon } from "@/components/icons/CalendarFoldIcon"
 import { LifeBuoyIcon } from "@/components/icons/LifeBuoyIcon"
 import { MonitorIcon } from "@/components/icons/MonitorIcon"
@@ -24,6 +25,7 @@ export type NavItem = {
 
 export const campaignNav = (id: string): NavItem[] => [
   { title: "Overview", to: campaignPath(id), icon: MonitorIcon, exact: true },
+  { title: "Journal", to: campaignPath(id, "journal"), icon: BookOpenIcon },
   { title: "World", to: campaignPath(id, "world"), icon: ScrollTextIcon },
   { title: "Sessions", to: campaignPath(id, "sessions"), icon: CalendarFoldIcon },
   { title: "Characters", to: campaignPath(id, "characters"), icon: UserRoundIcon },

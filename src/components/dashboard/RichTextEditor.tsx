@@ -7,29 +7,50 @@ import { cn } from "@/lib/utils"
 import { RICH_TEXT_BOX_HEIGHT, THIN_SCROLL } from "./entry-layout"
 import { mentionSuggestion } from "./mention-suggestion"
 import { MentionNode } from "./mention-node"
+import { pageExtensions } from "./page-extensions"
+import { PageEditorFrame } from "./PageEditorFrame"
 import { richTextClass } from "./rich-text-styles"
 import { RichTextToolbar } from "./RichTextToolbar"
 import { useMentionScope } from "./useMentionScope"
 import type { FieldEditorProps } from "./field-types"
 
+type Props = FieldEditorProps & {
+  // "page" is a page of blocks (a journal page): no box and no fixed height, with
+  // the slash menu and the drag handle. The toolbar is off unless asked for.
+  variant?: "field" | "page"
+  toolbar?: boolean
+}
+
 // Uncontrolled: `value` only seeds the document, so typing is never
 // overwritten by a save coming back. Typing @ offers the entries of the world
-// around it, where there is one. The box is one fixed height, the same for every
-// rich text field: the toolbar stays at the top and the text scrolls beneath it.
-export function RichTextEditor({ value, label, placeholder, context, onChange }: FieldEditorProps) {
+// around it, where there is one. A field's box is one fixed height, the same for
+// every rich text field: the toolbar stays at the top and the text scrolls beneath it.
+export function RichTextEditor({
+  value,
+  label,
+  placeholder,
+  context,
+  onChange,
+  variant = "field",
+  toolbar = false,
+}: Props) {
   const scope = useMentionScope()
+  const page = variant === "page"
+  const mention = scope
+    ? MentionNode.configure({ suggestion: mentionSuggestion(scope, context.entryId) })
+    : MentionNode
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3] } }),
-      Placeholder.configure({ placeholder: placeholder ?? "" }),
-      scope
-        ? MentionNode.configure({ suggestion: mentionSuggestion(scope, context.entryId) })
-        : MentionNode,
-    ],
+    extensions: page
+      ? pageExtensions(placeholder ?? "", mention)
+      : [
+          StarterKit.configure({ heading: { levels: [2, 3] } }),
+          Placeholder.configure({ placeholder: placeholder ?? "" }),
+          mention,
+        ],
     content: value ? tidyMentionSpacing(value as JSONContent) : undefined,
     editorProps: {
       attributes: {
-        class: `${richTextClass} px-3 py-2.5`,
+        class: page ? `${richTextClass} min-h-[50vh] pb-24` : `${richTextClass} px-3 py-2.5`,
         "aria-label": label,
       },
     },
@@ -37,6 +58,7 @@ export function RichTextEditor({ value, label, placeholder, context, onChange }:
   })
 
   if (!editor) return null
+  if (page) return <PageEditorFrame editor={editor} toolbar={toolbar} />
 
   // The box does not clip: the mention picker opens inside it and may reach past
   // its edge. Only the text area scrolls.
