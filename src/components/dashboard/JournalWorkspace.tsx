@@ -46,6 +46,7 @@ export function JournalWorkspace({ space, tree, ctx, canManage }: Props) {
       ctx={ctx}
       canManage={canManage}
       dragging={drag.dragged !== null}
+      slot={drag.slot?.pane === index ? drag.slot : null}
     />
   )
 
@@ -55,6 +56,7 @@ export function JournalWorkspace({ space, tree, ctx, canManage }: Props) {
       collisionDetection={tabCollision}
       modifiers={[restrictToHorizontalAxis]}
       onDragStart={drag.onDragStart}
+      onDragMove={drag.onDragMove}
       onDragEnd={drag.onDragEnd}
       onDragCancel={drag.onDragCancel}
     >

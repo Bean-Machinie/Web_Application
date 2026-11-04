@@ -1,3 +1,4 @@
+import { Fragment } from "react"
 import { useDroppable } from "@dnd-kit/core"
 import { horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable"
 import { ArrowUpRight, Columns2 } from "lucide-react"
@@ -7,6 +8,7 @@ import { tabKey } from "@/lib/journal-workspace"
 import type { Pane, Tab } from "@/lib/journal-workspace"
 import { cn } from "@/lib/utils"
 import { JournalTab } from "./JournalTab"
+import { JournalTabSlot } from "./JournalTabSlot"
 import type { MemberAction } from "./MemberMenu"
 import type { TabLabel } from "./journal-tab-kinds"
 
@@ -18,6 +20,8 @@ type Props = {
   label: (tab: Tab) => TabLabel
   actionsFor: (tab: number) => MemberAction[]
   canSplit: boolean
+  // Room being made for a tab carried over from the other pane.
+  slot: { index: number; width: number } | null
   // Where the tab showing has a page of its own; null if it has none.
   fullPage: string | null
   onShow: (tab: number) => void
@@ -30,7 +34,7 @@ type Props = {
 // showing as a page of its own (only when it has one) and that split the pane in
 // two. Dropping a tab on the strip puts it last.
 export function JournalTabStrip(props: Props) {
-  const { index, pane, marked, label, actionsFor, canSplit, fullPage } = props
+  const { index, pane, marked, label, actionsFor, canSplit, slot, fullPage } = props
   const { setNodeRef } = useDroppable({ id: `strip:${index}` })
 
   return (
@@ -38,16 +42,19 @@ export function JournalTabStrip(props: Props) {
       <SortableContext items={pane.tabs.map(tabKey)} strategy={horizontalListSortingStrategy}>
         <div ref={setNodeRef} role="tablist" className="flex min-w-0 flex-1 items-stretch overflow-x-auto [scrollbar-width:none]">
           {pane.tabs.map((tab, i) => (
-            <JournalTab
-              key={tabKey(tab)}
-              tab={tab}
-              label={label(tab)}
-              active={i === pane.active}
-              actions={actionsFor(i)}
-              onShow={() => props.onShow(i)}
-              onClose={() => props.onClose(i)}
-            />
+            <Fragment key={tabKey(tab)}>
+              {slot?.index === i && <JournalTabSlot width={slot.width} />}
+              <JournalTab
+                tab={tab}
+                label={label(tab)}
+                active={i === pane.active}
+                actions={actionsFor(i)}
+                onShow={() => props.onShow(i)}
+                onClose={() => props.onClose(i)}
+              />
+            </Fragment>
           ))}
+          {slot?.index === pane.tabs.length && <JournalTabSlot width={slot.width} />}
         </div>
       </SortableContext>
       {fullPage && (

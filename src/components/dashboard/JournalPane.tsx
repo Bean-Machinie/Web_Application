@@ -21,12 +21,14 @@ type Props = {
   canManage: boolean
   // A tab is being dragged, so the edge to drop it on shows.
   dragging: boolean
+  // Room being made in this pane's tabs for one carried over from the other pane.
+  slot: { index: number; width: number } | null
 }
 
 // One pane: its tabs on top, the tab showing below, scrolling on its own. Anything
 // pressed in it puts the pane in focus. A mention clicked in it opens its entry in
 // the other pane, or with Ctrl or Cmd in a new tab here; the pane in focus stays.
-export function JournalPane({ index, space, tree, ctx, canManage, dragging }: Props) {
+export function JournalPane({ index, space, tree, ctx, canManage, dragging, slot }: Props) {
   const navigate = useNavigate()
   const { workspace, open, focus, show, close, closeOthers, move, split } = space
   const pane = workspace.panes[index]
@@ -73,6 +75,7 @@ export function JournalPane({ index, space, tree, ctx, canManage, dragging }: Pr
           label={(tab) => describeTab(ctx, tab)}
           actionsFor={actionsFor}
           canSplit={panes < MAX_PANES}
+          slot={slot}
           fullPage={fullPage}
           onShow={(tab) => show(index, tab)}
           onClose={(tab) => close(index, tab)}
