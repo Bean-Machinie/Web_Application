@@ -9,7 +9,7 @@ import { TEXT_STYLE_MARKS } from "./text-style-marks"
 
 // What a page of blocks is made of, for editing and for reading alike.
 export const PAGE_BLOCKS = [
-  StarterKit.configure({ heading: { levels: [2, 3] } }),
+  StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
   ReadAloud,
   GmNote,
   BlockVisibility,

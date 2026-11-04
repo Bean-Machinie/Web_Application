@@ -1,10 +1,13 @@
 import {
+  Code,
+  Heading1,
   Heading2,
   Heading3,
   List,
   ListOrdered,
   Megaphone,
   Minus,
+  Pilcrow,
   Quote,
   ScrollText,
 } from "lucide-react"
@@ -24,6 +27,20 @@ export type SlashItem = {
 const cleared = (editor: Editor, range: Range) => editor.chain().focus().deleteRange(range)
 
 export const SLASH_ITEMS: SlashItem[] = [
+  {
+    title: "Text",
+    hint: "Plain text again",
+    icon: Pilcrow,
+    keywords: ["paragraph", "normal", "plain"],
+    run: (editor, range) => cleared(editor, range).setParagraph().run(),
+  },
+  {
+    title: "Heading 1",
+    hint: "A large section",
+    icon: Heading1,
+    keywords: ["h1", "title", "heading", "big"],
+    run: (editor, range) => cleared(editor, range).setNode("heading", { level: 1 }).run(),
+  },
   {
     title: "Heading 2",
     hint: "A section",
@@ -58,6 +75,13 @@ export const SLASH_ITEMS: SlashItem[] = [
     icon: Quote,
     keywords: ["blockquote"],
     run: (editor, range) => cleared(editor, range).toggleBlockquote().run(),
+  },
+  {
+    title: "Code block",
+    hint: "Fixed-width text, as it is typed",
+    icon: Code,
+    keywords: ["code", "pre", "mono", "snippet"],
+    run: (editor, range) => cleared(editor, range).toggleCodeBlock().run(),
   },
   {
     title: "Divider",

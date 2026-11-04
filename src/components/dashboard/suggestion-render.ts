@@ -10,25 +10,18 @@ const GAP = 4
 export type SuggestionListHandle = { onKeyDown: (event: KeyboardEvent) => boolean }
 export type SuggestionListProps<Item, Picked> = { items: Item[]; command: (picked: Picked) => void }
 
-// A picker that is not being used closes by itself: when the editor loses focus,
-// when the person scrolls (the wheel or a touch, not the page following the caret
-// as they type), and when anything outside it is pressed. Left open it would stay
-// where it was, over whatever is under that spot. Returns what takes the listeners
-// away again.
+// A picker that is not being used closes by itself: when the editor loses focus, and
+// when anything outside it is pressed. Scrolling does not close it: it lives inside the
+// editor's box and moves with the text, and the person may be scrolling to see what is
+// below. Returns what takes the listeners away again.
 function closeWhenLeft(editor: Editor, picker: HTMLElement, close: () => void) {
   const away = (event: Event) => !picker.contains(event.target as Node) && close()
-  const passive = { capture: true, passive: true }
-
   editor.on("blur", close)
   editor.on("destroy", close)
-  window.addEventListener("wheel", close, passive)
-  window.addEventListener("touchmove", close, passive)
   window.addEventListener("pointerdown", away, true)
   return () => {
     editor.off("blur", close)
     editor.off("destroy", close)
-    window.removeEventListener("wheel", close, passive)
-    window.removeEventListener("touchmove", close, passive)
     window.removeEventListener("pointerdown", away, true)
   }
 }
@@ -59,7 +52,7 @@ export function suggestionRender<Item, Picked>(
       style.zIndex = "60"
       style.left = `${caret.left - box.left}px`
       // Below the caret, or above it when the screen ends first.
-      if (caret.bottom + 260 < window.innerHeight) {
+      if (caret.bottom + 300 < window.innerHeight) {
         style.top = `${caret.bottom - box.top + GAP}px`
         style.bottom = ""
       } else {

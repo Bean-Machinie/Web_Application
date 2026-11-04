@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import type { JSONContent } from "@tiptap/react"
 import Placeholder from "@tiptap/extension-placeholder"
@@ -36,17 +37,22 @@ export function RichTextEditor({
 }: Props) {
   const scope = useMentionScope()
   const page = variant === "page"
-  const mention = scope
-    ? MentionNode.configure({ suggestion: mentionSuggestion(scope, context.entryId) })
-    : MentionNode
-  const editor = useEditor({
-    extensions: page
+  const entryId = context.entryId
+  // Made once, not on every render: an editor given new extensions starts over, which closes
+  // the slash and mention menus whenever the page around it redraws (as it does when the
+  // pane is first scrolled).
+  const extensions = useMemo(() => {
+    const mention = scope ? MentionNode.configure({ suggestion: mentionSuggestion(scope, entryId) }) : MentionNode
+    return page
       ? pageExtensions(placeholder ?? "", mention)
       : [
           StarterKit.configure({ heading: { levels: [2, 3] } }),
           Placeholder.configure({ placeholder: placeholder ?? "" }),
           mention,
-        ],
+        ]
+  }, [page, placeholder, scope, entryId])
+  const editor = useEditor({
+    extensions,
     content: value ? tidyMentionSpacing(value as JSONContent) : undefined,
     editorProps: {
       attributes: {
