@@ -79,7 +79,7 @@ export function JournalWorkspace({ space, tree, ctx, canManage }: Props) {
         </ResizablePanel>
         {workspace.panes.length > 1 && (
           <>
-            <ResizableHandle withHandle />
+            <ResizableHandle />
             {/* A second pane that opens later takes the width it had last time. */}
             <ResizablePanel id="journal-right" minSize="25%" defaultSize={split ? `${split["journal-right"]}%` : undefined}>
               {pane(1)}
