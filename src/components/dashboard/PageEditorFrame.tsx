@@ -1,6 +1,7 @@
 import { EditorContent } from "@tiptap/react"
 import type { Editor } from "@tiptap/react"
 import { PageDragHandle } from "./PageDragHandle"
+import { PageContextMenu } from "./PageContextMenu"
 import { PageFormatBar } from "./PageFormatBar"
 import { RichTextToolbar } from "./RichTextToolbar"
 
@@ -13,7 +14,11 @@ export function PageEditorFrame({ editor, toolbar }: { editor: Editor; toolbar: 
   return (
     <div data-mention-root className="relative -ml-7 pl-7">
       {toolbar && <RichTextToolbar editor={editor} />}
-      <EditorContent editor={editor} />
+      <PageContextMenu editor={editor}>
+        <div>
+          <EditorContent editor={editor} />
+        </div>
+      </PageContextMenu>
       <PageDragHandle editor={editor} />
       <PageFormatBar editor={editor} />
     </div>

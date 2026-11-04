@@ -10,6 +10,8 @@ const SETTLE_MS = 600
 
 type Entry = { element: HTMLElement; dice: DiceMesh[]; camera: DiceCamera; scale: number; spin: number }
 
+const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+
 export type StylePreview = { hover(id: string | null): void; close(): void }
 
 // A d20 in every style, drawn into the cards' areas on one canvas laid over the grid, by a renderer made for
@@ -21,18 +23,20 @@ export async function openStylePreview(
   styles: DiceStyle[],
   reducedMotion: boolean
 ): Promise<StylePreview> {
-  // The dice of a style are made after its colorset and numerals are ready.
+  // Making a style's die (its colours, its numerals, its mesh) is heavy, and the dialog is opening and
+  // animating meanwhile. So they are made one per frame, which keeps the dialog moving, and drawn all at
+  // once when the last is ready.
   let created = await styledEngine(styles[0])
-  for (const style of styles) created = await styledEngine(style)
+  const entries = new Map<string, Entry>()
+  for (const style of styles) {
+    created = await styledEngine(style)
+    const element = elements()[style.id]
+    if (element) entries.set(style.id, { element, dice: meshesOf(created, 20, style), camera: createCamera(created), scale: 1, spin: 0 })
+    await nextFrame()
+  }
   const renderer = createRenderer(created, Math.min(window.devicePixelRatio, 2))
   host.appendChild(renderer.domElement)
   renderer.domElement.style.display = "block"
-
-  const entries = new Map<string, Entry>()
-  for (const style of styles) {
-    const element = elements()[style.id]
-    if (element) entries.set(style.id, { element, dice: meshesOf(created, 20, style), camera: createCamera(created), scale: 1, spin: 0 })
-  }
 
   let hovered: string | null = null
   let frame = 0
