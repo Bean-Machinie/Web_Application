@@ -6,10 +6,10 @@ type Props = {
   title: string
   to: string
   active: boolean
+  // Inside another page: a little quieter than the top level.
+  nested: boolean
   // Ctrl or Cmd with the click, or the middle button, asks for a new tab.
   onOpen: (mode: "current" | "tab") => void
-  // Pressed on the name: it may be dragged out of the tree to open where it is dropped.
-  onDragOut: (event: PointerEvent) => void
   // Opened from the row's menu.
   renaming: boolean
   onRename: (title: string) => void
@@ -20,7 +20,7 @@ export const UNTITLED = "Untitled"
 
 // A page's name in the tree: a link to the page, or while it is being renamed a
 // box. Enter or leaving the box saves, Escape cancels.
-export function JournalRowTitle({ title, to, active, onOpen, onDragOut, renaming, onRename, onDoneRenaming }: Props) {
+export function JournalRowTitle({ title, to, active, nested, onOpen, renaming, onRename, onDoneRenaming }: Props) {
   const [draft, setDraft] = useState(title)
 
   function finish(save: boolean) {
@@ -51,9 +51,8 @@ export function JournalRowTitle({ title, to, active, onOpen, onDragOut, renaming
   return (
     <Link
       to={to}
-      // The link's own drag would take the pointer; ours opens a tab.
+      // The browser's own drag of a link would take the pointer from the row's.
       draggable={false}
-      onPointerDown={(event) => event.button === 0 && onDragOut(event.nativeEvent)}
       onClick={(event) => {
         event.preventDefault()
         onOpen(event.ctrlKey || event.metaKey ? "tab" : "current")
@@ -66,9 +65,8 @@ export function JournalRowTitle({ title, to, active, onOpen, onDragOut, renaming
       }}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "min-w-0 flex-1 truncate py-1 text-sm outline-none focus-visible:underline",
-        !title && "text-muted-foreground",
-        active && "font-medium"
+        "min-w-0 flex-1 truncate py-1 text-sm no-underline outline-none",
+        (!title || (nested && !active)) && "text-muted-foreground"
       )}
     >
       {title || UNTITLED}

@@ -1,26 +1,23 @@
 import { useEffect } from "react"
 import { useMatch } from "react-router-dom"
-import { PanelLeftOpen } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { BreadcrumbContext } from "@/components/dashboard/BreadcrumbContext"
 import { describeTab, tabExists } from "@/components/dashboard/journal-tab-kinds"
-import { JournalTree } from "@/components/dashboard/JournalTree"
+import { JournalSide } from "@/components/dashboard/JournalSide"
 import { JournalWorkspace } from "@/components/dashboard/JournalWorkspace"
 import { PlainBackground } from "@/components/dashboard/PlainBackground"
 import { useCurrentCampaign } from "@/components/dashboard/useCurrentCampaign"
 import { useJournalTabContext } from "@/components/dashboard/useJournalTabContext"
 import { usePageTrail } from "@/components/dashboard/usePageTrail"
+import { RAIL_PX, TREE_MAX_PX, TREE_MIN_PX, useJournalSide } from "@/hooks/use-journal-side"
 import { useJournalShortcuts } from "@/hooks/use-journal-shortcuts"
 import { useJournalTree } from "@/hooks/use-journal-tree"
 import { useJournalUrlSync } from "@/hooks/use-journal-url-sync"
 import { useJournalWorkspace } from "@/hooks/use-journal-workspace"
-import { useStoredValue } from "@/hooks/use-stored-value"
 import { campaignPath } from "@/lib/campaign-paths"
 import { activeTab } from "@/lib/journal-workspace"
 import { interceptPalette } from "@/lib/palette-intercept"
 import { cn } from "@/lib/utils"
-
-const readOpen = (text: string | null) => text !== "false"
 
 // What the views in the panes see in place of the header's trail: they may ask for
 // their own (an entry's path in the World), and it is not shown. The journal's
@@ -37,7 +34,7 @@ export function Journal() {
   const space = useJournalWorkspace(current.id)
   const ctx = useJournalTabContext(current.id, tree.nodes)
   const pageId = useMatch(campaignPath(current.id, "journal/:pageId"))?.params.pageId
-  const [treeOpen, setTreeOpen] = useStoredValue("journal-tree-open", readOpen)
+  const side = useJournalSide()
   const { prune, open } = space
 
   useJournalUrlSync(current.id, pageId, space)
@@ -63,44 +60,46 @@ export function Journal() {
   )
 
   return (
-    <div className="-m-4 flex h-[calc(100svh-var(--header-height))] min-w-0 flex-none flex-col md:-m-6 md:flex-row">
+    <div className="-m-4 h-[calc(100svh-var(--header-height))] min-w-0 flex-none md:-m-6">
       <PlainBackground />
-      {/* Narrows to a strip the way the sidebar does. The tree keeps its width and is
-          clipped, so it does not rewrap as the panel moves. */}
-      <aside
-        className={cn(
-          "bg-background relative shrink-0 overflow-hidden border-b transition-[width] duration-200 ease-linear motion-reduce:transition-none md:max-h-none md:border-r md:border-b-0",
-          treeOpen ? "max-h-60 md:w-64" : "max-h-10 md:w-10"
-        )}
+      {/* The tree is a panel of its own width, 200 to 320 px, that narrows to a rail
+          the way the sidebar does. The workspace is always the second panel, so
+          narrowing or widening the tree does not reload it. */}
+      {/* A panel's width is the flex-grow of the element around the one that takes a
+          className, so the easing is set from the group, on both panels at once. */}
+      <ResizablePanelGroup
+        orientation="horizontal"
+        onLayoutChanged={side.saveWidth}
+        className={cn(side.easing && "[&>[data-panel]]:transition-[flex-grow] [&>[data-panel]]:duration-200 [&>[data-panel]]:ease-linear motion-reduce:[&>[data-panel]]:transition-none")}
       >
-        <div
-          inert={!treeOpen}
-          className={cn("flex h-full w-full flex-col transition-opacity duration-200 md:w-64", !treeOpen && "opacity-0")}
+        <ResizablePanel
+          id="journal-tree"
+          panelRef={side.panel}
+          elementRef={side.element}
+          collapsible
+          collapsedSize={`${RAIL_PX}px`}
+          minSize={`${TREE_MIN_PX}px`}
+          maxSize={`${TREE_MAX_PX}px`}
+          defaultSize={`${side.open ? side.width : RAIL_PX}px`}
+          onResize={side.onResize}
+          className="bg-background"
         >
-          <JournalTree
+          <JournalSide
             tree={tree}
             space={space}
             campaignId={current.id}
             canManage={canManage}
-            onCollapse={() => setTreeOpen(false)}
+            open={side.open}
+            onToggle={side.toggle}
           />
-        </div>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Show pages"
-          inert={treeOpen}
-          onClick={() => setTreeOpen(true)}
-          className={cn("absolute top-1 left-1 transition-opacity duration-200", treeOpen && "opacity-0")}
-        >
-          <PanelLeftOpen />
-        </Button>
-      </aside>
-      <div className="min-h-0 min-w-0 flex-1">
-        <BreadcrumbContext.Provider value={OWN_TRAIL}>
-          <JournalWorkspace space={space} tree={tree} ctx={ctx} canManage={canManage} />
-        </BreadcrumbContext.Provider>
-      </div>
+        </ResizablePanel>
+        <ResizableHandle disabled={!side.open} />
+        <ResizablePanel id="journal-main" minSize="30%">
+          <BreadcrumbContext.Provider value={OWN_TRAIL}>
+            <JournalWorkspace space={space} tree={tree} ctx={ctx} canManage={canManage} />
+          </BreadcrumbContext.Provider>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   )
 }

@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { closestCenter, DndContext } from "@dnd-kit/core"
+import type { DragEndEvent, DragMoveEvent } from "@dnd-kit/core"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { PanelLeftClose, Plus } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
@@ -17,7 +18,6 @@ import type { DropTarget } from "@/lib/journal-drop-target"
 import { filteredRows, visibleRows } from "@/lib/journal-tree"
 import { activeTab, tabKey } from "@/lib/journal-workspace"
 import type { Where } from "@/lib/journal-workspace"
-import { JournalDeleteDialog } from "./JournalDeleteDialog"
 import { JournalTreeRow } from "./JournalTreeRow"
 import { mountPageTag } from "./page-drag-tag"
 import type { OpenMode } from "./JournalTreeRow"
@@ -28,6 +28,10 @@ type Props = {
   campaignId: string
   canManage: boolean
   onCollapse: () => void
+  // The page being renamed, if any; the rail can ask for it too.
+  renaming: string | null
+  onRenaming: (id: string | null) => void
+  onDelete: (page: JournalNode) => void
 }
 
 function readIds(text: string | null): ReadonlySet<string> {
@@ -50,11 +54,15 @@ const WHERE: Record<OpenMode, Where> = {
 // The pages of the journal as a tree, with a filter above it. Click a page to open
 // it in the current tab; Ctrl or Cmd click, or the menu, for a new tab or the pane
 // on the right. Drag one to reorder it, or sideways to put it inside the page above.
-export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: Props) {
+export function JournalTree({ tree, space, campaignId, canManage, onCollapse, renaming, onRenaming, onDelete }: Props) {
   const nodes = useMemo(() => tree.nodes ?? [], [tree.nodes])
   // Which pages were folded, remembered per campaign.
   const [collapsed, setCollapsed] = useStoredValue(`journal-collapsed:${campaignId}`, readIds, writeIds)
-  const [deleting, setDeleting] = useState<JournalNode | null>(null)
+  const nav = useRef<HTMLElement>(null)
+  // The page whose drag went out of the tree and became a drag onto the workspace.
+  const leftTree = useRef(false)
+  // Once it has left, the rows stay where they were while the page is carried out.
+  const [out, setOut] = useState(false)
   const [query, setQuery] = useState("")
   const filtering = query.trim() !== ""
   const rows = useMemo(
@@ -89,6 +97,33 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: 
     if (drop.kind === "tab") space.move(tabKey(tab), { pane: drop.pane, index: drop.index })
   }
 
+  // Dragging a row to the right, out of the tree, carries the page to the workspace
+  // instead of reordering it.
+  function carryOut(event: DragMoveEvent) {
+    const press = event.activatorEvent as PointerEvent
+    const x = press.clientX + event.delta.x
+    const edge = nav.current?.getBoundingClientRect().right
+    if (leftTree.current || edge === undefined || x <= edge) return
+    leftTree.current = true
+    setOut(true)
+    drag.onDragCancel()
+    const id = String(event.active.id)
+    const title = nodes.find((node) => node.id === id)?.title || "Untitled"
+    startPageDrag(
+      { clientX: x, clientY: press.clientY + event.delta.y } as PointerEvent,
+      space.workspace.panes.length,
+      mountPageTag(id, title),
+      (drop) => dropPage(id, drop)
+    )
+  }
+
+  function dragEnd(event: DragEndEvent) {
+    if (!leftTree.current) return drag.onDragEnd(event)
+    leftTree.current = false
+    setOut(false)
+    drag.onDragCancel()
+  }
+
   async function add(parentId: string | null) {
     const id = await tree.create(parentId)
     if (!id) return
@@ -97,7 +132,7 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: 
   }
 
   return (
-    <nav aria-label="Journal pages" className="flex min-h-0 flex-1 flex-col">
+    <nav ref={nav} aria-label="Journal pages" className="flex min-h-0 flex-1 flex-col">
       <div className="flex h-9 shrink-0 items-center gap-1 border-b px-1.5">
         <Input
           aria-label="Filter pages"
@@ -126,12 +161,19 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: 
           sensors={drag.sensors}
           collisionDetection={closestCenter}
           onDragStart={drag.onDragStart}
-          onDragMove={drag.onDragMove}
-          onDragEnd={drag.onDragEnd}
-          onDragCancel={drag.onDragCancel}
+          onDragMove={(event) => {
+            carryOut(event)
+            if (!leftTree.current) drag.onDragMove(event)
+          }}
+          onDragEnd={dragEnd}
+          onDragCancel={() => {
+            leftTree.current = false
+            setOut(false)
+            drag.onDragCancel()
+          }}
         >
           <SortableContext items={drag.shown.map((row) => row.node.id)} strategy={verticalListSortingStrategy}>
-            <ul className="flex flex-col gap-px">
+            <ul className="flex flex-col">
               {drag.shown.map((row) => (
                 <JournalTreeRow
                   key={row.node.id}
@@ -141,34 +183,24 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: 
                   inTab={openIds.has(row.node.id)}
                   open={filtering || !collapsed.has(row.node.id)}
                   hasChildren={parents.has(row.node.id)}
+                  renaming={renaming === row.node.id}
+                  frozen={out}
                   canManage={canManage}
                   canDrag={canManage && !filtering}
                   depth={row.node.id === drag.activeId && drag.projected ? drag.projected.depth : row.depth}
                   onOpen={(mode) => space.open({ kind: "page", id: row.node.id }, WHERE[mode])}
-                  onDragOut={(event) =>
-                    startPageDrag(
-                      event,
-                      space.workspace.panes.length,
-                      mountPageTag(row.node.id, row.node.title || "Untitled"),
-                      (drop) => dropPage(row.node.id, drop)
-                    )
-                  }
                   onToggle={() => toggle(row.node.id, collapsed.has(row.node.id))}
                   onAdd={() => add(row.node.id)}
+                  onRenameStart={() => onRenaming(row.node.id)}
+                  onRenameEnd={() => onRenaming(null)}
                   onRename={(title) => tree.rename(row.node.id, title)}
-                  onDelete={() => setDeleting(row.node)}
+                  onDelete={() => onDelete(row.node)}
                 />
               ))}
             </ul>
           </SortableContext>
         </DndContext>
       </div>
-      <JournalDeleteDialog
-        page={deleting}
-        hasChildren={!!deleting && parents.has(deleting.id)}
-        onDelete={(page) => tree.remove(page.id)}
-        onClose={() => setDeleting(null)}
-      />
     </nav>
   )
 }

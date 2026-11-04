@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import type { DragEndEvent, DragMoveEvent } from "@dnd-kit/core"
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable"
@@ -7,6 +7,14 @@ import { projectDrop } from "@/lib/journal-drop"
 import type { Drop } from "@/lib/journal-drop"
 import { childrenByParent, descendantIds } from "@/lib/journal-tree"
 import type { TreeRow } from "@/lib/journal-tree"
+
+// A drag that began on a page's name ends in a click on it, which for a link would
+// also go to its address, and the page would reload. Stopped before it gets there.
+function guardNextClick() {
+  const stop = (event: Event) => event.preventDefault()
+  window.addEventListener("click", stop, true)
+  return () => window.setTimeout(() => window.removeEventListener("click", stop, true), 50)
+}
 
 // Dragging pages in the tree. While one is dragged, the pages inside it travel
 // with it, so they are left out of the rows, and `projected` says where it would
@@ -19,6 +27,14 @@ export function useJournalTreeDrag(
 ) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [projected, setProjected] = useState<Drop | null>(null)
+  const release = useRef<(() => void) | null>(null)
+
+  const finish = () => {
+    release.current?.()
+    release.current = null
+    setActiveId(null)
+    setProjected(null)
+  }
 
   // Not before a few pixels of movement, so that a click is still a click.
   const sensors = useSensors(
@@ -45,8 +61,7 @@ export function useJournalTreeDrag(
   function end(event: DragEndEvent) {
     const drop = project(event)
     const id = String(event.active.id)
-    setActiveId(null)
-    setProjected(null)
+    finish()
     const node = nodes.find((candidate) => candidate.id === id)
     if (!drop || !node) return
 
@@ -59,12 +74,12 @@ export function useJournalTreeDrag(
     shown,
     activeId,
     projected,
-    onDragStart: (event: { active: { id: string | number } }) => setActiveId(String(event.active.id)),
+    onDragStart: (event: { active: { id: string | number } }) => {
+      release.current = guardNextClick()
+      setActiveId(String(event.active.id))
+    },
     onDragMove: (event: DragMoveEvent) => setProjected(project(event)),
     onDragEnd: end,
-    onDragCancel: () => {
-      setActiveId(null)
-      setProjected(null)
-    },
+    onDragCancel: finish,
   }
 }
