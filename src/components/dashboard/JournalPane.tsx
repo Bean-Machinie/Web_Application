@@ -69,7 +69,7 @@ export function JournalPane({ index, space, tree, ctx, canManage, carrying, slot
 
   return (
     <MentionOpenContext.Provider value={openMention}>
-      <div className="relative flex h-full min-w-0 flex-col" onPointerDownCapture={() => focus(index)}>
+      <div data-journal-pane={index} className="relative flex h-full min-w-0 flex-col" onPointerDownCapture={() => focus(index)}>
         <JournalTabStrip
           index={index}
           pane={pane}

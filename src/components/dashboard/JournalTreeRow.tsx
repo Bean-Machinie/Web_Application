@@ -27,6 +27,7 @@ type Props = {
   // How far in the row is drawn; differs from its own depth while it is dragged.
   depth: number
   onOpen: (mode: OpenMode) => void
+  onDragOut: (event: PointerEvent) => void
   onToggle: () => void
   onAdd: () => void
   onRename: (title: string) => void
@@ -101,6 +102,7 @@ export function JournalTreeRow(props: Props) {
             to={to}
             active={active}
             onOpen={props.onOpen}
+            onDragOut={props.onDragOut}
             renaming={renaming}
             onRename={props.onRename}
             onDoneRenaming={() => setRenaming(false)}

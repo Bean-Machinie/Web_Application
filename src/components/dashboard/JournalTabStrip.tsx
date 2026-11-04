@@ -42,6 +42,7 @@ export function JournalTabStrip(props: Props) {
 
   return (
     <div
+      data-journal-strip=""
       className={cn(
         "bg-muted/50 flex h-9 shrink-0 items-stretch border-b transition-colors duration-150",
         !scrolled && "border-b-transparent"

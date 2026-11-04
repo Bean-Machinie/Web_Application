@@ -34,6 +34,7 @@ export function JournalTab({ tab, label, active, focused, actions, onShow, onClo
         {...attributes}
         {...listeners}
         role="tab"
+        data-journal-tab=""
         aria-selected={active}
         // Along the strip only.
         style={{ transform: transform ? `translate3d(${transform.x}px, 0, 0)` : undefined, transition }}

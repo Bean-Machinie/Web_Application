@@ -8,6 +8,8 @@ type Props = {
   active: boolean
   // Ctrl or Cmd with the click, or the middle button, asks for a new tab.
   onOpen: (mode: "current" | "tab") => void
+  // Pressed on the name: it may be dragged out of the tree to open where it is dropped.
+  onDragOut: (event: PointerEvent) => void
   // Opened from the row's menu.
   renaming: boolean
   onRename: (title: string) => void
@@ -18,7 +20,7 @@ export const UNTITLED = "Untitled"
 
 // A page's name in the tree: a link to the page, or while it is being renamed a
 // box. Enter or leaving the box saves, Escape cancels.
-export function JournalRowTitle({ title, to, active, onOpen, renaming, onRename, onDoneRenaming }: Props) {
+export function JournalRowTitle({ title, to, active, onOpen, onDragOut, renaming, onRename, onDoneRenaming }: Props) {
   const [draft, setDraft] = useState(title)
 
   function finish(save: boolean) {
@@ -49,6 +51,9 @@ export function JournalRowTitle({ title, to, active, onOpen, renaming, onRename,
   return (
     <Link
       to={to}
+      // The link's own drag would take the pointer; ours opens a tab.
+      draggable={false}
+      onPointerDown={(event) => event.button === 0 && onDragOut(event.nativeEvent)}
       onClick={(event) => {
         event.preventDefault()
         onOpen(event.ctrlKey || event.metaKey ? "tab" : "current")

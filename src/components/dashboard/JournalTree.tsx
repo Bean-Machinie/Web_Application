@@ -12,8 +12,10 @@ import type { JournalTreeState } from "@/hooks/use-journal-tree"
 import type { JournalWorkspaceState } from "@/hooks/use-journal-workspace"
 import { campaignPath } from "@/lib/campaign-paths"
 import type { JournalNode } from "@/lib/journal"
+import { startPageDrag } from "@/lib/journal-page-drag"
+import type { PageDrop } from "@/lib/journal-page-drag"
 import { filteredRows, visibleRows } from "@/lib/journal-tree"
-import { activeTab } from "@/lib/journal-workspace"
+import { activeTab, tabKey } from "@/lib/journal-workspace"
 import type { Where } from "@/lib/journal-workspace"
 import { JournalDeleteDialog } from "./JournalDeleteDialog"
 import { JournalTreeRow } from "./JournalTreeRow"
@@ -75,6 +77,18 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: 
     setCollapsed(next)
   }
 
+  // A page dragged out of the tree and let go over the workspace.
+  function dropPage(id: string, drop: PageDrop) {
+    const tab = { kind: "page", id }
+    const panes = space.workspace.panes.length
+    if (drop.kind === "edge") {
+      space.open(tab, drop.pane < panes - 1 ? { kind: "newTab", pane: drop.pane + 1 } : { kind: "other", from: drop.pane })
+      return
+    }
+    space.open(tab, { kind: "newTab", pane: drop.pane })
+    if (drop.kind === "tab") space.move(tabKey(tab), { pane: drop.pane, index: drop.index })
+  }
+
   async function add(parentId: string | null) {
     const id = await tree.create(parentId)
     if (!id) return
@@ -131,6 +145,11 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: 
                   canDrag={canManage && !filtering}
                   depth={row.node.id === drag.activeId && drag.projected ? drag.projected.depth : row.depth}
                   onOpen={(mode) => space.open({ kind: "page", id: row.node.id }, WHERE[mode])}
+                  onDragOut={(event) =>
+                    startPageDrag(row.node.title || "Untitled", event, space.workspace.panes.length, (drop) =>
+                      dropPage(row.node.id, drop)
+                    )
+                  }
                   onToggle={() => toggle(row.node.id, collapsed.has(row.node.id))}
                   onAdd={() => add(row.node.id)}
                   onRename={(title) => tree.rename(row.node.id, title)}
