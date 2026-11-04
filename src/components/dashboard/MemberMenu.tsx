@@ -15,6 +15,7 @@ export type MemberAction = {
   label: string
   icon?: AnimatedIconComponent | LucideIcon
   destructive?: boolean
+  disabled?: boolean
   onSelect: () => void
 }
 
@@ -32,6 +33,7 @@ export function MemberMenu({ name, actions }: { name: string; actions: MemberAct
       key={action.label}
       className="cursor-pointer gap-2.5 rounded-md px-2 py-1.5 whitespace-nowrap"
       variant={action.destructive ? "destructive" : "default"}
+      disabled={action.disabled}
       onSelect={action.onSelect}
     >
       {action.icon && <HoverIcon icon={action.icon} className={action.destructive ? "" : "text-muted-foreground"} />}

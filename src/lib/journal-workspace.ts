@@ -1,8 +1,9 @@
 // What is open in the journal: up to two panes side by side, each a row of tabs
 // with one showing. A tab is a journal page or a world entry, and the same one
 // is never open twice, because two editors on one document would overwrite each
-// other's autosave.
-export type Tab = { kind: "page" | "entry"; id: string }
+// other's autosave. What a kind is (its icon, its content) is registered where the
+// journal draws tabs; here it is only a name.
+export type Tab = { kind: string; id: string }
 export type Pane = { tabs: Tab[]; active: number }
 export type Workspace = { panes: Pane[]; focused: number }
 
@@ -123,10 +124,17 @@ export function stepTab(ws: Workspace, step: 1 | -1): Workspace {
   return focusTab(ws, ws.focused, (pane.active + step + pane.tabs.length) % pane.tabs.length)
 }
 
-// Takes out the tabs whose page or entry is gone. A null set means it is not
-// known yet (still loading), and nothing of that kind is taken out.
-export function pruneTabs(ws: Workspace, pages: Set<string> | null, entries: Set<string> | null): Workspace {
-  const keeps = (tab: Tab) => (tab.kind === "page" ? pages : entries)?.has(tab.id) ?? true
+// Every tab but the one, in its pane, which is then the pane in focus.
+export function closeOthers(ws: Workspace, paneIndex: number, index: number): Workspace {
+  const panes = clone(ws)
+  const pane = panes[paneIndex]
+  pane.tabs = [pane.tabs[index]]
+  pane.active = 0
+  return { panes, focused: paneIndex }
+}
+
+// Takes out the tabs `keeps` says no to (their page or entry is gone).
+export function pruneTabs(ws: Workspace, keeps: (tab: Tab) => boolean): Workspace {
   if (ws.panes.every((pane) => pane.tabs.every(keeps))) return ws
 
   const panes = ws.panes.map((pane) => {

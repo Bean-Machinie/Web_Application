@@ -8,14 +8,14 @@ import {
 } from "@/components/ui/context-menu"
 import type { MemberAction } from "./MemberMenu"
 
-// The right-click menu of a page in the tree: the same actions as its three-dot
-// menu, destructive ones last and set apart.
-export function JournalRowContextMenu({ actions, children }: { actions: MemberAction[]; children: ReactNode }) {
+// A right-click menu from a list of actions, the same list a three-dot menu takes:
+// destructive ones last and set apart.
+export function ActionContextMenu({ actions, children }: { actions: MemberAction[]; children: ReactNode }) {
   const safe = actions.filter((action) => !action.destructive)
   const destructive = actions.filter((action) => action.destructive)
 
-  const item = ({ label, icon: Icon, destructive, onSelect }: MemberAction) => (
-    <ContextMenuItem key={label} variant={destructive ? "destructive" : "default"} onSelect={onSelect}>
+  const item = ({ label, icon: Icon, destructive, disabled, onSelect }: MemberAction) => (
+    <ContextMenuItem key={label} variant={destructive ? "destructive" : "default"} disabled={disabled} onSelect={onSelect}>
       {Icon && <Icon className={destructive ? "" : "text-muted-foreground"} />}
       {label}
     </ContextMenuItem>

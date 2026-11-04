@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { INDENT_PX } from "@/lib/journal-drop"
 import type { TreeRow } from "@/lib/journal-tree"
 import { cn } from "@/lib/utils"
-import { JournalRowContextMenu } from "./JournalRowContextMenu"
+import { ActionContextMenu } from "./ActionContextMenu"
 import { JournalRowTitle, UNTITLED } from "./JournalRowTitle"
 import { MemberMenu } from "./MemberMenu"
 import type { MemberAction } from "./MemberMenu"
@@ -62,7 +62,7 @@ export function JournalTreeRow(props: Props) {
       style={{ transform: transform ? `translate3d(0, ${transform.y}px, 0)` : undefined, transition }}
       className={cn("relative", isDragging && "z-10 opacity-70")}
     >
-      <JournalRowContextMenu actions={actions}>
+      <ActionContextMenu actions={actions}>
         <div
           style={{ paddingLeft: depth * INDENT_PX }}
           className={cn(
@@ -119,7 +119,7 @@ export function JournalTreeRow(props: Props) {
             </div>
           )}
         </div>
-      </JournalRowContextMenu>
+      </ActionContextMenu>
     </li>
   )
 }

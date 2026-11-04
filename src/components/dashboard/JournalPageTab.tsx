@@ -1,14 +1,12 @@
 import { Skeleton } from "@/components/ui/skeleton"
-import { JournalEmpty } from "@/components/dashboard/JournalEmpty"
-import { JournalPageView } from "@/components/dashboard/JournalPageView"
-import type { JournalTreeState } from "@/hooks/use-journal-tree"
-
-type Props = { pageId: string; tree: JournalTreeState; canManage: boolean }
+import { JournalEmpty } from "./JournalEmpty"
+import { JournalPageView } from "./JournalPageView"
+import type { TabContentProps } from "./journal-tab-kinds"
 
 // A page can only be opened if it is in the tree, which holds exactly the pages
 // this person may read.
-export function JournalPageTab({ pageId, tree, canManage }: Props) {
-  const node = tree.nodes?.find((candidate) => candidate.id === pageId)
+export function JournalPageTab({ id, tree, canManage }: TabContentProps) {
+  const node = tree.nodes?.find((candidate) => candidate.id === id)
 
   if (!tree.nodes) return <Skeleton className="m-8 h-40" />
   if (!node) return <JournalEmpty canManage={canManage} hasPages={tree.nodes.length > 0} />

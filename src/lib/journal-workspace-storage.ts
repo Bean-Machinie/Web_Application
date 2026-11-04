@@ -3,7 +3,7 @@ import type { Pane, Tab, Workspace } from "./journal-workspace"
 
 const isTab = (value: unknown): value is Tab => {
   const tab = value as Partial<Tab> | null
-  return (tab?.kind === "page" || tab?.kind === "entry") && typeof tab.id === "string"
+  return typeof tab?.kind === "string" && typeof tab.id === "string"
 }
 
 function readPane(value: unknown): Pane | null {

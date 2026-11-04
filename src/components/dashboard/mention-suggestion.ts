@@ -1,3 +1,4 @@
+import { PluginKey } from "@tiptap/pm/state"
 import type { SuggestionOptions } from "@tiptap/suggestion"
 import { loadMentionEntries } from "@/lib/mention-entries"
 import { normalize } from "@/lib/world-search"
@@ -7,6 +8,7 @@ import type { MentionItem } from "./MentionList"
 import { suggestionRender } from "./suggestion-render"
 
 const MAX_ITEMS = 8
+const MENTION_KEY = new PluginKey("mentionPicker")
 
 // What @ offers: the entries of the scope that match what was typed, names
 // starting with it first. The entry being edited is left out.
@@ -46,6 +48,7 @@ export function mentionSuggestion(
         .run()
     },
     items: ({ query }) => items(scope, exceptId, query),
-    render: suggestionRender(MentionList),
+    pluginKey: MENTION_KEY,
+    render: suggestionRender(MentionList, MENTION_KEY),
   }
 }

@@ -6,6 +6,7 @@ import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useStoredValue } from "@/hooks/use-stored-value"
 import { useJournalTreeDrag } from "@/hooks/use-journal-tree-drag"
 import type { JournalTreeState } from "@/hooks/use-journal-tree"
 import type { JournalWorkspaceState } from "@/hooks/use-journal-workspace"
@@ -26,6 +27,17 @@ type Props = {
   onCollapse: () => void
 }
 
+function readIds(text: string | null): ReadonlySet<string> {
+  try {
+    const ids = JSON.parse(text ?? "[]") as unknown
+    return new Set(Array.isArray(ids) ? ids.filter((id): id is string => typeof id === "string") : [])
+  } catch {
+    return new Set()
+  }
+}
+
+const writeIds = (ids: ReadonlySet<string>) => JSON.stringify([...ids])
+
 const WHERE: Record<OpenMode, Where> = {
   current: { kind: "current" },
   tab: { kind: "newTab" },
@@ -37,7 +49,8 @@ const WHERE: Record<OpenMode, Where> = {
 // on the right. Drag one to reorder it, or sideways to put it inside the page above.
 export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: Props) {
   const nodes = useMemo(() => tree.nodes ?? [], [tree.nodes])
-  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set())
+  // Which pages were folded, remembered per campaign.
+  const [collapsed, setCollapsed] = useStoredValue(`journal-collapsed:${campaignId}`, readIds, writeIds)
   const [deleting, setDeleting] = useState<JournalNode | null>(null)
   const [query, setQuery] = useState("")
   const filtering = query.trim() !== ""
@@ -56,12 +69,10 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: 
   )
 
   function toggle(id: string, open: boolean) {
-    setCollapsed((old) => {
-      const next = new Set(old)
-      if (open) next.delete(id)
-      else next.add(id)
-      return next
-    })
+    const next = new Set(collapsed)
+    if (open) next.delete(id)
+    else next.add(id)
+    setCollapsed(next)
   }
 
   async function add(parentId: string | null) {

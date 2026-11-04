@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { GripVertical } from "lucide-react"
 import type { Editor } from "@tiptap/react"
 import { blockAtY } from "@/lib/block-at"
-import { startBlockDrag } from "@/lib/block-drag"
+import { cancelBlockDrag, startBlockDrag } from "@/lib/block-drag"
 import { debugBlockDrag } from "@/lib/block-drag-debug"
 
 const HIT_PX = 24
@@ -44,6 +44,10 @@ export function PageDragHandle({ editor }: { editor: Editor }) {
       setTarget(null)
     }
 
+    // A page that goes while a block is being dragged (its tab closed or switched)
+    // takes the drag, and its preview, with it.
+    const endDrag = cancelBlockDrag
+
     root.addEventListener("pointermove", move)
     root.addEventListener("pointerleave", leave)
     // Typing moves the blocks under a pointer that has not moved.
@@ -52,6 +56,7 @@ export function PageDragHandle({ editor }: { editor: Editor }) {
       root.removeEventListener("pointermove", move)
       root.removeEventListener("pointerleave", leave)
       editor.off("update", locate)
+      endDrag()
     }
   }, [editor])
 

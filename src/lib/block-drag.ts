@@ -2,10 +2,15 @@ import { NodeSelection } from "@tiptap/pm/state"
 import type { Editor } from "@tiptap/react"
 import { gapLines } from "./block-at"
 import { debugBlockDrag } from "./block-drag-debug"
-import { autoScroll, makeDropLine, makePreview, scrollParent } from "./block-drag-visuals"
+import { autoScroll, clearStrayPreviews, makeDropLine, makePreview, scrollParent } from "./block-drag-visuals"
 import { moveBlock, topLevelBlocks } from "./block-move"
 
 const START_PX = 4
+
+// The drag in progress, if any: only one at a time, and whatever ends the page
+// it is on (a tab switched, the editor gone) must be able to end it.
+let ending: (() => void) | null = null
+export const cancelBlockDrag = () => ending?.()
 
 // Moves a block with the pointer, from the handle. Where it lands depends only
 // on how high the pointer is: the nearest gap between blocks, whatever the
@@ -19,6 +24,10 @@ export function startBlockDrag(editor: Editor, index: number, start: PointerEven
   const dom = view.nodeDOM(at?.pos ?? -1)
   const root = view.dom.closest<HTMLElement>("[data-mention-root]")
   if (!at || !(dom instanceof HTMLElement) || !root) return onEnd()
+
+  // Nothing left over from a drag that did not end properly.
+  cancelBlockDrag()
+  clearStrayPreviews()
 
   const block = dom
   const rect = block.getBoundingClientRect()
@@ -77,6 +86,10 @@ export function startBlockDrag(editor: Editor, index: number, start: PointerEven
     window.removeEventListener("pointerup", up)
     window.removeEventListener("pointercancel", cancel)
     window.removeEventListener("keydown", key, true)
+    window.removeEventListener("blur", cancel)
+    document.removeEventListener("visibilitychange", cancel)
+    editor.off("destroy", cancel)
+    if (ending === cancel) ending = null
     cancelAnimationFrame(frame)
     live?.preview.remove()
     live?.line.remove()
@@ -94,8 +107,9 @@ export function startBlockDrag(editor: Editor, index: number, start: PointerEven
   }
 
   const up = () => finish(true, "pointerup")
-  // The browser took the pointer: a native drag starting does this.
-  const cancel = () => finish(false, "pointercancel")
+  // Also when the pointer is taken (a native drag starting), the window loses focus
+  // or the page is hidden, or the editor goes (its tab closed or switched).
+  const cancel = () => finish(false, "interrupted")
   function key(event: KeyboardEvent) {
     if (event.key !== "Escape") return
     event.preventDefault()
@@ -107,4 +121,8 @@ export function startBlockDrag(editor: Editor, index: number, start: PointerEven
   window.addEventListener("pointerup", up)
   window.addEventListener("pointercancel", cancel)
   window.addEventListener("keydown", key, true)
+  window.addEventListener("blur", cancel)
+  document.addEventListener("visibilitychange", cancel)
+  editor.on("destroy", cancel)
+  ending = cancel
 }

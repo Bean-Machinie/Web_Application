@@ -7,6 +7,7 @@ export function makePreview(block: HTMLElement, editorClass: string, width: numb
   const holder = document.createElement("div")
   holder.className = editorClass
   holder.setAttribute("aria-hidden", "true")
+  holder.dataset.blockDragPreview = ""
   Object.assign(holder.style, {
     position: "fixed",
     left: "0",
@@ -21,6 +22,11 @@ export function makePreview(block: HTMLElement, editorClass: string, width: numb
   holder.appendChild(block.cloneNode(true))
   document.body.appendChild(holder)
   return holder
+}
+
+// A preview that outlived its drag, wherever it was left, goes.
+export function clearStrayPreviews() {
+  document.querySelectorAll("[data-block-drag-preview]").forEach((preview) => preview.remove())
 }
 
 // The line where the block would land: the accent colour, a dot at its left end.

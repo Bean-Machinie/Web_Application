@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef } from "react"
 import { useStoredValue } from "@/hooks/use-stored-value"
 import {
+  closeOthers,
   closeTab,
   focusPane,
   focusTab,
@@ -39,8 +40,8 @@ export function useJournalWorkspace(campaignId: string) {
       move: (key: string, place: Place) => apply((ws) => moveTab(ws, key, place)),
       split: () => apply(splitRight),
       step: (by: 1 | -1) => apply((ws) => stepTab(ws, by)),
-      prune: (pages: Set<string> | null, entries: Set<string> | null) =>
-        apply((ws) => pruneTabs(ws, pages, entries)),
+      closeOthers: (pane: number, index: number) => apply((ws) => closeOthers(ws, pane, index)),
+      prune: (keeps: (tab: Tab) => boolean) => apply((ws) => pruneTabs(ws, keeps)),
     }),
     [apply]
   )

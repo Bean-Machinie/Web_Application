@@ -8,9 +8,11 @@ import type { SlashItem } from "./slash-items"
 import { SlashList } from "./SlashList"
 import { suggestionRender } from "./suggestion-render"
 
+const SLASH_KEY = new PluginKey("slashCommand")
+
 const slashSuggestion: Omit<SuggestionOptions<SlashItem>, "editor"> = {
   char: "/",
-  pluginKey: new PluginKey("slashCommand"),
+  pluginKey: SLASH_KEY,
   command: ({ editor, range, props }) => props.run(editor, range),
   items: ({ query }) => {
     const words = normalize(query).split(/\s+/).filter(Boolean)
@@ -19,7 +21,7 @@ const slashSuggestion: Omit<SuggestionOptions<SlashItem>, "editor"> = {
       return words.every((word) => haystack.includes(word))
     })
   },
-  render: suggestionRender(SlashList),
+  render: suggestionRender(SlashList, SLASH_KEY),
 }
 
 // Typing / at the start of a line, or after a space, offers the blocks.
