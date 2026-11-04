@@ -2,6 +2,7 @@ import { NodeRange } from "@tiptap/extension-node-range"
 import Placeholder from "@tiptap/extension-placeholder"
 import StarterKit from "@tiptap/starter-kit"
 import type { AnyExtension } from "@tiptap/react"
+import { BlockMoveKeys } from "./block-move-keys"
 import { BlockVisibility, GmNote, ReadAloud } from "./journal-nodes"
 import { SlashCommand } from "./slash-command"
 
@@ -21,4 +22,5 @@ export const pageExtensions = (placeholder: string, mention: AnyExtension): AnyE
   mention,
   NodeRange.configure({ key: "Alt" }),
   SlashCommand,
+  BlockMoveKeys,
 ]
