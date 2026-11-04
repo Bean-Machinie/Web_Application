@@ -7,6 +7,7 @@ import type { JournalWorkspaceState } from "@/hooks/use-journal-workspace"
 import { locate } from "@/lib/journal-workspace"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { JournalPane } from "./JournalPane"
+import { JournalTabOverlay } from "./JournalTabOverlay"
 import { describeTab } from "./journal-tab-kinds"
 import type { TabContext } from "./journal-tab-kinds"
 
@@ -36,7 +37,6 @@ export function JournalWorkspace({ space, tree, ctx, canManage }: Props) {
   const drag = useJournalTabDrag(workspace, space.move)
   const lifted = drag.dragged ? locate(workspace, drag.dragged)?.tab : undefined
   const label = lifted && describeTab(ctx, lifted)
-  const Icon = label?.icon
 
   const pane = (index: number) => (
     <JournalPane
@@ -78,14 +78,7 @@ export function JournalWorkspace({ space, tree, ctx, canManage }: Props) {
           </>
         )}
       </ResizablePanelGroup>
-      <DragOverlay dropAnimation={null}>
-        {label && Icon && (
-          <div className="bg-background flex h-9 max-w-52 items-center gap-1.5 rounded-md border px-2.5 text-sm shadow-md">
-            <Icon className="size-3.5 shrink-0" />
-            <span className="truncate">{label.title}</span>
-          </div>
-        )}
-      </DragOverlay>
+      <DragOverlay dropAnimation={null}>{label && <JournalTabOverlay label={label} />}</DragOverlay>
     </DndContext>
   )
 }
