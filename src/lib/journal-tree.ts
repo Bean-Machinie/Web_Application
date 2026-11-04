@@ -37,6 +37,21 @@ export function visibleRows(nodes: JournalNode[], collapsed: ReadonlySet<string>
   return rows
 }
 
+// Every page whose title has the text in it, and the pages above them, so each
+// match is still seen where it sits.
+export function filteredRows(nodes: JournalNode[], query: string): TreeRow[] {
+  const needle = query.trim().toLowerCase()
+  const byId = new Map(nodes.map((node) => [node.id, node]))
+  const shown = new Set<string>()
+  for (const node of nodes) {
+    if (!(node.title || "untitled").toLowerCase().includes(needle)) continue
+    for (let up: JournalNode | undefined = node; up && !shown.has(up.id); up = byId.get(up.parentId ?? "")) {
+      shown.add(up.id)
+    }
+  }
+  return visibleRows(nodes, new Set()).filter((row) => shown.has(row.node.id))
+}
+
 export function descendantIds(nodes: JournalNode[], id: string) {
   const groups = childrenByParent(nodes)
   const found = new Set<string>()

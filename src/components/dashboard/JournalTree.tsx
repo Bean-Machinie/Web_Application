@@ -1,38 +1,59 @@
 import { useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { closestCenter, DndContext } from "@dnd-kit/core"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
-import { Plus } from "lucide-react"
+import { PanelLeftClose, Plus } from "lucide-react"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useJournalTreeDrag } from "@/hooks/use-journal-tree-drag"
 import type { JournalTreeState } from "@/hooks/use-journal-tree"
+import type { JournalWorkspaceState } from "@/hooks/use-journal-workspace"
 import { campaignPath } from "@/lib/campaign-paths"
 import type { JournalNode } from "@/lib/journal"
-import { descendantIds, visibleRows } from "@/lib/journal-tree"
+import { filteredRows, visibleRows } from "@/lib/journal-tree"
+import { activeTab } from "@/lib/journal-workspace"
+import type { Where } from "@/lib/journal-workspace"
 import { JournalDeleteDialog } from "./JournalDeleteDialog"
 import { JournalTreeRow } from "./JournalTreeRow"
+import type { OpenMode } from "./JournalTreeRow"
 
 type Props = {
   tree: JournalTreeState
+  space: JournalWorkspaceState
   campaignId: string
   canManage: boolean
-  // The page that is open, if any.
-  openId: string | undefined
+  onCollapse: () => void
 }
 
-// The pages of the journal as a tree: open one, add, rename and delete them, and
-// drag one to reorder it, or sideways to put it inside the page above.
-export function JournalTree({ tree, campaignId, canManage, openId }: Props) {
-  const navigate = useNavigate()
+const WHERE: Record<OpenMode, Where> = {
+  current: { kind: "current" },
+  tab: { kind: "newTab" },
+  right: { kind: "other" },
+}
+
+// The pages of the journal as a tree, with a filter above it. Click a page to open
+// it in the current tab; Ctrl or Cmd click, or the menu, for a new tab or the pane
+// on the right. Drag one to reorder it, or sideways to put it inside the page above.
+export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: Props) {
   const nodes = useMemo(() => tree.nodes ?? [], [tree.nodes])
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set())
   const [deleting, setDeleting] = useState<JournalNode | null>(null)
-  const rows = useMemo(() => visibleRows(nodes, collapsed), [nodes, collapsed])
+  const [query, setQuery] = useState("")
+  const filtering = query.trim() !== ""
+  const rows = useMemo(
+    () => (filtering ? filteredRows(nodes, query) : visibleRows(nodes, collapsed)),
+    [nodes, collapsed, query, filtering]
+  )
   const parents = useMemo(() => new Set(nodes.map((node) => node.parentId)), [nodes])
   const drag = useJournalTreeDrag(nodes, rows, collapsed, tree.move)
   const pagePath = (id: string) => campaignPath(campaignId, `journal/${id}`)
+
+  const showing = activeTab(space.workspace)
+  const openIds = useMemo(
+    () => new Set(space.workspace.panes.flatMap((pane) => pane.tabs.filter((tab) => tab.kind === "page").map((tab) => tab.id))),
+    [space.workspace]
+  )
 
   function toggle(id: string, open: boolean) {
     setCollapsed((old) => {
@@ -47,33 +68,34 @@ export function JournalTree({ tree, campaignId, canManage, openId }: Props) {
     const id = await tree.create(parentId)
     if (!id) return
     if (parentId) toggle(parentId, true)
-    navigate(pagePath(id))
-  }
-
-  async function remove(page: JournalNode) {
-    const inside = descendantIds(nodes, page.id)
-    const deleted = await tree.remove(page.id)
-    if (deleted && openId && (openId === page.id || inside.has(openId))) {
-      navigate(campaignPath(campaignId, "journal"))
-    }
-    return deleted
+    space.open({ kind: "page", id }, { kind: "current" })
   }
 
   return (
     <nav aria-label="Journal pages" className="flex min-h-0 flex-1 flex-col">
-      <div className="flex h-12 shrink-0 items-center justify-between border-b px-3">
-        <h2 className="text-sm font-semibold">Journal</h2>
+      <div className="flex h-9 shrink-0 items-center gap-1 border-b px-1.5">
+        <Input
+          aria-label="Filter pages"
+          placeholder="Filter pages…"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          className="h-7"
+        />
         {canManage && (
           <Button variant="ghost" size="icon-sm" aria-label="New page" onClick={() => add(null)}>
             <Plus />
           </Button>
         )}
+        <Button variant="ghost" size="icon-sm" aria-label="Collapse panel" onClick={onCollapse}>
+          <PanelLeftClose />
+        </Button>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2">
         {tree.error && <FormAlert tone="error">{tree.error}</FormAlert>}
         {tree.nodes === null && !tree.error && <Skeleton className="h-24 w-full" />}
-        {tree.nodes?.length === 0 && (
-          <p className="text-muted-foreground px-2 py-1 text-sm">No pages yet.</p>
+        {tree.nodes?.length === 0 && <p className="text-muted-foreground px-2 py-1 text-sm">No pages yet.</p>}
+        {tree.nodes && tree.nodes.length > 0 && rows.length === 0 && (
+          <p className="text-muted-foreground px-2 py-1 text-sm">No page matches.</p>
         )}
         <DndContext
           sensors={drag.sensors}
@@ -83,21 +105,21 @@ export function JournalTree({ tree, campaignId, canManage, openId }: Props) {
           onDragEnd={drag.onDragEnd}
           onDragCancel={drag.onDragCancel}
         >
-          <SortableContext
-            items={drag.shown.map((row) => row.node.id)}
-            strategy={verticalListSortingStrategy}
-          >
+          <SortableContext items={drag.shown.map((row) => row.node.id)} strategy={verticalListSortingStrategy}>
             <ul className="flex flex-col gap-px">
               {drag.shown.map((row) => (
                 <JournalTreeRow
                   key={row.node.id}
                   row={row}
                   to={pagePath(row.node.id)}
-                  active={row.node.id === openId}
-                  open={!collapsed.has(row.node.id)}
+                  active={showing?.kind === "page" && showing.id === row.node.id}
+                  inTab={openIds.has(row.node.id)}
+                  open={filtering || !collapsed.has(row.node.id)}
                   hasChildren={parents.has(row.node.id)}
                   canManage={canManage}
+                  canDrag={canManage && !filtering}
                   depth={row.node.id === drag.activeId && drag.projected ? drag.projected.depth : row.depth}
+                  onOpen={(mode) => space.open({ kind: "page", id: row.node.id }, WHERE[mode])}
                   onToggle={() => toggle(row.node.id, collapsed.has(row.node.id))}
                   onAdd={() => add(row.node.id)}
                   onRename={(title) => tree.rename(row.node.id, title)}
@@ -111,7 +133,7 @@ export function JournalTree({ tree, campaignId, canManage, openId }: Props) {
       <JournalDeleteDialog
         page={deleting}
         hasChildren={!!deleting && parents.has(deleting.id)}
-        onDelete={remove}
+        onDelete={(page) => tree.remove(page.id)}
         onClose={() => setDeleting(null)}
       />
     </nav>

@@ -21,8 +21,6 @@ import { Invite } from "@/pages/Invite"
 import { LegacyAuthRedirect } from "@/pages/LegacyAuthRedirect"
 import { JoinCampaign } from "@/pages/JoinCampaign"
 import { Journal } from "@/pages/Journal"
-import { JournalHome } from "@/pages/JournalHome"
-import { JournalPage } from "@/pages/JournalPage"
 import { Legal } from "@/pages/Legal"
 import { Library } from "@/pages/Library"
 import { MapBuild } from "@/pages/MapBuild"
@@ -64,9 +62,10 @@ export default function App() {
             <Route path="c/:campaignId" element={<CampaignScope />}>
               <Route index element={<Overview />} />
               <Route element={<CampaignWorldScope />}>
+                {/* The journal draws its own tabs; the address only says which page is in focus. */}
                 <Route path="journal" element={<Journal />}>
-                  <Route index element={<JournalHome />} />
-                  <Route path=":pageId" element={<JournalPage />} />
+                  <Route index element={null} />
+                  <Route path=":pageId" element={null} />
                 </Route>
                 <Route path="world" element={<World />} />
                 <Route path="world/:entryId" element={<WorldEntry />} />

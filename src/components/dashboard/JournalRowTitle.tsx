@@ -6,6 +6,8 @@ type Props = {
   title: string
   to: string
   active: boolean
+  // Ctrl or Cmd with the click, or the middle button, asks for a new tab.
+  onOpen: (mode: "current" | "tab") => void
   // Opened from the row's menu.
   renaming: boolean
   onRename: (title: string) => void
@@ -16,7 +18,7 @@ export const UNTITLED = "Untitled"
 
 // A page's name in the tree: a link to the page, or while it is being renamed a
 // box. Enter or leaving the box saves, Escape cancels.
-export function JournalRowTitle({ title, to, active, renaming, onRename, onDoneRenaming }: Props) {
+export function JournalRowTitle({ title, to, active, onOpen, renaming, onRename, onDoneRenaming }: Props) {
   const [draft, setDraft] = useState(title)
 
   function finish(save: boolean) {
@@ -47,6 +49,16 @@ export function JournalRowTitle({ title, to, active, renaming, onRename, onDoneR
   return (
     <Link
       to={to}
+      onClick={(event) => {
+        event.preventDefault()
+        onOpen(event.ctrlKey || event.metaKey ? "tab" : "current")
+      }}
+      onMouseDown={(event) => event.button === 1 && event.preventDefault()}
+      onAuxClick={(event) => {
+        if (event.button !== 1) return
+        event.preventDefault()
+        onOpen("tab")
+      }}
       aria-current={active ? "page" : undefined}
       className={cn(
         "min-w-0 flex-1 truncate py-1 text-sm outline-none focus-visible:underline",

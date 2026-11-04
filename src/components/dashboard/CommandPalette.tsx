@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/command"
 import { KeyChips } from "@/components/ui/key-chips"
 import { usePaletteCharacters } from "@/hooks/use-palette-characters"
+import { paletteIntercepted } from "@/lib/palette-intercept"
 import { buildGroups } from "@/lib/palette-groups"
 import type { SearchSource } from "@/lib/search-entries"
 import type { PaletteScope } from "@/lib/palette-groups"
@@ -94,7 +95,7 @@ export function CommandPalette({ open, onOpenChange }: Props) {
   function choose(item: PaletteItem) {
     if (item.recent) recordRecent(userId, item.recent)
     close(false)
-    navigate(item.path)
+    if (!paletteIntercepted(item.path)) navigate(item.path)
   }
 
   function expand(heading: string, firstHidden: PaletteItem) {

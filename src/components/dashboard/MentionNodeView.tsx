@@ -1,3 +1,4 @@
+import { useContext } from "react"
 import { EyeOff } from "lucide-react"
 import { NodeViewWrapper } from "@tiptap/react"
 import type { NodeViewProps } from "@tiptap/react"
@@ -6,6 +7,7 @@ import { useMentionEntries } from "@/hooks/use-mention-entries"
 import { cn } from "@/lib/utils"
 import { MODIFIER_KEY } from "@/lib/selection-hint"
 import { WORLD_KINDS } from "@/lib/world-kinds"
+import { MentionOpenContext } from "./MentionOpenContext"
 import { useMentionScope } from "./useMentionScope"
 
 const CHIP =
@@ -21,6 +23,7 @@ const CHIP =
 // click opens it, so a click never loses what is being typed.
 export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
   const scope = useMentionScope()
+  const openIn = useContext(MentionOpenContext)
   const entries = useMentionEntries(scope)
   const navigate = useNavigate()
   const id = node.attrs.id as string
@@ -74,7 +77,15 @@ export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
   return (
     <NodeViewWrapper as="span" className="inline">
       {href && readOnly ? (
-        <Link to={href} className={className}>
+        <Link
+          to={href}
+          className={className}
+          onClick={(event) => {
+            if (!openIn) return
+            event.preventDefault()
+            openIn(id, event.ctrlKey || event.metaKey ? "tab" : "other")
+          }}
+        >
           {content}
         </Link>
       ) : (
@@ -82,11 +93,16 @@ export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
           className={className}
           title={[
             hidden && "Hidden from players, who read this as plain text.",
-            href && `${MODIFIER_KEY} click to open.`,
+            href && (openIn ? `Click to open beside. ${MODIFIER_KEY} click for a new tab.` : `${MODIFIER_KEY} click to open.`),
           ]
             .filter(Boolean)
             .join(" ") || undefined}
-          onClick={(event) => href && (event.ctrlKey || event.metaKey) && navigate(href)}
+          onClick={(event) => {
+            if (!href) return
+            const modified = event.ctrlKey || event.metaKey
+            if (openIn) openIn(id, modified ? "tab" : "other")
+            else if (modified) navigate(href)
+          }}
         >
           {content}
         </span>
