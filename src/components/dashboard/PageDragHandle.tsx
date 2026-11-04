@@ -1,66 +1,83 @@
-import { useRef, useState } from "react"
-import DragHandle from "@tiptap/extension-drag-handle-react"
+import { useEffect, useRef, useState } from "react"
 import { GripVertical } from "lucide-react"
 import type { Editor } from "@tiptap/react"
+import { blockAtY } from "@/lib/block-at"
 import { startBlockDrag } from "@/lib/block-drag"
 import { debugBlockDrag } from "@/lib/block-drag-debug"
-import { blockIndexAt } from "@/lib/block-move"
 
 const HIT_PX = 24
 
-// Appears in the left margin beside the block the pointer is over. The extension
-// only places it; dragging is ours (lib/block-drag), so the drop line, the
-// preview and the scrolling are not the browser's. The hit area is 24px, and
-// centred on the block's first line.
-export function PageDragHandle({ editor }: { editor: Editor }) {
-  const hovered = useRef<number | null>(null)
-  const [shift, setShift] = useState(0)
+type Target = { index: number; top: number }
 
-  // A native drag from the handle would fight ours.
-  const stopNativeDrag = (node: HTMLDivElement | null) => {
-    const handle = node?.parentElement
-    const stop = (event: Event) => {
-      event.preventDefault()
-      event.stopImmediatePropagation()
+// The handle in the left margin. Which block it is beside depends only on how
+// high the pointer is in the page, however far left or right: nothing has to be
+// hovered, and it stays until the pointer leaves the page. A block shorter than
+// the handle (a divider) has it centred on it; otherwise it sits on the first
+// line. Dragging is ours (lib/block-drag), not the browser's.
+export function PageDragHandle({ editor }: { editor: Editor }) {
+  const [target, setTarget] = useState<Target | null>(null)
+  const lastY = useRef<number | null>(null)
+  const dragging = useRef(false)
+
+  useEffect(() => {
+    const root = editor.view.dom.closest<HTMLElement>("[data-mention-root]")
+    if (!root) return
+
+    function locate() {
+      if (lastY.current === null) return
+      const hit = blockAtY(editor, lastY.current)
+      if (!hit) return setTarget(null)
+      const style = getComputedStyle(hit.dom)
+      const line = parseFloat(style.lineHeight) || HIT_PX
+      const inset = hit.height < HIT_PX ? (hit.height - HIT_PX) / 2 : parseFloat(style.paddingTop) + (line - HIT_PX) / 2
+      const top = Math.round(hit.top - root!.getBoundingClientRect().top + inset)
+      setTarget((old) => (old?.index === hit.index && old.top === top ? old : { index: hit.index, top }))
     }
-    handle?.addEventListener("dragstart", stop, true)
-    return () => handle?.removeEventListener("dragstart", stop, true)
-  }
+    const move = (event: PointerEvent) => {
+      if (dragging.current || event.pointerType === "touch") return
+      lastY.current = event.clientY
+      locate()
+    }
+    const leave = () => {
+      if (dragging.current) return
+      lastY.current = null
+      setTarget(null)
+    }
+
+    root.addEventListener("pointermove", move)
+    root.addEventListener("pointerleave", leave)
+    // Typing moves the blocks under a pointer that has not moved.
+    editor.on("update", locate)
+    return () => {
+      root.removeEventListener("pointermove", move)
+      root.removeEventListener("pointerleave", leave)
+      editor.off("update", locate)
+    }
+  }, [editor])
+
+  if (!target) return null
 
   return (
-    <DragHandle
-      editor={editor}
-      onNodeChange={({ node, pos }) => {
-        if (!node) return
-        hovered.current = pos
-        const dom = editor.view.nodeDOM(pos)
-        if (!(dom instanceof HTMLElement)) return
-        const style = getComputedStyle(dom)
-        const line = parseFloat(style.lineHeight) || HIT_PX
-        setShift(Math.round(parseFloat(style.paddingTop) + (line - HIT_PX) / 2))
+    <div
+      aria-label="Drag to move"
+      style={{ top: target.top, height: HIT_PX, width: HIT_PX }}
+      className="absolute left-0 z-10 flex cursor-grab touch-none items-center justify-start active:cursor-grabbing"
+      onMouseDown={(event) => event.preventDefault()}
+      onPointerDown={(event) => {
+        debugBlockDrag("handle pointerdown", { button: event.button, index: target.index })
+        if (event.button !== 0) return
+        event.preventDefault()
+        event.currentTarget.setPointerCapture(event.pointerId)
+        dragging.current = true
+        startBlockDrag(editor, target.index, event.nativeEvent, () => {
+          dragging.current = false
+          setTarget(null)
+        })
       }}
     >
-      <div
-        ref={stopNativeDrag}
-        aria-label="Drag to move"
-        style={{ height: HIT_PX, width: HIT_PX, marginTop: shift }}
-        className="flex cursor-grab touch-none items-center justify-start active:cursor-grabbing"
-        onMouseDown={(event) => event.preventDefault()}
-        onPointerDown={(event) => {
-          debugBlockDrag("handle pointerdown", { button: event.button, hovered: hovered.current })
-          if (event.button !== 0 || hovered.current === null) return
-          event.preventDefault()
-          // The extension makes its element draggable; that would start a native drag.
-          const handle = event.currentTarget.parentElement
-          if (handle) handle.draggable = false
-          event.currentTarget.setPointerCapture(event.pointerId)
-          startBlockDrag(editor, blockIndexAt(editor.state.doc, hovered.current), event.nativeEvent)
-        }}
-      >
-        <span className="text-muted-foreground hover:bg-muted flex h-6 w-5 items-center justify-center rounded">
-          <GripVertical className="size-4" />
-        </span>
-      </div>
-    </DragHandle>
+      <span className="text-muted-foreground hover:bg-muted flex h-6 w-5 items-center justify-center rounded">
+        <GripVertical className="size-4" />
+      </span>
+    </div>
   )
 }

@@ -1,41 +1,24 @@
+import { NodeSelection } from "@tiptap/pm/state"
 import type { Editor } from "@tiptap/react"
-import { moveBlock, topLevelBlocks } from "./block-move"
+import { gapLines } from "./block-at"
 import { debugBlockDrag } from "./block-drag-debug"
 import { autoScroll, makeDropLine, makePreview, scrollParent } from "./block-drag-visuals"
+import { moveBlock, topLevelBlocks } from "./block-move"
 
 const START_PX = 4
-
-// The handle's own lock command exists only when the extension is in the editor,
-// and the React handle adds just its plugin. The plugin reads the same
-// transaction meta, so it is set directly.
-function lockHandle(editor: Editor, locked: boolean) {
-  editor.view.dispatch(editor.state.tr.setMeta("lockDragHandle", locked))
-}
-
-// Where each gap between the top-level blocks is on screen: the top of the first
-// block, the middle of the space between two, the bottom of the last.
-function gapLines(editor: Editor) {
-  const rects = topLevelBlocks(editor.state.doc).flatMap((block) => {
-    const dom = editor.view.nodeDOM(block.pos)
-    return dom instanceof HTMLElement ? [dom.getBoundingClientRect()] : []
-  })
-  if (rects.length === 0) return []
-  return [
-    rects[0].top,
-    ...rects.slice(1).map((rect, i) => (rects[i].bottom + rect.top) / 2),
-    rects[rects.length - 1].bottom,
-  ]
-}
 
 // Moves a block with the pointer, from the handle. Where it lands depends only
 // on how high the pointer is: the nearest gap between blocks, whatever the
 // pointer's x, so it may stay in the margin and never lands inside a block. Esc
-// cancels. Everything it adds to the page is removed when it ends.
-export function startBlockDrag(editor: Editor, index: number, start: PointerEvent) {
+// cancels. A click that does not move selects the block instead, which is how a
+// divider is picked to be deleted. Everything it adds to the page is removed when
+// it ends, and onEnd is called then.
+export function startBlockDrag(editor: Editor, index: number, start: PointerEvent, onEnd: () => void) {
   const { view } = editor
-  const dom = view.nodeDOM(topLevelBlocks(editor.state.doc)[index]?.pos ?? -1)
+  const at = topLevelBlocks(editor.state.doc)[index]
+  const dom = view.nodeDOM(at?.pos ?? -1)
   const root = view.dom.closest<HTMLElement>("[data-mention-root]")
-  if (!(dom instanceof HTMLElement) || !root) return
+  if (!at || !(dom instanceof HTMLElement) || !root) return onEnd()
 
   const block = dom
   const rect = block.getBoundingClientRect()
@@ -47,13 +30,11 @@ export function startBlockDrag(editor: Editor, index: number, start: PointerEven
   let gap = index
   let frame = 0
 
-  // The handle stays where it is, and cannot start a drag of its own.
-  lockHandle(editor, true)
   debugBlockDrag("pointerdown", { index, x: start.clientX, y: start.clientY })
 
   function begin() {
     debugBlockDrag("drag start", { index })
-    live ={ preview: makePreview(block, view.dom.className, rect.width), line: makeDropLine(root!) }
+    live = { preview: makePreview(block, view.dom.className, rect.width), line: makeDropLine(root!) }
     block.style.transition = "opacity 120ms"
     block.style.opacity = "0.3"
     document.body.style.userSelect = "none"
@@ -103,14 +84,13 @@ export function startBlockDrag(editor: Editor, index: number, start: PointerEven
     block.style.transition = was.transition
     document.body.style.userSelect = ""
     document.body.style.cursor = ""
-    lockHandle(editor, false)
+    onEnd()
+    if (!commit) return
 
-    const tr = commit && live ? moveBlock(editor.state, index, gap) : null
-    debugBlockDrag("move", tr ? "dispatched" : "nothing to move")
-    if (tr) {
-      view.dispatch(tr)
-      view.focus()
-    }
+    const tr = live ? moveBlock(editor.state, index, gap) : editor.state.tr.setSelection(NodeSelection.create(editor.state.doc, at.pos))
+    debugBlockDrag(live ? "move" : "select", tr ? "dispatched" : "nothing to move")
+    if (tr) view.dispatch(tr)
+    view.focus()
   }
 
   const up = () => finish(true, "pointerup")

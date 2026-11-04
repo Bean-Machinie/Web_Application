@@ -10,13 +10,6 @@ export function topLevelBlocks(doc: ProseNode) {
   return blocks
 }
 
-// The block a position falls in or after: where a hovered block's position
-// points, even if the document has changed since.
-export function blockIndexAt(doc: ProseNode, pos: number) {
-  const blocks = topLevelBlocks(doc)
-  return Math.max(0, blocks.filter((block) => block.pos <= pos).length - 1)
-}
-
 // Moves a top-level block into a gap, in one transaction. Gap k is the one before
 // block k; the last gap is after the final block. Null when it would not move:
 // the gaps either side of the block are where it already is.
