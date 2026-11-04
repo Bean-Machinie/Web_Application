@@ -1,4 +1,4 @@
-import { ArrowUpRight, Columns2 } from "lucide-react"
+import { ArrowUpRight, Columns2, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { tabKey } from "@/lib/journal-workspace"
@@ -23,10 +23,12 @@ type Props = {
   onShow: (tab: number) => void
   onClose: (tab: number) => void
   onSplit: () => void
+  // Makes a new page at the top of the tree and opens it here; null for who cannot.
+  onNew: (() => void) | null
   onOpenFullPage: () => void
 }
 
-// The header of one pane: its tabs, and at the end the buttons that open the tab
+// The header of one pane: its tabs, with a button after them for a new page, and at the end the buttons that open the tab
 // showing as a page of its own (only when it has one) and that split the pane in
 // two.
 export function JournalTabStrip(props: Props) {
@@ -53,6 +55,16 @@ export function JournalTabStrip(props: Props) {
             onClose={() => props.onClose(i)}
           />
         ))}
+        {props.onNew && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon-sm" className="my-1 ml-1 shrink-0 self-center" aria-label="New page" onClick={props.onNew}>
+                <Plus />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>New page</TooltipContent>
+          </Tooltip>
+        )}
       </div>
       {fullPage && (
         <Tooltip>

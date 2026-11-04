@@ -89,7 +89,7 @@ export function JournalTreeRow(props: Props) {
               disabled={!hasChildren}
               onClick={props.onToggle}
               className={cn(
-                "text-muted-foreground hover:bg-sidebar-accent flex size-5 shrink-0 items-center justify-center rounded-md outline-none",
+                "text-muted-foreground flex size-5 shrink-0 items-center justify-center rounded-md outline-none",
                 !hasChildren && "invisible"
               )}
             >

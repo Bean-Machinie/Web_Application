@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { PanelLeftOpen, Plus } from "lucide-react"
+import { PanelLeftOpen } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { JournalNode } from "@/lib/journal"
 import { visibleRows } from "@/lib/journal-tree"
@@ -16,7 +16,6 @@ type Props = {
   onAdd: (id: string) => void
   onRename: (id: string) => void
   onDelete: (page: JournalNode) => void
-  onNew: () => void
   onExpand: () => void
 }
 
@@ -30,8 +29,8 @@ function groupsOf(nodes: JournalNode[]) {
   return groups
 }
 
-// The tree when it is narrowed: a column of buttons, the new page button on top.
-export function JournalRail({ nodes, activeId, canManage, onNew, onExpand, ...handlers }: Props) {
+// The tree when it is narrowed: a column of buttons, the one that widens it on top.
+export function JournalRail({ nodes, activeId, canManage, onExpand, ...handlers }: Props) {
   const groups = useMemo(() => groupsOf(nodes), [nodes])
 
   return (
@@ -44,16 +43,6 @@ export function JournalRail({ nodes, activeId, canManage, onNew, onExpand, ...ha
         </TooltipTrigger>
         <TooltipContent side="right">Show pages</TooltipContent>
       </Tooltip>
-      {canManage && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <JournalRailButton aria-label="New page" onClick={onNew}>
-              <Plus />
-            </JournalRailButton>
-          </TooltipTrigger>
-          <TooltipContent side="right">New page</TooltipContent>
-        </Tooltip>
-      )}
       <div className="bg-border my-1 h-px w-6 shrink-0" />
       <div className="flex min-h-0 flex-1 flex-col items-center gap-1 overflow-y-auto">
         {groups.map(({ page, inside }) => (

@@ -64,6 +64,11 @@ export function JournalPane({ index, space, tree, ctx, canManage, carrying }: Pr
     ]
   }
 
+  async function newPage() {
+    const id = await tree.create(null)
+    if (id) open({ kind: "page", id }, { kind: "newTab", pane: index })
+  }
+
   return (
     <MentionOpenContext.Provider value={openMention}>
       <div data-journal-pane={index} className="relative flex h-full min-w-0 flex-col" onPointerDownCapture={() => focus(index)}>
@@ -78,6 +83,7 @@ export function JournalPane({ index, space, tree, ctx, canManage, carrying }: Pr
           onShow={(tab) => show(index, tab)}
           onClose={(tab) => close(index, tab)}
           onSplit={split}
+          onNew={canManage ? newPage : null}
           onOpenFullPage={() => fullPage && navigate(fullPage)}
         />
         <div className="bg-background relative min-h-0 flex-1">

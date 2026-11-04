@@ -48,7 +48,7 @@ export function JournalSide({ tree, space, campaignId, canManage, open, onToggle
 
   return (
     <div className="relative h-full overflow-hidden">
-      <div inert={!open} className={cn("flex h-full min-w-50 flex-col transition-opacity duration-200", !open && "opacity-0")}>
+      <div inert={!open} className={cn("flex h-full min-w-50 flex-col transition-opacity ease-linear", open ? "delay-100 duration-150" : "opacity-0 duration-100")}>
         <JournalTree
           tree={tree}
           space={space}
@@ -60,7 +60,7 @@ export function JournalSide({ tree, space, campaignId, canManage, open, onToggle
           onDelete={setDeleting}
         />
       </div>
-      <div inert={open} className={cn("absolute inset-y-0 left-0 w-12 transition-opacity duration-200", open && "opacity-0")}>
+      <div inert={open} className={cn("absolute inset-y-0 left-0 w-12 transition-opacity ease-linear", open ? "opacity-0 duration-100" : "delay-100 duration-150")}>
         <JournalRail
           nodes={tree.nodes ?? []}
           activeId={pageId}
@@ -69,7 +69,6 @@ export function JournalSide({ tree, space, campaignId, canManage, open, onToggle
           onAdd={add}
           onRename={rename}
           onDelete={setDeleting}
-          onNew={() => add(null)}
           onExpand={() => onToggle(true)}
         />
       </div>
