@@ -1,7 +1,7 @@
 import { useRef } from "react"
 import { DndContext, DragOverlay } from "@dnd-kit/core"
 import { useStoredValue } from "@/hooks/use-stored-value"
-import { tabCollision, useJournalTabDrag } from "@/hooks/use-journal-tab-drag"
+import { useJournalTabDrag } from "@/hooks/use-journal-tab-drag"
 import type { JournalTreeState } from "@/hooks/use-journal-tree"
 import type { JournalWorkspaceState } from "@/hooks/use-journal-workspace"
 import { locate } from "@/lib/journal-workspace"
@@ -9,7 +9,7 @@ import type { Workspace } from "@/lib/journal-workspace"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { JournalPane } from "./JournalPane"
 import { JournalTabOverlay } from "./JournalTabOverlay"
-import { describeTab } from "./journal-tab-kinds"
+import { describeTab, tabPreview } from "./journal-tab-kinds"
 import type { TabContext } from "./journal-tab-kinds"
 
 type Props = { space: JournalWorkspaceState; tree: JournalTreeState; ctx: TabContext; canManage: boolean }
@@ -54,14 +54,12 @@ export function JournalWorkspace({ space, tree, ctx, canManage }: Props) {
       ctx={ctx}
       canManage={canManage}
       carrying={drag.dragged}
-      slot={drag.slot?.pane === index ? drag.slot : null}
     />
   )
 
   return (
     <DndContext
       sensors={drag.sensors}
-      collisionDetection={tabCollision}
       onDragStart={drag.onDragStart}
       onDragMove={drag.onDragMove}
       onDragEnd={drag.onDragEnd}
@@ -88,7 +86,7 @@ export function JournalWorkspace({ space, tree, ctx, canManage }: Props) {
         )}
       </ResizablePanelGroup>
       <DragOverlay dropAnimation={null}>
-        {label && <JournalTabOverlay label={label} source={panelOf(workspace, drag.dragged)} />}
+        {label && <JournalTabOverlay label={label} source={panelOf(workspace, drag.dragged)} preview={lifted && tabPreview(ctx, lifted)} />}
       </DragOverlay>
     </DndContext>
   )

@@ -13,12 +13,13 @@ import type { JournalWorkspaceState } from "@/hooks/use-journal-workspace"
 import { campaignPath } from "@/lib/campaign-paths"
 import type { JournalNode } from "@/lib/journal"
 import { startPageDrag } from "@/lib/journal-page-drag"
-import type { PageDrop } from "@/lib/journal-page-drag"
+import type { DropTarget } from "@/lib/journal-drop-target"
 import { filteredRows, visibleRows } from "@/lib/journal-tree"
 import { activeTab, tabKey } from "@/lib/journal-workspace"
 import type { Where } from "@/lib/journal-workspace"
 import { JournalDeleteDialog } from "./JournalDeleteDialog"
 import { JournalTreeRow } from "./JournalTreeRow"
+import { mountPageTag } from "./page-drag-tag"
 import type { OpenMode } from "./JournalTreeRow"
 
 type Props = {
@@ -78,11 +79,10 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: 
   }
 
   // A page dragged out of the tree and let go over the workspace.
-  function dropPage(id: string, drop: PageDrop) {
+  function dropPage(id: string, drop: DropTarget) {
     const tab = { kind: "page", id }
-    const panes = space.workspace.panes.length
     if (drop.kind === "edge") {
-      space.open(tab, drop.pane < panes - 1 ? { kind: "newTab", pane: drop.pane + 1 } : { kind: "other", from: drop.pane })
+      space.open(tab, { kind: "other", from: drop.pane })
       return
     }
     space.open(tab, { kind: "newTab", pane: drop.pane })
@@ -146,8 +146,11 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse }: 
                   depth={row.node.id === drag.activeId && drag.projected ? drag.projected.depth : row.depth}
                   onOpen={(mode) => space.open({ kind: "page", id: row.node.id }, WHERE[mode])}
                   onDragOut={(event) =>
-                    startPageDrag(row.node.title || "Untitled", event, space.workspace.panes.length, (drop) =>
-                      dropPage(row.node.id, drop)
+                    startPageDrag(
+                      event,
+                      space.workspace.panes.length,
+                      mountPageTag(row.node.id, row.node.title || "Untitled"),
+                      (drop) => dropPage(row.node.id, drop)
                     )
                   }
                   onToggle={() => toggle(row.node.id, collapsed.has(row.node.id))}

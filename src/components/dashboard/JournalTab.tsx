@@ -1,4 +1,4 @@
-import { useSortable } from "@dnd-kit/sortable"
+import { useDraggable } from "@dnd-kit/core"
 import { X } from "lucide-react"
 import { tabKey } from "@/lib/journal-workspace"
 import type { Tab } from "@/lib/journal-workspace"
@@ -19,12 +19,10 @@ type Props = {
   onClose: () => void
 }
 
-// One tab: its kind's icon, its name and a close button; the one showing joins the panel. Drag it along the strip to reorder, or to the other pane. A
+// One tab: its kind's icon, its name and a close button; the one showing joins the panel. Drag it to reorder, or to the other pane; it stays put until let go. A
 // middle click closes it.
 export function JournalTab({ tab, label, active, focused, actions, onShow, onClose }: Props) {
-  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
-    id: tabKey(tab),
-  })
+  const { setNodeRef, attributes, listeners, isDragging } = useDraggable({ id: tabKey(tab) })
   const Icon = label.icon
 
   return (
@@ -36,8 +34,6 @@ export function JournalTab({ tab, label, active, focused, actions, onShow, onClo
         role="tab"
         data-journal-tab=""
         aria-selected={active}
-        // Along the strip only.
-        style={{ transform: transform ? `translate3d(${transform.x}px, 0, 0)` : undefined, transition }}
         onClick={onShow}
         onMouseDown={(event) => event.button === 1 && event.preventDefault()}
         onAuxClick={(event) => {

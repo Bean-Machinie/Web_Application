@@ -1,78 +1,32 @@
-import { MAX_PANES } from "./journal-workspace"
+import { createDropMarker, hitAt } from "./journal-drop-target"
+import type { DropHit, DropTarget } from "./journal-drop-target"
 
-// Where a page dragged out of the tree was dropped: among the tabs of a pane (at an
-// index), on a pane's panel (as its last tab), or on a pane's right edge (a pane to
-// its right, made if there is none).
-export type PageDrop =
-  | { kind: "tab"; pane: number; index: number }
-  | { kind: "pane"; pane: number }
-  | { kind: "edge"; pane: number }
-
-type Box = { left: number; top: number; width: number; height: number }
-
-const EDGE_PX = 96
 const START_PX = 5
-
-const MARK_AREA = "border-primary/50 bg-primary/10 fixed z-[70] rounded-md border-2 pointer-events-none transition-[left,top,width,height] duration-100"
-const MARK_LINE = "bg-primary fixed z-[70] rounded-full pointer-events-none transition-[left,top,height] duration-100"
-const CHIP =
-  "bg-background text-foreground fixed z-[70] max-w-52 truncate rounded-md border px-2.5 py-1 text-xs shadow-lg pointer-events-none"
-
-// What is under the pointer, by where the panes are drawn: their tabs, their panels,
-// and their right edges, which only take a page if a pane can open there.
-function hitAt(x: number, y: number, panes: number): { drop: PageDrop; box: Box; line: boolean } | null {
-  for (const element of document.querySelectorAll<HTMLElement>("[data-journal-pane]")) {
-    const pane = Number(element.dataset.journalPane)
-    const area = element.getBoundingClientRect()
-    if (x < area.left || x > area.right || y < area.top || y > area.bottom) continue
-
-    if ((pane < panes - 1 || panes < MAX_PANES) && x > area.right - EDGE_PX) {
-      return { drop: { kind: "edge", pane }, box: { left: area.right - EDGE_PX, top: area.top, width: EDGE_PX, height: area.height }, line: false }
-    }
-
-    const strip = element.querySelector<HTMLElement>("[data-journal-strip]")?.getBoundingClientRect()
-    if (strip && y <= strip.bottom) {
-      const tabs = [...element.querySelectorAll<HTMLElement>("[data-journal-tab]")].map((tab) => tab.getBoundingClientRect())
-      const index = tabs.filter((tab) => x > tab.left + tab.width / 2).length
-      const at = index < tabs.length ? tabs[index].left : (tabs[tabs.length - 1]?.right ?? strip.left)
-      return { drop: { kind: "tab", pane, index }, box: { left: at - 1, top: strip.top, width: 2, height: strip.height }, line: true }
-    }
-    return { drop: { kind: "pane", pane }, box: { left: area.left, top: area.top, width: area.width, height: area.height }, line: false }
-  }
-  return null
-}
-
-function place(element: HTMLElement, box: Box) {
-  element.style.left = `${box.left}px`
-  element.style.top = `${box.top}px`
-  element.style.width = `${box.width}px`
-  element.style.height = `${box.height}px`
-}
+// Where the tag sits against the pointer, so the pointer is on the tab part of it.
+const GRAB = { x: 20, y: 18 }
+const TAG = { width: 160, height: 36 }
 
 let ending: (() => void) | null = null
 
-// Carries a page by its name out of the tree: a tag follows the pointer, and where
-// it would land is marked: a line between tabs, or a pane lit, or a pane's right
-// edge. Letting go there calls onDrop; anywhere else, or Esc, drops nothing. A press
-// that never moves is left to be a click.
+// Carries a page by its name out of the tree. What follows the pointer is drawn by
+// `mountTag` into a box it is given, the same tab as one carried between panes; where
+// it would land is marked the same way too. Letting go on a mark calls onDrop;
+// anywhere else, or Esc, drops nothing. A press that never moves is left to be a click.
 export function startPageDrag(
-  title: string,
   start: PointerEvent,
   panes: number,
-  onDrop: (drop: PageDrop) => void
+  mountTag: (host: HTMLElement) => () => void,
+  onDrop: (target: DropTarget) => void
 ) {
   ending?.()
-  let live: { chip: HTMLElement; mark: HTMLElement } | null = null
-  let hit: ReturnType<typeof hitAt> = null
+  let live: { host: HTMLElement; unmount: () => void; marker: ReturnType<typeof createDropMarker> } | null = null
+  let hit: DropHit | null = null
 
   function begin() {
-    const chip = document.createElement("div")
-    chip.className = CHIP
-    chip.textContent = title
-    const mark = document.createElement("div")
-    mark.style.display = "none"
-    document.body.append(mark, chip)
-    live = { chip, mark }
+    const host = document.createElement("div")
+    host.style.cssText = `position:fixed;z-index:70;pointer-events:none;width:${TAG.width}px;height:${TAG.height}px`
+    document.body.append(host)
+    live = { host, unmount: mountTag(host), marker: createDropMarker() }
     document.body.style.userSelect = "none"
     document.body.style.cursor = "grabbing"
   }
@@ -82,16 +36,11 @@ export function startPageDrag(
       if (Math.hypot(event.clientX - start.clientX, event.clientY - start.clientY) <= START_PX) return
       begin()
     }
-    const { chip, mark } = live!
-    chip.style.left = `${event.clientX + 12}px`
-    chip.style.top = `${event.clientY + 12}px`
-
+    const { host, marker } = live!
+    host.style.left = `${event.clientX - GRAB.x}px`
+    host.style.top = `${event.clientY - GRAB.y}px`
     hit = hitAt(event.clientX, event.clientY, panes)
-    mark.style.display = hit ? "block" : "none"
-    if (hit) {
-      mark.className = hit.line ? MARK_LINE : MARK_AREA
-      place(mark, hit.box)
-    }
+    marker.show(hit)
   }
 
   function finish(commit: boolean) {
@@ -102,17 +51,22 @@ export function startPageDrag(
     window.removeEventListener("blur", cancel)
     if (ending === cancel) ending = null
     const dragged = live !== null
-    live?.chip.remove()
-    live?.mark.remove()
+    live?.unmount()
+    live?.host.remove()
+    live?.marker.remove()
     document.body.style.userSelect = ""
     document.body.style.cursor = ""
     if (!dragged) return
 
-    // The release would otherwise count as a click on the page's name.
-    const swallow = (event: Event) => event.stopPropagation()
+    // The release would otherwise count as a click on the page's name, which for a
+    // link also means going to its address: the page would reload.
+    const swallow = (event: Event) => {
+      event.preventDefault()
+      event.stopPropagation()
+    }
     window.addEventListener("click", swallow, { capture: true, once: true })
     window.setTimeout(() => window.removeEventListener("click", swallow, true), 50)
-    if (commit && hit) onDrop(hit.drop)
+    if (commit && hit) onDrop(hit.target)
   }
 
   const up = () => finish(true)

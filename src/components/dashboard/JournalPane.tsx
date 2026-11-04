@@ -7,7 +7,6 @@ import type { JournalTreeState } from "@/hooks/use-journal-tree"
 import { MAX_PANES, tabKey } from "@/lib/journal-workspace"
 import { cn } from "@/lib/utils"
 import { JournalPaneContent } from "./JournalPaneContent"
-import { JournalPaneEdge } from "./JournalPaneEdge"
 import { JournalTabStrip } from "./JournalTabStrip"
 import { MentionOpenContext } from "./MentionOpenContext"
 import type { MemberAction } from "./MemberMenu"
@@ -20,17 +19,15 @@ type Props = {
   tree: JournalTreeState
   ctx: TabContext
   canManage: boolean
-  // The key of the tab being dragged, if any: the edge to drop it on shows, and the
-  // panel of that tab, if it is here, is dimmed while its copy is carried.
+  // The key of the tab being dragged, if any: the panel of that tab, if it is here, is
+  // dimmed while its copy is carried.
   carrying: string | null
-  // Room being made in this pane's tabs for one carried over from the other pane.
-  slot: { index: number; width: number } | null
 }
 
 // One pane: its tabs on top, the tab showing below, scrolling on its own. Anything
 // pressed in it puts the pane in focus. A mention clicked in it opens its entry in
 // the other pane, or with Ctrl or Cmd in a new tab here; the pane in focus stays.
-export function JournalPane({ index, space, tree, ctx, canManage, carrying, slot }: Props) {
+export function JournalPane({ index, space, tree, ctx, canManage, carrying }: Props) {
   const navigate = useNavigate()
   const { workspace, open, focus, show, close, closeOthers, move, split } = space
   const pane = workspace.panes[index]
@@ -71,14 +68,12 @@ export function JournalPane({ index, space, tree, ctx, canManage, carrying, slot
     <MentionOpenContext.Provider value={openMention}>
       <div data-journal-pane={index} className="relative flex h-full min-w-0 flex-col" onPointerDownCapture={() => focus(index)}>
         <JournalTabStrip
-          index={index}
           pane={pane}
           focused={panes === 1 || workspace.focused === index}
           scrolled={scroll.scrolled}
           label={(tab) => describeTab(ctx, tab)}
           actionsFor={actionsFor}
           canSplit={panes < MAX_PANES}
-          slot={slot}
           fullPage={fullPage}
           onShow={(tab) => show(index, tab)}
           onClose={(tab) => close(index, tab)}
@@ -107,7 +102,6 @@ export function JournalPane({ index, space, tree, ctx, canManage, carrying, slot
             )}
           />
         </div>
-        {carrying && (panes < MAX_PANES || index < panes - 1) && <JournalPaneEdge index={index} />}
       </div>
     </MentionOpenContext.Provider>
   )
