@@ -25,7 +25,7 @@ export function JournalPageView({ node, tree, canManage }: Props) {
   }
 
   return (
-    <article className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-6 py-8">
+    <article className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-9 py-8">
       {canManage && (
         <div className="flex h-5 items-center justify-end gap-4">
           <SaveIndicator state={page.saveState} />

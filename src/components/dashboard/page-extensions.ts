@@ -5,6 +5,7 @@ import type { AnyExtension } from "@tiptap/react"
 import { BlockMoveKeys } from "./block-move-keys"
 import { BlockVisibility, GmNote, ReadAloud } from "./journal-nodes"
 import { SlashCommand } from "./slash-command"
+import { TEXT_STYLE_MARKS } from "./text-style-marks"
 
 // What a page of blocks is made of, for editing and for reading alike.
 export const PAGE_BLOCKS = [
@@ -12,6 +13,7 @@ export const PAGE_BLOCKS = [
   ReadAloud,
   GmNote,
   BlockVisibility,
+  ...TEXT_STYLE_MARKS,
 ]
 
 // Alt and drag selects several blocks, and the drag handle then moves them
