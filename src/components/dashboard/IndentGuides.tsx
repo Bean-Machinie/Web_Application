@@ -1,17 +1,29 @@
 import { INDENT_PX } from "@/lib/journal-drop"
+import type { Guide } from "@/lib/journal-tree"
 
-// The middle of the 20px chevron slot: where a level's guide line runs.
-const GUIDE_OFFSET_PX = 10
+// The middle of the 20px chevron slot: where a level's trunk runs.
+const TRUNK_PX = 10
 
-// One 1px line per level, in the indent beside a row and under the chevron of the page it
-// belongs to, so it never meets the row's own background. Put inside a relative row.
-export function IndentGuides({ depth }: { depth: number }) {
-  return Array.from({ length: depth }, (_, level) => (
-    <span
-      key={level}
-      aria-hidden
-      style={{ left: level * INDENT_PX + GUIDE_OFFSET_PX }}
-      className="bg-border pointer-events-none absolute inset-y-0 w-px"
-    />
-  ))
+const LINE = "bg-border pointer-events-none absolute w-px"
+
+// The branches beside a row, one level each: a trunk under the chevron of the page above,
+// which turns with a curve into the rows inside it. All of it lies in the indent, so it
+// never meets the row's own background; the curve is the app's own corner radius.
+export function IndentGuides({ guides }: { guides: Guide[] }) {
+  return guides.map((guide, level) => {
+    const left = level * INDENT_PX + TRUNK_PX
+    const turns = guide === "elbow" || guide === "elbowThrough"
+    return (
+      <span key={level} aria-hidden>
+        {guide === "through" && <span style={{ left }} className={`${LINE} inset-y-0`} />}
+        {turns && (
+          <span
+            style={{ left, width: INDENT_PX - TRUNK_PX }}
+            className="border-border pointer-events-none absolute top-0 h-3.5 rounded-bl-md border-b border-l"
+          />
+        )}
+        {guide === "elbowThrough" && <span style={{ left }} className={`${LINE} top-3.5 bottom-0`} />}
+      </span>
+    )
+  })
 }

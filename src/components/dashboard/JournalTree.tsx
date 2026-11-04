@@ -15,7 +15,7 @@ import { campaignPath } from "@/lib/campaign-paths"
 import type { JournalNode } from "@/lib/journal"
 import { startPageDrag } from "@/lib/journal-page-drag"
 import type { DropTarget } from "@/lib/journal-drop-target"
-import { filteredRows, visibleRows } from "@/lib/journal-tree"
+import { filteredRows, guidesFor, visibleRows } from "@/lib/journal-tree"
 import { activeTab, tabKey } from "@/lib/journal-workspace"
 import type { Where } from "@/lib/journal-workspace"
 import { JournalTreeRow } from "./JournalTreeRow"
@@ -174,7 +174,7 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse, re
         >
           <SortableContext items={drag.shown.map((row) => row.node.id)} strategy={verticalListSortingStrategy}>
             <ul className="flex flex-col">
-              {drag.shown.map((row) => (
+              {drag.shown.map((row, index) => (
                 <JournalTreeRow
                   key={row.node.id}
                   row={row}
@@ -184,6 +184,7 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse, re
                   open={filtering || !collapsed.has(row.node.id)}
                   hasChildren={parents.has(row.node.id)}
                   renaming={renaming === row.node.id}
+                  guides={guidesFor(drag.shown, index)}
                   frozen={out}
                   canManage={canManage}
                   canDrag={canManage && !filtering}

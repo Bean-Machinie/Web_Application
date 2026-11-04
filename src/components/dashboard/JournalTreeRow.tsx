@@ -3,7 +3,7 @@ import { ChevronRight, Eye, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { INDENT_PX } from "@/lib/journal-drop"
-import type { TreeRow } from "@/lib/journal-tree"
+import type { Guide, TreeRow } from "@/lib/journal-tree"
 import { cn } from "@/lib/utils"
 import { ActionContextMenu } from "./ActionContextMenu"
 import { pageActions } from "./journal-page-actions"
@@ -26,6 +26,8 @@ type Props = {
   // Dragging is off while the list is filtered, since it is not the whole tree.
   canDrag: boolean
   renaming: boolean
+  // What to draw in the indent for the row's own place in the tree.
+  guides: Guide[]
   // The page was carried out of the tree: no row moves, whatever the drag still says.
   frozen: boolean
   // How far in the row is drawn; differs from its own depth while it is dragged.
@@ -43,7 +45,7 @@ type Props = {
 // of movement start that, so a click is still a click. The eye marks a page players can
 // read. Right-click or the three dots for the menu.
 export function JournalTreeRow(props: Props) {
-  const { row, to, active, inTab, open, hasChildren, canManage, canDrag, renaming, frozen, depth } = props
+  const { row, to, active, inTab, open, hasChildren, canManage, canDrag, renaming, frozen, guides, depth } = props
   const { node } = row
   // While the name is being typed, pressing in the box must select text, not drag.
   const { setNodeRef, setActivatorNodeRef, attributes, listeners, transform, transition, isDragging } =
@@ -73,7 +75,7 @@ export function JournalTreeRow(props: Props) {
           style={{ paddingLeft: depth * INDENT_PX }}
           className="relative flex outline-none"
         >
-          <IndentGuides depth={depth} />
+          <IndentGuides guides={Array.from({ length: depth }, (_, level) => guides[level] ?? "none")} />
           <div
             className={cn(
               "group/row hover:bg-sidebar-accent/50 flex h-7 min-w-0 flex-1 items-center gap-0.5 rounded-md pr-1",

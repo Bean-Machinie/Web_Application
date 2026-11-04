@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { ChevronRight } from "lucide-react"
 import { INDENT_PX } from "@/lib/journal-drop"
+import { guidesFor } from "@/lib/journal-tree"
 import type { TreeRow } from "@/lib/journal-tree"
 import { cn } from "@/lib/utils"
 import { IndentGuides } from "./IndentGuides"
@@ -35,12 +36,12 @@ export function JournalRailFlyout({ rows, activeId, onOpen }: Props) {
 
   return (
     <ul className="flex flex-col">
-      {shown.map(({ node, depth }) => {
+      {shown.map(({ node, depth }, index) => {
         const hasChildren = parents.has(node.id)
         const active = activeId === node.id
         return (
           <li key={node.id} className="relative flex" style={{ paddingLeft: depth * INDENT_PX }}>
-            <IndentGuides depth={depth} />
+            <IndentGuides guides={guidesFor(shown, index)} />
             <div
               className={cn(
                 "hover:bg-sidebar-accent/50 flex h-7 min-w-0 flex-1 items-center gap-0.5 rounded-md pr-2",

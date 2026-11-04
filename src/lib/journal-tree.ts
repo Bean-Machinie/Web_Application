@@ -83,3 +83,24 @@ export function applyMove(
       : node
   )
 }
+
+// What to draw in the indent at one level of a row: nothing, the trunk of the page above
+// running on to its next child, the elbow that turns into this row, or both.
+export type Guide = "none" | "through" | "elbow" | "elbowThrough"
+
+// One guide per level to the left of the row at `index`, outermost first. A level's trunk
+// runs on past a row while the page of that level, the row's ancestor or the row itself,
+// has a sibling still to come.
+export function guidesFor(rows: TreeRow[], index: number): Guide[] {
+  const depth = rows[index].depth
+  return Array.from({ length: depth }, (_, level): Guide => {
+    const at = level + 1
+    let own = index
+    while (own > 0 && rows[own].depth > at) own--
+    let next = own + 1
+    while (next < rows.length && rows[next].depth > at) next++
+    const more = next < rows.length && rows[next].depth === at
+    if (level === depth - 1) return more ? "elbowThrough" : "elbow"
+    return more ? "through" : "none"
+  })
+}
