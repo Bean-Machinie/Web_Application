@@ -4,18 +4,28 @@ import { Extension, mergeAttributes, Node } from "@tiptap/react"
 const CALLOUT =
   "my-3 rounded-md px-4 py-3 before:mb-1 before:block before:text-[0.65rem] before:font-semibold before:tracking-wider before:uppercase"
 
-// Text for the GM to read out to the table.
+// Text for the GM to read out to the table. It may say when: "If they search the horses"
+// is added to the label.
 export const ReadAloud = Node.create({
   name: "readAloud",
   group: "block",
   content: "block+",
   defining: true,
+  addAttributes() {
+    return {
+      condition: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-condition"),
+        renderHTML: (attributes) => (attributes.condition ? { "data-condition": attributes.condition } : {}),
+      },
+    }
+  },
   parseHTML: () => [{ tag: 'div[data-type="read-aloud"]' }],
   renderHTML: ({ HTMLAttributes }) => [
     "div",
     mergeAttributes(HTMLAttributes, {
       "data-type": "read-aloud",
-      class: `${CALLOUT} border-primary/60 bg-primary/10 border-l-2 italic before:text-primary before:not-italic before:content-['Read_aloud']`,
+      class: `${CALLOUT} border-primary/60 bg-primary/10 border-l-2 italic before:text-primary before:not-italic before:content-['Read_aloud'] data-condition:before:content-['Read_aloud_·_'_attr(data-condition)']`,
     }),
     0,
   ],

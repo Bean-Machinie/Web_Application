@@ -1,10 +1,11 @@
 import { SegmentedControl } from "@/components/ui/segmented-control"
 import type { CampaignTemplate } from "@/lib/campaign-template-types"
 import { templateKinds } from "@/lib/campaign-templates"
+import { countPages } from "@/lib/template-pages"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 
-export type KindFilter = WorldEntryKind | "all"
+export type KindFilter = WorldEntryKind | "all" | "journal"
 
 type Props = {
   template: CampaignTemplate
@@ -18,7 +19,7 @@ const named = (name: string, count: number) => (
   </>
 )
 
-// Tabs to show one kind of the starter's entries, or all: the kind's name and how many there are.
+// Tabs to show one kind of the starter's entries, or all, or its journal pages: the name and how many there are.
 export function TemplateKindFilter({ template, value, onChange }: Props) {
   const countOf = (kind: WorldEntryKind) => template.entries.filter((entry) => entry.kind === kind).length
 
@@ -34,6 +35,9 @@ export function TemplateKindFilter({ template, value, onChange }: Props) {
           value: kind as KindFilter,
           label: named(WORLD_KINDS[kind].plural, countOf(kind)),
         })),
+        ...(template.journalPages
+          ? [{ value: "journal" as KindFilter, label: named("Journal", countPages(template.journalPages)) }]
+          : []),
       ]}
     />
   )

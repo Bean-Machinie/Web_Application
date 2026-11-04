@@ -11,9 +11,31 @@ export type TemplateField = {
 }
 
 export type TemplateEntry = {
+  // Names the entry for mentions inside the template: a mention node whose attrs.id is
+  // "tpl:<key>" points at it, and is given the new entry's id when the campaign is made.
+  key?: string
   kind: WorldEntryKind
   name: string
+  // Players see the entry from the start. Left out, it is true.
+  revealed?: boolean
   fields: TemplateField[]
+}
+
+// A node of a Tiptap document, as plain data.
+export type TemplateNode = {
+  type: string
+  attrs?: Record<string, unknown>
+  content?: TemplateNode[]
+  text?: string
+  marks?: { type: string }[]
+}
+
+// A journal page of a template, with the pages inside it.
+export type TemplatePage = {
+  title: string
+  revealed: boolean
+  content: TemplateNode
+  children?: TemplatePage[]
 }
 
 export type CampaignTemplate = {
@@ -26,6 +48,8 @@ export type CampaignTemplate = {
   // ("Bram Hollis" is bram-hollis.webp). Entries without a file get none.
   portraits?: string
   entries: TemplateEntry[]
+  // The journal the campaign starts with, as a tree of pages.
+  journalPages?: TemplatePage[]
 }
 
 // Rich text fields hold editor JSON; a template writes plain sentences.

@@ -1,0 +1,144 @@
+STARTER VILLAGE TEMPLATE
+========================
+id: starter-village
+name: Starter village
+description: A small village with a handful of people, places and a local legend.
+cover: willowbrook
+portraits: /templates/starter-village  (one WebP per entry, named after it)
+Source: src/lib/starter-village.ts (helpers in src/lib/campaign-template-types.ts)
+13 entries. Every entry is created revealed (visible to players) on "Create campaign".
+Fields marked [PRIVATE] are GM-only.
+Rich text fields are stored as editor JSON: a doc with one paragraph holding one text node.
+Mentions / links: none. The template contains no @mention nodes and no links between
+entries; names such as "Old Map" inside the lore text are plain words.
+
+------------------------------------------------------------------------
+1. NPC: Bram Hollis        (portrait: bram-hollis.webp)
+------------------------------------------------------------------------
+role (short_text): Innkeeper
+species (short_text): Human
+age (short_text): 67
+status (select): alive
+attitude (select): friendly
+description (rich_text): Warm, talkative owner of the village inn. Knows everyone's business.
+motivation (rich_text): Keep the inn full and his debt quietly paid.
+voice (short_text) [PRIVATE]: Booming laugh, wipes the bar while he talks
+secrets (rich_text) [PRIVATE]: Owes a dangerous debt to someone in the next town.
+
+------------------------------------------------------------------------
+2. NPC: Tessa Vale         (portrait: tessa-vale.webp)
+------------------------------------------------------------------------
+role (short_text): Traveling merchant
+species (short_text): Witch
+age (short_text): 152
+status (select): alive
+attitude (select): neutral
+description (rich_text): Sells odd goods from a wagon and always has a rumor to trade.
+motivation (rich_text): Sell her stock quickly and move on before questions start.
+voice (short_text) [PRIVATE]: Fast patter, names a price before you ask
+secrets (rich_text) [PRIVATE]: Some of her stock was stolen.
+
+------------------------------------------------------------------------
+3. NPC: Captain Mara Dorn  (portrait: captain-mara-dorn.webp)
+------------------------------------------------------------------------
+role (short_text): Guard captain
+species (short_text): Human
+age (short_text): 41
+status (select): alive
+attitude (select): neutral
+description (rich_text): Stern but fair. Keeps the village gate and the peace.
+motivation (rich_text): Keep the village safe, whatever it costs her conscience.
+voice (short_text) [PRIVATE]: Clipped sentences, never raises her voice
+secrets (rich_text) [PRIVATE]: Quietly looks away from the smugglers on the Forest Road.
+
+------------------------------------------------------------------------
+4. NPC: Elder Osric        (portrait: elder-osric.webp)
+------------------------------------------------------------------------
+role (short_text): Village elder
+species (short_text): Human
+age (short_text): 82
+status (select): alive
+attitude (select): friendly
+description (rich_text): Keeper of the village's stories, and slow to trust outsiders.
+motivation (rich_text): Pass the old stories to someone worthy before his time runs out.
+voice (short_text) [PRIVATE]: Slow and deliberate, speaks in proverbs
+secrets (rich_text) [PRIVATE]: Knows the truth behind the Lantern of Willowbrook.
+
+------------------------------------------------------------------------
+5. NPC: Kestrel            (portrait: kestrel.webp)
+------------------------------------------------------------------------
+role (short_text): Mysterious stranger
+species (short_text): Human
+age (short_text): 40
+status (select): alive
+attitude (select): neutral
+description (rich_text): A hooded traveler who arrived last week and asks careful questions.
+motivation (rich_text): Find the Old Map and what it leads to.
+voice (short_text) [PRIVATE]: Quiet and careful, answers questions with questions
+secrets (rich_text) [PRIVATE]: Is searching for the Old Map.
+
+------------------------------------------------------------------------
+6. CREATURE: Wolf          (portrait: wolf.webp)
+------------------------------------------------------------------------
+description (rich_text): A lean grey wolf, bold when hungry. Stalks the Forest Road at dusk.
+type (short_text): Beast
+threat (short_text) [PRIVATE]: Low alone, serious in a pack
+stat_block (stat_block) [PRIVATE]:
+  health: 11
+  defense: 12
+  speed: 40 ft
+  actions:
+    - Bite: +4 to hit, 2d4+2 piercing
+    - Pack tactics: Easier to hit when an ally is adjacent
+
+------------------------------------------------------------------------
+7. CREATURE: Goblin        (portrait: goblin.webp)
+------------------------------------------------------------------------
+description (rich_text): A sly scavenger that raids camps and trades in trinkets.
+type (short_text): Humanoid
+threat (short_text) [PRIVATE]: Low, higher in a raiding band
+stat_block (stat_block) [PRIVATE]:
+  health: 7
+  defense: 13
+  speed: 30 ft
+  actions:
+    - Dagger: +4 to hit, 1d4+2 piercing
+    - Nimble escape: Slips away from a fight as a quick action
+
+------------------------------------------------------------------------
+8. LOCATION: Willowbrook   (portrait: willowbrook.webp)
+------------------------------------------------------------------------
+description (rich_text): A small farming village at a crossroads, ringed by old stone walls.
+
+------------------------------------------------------------------------
+9. LOCATION: The Sleeping Fox   (portrait: the-sleeping-fox.webp)
+------------------------------------------------------------------------
+description (rich_text): A cozy inn with a roaring hearth, where the village gathers.
+
+------------------------------------------------------------------------
+10. LOCATION: Forest Road  (portrait: forest-road.webp)
+------------------------------------------------------------------------
+description (rich_text): A winding road through dark woods, known for bandits and worse.
+
+------------------------------------------------------------------------
+11. ITEM: Healing Potion   (portrait: healing-potion.webp)
+------------------------------------------------------------------------
+description (rich_text): A small red vial that mends minor wounds.
+
+------------------------------------------------------------------------
+12. ITEM: Old Map          (portrait: old-map.webp)
+------------------------------------------------------------------------
+description (rich_text): A worn map marking a place nobody in the village can name.
+
+------------------------------------------------------------------------
+13. LORE: The Lantern of Willowbrook   (no portrait file)
+------------------------------------------------------------------------
+description (rich_text): Locals say a pale lantern leads travelers off the Forest Road. Regulars at the Sleeping Fox swear they have seen it, and Elder Osric hints it guards the place the Old Map points to.
+
+------------------------------------------------------------------------
+Added at creation time (not in the template source)
+------------------------------------------------------------------------
+- An "image" field {url: "/templates/starter-village/<slug>.webp"} is put first on every
+  entry whose WebP exists (all but the lore entry), by entriesWithPortraits() in
+  src/lib/template-portraits.ts.
+- sort_order follows the list order above; revealed = true on every entry.

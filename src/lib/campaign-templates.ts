@@ -1,10 +1,12 @@
 import type { CampaignTemplate } from "./campaign-template-types"
+import { GOBLIN_ARROWS_TEST } from "./goblin-arrows-test"
 import { STARTER_VILLAGE } from "./starter-village"
+import { countPages } from "./template-pages"
 import { WORLD_KINDS, worldKinds } from "./world-kinds"
 import type { WorldEntryKind } from "./world-kinds"
 
 // More templates are one more entry here.
-export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [STARTER_VILLAGE]
+export const CAMPAIGN_TEMPLATES: CampaignTemplate[] = [STARTER_VILLAGE, GOBLIN_ARROWS_TEST]
 
 // The kinds a template contains, in the registry's order.
 export function templateKinds(template: CampaignTemplate): WorldEntryKind[] {
@@ -14,7 +16,8 @@ export function templateKinds(template: CampaignTemplate): WorldEntryKind[] {
 // "13 entries · NPCs, creatures, locations"
 export function summarize(template: CampaignTemplate) {
   const kinds = templateKinds(template).map((kind) => WORLD_KINDS[kind].nouns)
-  return `${template.entries.length} entries · ${kinds.join(", ")}`
+  const pages = template.journalPages ? ` · ${countPages(template.journalPages)} journal pages` : ""
+  return `${template.entries.length} entries · ${kinds.join(", ")}${pages}`
 }
 
 // "13 entries · 4 NPCs · 3 locations", counted from the entries themselves.

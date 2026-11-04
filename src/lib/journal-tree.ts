@@ -91,7 +91,7 @@ export type Guide = "none" | "through" | "elbow" | "elbowThrough"
 // One guide per level to the left of the row at `index`, outermost first. A level's trunk
 // runs on past a row while the page of that level, the row's ancestor or the row itself,
 // has a sibling still to come.
-export function guidesFor(rows: TreeRow[], index: number): Guide[] {
+export function guidesFor(rows: { depth: number }[], index: number): Guide[] {
   const depth = rows[index].depth
   return Array.from({ length: depth }, (_, level): Guide => {
     const at = level + 1

@@ -1,7 +1,8 @@
-import type { TemplateEntry } from "./campaign-template-types"
+import type { TemplateEntry, TemplatePage } from "./campaign-template-types"
 import { deleteImage } from "@/lib/avatar"
 import { supabase } from "@/lib/supabase"
 import type { CampaignRole } from "./campaign-permissions"
+import { flattenPages } from "./template-pages"
 
 export type CampaignStatus = "active" | "paused" | "finished"
 
@@ -81,11 +82,14 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
 // Starter entries are created with the campaign, in the same transaction.
 export async function createCampaign(
   name: string,
-  starterEntries: TemplateEntry[] = []
+  starterEntries: TemplateEntry[] = [],
+  journalPages: TemplatePage[] = []
 ): Promise<Campaign> {
   const { data, error } = await supabase.rpc("create_campaign", {
     campaign_name: name,
     starter_entries: starterEntries,
+    // Only sent when there are pages, so a template without them works as before.
+    ...(journalPages.length > 0 && { journal_pages: flattenPages(journalPages) }),
   })
   if (error) throw error
 
