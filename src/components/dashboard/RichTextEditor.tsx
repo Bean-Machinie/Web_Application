@@ -12,6 +12,8 @@ import { pageExtensions } from "./page-extensions"
 import { PageEditorFrame } from "./PageEditorFrame"
 import { richTextClass } from "./rich-text-styles"
 import { RichTextToolbar } from "./RichTextToolbar"
+import { RulesDecorations } from "./rules-decorations"
+import { RulesHover } from "./RulesHover"
 import { useMentionScope } from "./useMentionScope"
 import type { FieldEditorProps } from "./field-types"
 
@@ -44,11 +46,12 @@ export function RichTextEditor({
   const extensions = useMemo(() => {
     const mention = scope ? MentionNode.configure({ suggestion: mentionSuggestion(scope, entryId) }) : MentionNode
     return page
-      ? pageExtensions(placeholder ?? "", mention)
+      ? [...pageExtensions(placeholder ?? "", mention), RulesDecorations]
       : [
           StarterKit.configure({ heading: { levels: [2, 3] } }),
           Placeholder.configure({ placeholder: placeholder ?? "" }),
           mention,
+          RulesDecorations,
         ]
   }, [page, placeholder, scope, entryId])
   const editor = useEditor({
@@ -64,7 +67,14 @@ export function RichTextEditor({
   })
 
   if (!editor) return null
-  if (page) return <PageEditorFrame editor={editor} toolbar={toolbar} entryId={entryId} />
+  if (page) {
+    return (
+      <>
+        <PageEditorFrame editor={editor} toolbar={toolbar} entryId={entryId} />
+        <RulesHover editor={editor} />
+      </>
+    )
+  }
 
   // The box does not clip: the mention picker opens inside it and may reach past
   // its edge. Only the text area scrolls.
@@ -84,6 +94,7 @@ export function RichTextEditor({
           THIN_SCROLL
         )}
       />
+      <RulesHover editor={editor} />
     </div>
   )
 }

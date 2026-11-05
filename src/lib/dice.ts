@@ -17,7 +17,11 @@ export type Roll = {
   dice: number[]
   kept: number
   total: number
+  // Set for an expression of several dice, like 2d6+1d4: every die is added, none is kept or dropped.
+  terms?: Term[]
 }
+
+export type Term = { count: number; sides: Sides }
 
 // Uniform in 1..sides: values that would favour the low numbers are thrown away.
 function randomInt(sides: number) {
@@ -49,10 +53,17 @@ export function rollDice(sides: Sides, modifier: number, mode: D20Mode): Roll {
   return { id: nextId++, sides, modifier, mode: applied, at: Date.now(), dice, kept, total: dice[kept] + modifier }
 }
 
+export function rollTerms(terms: Term[], modifier: number): Roll {
+  const dice = terms.flatMap(({ count, sides }) => Array.from({ length: count }, () => randomInt(sides)))
+  const sum = dice.reduce((total, die) => total + die, 0)
+  return { id: nextId++, sides: terms[0].sides, modifier, mode: "normal", at: Date.now(), dice, kept: 0, total: sum + modifier, terms }
+}
+
 const withModifier = (base: string, modifier: number) =>
   modifier === 0 ? base : `${base} ${modifier > 0 ? "+" : "−"} ${Math.abs(modifier)}`
 
-export const notation = ({ sides, modifier }: Roll) => withModifier(`d${sides}`, modifier)
+export const notation = ({ sides, modifier, terms }: Roll) =>
+  withModifier(terms ? terms.map(({ count, sides: faces }) => `${count}d${faces}`).join(" + ") : `d${sides}`, modifier)
 
 // "Roll d20 + 2 with advantage", as the tooltip of a die tile says it.
 export function rollLabel(sides: Sides, modifier: number, mode: D20Mode) {
@@ -68,5 +79,5 @@ export function rollAge(at: number, now: number) {
 }
 
 // What the 3D dice are told to land on, in dice-box-threejs's notation.
-export const throwNotation = ({ sides, dice }: Roll) =>
-  sides === 100 ? `1d100+1d10@${dice.join(",")}` : `${dice.length}d${sides}@${dice.join(",")}`
+export const throwNotation = ({ sides, dice, terms }: Roll) =>
+  terms ? `${terms.map(({ count, sides: faces }) => `${count}d${faces}`).join("+")}@${dice.join(",")}` : sides === 100 ? `1d100+1d10@${dice.join(",")}` : `${dice.length}d${sides}@${dice.join(",")}`

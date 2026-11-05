@@ -4,7 +4,8 @@ import { useRollPresenter } from "@/hooks/use-roll-presenter"
 import { acquireDiceBox, DICE_SLOTS } from "@/lib/dice-box"
 import type { HeldBox } from "@/lib/dice-box"
 import { rollDice, throwNotation } from "@/lib/dice"
-import type { D20Mode, Sides } from "@/lib/dice"
+import { rollText as parseRoll } from "@/lib/dice-expression"
+import type { D20Mode, Roll, Sides } from "@/lib/dice"
 
 const FADE_MS = 500
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -22,10 +23,11 @@ export function useDiceRoller() {
   const setLayer = (slot: number, on: boolean) =>
     setLayers((current) => Object.assign([], current, { [slot]: on }))
 
-  async function roll(sides: Sides, modifier: number, mode: D20Mode) {
+  async function play(make: () => Roll | null) {
     if (active.current >= DICE_SLOTS) return
+    const result = make()
+    if (!result) return
     active.current++
-    const result = rollDice(sides, modifier, mode)
 
     let held: HeldBox | undefined
     if (!reducedMotion) {
@@ -47,5 +49,8 @@ export function useDiceRoller() {
     active.current--
   }
 
-  return { history, layers, shown, dismiss, replay, roll, clear }
+  const roll = (sides: Sides, modifier: number, mode: D20Mode) => play(() => rollDice(sides, modifier, mode))
+  const rollText = (expression: string, mode: D20Mode) => play(() => parseRoll(expression, mode))
+
+  return { history, layers, shown, dismiss, replay, roll, rollText, clear }
 }

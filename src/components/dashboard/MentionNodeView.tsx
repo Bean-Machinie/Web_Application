@@ -93,6 +93,7 @@ export function MentionNodeView({ node, editor, selected }: NodeViewProps) {
       ) : (
         <span
           className={className}
+          data-mention-button={href ? "" : undefined}
           title={[
             hidden && "Hidden from players, who read this as plain text.",
             href && (openIn ? `Click to open beside. ${MODIFIER_KEY} click for a new tab.` : `${MODIFIER_KEY} click to open.`),
