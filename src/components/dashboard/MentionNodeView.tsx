@@ -10,8 +10,10 @@ import { WORLD_KINDS } from "@/lib/world-kinds"
 import { MentionOpenContext } from "./MentionOpenContext"
 import { useMentionScope } from "./useMentionScope"
 
+// The negative vertical margin takes the chip's border and padding out of the line's
+// height: the line is as tall as its text, with a chip on it or not, whatever wraps it.
 const CHIP =
-  "inline-flex items-center gap-1 rounded-md border px-1.5 py-px align-baseline text-[0.9em] leading-snug font-medium no-underline transition-colors"
+  "-my-1 inline-flex items-center gap-1 rounded-md border px-1.5 py-px align-baseline text-[0.9em] leading-snug font-medium no-underline transition-colors"
 
 // A mention as a chip. It shows the entry's current name when the entry is
 // known, and the name it was given when not. A hidden entry is dashed with the

@@ -26,7 +26,8 @@ function styleMark(name: string, attribute: string, property: string, className?
 export const FontSize = styleMark("fontSize", "size", "font-size")
 export const FontFamily = styleMark("fontFamily", "family", "font-family")
 export const TextColor = styleMark("textColor", "color", "color")
-// Cloned, so a highlight that wraps onto the next line keeps its rounding and padding.
-export const Highlight = styleMark("highlight", "color", "background-color", "rounded-sm px-0.5 [box-decoration-break:clone]")
+// Only a background colour: no padding, margin or rounding, which would take room from the
+// text and open a gap where a highlight starts or ends in the middle of a word.
+export const Highlight = styleMark("highlight", "color", "background-color")
 
 export const TEXT_STYLE_MARKS = [FontSize, FontFamily, TextColor, Highlight]
