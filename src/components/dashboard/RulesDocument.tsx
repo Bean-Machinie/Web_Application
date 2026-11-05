@@ -1,54 +1,61 @@
-import { useMemo, useState } from "react"
-import { useRuleJump } from "@/hooks/use-rule-jump"
-import { GAME_NOTICES } from "@/lib/legal-notices"
-import { groupByLetter, matchingTerms } from "@/lib/rules-terms"
-import { NoticeText } from "./NoticeText"
-import { RuleEntry } from "./RuleEntry"
-import { RulesBar } from "./RulesBar"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { useElementSize } from "@/hooks/use-element-size"
+import { onRuleScroll } from "@/lib/rules-focus"
+import { matchingTerms, ruleTerm } from "@/lib/rules-terms"
+import { RuleSource } from "./RuleSource"
+import { RuleTermView } from "./RuleTermView"
+import { RulesList } from "./RulesList"
 
-const NOTICE = GAME_NOTICES.find((notice) => notice.id === "dnd-5e-2024")!
-const letterAnchor = (letter: string) => `rule-letter-${letter}`
+// The width of the space the rules have, from which the list and the term sit side by side.
+const WIDE_PX = 720
 
 type Props = {
-  // A term to go to when the document opens, from the address.
-  initialTerm?: string
-  // Where a click on a linked term goes. Left out, the document scrolls to it itself.
-  onVisit?: (termId: string) => void
+  // The term shown, when the address decides it (the Rules page). Left out, the view keeps its own.
+  termId?: string
+  // Called with the term picked, or undefined for a way back to the list.
+  onSelect?: (termId: string | undefined) => void
 }
 
-// The rules as one page, A to Z, like a dictionary: a click on a term anywhere opens this and
-// scrolls to its entry. It is the same in a journal tab and on the Rules page.
-export function RulesDocument({ initialTerm, onVisit }: Props) {
+// The rules: a list of terms and the one picked, side by side where there is room and one at a
+// time where there is not. A term asked for from a page (a glossary word) is picked here.
+export function RulesDocument({ termId, onSelect }: Props) {
+  const { ref, size } = useElementSize<HTMLDivElement>()
   const [query, setQuery] = useState("")
-  const { highlighted, jump } = useRuleJump(initialTerm)
-  const groups = useMemo(() => groupByLetter(matchingTerms(query)), [query])
+  const [own, setOwn] = useState<string | undefined>()
+  const picked = onSelect ? termId : own
+  const select = useCallback((id: string | undefined) => (onSelect ?? setOwn)(id), [onSelect])
+  const terms = useMemo(() => matchingTerms(query), [query])
 
-  const scrollToLetter = (letter: string) =>
-    document.getElementById(letterAnchor(letter))?.scrollIntoView({ behavior: "smooth", block: "start" })
+  useEffect(() => {
+    const stop = onRuleScroll((id) => select(id))
+    return () => stop()
+  }, [select])
+
+  const wide = size.width >= WIDE_PX
+  // Wide, there is always a term beside the list: the first of what is listed.
+  const shown = ruleTerm(picked)?.id ?? (wide ? terms[0]?.id : undefined)
+  const list = <RulesList query={query} onQuery={setQuery} terms={terms} selectedId={shown} onSelect={select} />
+  // The term scrolls above its source line, which stays at the bottom of the pane.
+  const term = shown && (
+    <div className="flex h-full min-w-0 flex-1 flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-8 md:px-10">
+        <RuleTermView key={shown} termId={shown} onSelect={select} onBack={wide ? undefined : () => select(undefined)} />
+      </div>
+      <RuleSource page={ruleTerm(shown)!.entry.page} />
+    </div>
+  )
 
   return (
-    <div className="px-4 pb-12 md:px-8">
-      <RulesBar query={query} onQuery={setQuery} letters={groups.map((group) => group.letter)} onLetter={scrollToLetter} />
-      <div className="mx-auto max-w-2xl">
-        <header className="pt-6 pb-2">
-          <h1 className="text-2xl font-semibold tracking-tight">Rules</h1>
-          <p className="text-muted-foreground mt-1 text-sm">D&amp;D 5e terms from the SRD 5.2.1, A to Z.</p>
-        </header>
-        {groups.length === 0 && <p className="text-muted-foreground py-8 text-sm">Nothing matches “{query}”.</p>}
-        {groups.map(({ letter, terms }) => (
-          <div key={letter}>
-            <h2 id={letterAnchor(letter)} className="text-muted-foreground mt-6 scroll-mt-28 border-b pb-1 text-sm font-medium">
-              {letter}
-            </h2>
-            {terms.map((term) => (
-              <RuleEntry key={term.id} term={term} highlighted={highlighted === term.id} onVisit={onVisit ?? jump} />
-            ))}
-          </div>
+    <div ref={ref} className="flex h-full min-h-0">
+      {size.width > 0 &&
+        (wide ? (
+          <>
+            <aside className="w-65 shrink-0 border-r">{list}</aside>
+            {term}
+          </>
+        ) : (
+          term || <div className="h-full min-w-0 flex-1">{list}</div>
         ))}
-        <footer className="text-muted-foreground mt-12 border-t pt-4 text-xs leading-relaxed">
-          <NoticeText text={NOTICE.notice} />
-        </footer>
-      </div>
     </div>
   )
 }

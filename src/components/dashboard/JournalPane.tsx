@@ -8,6 +8,7 @@ import { MAX_PANES, tabKey } from "@/lib/journal-workspace"
 import { requestRuleScroll, RULES_TAB } from "@/lib/rules-focus"
 import { cn } from "@/lib/utils"
 import { JournalPaneContent } from "./JournalPaneContent"
+import { JournalTabBoundary } from "./JournalTabBoundary"
 import { JournalTabStrip } from "./JournalTabStrip"
 import { MentionOpenContext } from "./MentionOpenContext"
 import type { MemberAction } from "./MemberMenu"
@@ -101,7 +102,9 @@ export function JournalPane({ index, space, tree, ctx, canManage, carrying }: Pr
               carrying && showing && tabKey(showing) === carrying && "opacity-40"
             )}
           >
-            <JournalPaneContent tab={showing} tree={tree} canManage={canManage} />
+            <JournalTabBoundary key={showing ? tabKey(showing) : "empty"} onClose={() => close(index, pane.active)}>
+              <JournalPaneContent tab={showing} tree={tree} canManage={canManage} />
+            </JournalTabBoundary>
           </div>
           {/* The shadow that falls from under the tabs once the page has gone up, as under
               the recent rolls. */}

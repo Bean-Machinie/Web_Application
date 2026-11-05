@@ -8,7 +8,7 @@ import { GLOSSARY_TERMS, glossaryIdFor } from "@/lib/glossary-terms"
 import { textRunsByBlock } from "./text-runs"
 
 // Not after a word, a path, an address or a mention's @ or #.
-const DICE = new RegExp(`(?<![\\w/.:#@=?&-])${DICE_EXPRESSION}(?![\\w])`, "gi")
+export const DICE = new RegExp(`(?<![\\w/.:#@=?&-])${DICE_EXPRESSION}(?![\\w])`, "gi")
 const URL_TOKEN = /^(?:[a-z][a-z\d+.-]*:\/\/|www\.)/i
 
 // The same look as a mention chip, so the two read as one family on a page.

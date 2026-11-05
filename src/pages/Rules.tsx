@@ -7,7 +7,7 @@ import { campaignPath } from "@/lib/campaign-paths"
 import { usesDnd5e } from "@/lib/game-system"
 import { ruleTerm, rulesPath } from "@/lib/rules-terms"
 
-// The rules of a D&D 5e campaign as one document. An address with a term goes to that term.
+// The rules of a D&D 5e campaign. The address says which term is shown.
 export function Rules() {
   const { current } = useCurrentCampaign()
   const { termId } = useParams()
@@ -18,10 +18,9 @@ export function Rules() {
   if (!usesDnd5e(current)) return <Navigate to={campaignPath(current.id)} replace />
 
   return (
-    <div className="-m-4 h-[calc(100svh-var(--header-height))] min-w-0 flex-none overflow-y-auto md:-m-6">
+    <div className="-m-4 h-[calc(100svh-var(--header-height))] min-w-0 flex-none md:-m-6">
       <PlainBackground />
-      {/* A link in the document changes the address; the address is what scrolls it. */}
-      <RulesDocument initialTerm={term?.id} onVisit={(id) => navigate(rulesPath(current.id, id), { replace: true })} />
+      <RulesDocument termId={term?.id} onSelect={(id) => navigate(rulesPath(current.id, id))} />
     </div>
   )
 }
