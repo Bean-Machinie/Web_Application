@@ -2,7 +2,7 @@
 
 export type RuleFact = { label: string; value: string; ref?: string }
 
-export type RuleEffect = { label: string; text: string; items?: RuleEffect[]; bullets?: string[] }
+export type RuleEffect = { label: string; text: string; example?: string; items?: RuleEffect[]; bullets?: string[] }
 
 export type RuleBlock =
   | { type: "text"; text: string }

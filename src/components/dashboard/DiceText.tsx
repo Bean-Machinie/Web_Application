@@ -4,12 +4,13 @@ import { parseExpression } from "@/lib/dice-expression"
 import { rollExpression } from "@/lib/dice-roll-store"
 import { CHIP_CLASS, DICE, chipTitle } from "./rules-decorations"
 
-// Plain text in which the dice (1d20+2) are the same rollable chips as in a journal page.
-export function DiceText({ text }: { text: string }) {
+// Plain text in which the dice (1d20+2) are the same rollable chips as in a journal page. With
+// `counted`, only dice with a count are chips.
+export function DiceText({ text, counted = false }: { text: string; counted?: boolean }) {
   const parts: ReactNode[] = []
   let last = 0
   for (const found of text.matchAll(DICE)) {
-    if (!parseExpression(found[0])) continue
+    if (!parseExpression(found[0]) || (counted && !/^\d/.test(found[0]))) continue
     parts.push(
       text.slice(last, found.index),
       <Fragment key={found.index}>

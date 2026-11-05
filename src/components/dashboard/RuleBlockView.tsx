@@ -20,7 +20,11 @@ export function RuleBlockView({ block, selfId, onSelect }: Props) {
         </p>
       )
     case "effects":
-      return <RuleEffects items={block.items} selfId={selfId} onSelect={onSelect} />
+      return (
+        <div>
+          <RuleEffects items={block.items} selfId={selfId} onSelect={onSelect} />
+        </div>
+      )
     case "table":
       return <RuleTable caption={block.caption} columns={block.columns} rows={block.rows} />
     case "example":

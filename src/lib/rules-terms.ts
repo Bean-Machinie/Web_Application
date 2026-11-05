@@ -7,11 +7,13 @@ export const RULE_ENTRIES = data.entries as unknown as RuleEntry[]
 
 const BY_ID = new Map(RULE_ENTRIES.map((entry) => [entry.id, entry]))
 
+export const categoryTitle = (id: string) => RULE_CATEGORIES.find((category) => category.id === id)?.title ?? ""
+
 export const ruleEntry = (id: string | undefined) => (id ? BY_ID.get(id) : undefined)
 
 export const rulesPath = (campaignId: string, termId?: string) => campaignPath(campaignId, termId ? `rules/${termId}` : "rules")
 
-const effectText = (effect: RuleEffect): string[] => [effect.label, effect.text, ...(effect.bullets ?? []), ...(effect.items ?? []).flatMap(effectText)]
+const effectText = (effect: RuleEffect): string[] => [effect.label, effect.text, ...(effect.example ? [effect.example] : []), ...(effect.bullets ?? []), ...(effect.items ?? []).flatMap(effectText)]
 
 function blockText(block: RuleBlock): string[] {
   switch (block.type) {

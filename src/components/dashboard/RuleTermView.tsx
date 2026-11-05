@@ -1,7 +1,7 @@
 import { ChevronLeft } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ruleEntry } from "@/lib/rules-terms"
+import { categoryTitle, ruleEntry } from "@/lib/rules-terms"
 import { RuleBlockView } from "./RuleBlockView"
 import { RuleLinks } from "./RuleLinks"
 import { RuleText } from "./RuleText"
@@ -19,23 +19,26 @@ export function RuleTermView({ termId, onSelect, onBack }: Props) {
   if (!entry) return null
 
   return (
-    <article className="flex max-w-prose flex-col gap-6 text-sm font-normal">
+    <article className="@container flex max-w-prose flex-col gap-6 text-sm font-normal">
       {onBack && (
         <Button variant="ghost" size="sm" className="text-muted-foreground -mb-2 -ml-2 self-start" onClick={onBack}>
           <ChevronLeft /> All rules
         </Button>
       )}
-      <header className="grid gap-3">
-        <div className="flex items-center gap-2.5">
-          <h1 className="text-2xl font-semibold tracking-tight">{entry.title}</h1>
-          {entry.tag && (
-            <Badge variant="secondary" className="text-muted-foreground">
-              {entry.tag}
-            </Badge>
-          )}
+      <header className="grid gap-3 pb-2">
+        <div className="grid gap-1.5">
+          <p className="text-muted-foreground text-xs">{categoryTitle(entry.category)}</p>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-semibold tracking-tight">{entry.title}</h1>
+            {entry.tag && (
+              <Badge variant="secondary" className="text-muted-foreground">
+                {entry.tag}
+              </Badge>
+            )}
+          </div>
         </div>
         <p className="text-base leading-relaxed">
-          <RuleText text={entry.summary} selfId={entry.id} onSelect={onSelect} />
+          <RuleText text={entry.summary} selfId={entry.id} onSelect={onSelect} dice={false} />
         </p>
         {entry.facts.length > 0 && (
           <p className="text-muted-foreground">
