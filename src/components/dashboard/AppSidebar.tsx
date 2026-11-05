@@ -7,7 +7,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar"
 import { CampaignSidebarHeader } from "./CampaignSidebarHeader"
-import { campaignNav, campaignSettingsNav, homeNav } from "./nav-items"
+import { campaignNavFor, campaignSettingsNav, homeNav } from "./nav-items"
 import { NavMain } from "./NavMain"
 import { NavUser } from "./NavUser"
 import { SidebarBrand } from "./SidebarBrand"
@@ -44,7 +44,7 @@ export function AppSidebar() {
         {inCampaign ? (
           campaign && (
             <>
-              <NavMain items={campaignNav(campaign.id)} className="pt-0" />
+              <NavMain items={campaignNavFor(campaign)} className="pt-0" />
               <NavMain items={campaignSettingsNav(campaign.id)} className="mt-auto" />
             </>
           )

@@ -5,6 +5,7 @@ import { usePaneScroll } from "@/hooks/use-pane-scroll"
 import type { JournalWorkspaceState } from "@/hooks/use-journal-workspace"
 import type { JournalTreeState } from "@/hooks/use-journal-tree"
 import { MAX_PANES, tabKey } from "@/lib/journal-workspace"
+import { requestRuleScroll, RULES_TAB } from "@/lib/rules-focus"
 import { cn } from "@/lib/utils"
 import { JournalPaneContent } from "./JournalPaneContent"
 import { JournalTabStrip } from "./JournalTabStrip"
@@ -34,15 +35,19 @@ export function JournalPane({ index, space, tree, ctx, canManage, carrying }: Pr
   const panes = workspace.panes.length
   const showing = pane.tabs[pane.active]
   const fullPage = showing ? tabFullPage(ctx, showing) : null
-  const scroll = usePaneScroll(showing ? `${ctx.campaignId}:${tabKey(showing)}` : null)
+  // The rules tab is not given back its old place: it opens at the term that was asked for.
+  const scroll = usePaneScroll(showing && showing.kind !== "rule" ? `${ctx.campaignId}:${tabKey(showing)}` : null)
 
   const openMention = useCallback(
-    (entryId: string, where: "other" | "tab") =>
+    (id: string, where: "other" | "tab", kind: "entry" | "rule" = "entry") => {
+      // A term is a place in the one rules tab: that tab opens, and scrolls to it.
+      if (kind === "rule") requestRuleScroll(id)
       open(
-        { kind: "entry", id: entryId },
+        kind === "rule" ? { kind, id: RULES_TAB } : { kind, id },
         where === "tab" ? { kind: "newTab", pane: index } : { kind: "other", from: index },
         false
-      ),
+      )
+    },
     [open, index]
   )
 

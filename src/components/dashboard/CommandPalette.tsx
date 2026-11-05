@@ -15,7 +15,7 @@ import type { SearchSource } from "@/lib/search-entries"
 import type { PaletteScope } from "@/lib/palette-groups"
 import type { PaletteItem } from "@/lib/palette-items"
 import { loadRecents, recordRecent } from "@/lib/recent-items"
-import { campaignNav, campaignSettingsNav, mainPages } from "./nav-items"
+import { campaignNavFor, campaignSettingsNav, mainPages } from "./nav-items"
 import { PaletteList } from "./PaletteList"
 import { PaletteMoreRow } from "./PaletteMoreRow"
 import { PaletteRow } from "./PaletteRow"
@@ -65,7 +65,7 @@ export function CommandPalette({ open, onOpenChange }: Props) {
         campaigns,
         current,
         recents,
-        campaignPages: current ? [...campaignNav(current.id), ...campaignSettingsNav(current.id)] : [],
+        campaignPages: current ? [...campaignNavFor(current), ...campaignSettingsNav(current.id)] : [],
         mainPages,
         hits,
         characters,

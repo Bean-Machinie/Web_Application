@@ -1,12 +1,15 @@
 import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
+import { BookMarkedIcon } from "@/components/icons/BookMarkedIcon"
 import { campaignPath } from "./campaign-paths"
 import { roleLabel } from "./campaign-list"
 import { can } from "./campaign-permissions"
 import type { Campaign } from "./campaigns"
 import { characterPath } from "./characters"
 import type { Character } from "./characters"
+import { usesDnd5e } from "./game-system"
 import { matchText } from "./palette-search"
 import type { PaletteGroup, PaletteItem, Recent } from "./palette-items"
+import { RULE_TERMS, rulesPath } from "./rules-terms"
 import type { SearchHit } from "./search-entries"
 import type { WorldEntryKind } from "./world-kinds"
 import { WORLD_KINDS, worldKinds } from "./world-kinds"
@@ -135,6 +138,20 @@ export function buildGroups(input: PaletteInput): PaletteGroup[] {
         items: best(input.campaignPages, query, (page) => page.title, (page, matched) => pageItem(page, current.name, matched)),
       }
     )
+    // A rules term is not worth remembering as a recent, so it is a page row, not an entry.
+    if (usesDnd5e(current)) {
+      groups.push({
+        heading: "Rules",
+        items: best(RULE_TERMS, query, (term) => term.entry.title, (term, matched) => ({
+          id: `rule:${term.id}`,
+          name: term.entry.title,
+          context: "Rules",
+          path: rulesPath(current.id, term.id),
+          visual: { type: "page", icon: BookMarkedIcon },
+          matched,
+        })),
+      })
+    }
   }
 
   if (everywhere) {

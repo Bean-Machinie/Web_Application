@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { gameSystemName } from "@/lib/game-system"
 import { STATUS_LABELS } from "@/lib/campaigns"
 import type { Campaign } from "@/lib/campaigns"
 import { CampaignAvatar } from "./CampaignAvatar"
@@ -24,6 +25,9 @@ export function CampaignGeneralView({ campaign }: { campaign: Campaign }) {
             <span className="text-muted-foreground">No description yet.</span>
           )}
         </p>
+      </SettingsSection>
+      <SettingsSection title="Game system" description="The rules the campaign is played with.">
+        <p className="text-sm">{gameSystemName(campaign.gameSystem)}</p>
       </SettingsSection>
       <SettingsSection title="Status" description="Where the campaign stands.">
         <Badge variant="secondary">{STATUS_LABELS[campaign.status]}</Badge>

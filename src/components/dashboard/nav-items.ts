@@ -1,4 +1,5 @@
 import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
+import { BookMarkedIcon } from "@/components/icons/BookMarkedIcon"
 import { BookOpenIcon } from "@/components/icons/BookOpenIcon"
 import { CalendarFoldIcon } from "@/components/icons/CalendarFoldIcon"
 import { LifeBuoyIcon } from "@/components/icons/LifeBuoyIcon"
@@ -11,6 +12,8 @@ import { SwordsIcon } from "@/components/icons/SwordsIcon"
 import { UserRoundIcon } from "@/components/icons/UserRoundIcon"
 import { UsersRoundIcon } from "@/components/icons/UsersRoundIcon"
 import { campaignPath } from "@/lib/campaign-paths"
+import type { Campaign } from "@/lib/campaigns"
+import { usesDnd5e } from "@/lib/game-system"
 
 export type NavItem = {
   title: string
@@ -23,6 +26,8 @@ export type NavItem = {
   exact?: boolean
   // Going there folds the sidebar to its icons, for a page that wants the room.
   foldsSidebar?: boolean
+  // Shown only in a campaign that plays D&D 5e.
+  dnd5eOnly?: boolean
 }
 
 export const campaignNav = (id: string): NavItem[] => [
@@ -31,8 +36,12 @@ export const campaignNav = (id: string): NavItem[] => [
   { title: "World", to: campaignPath(id, "world"), icon: ScrollTextIcon },
   { title: "Sessions", to: campaignPath(id, "sessions"), icon: CalendarFoldIcon },
   { title: "Characters", to: campaignPath(id, "characters"), icon: UserRoundIcon },
+  { title: "Rules", to: campaignPath(id, "rules"), icon: BookMarkedIcon, dnd5eOnly: true },
   { title: "Party", to: campaignPath(id, "party"), icon: UsersRoundIcon },
 ]
+
+// What the sidebar and the search palette offer for this campaign.
+export const campaignNavFor = (campaign: Campaign) => campaignNav(campaign.id).filter((item) => !item.dnd5eOnly || usesDnd5e(campaign))
 
 export const campaignSettingsNav = (id: string): NavItem[] => [
   { title: "Campaign settings", to: campaignPath(id, "campaign-settings"), icon: SettingsIcon },

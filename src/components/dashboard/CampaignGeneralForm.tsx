@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { NO_AVATAR_CHANGE, hasAvatarChange } from "@/lib/avatar"
 import { saveCampaignDetails, saveCampaignStatus } from "@/lib/campaign-details"
 import { saveCampaignImage } from "@/lib/campaign-image"
+import { gameSystemName } from "@/lib/game-system"
 import { STATUS_LABELS, errorMessage } from "@/lib/campaigns"
 import type { Campaign, CampaignStatus } from "@/lib/campaigns"
 import { AvatarUpload } from "./AvatarUpload"
@@ -130,6 +131,10 @@ export function CampaignGeneralForm({ campaign }: { campaign: Campaign }) {
             ))}
           </SelectContent>
         </Select>
+      </SettingsSection>
+
+      <SettingsSection title="Game system" description="The rules the campaign is played with.">
+        <p className="text-sm">{gameSystemName(campaign.gameSystem)}</p>
       </SettingsSection>
 
       <div>

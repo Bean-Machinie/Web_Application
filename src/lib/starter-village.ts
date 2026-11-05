@@ -1,5 +1,6 @@
 import { npc, entry, fact, statBlock } from "./campaign-template-types"
 import type { CampaignTemplate } from "./campaign-template-types"
+import { DND_5E } from "./game-system"
 
 // Generic and system-agnostic on purpose. Entries start revealed.
 export const STARTER_VILLAGE: CampaignTemplate = {
@@ -7,6 +8,7 @@ export const STARTER_VILLAGE: CampaignTemplate = {
   name: "Starter village",
   description: "A small village with a handful of people, places and a local legend.",
   cover: "willowbrook",
+  gameSystem: DND_5E,
   portraits: "/templates/starter-village",
   entries: [
     npc(

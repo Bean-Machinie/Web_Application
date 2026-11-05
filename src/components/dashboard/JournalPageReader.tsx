@@ -6,12 +6,14 @@ import { PAGE_BLOCKS } from "./page-extensions"
 import { richTextClass } from "./rich-text-styles"
 import { RulesDecorations } from "./rules-decorations"
 import { RulesHover } from "./RulesHover"
+import { useRulesCampaign } from "./useRulesCampaign"
 
 // A page as a player reads it. The database has already left out the GM-only
 // blocks and turned the mentions a player may not follow into plain text.
 export function JournalPageReader({ value }: { value: unknown }) {
+  const glossaryOn = !!useRulesCampaign()
   const editor = useEditor({
-    extensions: [...PAGE_BLOCKS, MentionNode, RulesDecorations],
+    extensions: [...PAGE_BLOCKS, MentionNode, RulesDecorations.configure({ glossary: glossaryOn })],
     content: value ? tidyMentionSpacing(value as JSONContent) : undefined,
     editable: false,
     editorProps: { attributes: { class: richTextClass } },

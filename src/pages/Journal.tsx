@@ -18,6 +18,7 @@ import { useJournalWorkspace } from "@/hooks/use-journal-workspace"
 import { campaignPath } from "@/lib/campaign-paths"
 import { activeTab } from "@/lib/journal-workspace"
 import { interceptPalette } from "@/lib/palette-intercept"
+import { requestRuleScroll, RULES_TAB } from "@/lib/rules-focus"
 import { cn } from "@/lib/utils"
 
 // What the views in the panes see in place of the header's trail: they may ask for
@@ -56,9 +57,11 @@ export function Journal() {
   useEffect(
     () =>
       interceptPalette((path) => {
-        const found = path.match(new RegExp(`^/app/c/${current.id}/(world|journal)/([^/?#]+)$`))
+        const found = path.match(new RegExp(`^/app/c/${current.id}/(world|journal|rules)/([^/?#]+)$`))
         if (!found) return false
-        open({ kind: found[1] === "world" ? "entry" : "page", id: found[2] }, { kind: "newTab" })
+        if (found[1] === "rules") requestRuleScroll(found[2])
+        const tab = found[1] === "rules" ? { kind: "rule", id: RULES_TAB } : { kind: found[1] === "world" ? "entry" : "page", id: found[2] }
+        open(tab, { kind: "newTab" })
         return true
       }),
     [current.id, open]

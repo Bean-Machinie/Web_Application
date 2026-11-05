@@ -6,13 +6,15 @@ import { MentionNode } from "./mention-node"
 import { richTextClass } from "./rich-text-styles"
 import { RulesDecorations } from "./rules-decorations"
 import { RulesHover } from "./RulesHover"
+import { useRulesCampaign } from "./useRulesCampaign"
 import type { FieldViewProps } from "./field-types"
 
 // A mention here is a link to the entry. The database has already turned the
 // mentions a player may not follow into plain text.
 export function RichTextView({ value }: FieldViewProps) {
+  const glossaryOn = !!useRulesCampaign()
   const editor = useEditor({
-    extensions: [StarterKit.configure({ heading: { levels: [2, 3] } }), MentionNode, RulesDecorations],
+    extensions: [StarterKit.configure({ heading: { levels: [2, 3] } }), MentionNode, RulesDecorations.configure({ glossary: glossaryOn })],
     content: tidyMentionSpacing(value as JSONContent),
     editable: false,
     editorProps: { attributes: { class: richTextClass } },

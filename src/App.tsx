@@ -29,6 +29,7 @@ import { Overview } from "@/pages/Overview"
 import { Party } from "@/pages/Party"
 import { ResetPassword } from "@/pages/ResetPassword"
 import { RootRedirect } from "@/pages/RootRedirect"
+import { Rules } from "@/pages/Rules"
 import { Sessions } from "@/pages/Sessions"
 import { LogIn } from "@/pages/LogIn"
 import { SettingsRedirect } from "@/pages/SettingsRedirect"
@@ -73,6 +74,7 @@ export default function App() {
               </Route>
               <Route path="sessions" element={<Sessions />} />
               <Route path="characters" element={<Characters />} />
+              <Route path="rules/:termId?" element={<Rules />} />
               <Route path="party" element={<Party />} />
               <Route path="campaign-settings" element={<CampaignSettings />}>
                 <Route index element={<Navigate to="general" replace />} />

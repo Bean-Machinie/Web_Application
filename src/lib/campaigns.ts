@@ -23,6 +23,8 @@ export type Campaign = {
   imageUrl: string | null
   imagePath: string | null
   createdAt: string
+  // Which game system it is played in, such as "dnd-5e-2024"; see game-system.ts.
+  gameSystem: string
 }
 
 // Supabase errors are not always Error instances, so read the message directly.
@@ -40,7 +42,7 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
   const { data, error } = await supabase
     .from("campaign_members")
     .select(
-      "role, campaign:campaigns(id, name, description, status, created_by, image_url, image_path, created_at)"
+      "role, campaign:campaigns(id, name, description, status, created_by, image_url, image_path, created_at, game_system)"
     )
     .eq("user_id", userId)
     .order("joined_at")
@@ -59,6 +61,7 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
       image_url: string | null
       image_path: string | null
       created_at: string
+      game_system: string
     }
   }[]
 
@@ -72,6 +75,7 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
     imageUrl: row.campaign.image_url,
     imagePath: row.campaign.image_path,
     createdAt: row.campaign.created_at,
+    gameSystem: row.campaign.game_system,
   }))
 
   // Paused and finished campaigns drop to the bottom. The sort is stable, so
@@ -83,13 +87,16 @@ export async function fetchCampaigns(userId: string): Promise<Campaign[]> {
 export async function createCampaign(
   name: string,
   starterEntries: TemplateEntry[] = [],
-  journalPages: TemplatePage[] = []
+  journalPages: TemplatePage[] = [],
+  gameSystem?: string
 ): Promise<Campaign> {
   const { data, error } = await supabase.rpc("create_campaign", {
     campaign_name: name,
     starter_entries: starterEntries,
     // Only sent when there are pages, so a template without them works as before.
     ...(journalPages.length > 0 && { journal_pages: flattenPages(journalPages) }),
+    // Only sent when the template sets one; the database defaults to D&D 5e.
+    ...(gameSystem && { game_system: gameSystem }),
   })
   if (error) throw error
 
@@ -103,6 +110,7 @@ export async function createCampaign(
     imageUrl: null,
     imagePath: null,
     createdAt: data.created_at,
+    gameSystem: data.game_system,
   }
 }
 

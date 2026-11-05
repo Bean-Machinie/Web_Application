@@ -1,5 +1,5 @@
 import type { ComponentType } from "react"
-import { File, FileText } from "lucide-react"
+import { BookMarked, File, FileText } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import type { JournalTreeState } from "@/hooks/use-journal-tree"
 import { campaignPath } from "@/lib/campaign-paths"
@@ -12,9 +12,12 @@ import type { JournalNode } from "@/lib/journal"
 import { tabKey } from "@/lib/journal-workspace"
 import type { Tab } from "@/lib/journal-workspace"
 import type { WorldEntry } from "@/lib/world-entries"
+import { RULES_TAB } from "@/lib/rules-focus"
+import { rulesPath } from "@/lib/rules-terms"
 import { COVER_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
 import { JournalEntryTab } from "./JournalEntryTab"
 import { JournalPageTab } from "./JournalPageTab"
+import { JournalRuleTab } from "./JournalRuleTab"
 
 // `loading` is for a name not known yet: the tab draws a placeholder rather than a made-up name.
 export type TabLabel = { title: string; icon: LucideIcon; loading?: boolean }
@@ -87,6 +90,13 @@ export const TAB_KINDS: Record<string, TabKind> = {
       return entry ? loadEntryPreview(entry) : null
     },
     fullPageHref: (campaignId, id) => campaignPath(campaignId, `world/${id}`),
+  },
+  rule: {
+    // One tab for all the rules: a term is a place in it, not a tab of its own.
+    describe: () => ({ title: "Rules", icon: BookMarked }),
+    exists: (id) => id === RULES_TAB,
+    Content: JournalRuleTab,
+    fullPageHref: (campaignId) => rulesPath(campaignId),
   },
 }
 

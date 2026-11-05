@@ -1,5 +1,6 @@
 // Test content based on Lost Mine of Phandelver (WotC). Remove or rename before public launch.
 import type { CampaignTemplate, TemplatePage } from "./campaign-template-types"
+import { DND_5E } from "./game-system"
 import { GOBLIN_ENTRIES, GOBLIN_LABELS } from "./goblin-arrows-entries"
 import { HIDEOUT } from "./goblin-arrows-pages-hideout"
 import { PART_ONE, RUNNING } from "./goblin-arrows-pages-intro"
@@ -19,6 +20,7 @@ export const GOBLIN_ARROWS_TEST: CampaignTemplate = {
   name: "Goblin Arrows (test)",
   description: "A road ambush, a goblin cave and a prisoner who knows too much. Test adventure for structure.",
   cover: "moss",
+  gameSystem: DND_5E,
   entries: GOBLIN_ENTRIES,
   journalPages: [
     page("Running this adventure", false, RUNNING),

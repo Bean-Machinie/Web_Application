@@ -47,6 +47,8 @@ export type CampaignTemplate = {
   // Where the template's portraits live, one WebP per entry named after it
   // ("Bram Hollis" is bram-hollis.webp). Entries without a file get none.
   portraits?: string
+  // The game system the campaign is made for; see game-system.ts.
+  gameSystem: string
   entries: TemplateEntry[]
   // The journal the campaign starts with, as a tree of pages.
   journalPages?: TemplatePage[]

@@ -24,7 +24,7 @@ export function NewCampaign() {
 
   async function handleCreate(name: string, cover: CoverChoice) {
     const entries = template ? await entriesWithPortraits(template) : []
-    const campaign = await createCampaign(name, entries, template?.journalPages)
+    const campaign = await createCampaign(name, entries, template?.journalPages, template?.gameSystem)
     try {
       const file = cover.kind === "upload" ? cover.file : await renderCoverFile(defaultCoverById(cover.id))
       await saveCampaignImage(campaign, { file, remove: false })

@@ -15,6 +15,7 @@ import { RichTextToolbar } from "./RichTextToolbar"
 import { RulesDecorations } from "./rules-decorations"
 import { RulesHover } from "./RulesHover"
 import { useMentionScope } from "./useMentionScope"
+import { useRulesCampaign } from "./useRulesCampaign"
 import type { FieldEditorProps } from "./field-types"
 
 type Props = FieldEditorProps & {
@@ -38,22 +39,24 @@ export function RichTextEditor({
   toolbar = false,
 }: Props) {
   const scope = useMentionScope()
+  const glossaryOn = !!useRulesCampaign()
   const page = variant === "page"
   const entryId = context.entryId
   // Made once, not on every render: an editor given new extensions starts over, which closes
   // the slash and mention menus whenever the page around it redraws (as it does when the
   // pane is first scrolled).
   const extensions = useMemo(() => {
+    const rules = RulesDecorations.configure({ glossary: glossaryOn })
     const mention = scope ? MentionNode.configure({ suggestion: mentionSuggestion(scope, entryId) }) : MentionNode
     return page
-      ? [...pageExtensions(placeholder ?? "", mention), RulesDecorations]
+      ? [...pageExtensions(placeholder ?? "", mention), rules]
       : [
           StarterKit.configure({ heading: { levels: [2, 3] } }),
           Placeholder.configure({ placeholder: placeholder ?? "" }),
           mention,
-          RulesDecorations,
+          rules,
         ]
-  }, [page, placeholder, scope, entryId])
+  }, [page, placeholder, scope, entryId, glossaryOn])
   const editor = useEditor({
     extensions,
     content: value ? tidyMentionSpacing(value as JSONContent) : undefined,
