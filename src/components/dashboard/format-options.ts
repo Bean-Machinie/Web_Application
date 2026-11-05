@@ -19,12 +19,13 @@ export const TEXT_COLORS = [
   { label: "Grey", value: "#9ca3af" },
 ]
 
-// See-through, so the text stays readable over them.
+// Saturated and mostly solid, like a marker, but still a little see-through so the text
+// reads over them on both themes.
 export const HIGHLIGHTS = [
-  { label: "Yellow", value: "rgba(250, 204, 21, 0.35)" },
-  { label: "Green", value: "rgba(74, 222, 128, 0.3)" },
-  { label: "Blue", value: "rgba(96, 165, 250, 0.32)" },
-  { label: "Pink", value: "rgba(244, 114, 182, 0.32)" },
-  { label: "Orange", value: "rgba(251, 146, 60, 0.35)" },
-  { label: "Purple", value: "rgba(192, 132, 252, 0.32)" },
+  { label: "Yellow", value: "rgba(255, 214, 0, 0.6)" },
+  { label: "Green", value: "rgba(34, 214, 90, 0.55)" },
+  { label: "Blue", value: "rgba(30, 144, 255, 0.55)" },
+  { label: "Pink", value: "rgba(255, 64, 160, 0.55)" },
+  { label: "Orange", value: "rgba(255, 140, 0, 0.6)" },
+  { label: "Purple", value: "rgba(160, 80, 255, 0.55)" },
 ]

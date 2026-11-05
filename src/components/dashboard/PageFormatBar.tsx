@@ -63,7 +63,7 @@ export function PageFormatBar({ editor, entryId, menuAt }: { editor: Editor; ent
   const shown =
     editor.isEditable &&
     !pressing &&
-    (!!menuAt || menus.busy || (state.selected && state.focused))
+    (!!menuAt || menus.openId !== null || (state.selected && (state.focused || menus.settling)))
   // Where the right-click menu was stays the bar's place after the menu is gone, so it
   // does not jump to the selection while one of its own lists opens.
   const pinned = useRef<Point | null>(null)
@@ -88,6 +88,14 @@ export function PageFormatBar({ editor, entryId, menuAt }: { editor: Editor; ent
   }
   const set = (mark: string, attributes: Record<string, string> | null) =>
     attributes ? chain().setMark(mark, attributes).run() : chain().unsetMark(mark).run()
+  // As in Word, highlighting lets go of the selection, leaving the cursor at its end so
+  // the colour can be seen; the other styles keep it, to be changed again.
+  const highlight = (color: string | null) => {
+    const { to } = editor.state.selection
+    const marked = color ? chain().setMark("highlight", { color }) : chain().unsetMark("highlight")
+    marked.setTextSelection(to).run()
+    menus.choose(null, "highlight")
+  }
 
   return createPortal(
     <div
@@ -125,7 +133,7 @@ export function PageFormatBar({ editor, entryId, menuAt }: { editor: Editor; ent
           current={state.highlight}
           control={control("highlight")}
           onClosed={back}
-          onPick={(color) => set("highlight", color ? { color } : null)}
+          onPick={highlight}
         />
         <FormatSwatches
           label="Text colour"

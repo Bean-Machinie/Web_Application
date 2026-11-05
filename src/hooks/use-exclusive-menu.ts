@@ -34,5 +34,5 @@ export function useExclusiveMenu() {
 
   useEffect(() => () => window.clearTimeout(timer.current), [])
 
-  return { openId, busy: openId !== null || settling, choose, closeAll, isOpen: () => current.current !== null }
+  return { openId, settling, choose, closeAll, isOpen: () => current.current !== null }
 }
