@@ -14,10 +14,12 @@ type Props = {
   // The menu gives the focus back to the text, not to its own button.
   onClosed: () => void
   width?: string
+  // Takes the room left in its row, so a pair of menus fills the bar's width.
+  fill?: boolean
 }
 
-// A choice from a short list, such as the font or its size, opening upward from the format bar.
-export function FormatMenu({ label, current, options, onOpenChange, onClosed, width = "w-36" }: Props) {
+// A choice from a short list, such as the font or its size, opening downward from the format bar.
+export function FormatMenu({ label, current, options, onOpenChange, onClosed, width = "w-36", fill }: Props) {
   return (
     <DropdownMenu onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
@@ -26,7 +28,7 @@ export function FormatMenu({ label, current, options, onOpenChange, onClosed, wi
           variant="ghost"
           size="sm"
           aria-label={label}
-          className="h-7 gap-1 px-2 text-xs"
+          className={`h-7 justify-between gap-1 px-2 text-xs ${fill ? "flex-1" : ""}`}
           onMouseDown={(event) => event.preventDefault()}
         >
           <span className="truncate">{current}</span>
@@ -34,9 +36,9 @@ export function FormatMenu({ label, current, options, onOpenChange, onClosed, wi
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        side="top"
+        side="bottom"
         align="start"
-        sideOffset={10}
+        sideOffset={6}
         className={`${width} max-h-72`}
         onCloseAutoFocus={(event) => {
           event.preventDefault()

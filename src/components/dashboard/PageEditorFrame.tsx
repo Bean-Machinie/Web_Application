@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { EditorContent } from "@tiptap/react"
 import type { Editor } from "@tiptap/react"
 import { PageDragHandle } from "./PageDragHandle"
@@ -9,18 +10,19 @@ import { RichTextToolbar } from "./RichTextToolbar"
 // The frame reaches into the margin to the left and is padded back by the same, so the
 // text lines up with the title above it, while the drag handle, and the pointer that
 // finds it, have the margin to sit in. The mention and slash menus open inside this
-// frame; the format bar rises over the screen when text is selected.
+// frame; the format bar floats over the screen, above the selected text.
 export function PageEditorFrame({ editor, toolbar }: { editor: Editor; toolbar: boolean }) {
+  const [menuOpen, setMenuOpen] = useState(false)
   return (
     <div data-mention-root className="relative -ml-7 pl-7">
       {toolbar && <RichTextToolbar editor={editor} />}
-      <PageContextMenu editor={editor}>
+      <PageContextMenu editor={editor} onOpenChange={setMenuOpen}>
         <div>
           <EditorContent editor={editor} />
         </div>
       </PageContextMenu>
       <PageDragHandle editor={editor} />
-      <PageFormatBar editor={editor} />
+      <PageFormatBar editor={editor} held={menuOpen} />
     </div>
   )
 }

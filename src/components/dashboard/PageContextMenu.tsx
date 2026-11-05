@@ -87,13 +87,22 @@ function Items({ editor, choose }: { editor: Editor; choose: (run: () => void) =
 // The usual right-click menu of a text box, over the page's text: undo, the clipboard,
 // the basic styles. What is chosen runs once the menu has gone and the text has its
 // focus back, so the selection it acts on is the one that was there.
-export function PageContextMenu({ editor, children }: { editor: Editor; children: ReactNode }) {
+export function PageContextMenu({
+  editor,
+  onOpenChange,
+  children,
+}: {
+  editor: Editor
+  // So the format bar can stay over the selection while the menu has the focus.
+  onOpenChange: (open: boolean) => void
+  children: ReactNode
+}) {
   const pending = useRef<(() => void) | null>(null)
 
   if (!editor.isEditable) return children
 
   return (
-    <ContextMenu>
+    <ContextMenu onOpenChange={onOpenChange}>
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent
         className="w-56"

@@ -40,8 +40,8 @@ export function FormatSwatches({ label, icon: Icon, colors, current, onPick, onO
         <TooltipContent side="top">{label}</TooltipContent>
       </Tooltip>
       <PopoverContent
-        side="top"
-        sideOffset={10}
+        side="bottom"
+        sideOffset={6}
         className="w-auto flex-row gap-1.5 p-2"
         onCloseAutoFocus={(event) => {
           event.preventDefault()
