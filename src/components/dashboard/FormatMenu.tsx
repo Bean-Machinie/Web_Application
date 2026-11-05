@@ -1,7 +1,8 @@
 import type { CSSProperties } from "react"
-import { Check, ChevronDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { FadingScroll } from "./FadingScroll"
+import { menuUnder } from "./format-menu-switch"
+import type { MenuControl } from "./format-menu-switch"
 
 type Option = { label: string; active: boolean; onPick: () => void; style?: CSSProperties }
 
@@ -10,48 +11,63 @@ type Props = {
   // What is set at the selection now.
   current: string
   options: Option[]
-  onOpenChange: (open: boolean) => void
-  // The menu gives the focus back to the text, not to its own button.
+  control: MenuControl
+  // The list gives the focus back to the text, not to its own field.
   onClosed: () => void
-  width?: string
-  // Takes the room left in its row, so a pair of menus fills the bar's width.
+  // Takes the room left in its row, so a pair of fields fills the bar's width.
   fill?: boolean
+  // The current choice shown in its own look, as a font is.
+  currentStyle?: CSSProperties
 }
 
-// A choice from a short list, such as the font or its size, opening downward from the format bar.
-export function FormatMenu({ label, current, options, onOpenChange, onClosed, width = "w-36", fill }: Props) {
+// A choice from a short list, such as the font or its size. It is the map builder's
+// category select: the same field, and a list that opens just under it at its width.
+export function FormatMenu({ label, current, currentStyle, options, control, onClosed, fill }: Props) {
+  const chosen = options.find((option) => option.active)?.label ?? ""
   return (
-    <DropdownMenu onOpenChange={onOpenChange}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          aria-label={label}
-          className={`h-7 justify-between gap-1 px-2 text-xs ${fill ? "flex-1" : ""}`}
-          onMouseDown={(event) => event.preventDefault()}
-        >
-          <span className="truncate">{current}</span>
-          <ChevronDown className="size-3" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        side="bottom"
+    <Select
+      value={chosen}
+      onValueChange={(next) => options.find((option) => option.label === next)?.onPick()}
+      open={control.openId === control.id}
+      onOpenChange={(open) => control.choose(open ? control.id : null, control.id)}
+    >
+      <SelectTrigger
+        size="sm"
+        aria-label={label}
+        data-format-menu={control.id}
+        className={`text-xs *:data-[slot=select-value]:w-full ${fill ? "flex-1" : "w-24"}`}
+      >
+        <SelectValue>
+          <span className="truncate" style={currentStyle}>
+            {current}
+          </span>
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent
+        position="popper"
+        sideOffset={2}
         align="start"
-        sideOffset={6}
-        className={`${width} max-h-72`}
+        className="w-(--radix-select-trigger-width) min-w-0 overflow-hidden shadow-lg"
+        onPointerDownOutside={(event) => {
+          event.preventDefault()
+          const under = menuUnder(event)
+          control.choose(under === control.id ? null : under, control.id)
+        }}
         onCloseAutoFocus={(event) => {
           event.preventDefault()
           onClosed()
         }}
       >
-        {options.map((option) => (
-          <DropdownMenuItem key={option.label} onSelect={option.onPick} style={option.style} className="justify-between">
-            {option.label}
-            {option.active && <Check className="size-3.5" />}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <FadingScroll maxHeight="min(16rem, var(--radix-select-content-available-height))">
+          <div className="p-1">
+            {options.map((option) => (
+              <SelectItem key={option.label} value={option.label} style={option.style} className="rounded-md text-xs">
+                {option.label}
+              </SelectItem>
+            ))}
+          </div>
+        </FadingScroll>
+      </SelectContent>
+    </Select>
   )
 }

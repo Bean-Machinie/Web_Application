@@ -13,6 +13,7 @@ import {
   Strikethrough,
   Underline,
 } from "lucide-react"
+import { useExclusiveMenu } from "@/hooks/use-exclusive-menu"
 import { useSelectionAnchor } from "@/hooks/use-selection-anchor"
 import type { Point } from "@/hooks/use-selection-anchor"
 import { FONT_FAMILIES, FONT_SIZES, HIGHLIGHTS, TEXT_COLORS } from "./format-options"
@@ -27,19 +28,8 @@ const DEFAULT_SIZE_PX = 14
 // styles, highlight, colour and lists. It stays while one of its menus has the focus,
 // and goes when the selection or the editor's focus does.
 export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Point | null }) {
-  const [engaged, setEngaged] = useState(false)
   const bar = useRef<HTMLDivElement>(null)
-  const release = useRef<number>(0)
-  const openMenus = useRef(0)
-  // Going from one menu to the next closes the first before it opens the second. Letting
-  // go late keeps the bar, and with it the menu about to open, from being torn down in between.
-  const holdBar = (open: boolean) => {
-    window.clearTimeout(release.current)
-    openMenus.current = Math.max(0, openMenus.current + (open ? 1 : -1))
-    if (open) setEngaged(true)
-    // The second menu may report that it opened before the first reports that it closed.
-    else release.current = window.setTimeout(() => setEngaged(openMenus.current > 0), 200)
-  }
+  const menus = useExclusiveMenu()
   const state = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
@@ -73,16 +63,22 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
 
   // The right-click menu brings the bar with it, over the caret when nothing is selected.
   const shown =
-    editor.isEditable && !pressing && (!!menuAt || (state.selected && (state.focused || engaged)))
+    editor.isEditable && !pressing && (!!menuAt || (state.selected && (state.focused || menus.openId !== null)))
   const place = useSelectionAnchor(editor, shown, bar, menuAt)
+
+  const { closeAll } = menus
+  useEffect(() => {
+    if (!shown) closeAll()
+  }, [shown, closeAll])
 
   if (!shown) return null
 
   const chain = () => editor.chain().focus()
+  const control = (id: string) => ({ id, openId: menus.openId, choose: menus.choose })
   // A menu that fades out hands the focus back late, when the next one is already open;
   // taking the focus then would close that one too.
   const back = () => {
-    if (openMenus.current === 0) editor.commands.focus()
+    if (!menus.isOpen()) editor.commands.focus()
   }
   const set = (mark: string, attributes: Record<string, string> | null) =>
     attributes ? chain().setMark(mark, attributes).run() : chain().unsetMark(mark).run()
@@ -101,13 +97,13 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
       // Pressing the bar's own gaps must not take the selection from the text.
       onMouseDown={(event) => event.preventDefault()}
     >
-      <div className="flex items-center gap-0.5">
+      <div className="flex items-center gap-1 pb-0.5">
         <FormatMenu
           label="Font"
           current={FONT_FAMILIES.find((font) => font.value === state.family)?.label ?? "Default"}
-          width="w-40"
+          currentStyle={state.family ? { fontFamily: state.family } : undefined}
           fill
-          onOpenChange={holdBar}
+          control={control("font")}
           onClosed={back}
           options={FONT_FAMILIES.map((font) => ({
             label: font.label,
@@ -119,8 +115,7 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
         <FormatMenu
           label="Font size"
           current={String(sizeNow)}
-          width="w-24"
-          onOpenChange={holdBar}
+          control={control("size")}
           onClosed={back}
           options={[
             { label: "Default", active: !state.size, onPick: () => set("fontSize", null) },
@@ -143,7 +138,7 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
           icon={Highlighter}
           colors={HIGHLIGHTS}
           current={state.highlight}
-          onOpenChange={holdBar}
+          control={control("highlight")}
           onClosed={back}
           onPick={(color) => set("highlight", color ? { color } : null)}
         />
@@ -152,7 +147,7 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
           icon={Baseline}
           colors={TEXT_COLORS}
           current={state.color}
-          onOpenChange={holdBar}
+          control={control("colour")}
           onClosed={back}
           onPick={(color) => set("textColor", color ? { color } : null)}
         />

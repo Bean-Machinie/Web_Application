@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { menuUnder } from "./format-menu-switch"
+import type { MenuControl } from "./format-menu-switch"
 
 type Props = {
   label: string
@@ -12,14 +14,19 @@ type Props = {
   // The colour at the selection now, if any.
   current: string | null
   onPick: (color: string | null) => void
-  onOpenChange: (open: boolean) => void
+  control: MenuControl
   onClosed: () => void
 }
 
 // A colour from a handful of swatches, or none; the button shows the colour in use.
-export function FormatSwatches({ label, icon: Icon, colors, current, onPick, onOpenChange, onClosed }: Props) {
+export function FormatSwatches({ label, icon: Icon, colors, current, onPick, control, onClosed }: Props) {
   return (
-    <Popover onOpenChange={onOpenChange}>
+    // Modal like the selects, so that switching between the bar's lists works the same for all.
+    <Popover
+      modal
+      open={control.openId === control.id}
+      onOpenChange={(open) => control.choose(open ? control.id : null, control.id)}
+    >
       <Tooltip>
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
@@ -28,6 +35,7 @@ export function FormatSwatches({ label, icon: Icon, colors, current, onPick, onO
               variant={current ? "secondary" : "ghost"}
               size="icon-sm"
               aria-label={label}
+              data-format-menu={control.id}
               onMouseDown={(event) => event.preventDefault()}
             >
               <span className="flex flex-col items-center gap-px">
@@ -43,6 +51,11 @@ export function FormatSwatches({ label, icon: Icon, colors, current, onPick, onO
         side="bottom"
         sideOffset={6}
         className="w-auto flex-row gap-1.5 p-2"
+        onPointerDownOutside={(event) => {
+          event.preventDefault()
+          const under = menuUnder(event)
+          control.choose(under === control.id ? null : under, control.id)
+        }}
         onCloseAutoFocus={(event) => {
           event.preventDefault()
           onClosed()
