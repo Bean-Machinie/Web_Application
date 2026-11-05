@@ -62,7 +62,7 @@ export function Journal() {
   )
 
   return (
-    <div className="-m-4 h-[calc(100svh-var(--header-height))] min-w-0 flex-none md:-m-6">
+    <div data-journal-root className="-m-4 h-[calc(100svh-var(--header-height))] min-w-0 flex-none md:-m-6">
       <PlainBackground />
       {/* The tree is a panel of its own width, 200 to 320 px, that narrows to a rail
           the way the sidebar does. The workspace is always the second panel, so

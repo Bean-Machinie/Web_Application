@@ -1,6 +1,7 @@
 import { useRef } from "react"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
 import type { CardSize } from "@/hooks/use-world-card-size"
+import { useFlipGrid } from "@/hooks/use-flip-grid"
 import { useRowReorder } from "@/hooks/use-row-reorder"
 import { useSelectionBox } from "@/hooks/use-selection-box"
 import type { WorldEntry } from "@/lib/world-entries"
@@ -27,6 +28,7 @@ const NOTHING: ReadonlySet<string> = new Set()
 
 export function WorldEntryGrid({ entries, manage, selection, size, wide, reachMargins }: Props) {
   const scroller = useRef<HTMLDivElement>(null)
+  useFlipGrid(scroller, "[data-entry-id]")
   const { rowProps } = useRowReorder({
     ids: entries.map((entry) => entry.id),
     // Holding a card to move it would fight with picking cards.
