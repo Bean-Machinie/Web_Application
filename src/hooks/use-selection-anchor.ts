@@ -6,6 +6,8 @@ const GAP = 8
 const EDGE = 8
 // The bar starts a little left of where the selection ends, as Word's does.
 const LEAD = 24
+// The right-click menu takes a few frames to find its place; the bar waits for it that long.
+const SETTLE_FRAMES = 12
 
 export type Point = { x: number; y: number }
 type Place = { left: number; top: number; visible: boolean }
@@ -27,6 +29,10 @@ export function useSelectionAnchor(editor: Editor, active: boolean, bar: RefObje
     const dom = editor.view.dom
     let hang: Hang | null = null
     let frozen = false
+    let frames = 0
+    // Where the bar rested on the menu, kept (from the editor, like the rest) after the menu is gone.
+    let restHang: number | null = null
+    let frame = 0
 
     const read = () => {
       const origin = dom.getBoundingClientRect()
@@ -42,12 +48,26 @@ export function useSelectionAnchor(editor: Editor, active: boolean, bar: RefObje
       const origin = dom.getBoundingClientRect()
       const top = origin.top + hang.top
       const bottom = origin.top + hang.bottom
-      const above = top - node.offsetHeight - GAP
+      // The bar rests on the right-click menu: where the menu opens below the pointer, that is the
+      // pointer; near the bottom of the screen the menu is pushed up, and the bar goes up with it.
+      let rest = top
+      if (point) {
+        const menu = document.querySelector<HTMLElement>("[data-slot=context-menu-content]")?.getBoundingClientRect()
+        const settled = !!menu && menu.height > 0 && menu.top > 0
+        if (!settled && frames < SETTLE_FRAMES) return
+        if (menu && settled) restHang = Math.min(top, menu.top) - origin.top
+        if (restHang !== null) rest = origin.top + restHang
+      }
+      const above = rest - node.offsetHeight - GAP
       const left = origin.left + hang.x - (point ? 0 : LEAD)
-      setPlace({
+      setPlace((previous) => {
+        const next = {
         left: Math.min(Math.max(left, EDGE), window.innerWidth - node.offsetWidth - EDGE),
-        top: above >= EDGE ? above : bottom + GAP,
+        top: above >= EDGE ? above : Math.max(EDGE, bottom + GAP),
         visible: bottom > 0 && top < window.innerHeight,
+        }
+        const same = previous && previous.left === next.left && previous.top === next.top && previous.visible === next.visible
+        return same ? previous : next
       })
     }
 
@@ -62,8 +82,14 @@ export function useSelectionAnchor(editor: Editor, active: boolean, bar: RefObje
       frozen = false
     }
 
+    // The menu is placed after it opens, so for a few frames the bar looks again where it is.
+    const settle = () => {
+      put()
+      if (point && ++frames <= SETTLE_FRAMES) frame = requestAnimationFrame(settle)
+    }
+
     read()
-    put()
+    settle()
     editor.on("selectionUpdate", onSelection)
     editor.on("update", put)
     editor.on("transaction", onTransaction)
@@ -72,6 +98,7 @@ export function useSelectionAnchor(editor: Editor, active: boolean, bar: RefObje
     window.addEventListener("scroll", put, true)
     window.addEventListener("resize", put)
     return () => {
+      cancelAnimationFrame(frame)
       editor.off("selectionUpdate", onSelection)
       editor.off("update", put)
       editor.off("transaction", onTransaction)
