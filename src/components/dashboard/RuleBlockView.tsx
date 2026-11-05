@@ -21,7 +21,7 @@ export function RuleBlockView({ block, selfId, onSelect }: Props) {
       )
     case "effects":
       return (
-        <div>
+        <div className="overflow-hidden rounded-lg border">
           <RuleEffects items={block.items} selfId={selfId} onSelect={onSelect} />
         </div>
       )

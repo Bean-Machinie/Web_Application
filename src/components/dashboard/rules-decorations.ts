@@ -42,14 +42,15 @@ function decorate(doc: Node, glossary: boolean) {
         )
       }
       for (const term of glossary ? text.matchAll(GLOSSARY_TERMS) : []) {
-        const name = term[0].toLowerCase()
-        if (seen.has(name) || insideUrl(text, term.index)) continue
-        seen.add(name)
+        // Once per entry in a block, whether it is written cantrip or cantrips.
+        const id = glossaryIdFor(term[0])
+        if (!id || seen.has(id) || insideUrl(text, term.index)) continue
+        seen.add(id)
         decorations.push(
           Decoration.inline(from + term.index, from + term.index + term[0].length, {
             class: "decoration-muted-foreground/60 cursor-help underline decoration-dotted underline-offset-4",
             "data-glossary": term[0],
-            "data-glossary-id": glossaryIdFor(term[0]),
+            "data-glossary-id": id,
           })
         )
       }

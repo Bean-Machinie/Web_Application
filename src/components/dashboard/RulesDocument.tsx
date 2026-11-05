@@ -25,21 +25,48 @@ export function RulesDocument({ termId, onSelect }: Props) {
   const picked = onSelect ? termId : own
   const select = useCallback((id: string | undefined) => (onSelect ?? setOwn)(id), [onSelect])
   const entries = useMemo(() => matchingEntries(query), [query])
+  // The entries read on the way to this one, by following links; the last is the one to go back to.
+  const [trail, setTrail] = useState<string[]>([])
+
+  // A term picked from the list, the editor or the address starts a new trail.
+  const pick = useCallback(
+    (id: string | undefined) => {
+      setTrail([])
+      select(id)
+    },
+    [select]
+  )
 
   useEffect(() => {
-    const stop = onRuleScroll((id) => select(id))
+    const stop = onRuleScroll((id) => pick(id))
     return () => stop()
-  }, [select])
+  }, [pick])
 
   const wide = size.width >= WIDE_PX
   // Wide, there is always a term beside the list: the first of what is listed.
   const shown = ruleEntry(picked)?.id ?? (wide ? entries[0]?.id : undefined)
-  const list = <RulesList query={query} onQuery={setQuery} entries={entries} selectedId={shown} onSelect={select} />
+  // A link inside a term leaves it on the trail, so each step can be undone in turn.
+  const follow = (id: string) => {
+    if (shown && id !== shown) setTrail((steps) => [...steps, shown])
+    select(id)
+  }
+  const previous = ruleEntry(trail[trail.length - 1])
+  const goBack = () => {
+    setTrail((steps) => steps.slice(0, -1))
+    select(previous?.id)
+  }
+  const list = <RulesList query={query} onQuery={setQuery} entries={entries} selectedId={shown} onSelect={pick} />
   // The term scrolls above its source line, which stays at the bottom of the pane.
   const term = shown && (
     <div className="flex h-full min-w-0 flex-1 flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-8 md:px-10">
-        <RuleTermView key={shown} termId={shown} onSelect={select} onBack={wide ? undefined : () => select(undefined)} />
+      {/* Keyed by the term, so each one opens at its top. */}
+      <div key={shown} className="min-h-0 flex-1 overflow-y-auto px-6 py-8 md:px-10">
+        <RuleTermView
+          termId={shown}
+          onSelect={follow}
+          onBack={wide ? undefined : () => pick(undefined)}
+          back={previous && { title: previous.title, go: goBack }}
+        />
       </div>
       <RuleSource pages={ruleEntry(shown)!.pages} />
     </div>
