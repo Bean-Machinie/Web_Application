@@ -78,8 +78,13 @@ export function JournalTreeRow(props: Props) {
           <IndentGuides guides={Array.from({ length: depth }, (_, level) => guides[level] ?? "none")} />
           <div
             className={cn(
-              "group/row hover:bg-sidebar-accent/50 flex h-7 min-w-0 flex-1 items-center gap-0.5 rounded-md pr-1",
-              active ? "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent" : inTab && "bg-sidebar-accent/30"
+              // --row-bg is the row's colour as an opaque one, for the buttons that cover the end
+              // of the name when they show: the panel's own colour, then the row's tint over it.
+              "group/row hover:bg-sidebar-accent/50 relative flex h-7 min-w-0 flex-1 items-center gap-0.5 rounded-md pr-1",
+              "[--row-base:var(--background)] dark:[--row-base:var(--sidebar)] [--row-bg:var(--row-base)] hover:[--row-bg:color-mix(in_oklab,var(--sidebar-accent)_50%,var(--row-base))]",
+              active
+                ? "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent [--row-bg:var(--sidebar-accent)] hover:[--row-bg:var(--sidebar-accent)]"
+                : inTab && "bg-sidebar-accent/30 [--row-bg:color-mix(in_oklab,var(--sidebar-accent)_30%,var(--row-base))]"
             )}
           >
             <button
@@ -115,7 +120,9 @@ export function JournalTreeRow(props: Props) {
               </Tooltip>
             )}
             {canManage && (
-              <div className="flex shrink-0 items-center opacity-0 group-hover/row:opacity-100 has-[[data-state=open]]:opacity-100 pointer-coarse:opacity-100">
+              // Laid over the end of the name, not beside it, so the name has the whole row; the
+              // row's colour behind them hides what is under, fading in from the left.
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-gradient-to-l from-(--row-bg) from-75% to-transparent pr-1 pl-5 opacity-0 group-hover/row:pointer-events-auto group-hover/row:opacity-100 has-[[data-state=open]]:pointer-events-auto has-[[data-state=open]]:opacity-100 pointer-coarse:pointer-events-auto pointer-coarse:opacity-100">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="ghost" size="icon-xs" aria-label="Add page inside" onClick={props.onAdd}>
