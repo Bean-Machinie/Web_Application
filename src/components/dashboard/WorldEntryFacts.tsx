@@ -46,7 +46,7 @@ export function WorldEntryFacts({ entryId, folder, kind, canManage, state, hidde
       className={`bg-card flex min-w-0 flex-col divide-y rounded-lg border shadow-xs ${
         // Few rows would stretch into tall empty bands, so they stay compact.
         rows.length < STRETCH_FROM ? "" : "sm:flex-1"
-      } ${hidden ? "border-dashed" : ""}`}
+      } ${hidden ? "border-dashed dark:border-solid" : ""}`}
     >
       {rows.map((def) => {
         const { Editor, View, saveAtOnce } = FIELD_TYPES[def.type]

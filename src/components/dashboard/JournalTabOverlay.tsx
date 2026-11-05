@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import type { TabPreview } from "@/lib/journal-preview"
+import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import type { TabLabel } from "./journal-tab-kinds"
 
@@ -102,7 +103,7 @@ export function JournalTabOverlay({ label, source, preview }: Props) {
         )}
       >
         <Icon className="size-3.5 shrink-0" />
-        <span className="min-w-0 flex-1 truncate">{label.title}</span>
+        {label.loading ? <Skeleton className="h-3 w-20" /> : <span className="min-w-0 flex-1 truncate">{label.title}</span>}
       </div>
       <div
         ref={panel}

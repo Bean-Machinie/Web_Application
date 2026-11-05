@@ -42,7 +42,9 @@ export function Journal() {
 
   // Always "Journal", then the tab in focus; never the path an entry has in the World.
   const focused = activeTab(space.workspace)
-  usePageTrail([{ label: "Journal" }, ...(focused ? [{ label: describeTab(ctx, focused).title }] : [])])
+  // Until the name is known the trail is just "Journal", rather than a name that then changes.
+  const focusedLabel = focused ? describeTab(ctx, focused) : null
+  usePageTrail([{ label: "Journal" }, ...(focusedLabel && !focusedLabel.loading ? [{ label: focusedLabel.title }] : [])])
 
   // Pages and entries that are gone, or not for this person, leave their tabs.
   useEffect(() => prune((tab) => tabExists(ctx, tab) ?? true), [prune, ctx])
@@ -82,7 +84,7 @@ export function Journal() {
           maxSize={`${TREE_MAX_PX}px`}
           defaultSize={`${side.open ? side.width : RAIL_PX}px`}
           onResize={side.onResize}
-          className="bg-background"
+          className="bg-background dark:bg-sidebar"
         >
           <JournalSide
             tree={tree}

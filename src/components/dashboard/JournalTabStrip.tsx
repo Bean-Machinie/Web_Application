@@ -38,7 +38,8 @@ export function JournalTabStrip(props: Props) {
     <div
       data-journal-strip=""
       className={cn(
-        "bg-muted/50 flex h-9 shrink-0 items-stretch border-b transition-colors duration-150",
+        // In the dark theme the strip is chrome, and the tab showing sits right over the panel.
+        "bg-muted/50 flex h-9 shrink-0 items-stretch border-b transition-colors duration-150 dark:bg-sidebar dark:border-b-0",
         !scrolled && "border-b-transparent"
       )}
     >

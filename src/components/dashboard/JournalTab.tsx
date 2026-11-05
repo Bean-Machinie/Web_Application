@@ -2,6 +2,7 @@ import { useDraggable } from "@dnd-kit/core"
 import { X } from "lucide-react"
 import { tabKey } from "@/lib/journal-workspace"
 import type { Tab } from "@/lib/journal-workspace"
+import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import { ActionContextMenu } from "./ActionContextMenu"
 import type { MemberAction } from "./MemberMenu"
@@ -53,10 +54,14 @@ export function JournalTab({ tab, label, active, focused, actions, onShow, onClo
         )}
       >
         <Icon className="size-3.5 shrink-0" />
-        <span className="min-w-0 flex-1 truncate">{label.title}</span>
+        {label.loading ? (
+          <Skeleton className="h-3 w-20 max-w-full" />
+        ) : (
+          <span className="min-w-0 flex-1 truncate">{label.title}</span>
+        )}
         <button
           type="button"
-          aria-label={`Close ${label.title}`}
+          aria-label={label.loading ? "Close tab" : `Close ${label.title}`}
           // Pressing it must not start a drag of the tab.
           onPointerDown={(event) => event.stopPropagation()}
           onClick={(event) => {

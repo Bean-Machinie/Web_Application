@@ -38,8 +38,10 @@ function ScrollBar({
       orientation={orientation}
       className={cn(
         "flex touch-none p-px transition-colors select-none",
-        orientation === "vertical" && "h-full w-2 border-l border-l-transparent",
-        orientation === "horizontal" && "h-2 flex-col border-t border-t-transparent",
+        // 6px in the dark theme: the thumb is the border colour, the track is clear, and the bar
+        // shows while the pointer is over the area (the type of the root).
+        orientation === "vertical" && "h-full w-2 border-l border-l-transparent dark:w-1.5",
+        orientation === "horizontal" && "h-2 flex-col border-t border-t-transparent dark:h-1.5",
         className
       )}
       {...props}

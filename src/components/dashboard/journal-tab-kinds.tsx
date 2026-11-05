@@ -16,7 +16,8 @@ import { COVER_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
 import { JournalEntryTab } from "./JournalEntryTab"
 import { JournalPageTab } from "./JournalPageTab"
 
-export type TabLabel = { title: string; icon: LucideIcon }
+// `loading` is for a name not known yet: the tab draws a placeholder rather than a made-up name.
+export type TabLabel = { title: string; icon: LucideIcon; loading?: boolean }
 
 // What a kind needs to know about the campaign to name its tabs and to tell whether
 // what they show is still there.
@@ -63,10 +64,10 @@ async function loadEntryPreview(entry: WorldEntry): Promise<TabPreview> {
 // asks what kinds there are.
 export const TAB_KINDS: Record<string, TabKind> = {
   page: {
-    describe: (id, { nodes }) => ({
-      title: nodes?.find((node) => node.id === id)?.title || "Untitled",
-      icon: FileText,
-    }),
+    describe: (id, { nodes }) =>
+      nodes
+        ? { title: nodes.find((node) => node.id === id)?.title || "Untitled", icon: FileText }
+        : { title: "", icon: FileText, loading: true },
     exists: (id, { nodes }) => nodes && nodes.some((node) => node.id === id),
     Content: JournalPageTab,
     loadPreview: (id) => loadPagePreview(id),
@@ -75,7 +76,8 @@ export const TAB_KINDS: Record<string, TabKind> = {
   },
   entry: {
     describe: (id, { entries }) => {
-      const entry = entries?.find((candidate) => candidate.id === id)
+      if (!entries) return { title: "", icon: File, loading: true }
+      const entry = entries.find((candidate) => candidate.id === id)
       return entry ? { title: entry.name, icon: WORLD_KINDS[entry.kind].icon } : { title: "Entry", icon: File }
     },
     exists: (id, { entries }) => entries && entries.some((entry) => entry.id === id),
