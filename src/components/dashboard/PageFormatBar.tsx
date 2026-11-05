@@ -29,6 +29,17 @@ const DEFAULT_SIZE_PX = 14
 export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Point | null }) {
   const [engaged, setEngaged] = useState(false)
   const bar = useRef<HTMLDivElement>(null)
+  const release = useRef<number>(0)
+  const openMenus = useRef(0)
+  // Going from one menu to the next closes the first before it opens the second. Letting
+  // go late keeps the bar, and with it the menu about to open, from being torn down in between.
+  const holdBar = (open: boolean) => {
+    window.clearTimeout(release.current)
+    openMenus.current = Math.max(0, openMenus.current + (open ? 1 : -1))
+    if (open) setEngaged(true)
+    // The second menu may report that it opened before the first reports that it closed.
+    else release.current = window.setTimeout(() => setEngaged(openMenus.current > 0), 200)
+  }
   const state = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
@@ -68,7 +79,11 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
   if (!shown) return null
 
   const chain = () => editor.chain().focus()
-  const back = () => editor.commands.focus()
+  // A menu that fades out hands the focus back late, when the next one is already open;
+  // taking the focus then would close that one too.
+  const back = () => {
+    if (openMenus.current === 0) editor.commands.focus()
+  }
   const set = (mark: string, attributes: Record<string, string> | null) =>
     attributes ? chain().setMark(mark, attributes).run() : chain().unsetMark(mark).run()
   const sizeNow = state.size ? Math.round(parseFloat(state.size)) : DEFAULT_SIZE_PX
@@ -92,7 +107,7 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
           current={FONT_FAMILIES.find((font) => font.value === state.family)?.label ?? "Default"}
           width="w-40"
           fill
-          onOpenChange={setEngaged}
+          onOpenChange={holdBar}
           onClosed={back}
           options={FONT_FAMILIES.map((font) => ({
             label: font.label,
@@ -105,7 +120,7 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
           label="Font size"
           current={String(sizeNow)}
           width="w-24"
-          onOpenChange={setEngaged}
+          onOpenChange={holdBar}
           onClosed={back}
           options={[
             { label: "Default", active: !state.size, onPick: () => set("fontSize", null) },
@@ -128,7 +143,7 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
           icon={Highlighter}
           colors={HIGHLIGHTS}
           current={state.highlight}
-          onOpenChange={setEngaged}
+          onOpenChange={holdBar}
           onClosed={back}
           onPick={(color) => set("highlight", color ? { color } : null)}
         />
@@ -137,7 +152,7 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
           icon={Baseline}
           colors={TEXT_COLORS}
           current={state.color}
-          onOpenChange={setEngaged}
+          onOpenChange={holdBar}
           onClosed={back}
           onPick={(color) => set("textColor", color ? { color } : null)}
         />
