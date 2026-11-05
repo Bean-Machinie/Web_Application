@@ -9,7 +9,7 @@ import type { Character } from "./characters"
 import { usesDnd5e } from "./game-system"
 import { matchText } from "./palette-search"
 import type { PaletteGroup, PaletteItem, Recent } from "./palette-items"
-import { RULE_TERMS, rulesPath } from "./rules-terms"
+import { RULE_ENTRIES, rulesPath } from "./rules-terms"
 import type { SearchHit } from "./search-entries"
 import type { WorldEntryKind } from "./world-kinds"
 import { WORLD_KINDS, worldKinds } from "./world-kinds"
@@ -142,9 +142,9 @@ export function buildGroups(input: PaletteInput): PaletteGroup[] {
     if (usesDnd5e(current)) {
       groups.push({
         heading: "Rules",
-        items: best(RULE_TERMS, query, (term) => term.entry.title, (term, matched) => ({
+        items: best(RULE_ENTRIES, query, (term) => term.title, (term, matched) => ({
           id: `rule:${term.id}`,
-          name: term.entry.title,
+          name: term.title,
           context: "Rules",
           path: rulesPath(current.id, term.id),
           visual: { type: "page", icon: BookMarkedIcon },

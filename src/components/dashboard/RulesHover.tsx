@@ -2,10 +2,10 @@ import { useContext, useEffect, useRef, useState } from "react"
 import type { Editor } from "@tiptap/react"
 import { Link, useNavigate } from "react-router-dom"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
-import type { GlossaryEntry } from "@/lib/character-templates/srd-5-2-1-glossary"
 import { KeyChips } from "@/components/ui/key-chips"
 import { MODIFIER_KEY } from "@/lib/selection-hint"
-import { ruleTerm, rulesPath } from "@/lib/rules-terms"
+import { ruleEntry, rulesPath } from "@/lib/rules-terms"
+import type { RuleEntry } from "@/lib/srd-rules-types"
 import { GlossaryCardBody } from "./GlossaryCardBody"
 import { MentionOpenContext } from "./MentionOpenContext"
 import { useRulesCampaign } from "./useRulesCampaign"
@@ -14,7 +14,7 @@ const OPEN_MS = 300
 const CLOSE_MS = 100
 const OPEN_LINK = "text-primary self-start text-xs hover:underline"
 
-type Shown = { id: string; entry: GlossaryEntry; rect: DOMRect; term: HTMLElement }
+type Shown = { id: string; entry: RuleEntry; rect: DOMRect; term: HTMLElement }
 
 // The underlined terms of a page: a click opens the term (beside in the journal, with Ctrl or Cmd
 // in a new tab; on the Rules page elsewhere), and the pointer over one shows its hover card. The
@@ -38,7 +38,7 @@ export function RulesHover({ editor }: { editor: Editor }) {
     const over = (event: MouseEvent) => {
       const term = termAt(event)
       const id = term?.dataset.glossaryId
-      const entry = ruleTerm(id)?.entry
+      const entry = ruleEntry(id)
       if (!term || !id || !entry) return
       later(shown?.term === term ? 0 : OPEN_MS, () => setShown({ id, entry, term, rect: term.getBoundingClientRect() }))
     }

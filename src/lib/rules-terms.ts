@@ -1,30 +1,62 @@
+import data from "@/data/srd-rules-reference.json"
 import { campaignPath } from "./campaign-paths"
-import { GLOSSARY } from "./character-templates/srd-5-2-1-glossary"
-import type { GlossaryEntry } from "./character-templates/srd-5-2-1-glossary"
+import type { RuleBlock, RuleCategory, RuleEffect, RuleEntry } from "./srd-rules-types"
 
-export type RuleTerm = { id: string; entry: GlossaryEntry }
+export const RULE_CATEGORIES = data.categories as RuleCategory[]
+export const RULE_ENTRIES = data.entries as unknown as RuleEntry[]
 
-export const RULE_TERMS: RuleTerm[] = Object.entries(GLOSSARY)
-  .map(([id, entry]) => ({ id, entry }))
-  .sort((a, b) => a.entry.title.localeCompare(b.entry.title))
+const BY_ID = new Map(RULE_ENTRIES.map((entry) => [entry.id, entry]))
 
-export const ruleTerm = (id: string | undefined) => RULE_TERMS.find((term) => term.id === id)
+export const ruleEntry = (id: string | undefined) => (id ? BY_ID.get(id) : undefined)
 
 export const rulesPath = (campaignId: string, termId?: string) => campaignPath(campaignId, termId ? `rules/${termId}` : "rules")
 
-export function matchingTerms(query: string) {
-  const text = query.trim().toLowerCase()
-  return text ? RULE_TERMS.filter(({ entry }) => entry.title.toLowerCase().includes(text) || entry.what.toLowerCase().includes(text)) : RULE_TERMS
+const effectText = (effect: RuleEffect): string[] => [effect.label, effect.text, ...(effect.bullets ?? []), ...(effect.items ?? []).flatMap(effectText)]
+
+function blockText(block: RuleBlock): string[] {
+  switch (block.type) {
+    case "text":
+    case "example":
+      return [block.text]
+    case "effects":
+      return block.items.flatMap(effectText)
+    case "table":
+      return [block.caption, ...block.rows.flat()]
+    case "usedBy":
+      return block.items.map((item) => item.text)
+    case "bullets":
+      return block.items
+    case "links":
+      return []
+  }
 }
 
-// The terms under the letter they start with, A to Z.
-export function groupByLetter(terms: RuleTerm[]) {
-  const groups: { letter: string; terms: RuleTerm[] }[] = []
-  for (const term of terms) {
-    const letter = term.entry.title[0].toUpperCase()
-    const last = groups[groups.length - 1]
-    if (last?.letter === letter) last.terms.push(term)
-    else groups.push({ letter, terms: [term] })
+// Everything an entry says, in lower case, for the search.
+const SEARCHABLE = new Map(
+  RULE_ENTRIES.map((entry) => [entry.id, [entry.title, entry.summary, ...entry.blocks.flatMap(blockText)].join("\n").toLowerCase()])
+)
+
+export function matchingEntries(query: string) {
+  const text = query.trim().toLowerCase()
+  return text ? RULE_ENTRIES.filter((entry) => SEARCHABLE.get(entry.id)!.includes(text)) : RULE_ENTRIES
+}
+
+// The entries under their category, in the file's order of categories and A to Z within each.
+export function groupByCategory(entries: RuleEntry[]) {
+  return RULE_CATEGORIES.map((category) => ({
+    category,
+    entries: entries.filter((entry) => entry.category === category.id).sort((a, b) => a.title.localeCompare(b.title)),
+  })).filter((group) => group.entries.length > 0)
+}
+
+// "p. 9", "pp. 5–7, 176": runs of neighbouring pages are joined.
+export function pageLabel(pages: number[]) {
+  const runs: string[] = []
+  for (let i = 0; i < pages.length; ) {
+    let end = i
+    while (pages[end + 1] === pages[end] + 1) end++
+    runs.push(end > i ? `${pages[i]}–${pages[end]}` : String(pages[i]))
+    i = end + 1
   }
-  return groups
+  return `${pages.length > 1 ? "pp." : "p."} ${runs.join(", ")}`
 }

@@ -1,0 +1,5542 @@
+{
+ "source": "System Reference Document 5.2.1 (CC-BY-4.0)",
+ "categories": [
+  {
+   "id": "abilities",
+   "title": "Abilities"
+  },
+  {
+   "id": "skills",
+   "title": "Skills"
+  },
+  {
+   "id": "d20",
+   "title": "D20 Tests"
+  },
+  {
+   "id": "actions",
+   "title": "Actions"
+  },
+  {
+   "id": "combat",
+   "title": "Combat"
+  },
+  {
+   "id": "health",
+   "title": "Hit Points and Resting"
+  },
+  {
+   "id": "conditions",
+   "title": "Conditions"
+  },
+  {
+   "id": "movement",
+   "title": "Movement and Space"
+  },
+  {
+   "id": "senses",
+   "title": "Light and Senses"
+  },
+  {
+   "id": "social",
+   "title": "Attitudes"
+  },
+  {
+   "id": "hazards",
+   "title": "Hazards"
+  },
+  {
+   "id": "magic",
+   "title": "Magic"
+  },
+  {
+   "id": "world",
+   "title": "The Game"
+  }
+ ],
+ "entries": [
+  {
+   "id": "charisma",
+   "title": "Charisma",
+   "tag": null,
+   "category": "abilities",
+   "summary": "How well you influence others with confidence and charm.",
+   "facts": [
+    {
+     "label": "Measures",
+     "value": "Confidence, poise, and charm"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Ability checks",
+       "text": "Influence, entertain, or deceive."
+      },
+      {
+       "label": "Saving throws",
+       "text": "Assert your identity."
+      }
+     ]
+    },
+    {
+     "type": "links",
+     "label": "Skills",
+     "items": [
+      "deception",
+      "intimidation",
+      "performance",
+      "persuasion"
+     ]
+    }
+   ],
+   "seeAlso": [
+    "ability-score-and-modifier",
+    "ability-check",
+    "saving-throw"
+   ],
+   "pages": [
+    5,
+    6,
+    7
+   ]
+  },
+  {
+   "id": "constitution",
+   "title": "Constitution",
+   "tag": null,
+   "category": "abilities",
+   "summary": "How tough you are: your health and stamina.",
+   "facts": [
+    {
+     "label": "Measures",
+     "value": "Health and stamina"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Ability checks",
+       "text": "Push your body beyond normal limits."
+      },
+      {
+       "label": "Saving throws",
+       "text": "Endure a toxic hazard."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "ability-score-and-modifier",
+    "ability-check",
+    "saving-throw"
+   ],
+   "pages": [
+    5,
+    6,
+    7
+   ]
+  },
+  {
+   "id": "dexterity",
+   "title": "Dexterity",
+   "tag": null,
+   "category": "abilities",
+   "summary": "How quick and agile you are: dodging, sneaking and shooting.",
+   "facts": [
+    {
+     "label": "Measures",
+     "value": "Agility, reflexes, and balance"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Ability checks",
+       "text": "Move nimbly, quickly, or quietly."
+      },
+      {
+       "label": "Saving throws",
+       "text": "Dodge out of harm’s way."
+      },
+      {
+       "label": "Attacks",
+       "text": "Ranged attacks with a weapon."
+      }
+     ]
+    },
+    {
+     "type": "links",
+     "label": "Skills",
+     "items": [
+      "acrobatics",
+      "sleight-of-hand",
+      "stealth"
+     ]
+    }
+   ],
+   "seeAlso": [
+    "ability-score-and-modifier",
+    "ability-check",
+    "saving-throw"
+   ],
+   "pages": [
+    5,
+    6,
+    7
+   ]
+  },
+  {
+   "id": "intelligence",
+   "title": "Intelligence",
+   "tag": null,
+   "category": "abilities",
+   "summary": "How well you reason and remember.",
+   "facts": [
+    {
+     "label": "Measures",
+     "value": "Reasoning and memory"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Ability checks",
+       "text": "Reason or remember."
+      },
+      {
+       "label": "Saving throws",
+       "text": "Recognize an illusion as fake."
+      }
+     ]
+    },
+    {
+     "type": "links",
+     "label": "Skills",
+     "items": [
+      "arcana",
+      "history",
+      "investigation",
+      "nature",
+      "religion"
+     ]
+    }
+   ],
+   "seeAlso": [
+    "ability-score-and-modifier",
+    "ability-check",
+    "saving-throw"
+   ],
+   "pages": [
+    5,
+    6,
+    7
+   ]
+  },
+  {
+   "id": "strength",
+   "title": "Strength",
+   "tag": null,
+   "category": "abilities",
+   "summary": "How strong you are: lifting, pushing and hitting hard up close.",
+   "facts": [
+    {
+     "label": "Measures",
+     "value": "Physical might"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Ability checks",
+       "text": "Lift, push, pull, or break something."
+      },
+      {
+       "label": "Saving throws",
+       "text": "Physically resist direct force."
+      },
+      {
+       "label": "Attacks",
+       "text": "Melee attacks with a weapon or an Unarmed Strike."
+      }
+     ]
+    },
+    {
+     "type": "links",
+     "label": "Skills",
+     "items": [
+      "athletics"
+     ]
+    }
+   ],
+   "seeAlso": [
+    "ability-score-and-modifier",
+    "ability-check",
+    "saving-throw"
+   ],
+   "pages": [
+    5,
+    6,
+    7
+   ]
+  },
+  {
+   "id": "wisdom",
+   "title": "Wisdom",
+   "tag": null,
+   "category": "abilities",
+   "summary": "How aware you are, and how strong your will is.",
+   "facts": [
+    {
+     "label": "Measures",
+     "value": "Perceptiveness and mental fortitude"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Ability checks",
+       "text": "Notice things in the environment or in creatures’ behavior."
+      },
+      {
+       "label": "Saving throws",
+       "text": "Resist a mental assault."
+      }
+     ]
+    },
+    {
+     "type": "links",
+     "label": "Skills",
+     "items": [
+      "animal-handling",
+      "insight",
+      "medicine",
+      "perception",
+      "survival"
+     ]
+    }
+   ],
+   "seeAlso": [
+    "ability-score-and-modifier",
+    "ability-check",
+    "saving-throw"
+   ],
+   "pages": [
+    5,
+    6,
+    7
+   ]
+  },
+  {
+   "id": "acrobatics",
+   "title": "Acrobatics",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Keeping your balance and pulling off stunts.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "dexterity",
+     "ref": "dexterity"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Stay on your feet in a tricky situation, or perform an acrobatic stunt."
+    }
+   ],
+   "seeAlso": [
+    "grappling",
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "animal-handling",
+   "title": "Animal Handling",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Calming, training and handling animals.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "wisdom",
+     "ref": "wisdom"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Calm or train an animal, or get an animal to behave in a certain way."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "influence",
+       "text": "Gently coaxing a Beast or Monstrosity"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "arcana",
+   "title": "Arcana",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Knowing about magic and the planes.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "intelligence",
+     "ref": "intelligence"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Recall lore about spells, magic items, and the planes of existence."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "study",
+       "text": "Spells, magic items, eldritch symbols, magical traditions, planes of existence, and certain creatures (Aberrations, Constructs, Elementals, Fey, and Monstrosities)"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "athletics",
+   "title": "Athletics",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Climbing, jumping, swimming and feats of strength.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "strength",
+     "ref": "strength"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Jump farther than normal, stay afloat in rough water, or break something."
+    }
+   ],
+   "seeAlso": [
+    "grappling",
+    "climbing",
+    "jumping",
+    "swimming",
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "deception",
+   "title": "Deception",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Lying convincingly, or passing yourself off as someone else.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "charisma",
+     "ref": "charisma"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Tell a convincing lie, or wear a disguise convincingly."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "influence",
+       "text": "Deceiving a monster that understands you"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "persuasion",
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "history",
+   "title": "History",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Knowing about the past, its people and its wars.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "intelligence",
+     "ref": "intelligence"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Recall lore about historical events, people, nations, and cultures."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "study",
+       "text": "Historic events and people, ancient civilizations, wars, and certain creatures (Giants and Humanoids)"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "insight",
+   "title": "Insight",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Reading what someone really feels or wants.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "wisdom",
+     "ref": "wisdom"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Discern a person’s mood and intentions."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "search",
+       "text": "Creature’s state of mind"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "intimidation",
+   "title": "Intimidation",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Getting your way through threats or sheer presence.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "charisma",
+     "ref": "charisma"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Awe or threaten someone into doing what you want."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "influence",
+       "text": "Intimidating a monster"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "investigation",
+   "title": "Investigation",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Searching for clues and working out how things work.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "intelligence",
+     "ref": "intelligence"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Find obscure information in books, or deduce how something works."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "study",
+       "text": "Traps, ciphers, riddles, and gadgetry"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "medicine",
+   "title": "Medicine",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Treating wounds and understanding illness.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "wisdom",
+     "ref": "wisdom"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Diagnose an illness, or determine what killed the recently slain."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "search",
+       "text": "Creature’s ailment or cause of death"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "death-saving-throw",
+    "knocking-out-a-creature",
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "nature",
+   "title": "Nature",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Knowing about the natural world.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "intelligence",
+     "ref": "intelligence"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Recall lore about terrain, plants, animals, and weather."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "study",
+       "text": "Terrain, flora, weather, and certain creatures (Beasts, Dragons, Oozes, and Plants)"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "perception",
+   "title": "Perception",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Noticing things with your senses.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "wisdom",
+     "ref": "wisdom"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Using a combination of senses, notice something that’s easy to miss."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "search",
+       "text": "Concealed creature or object"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "passive-perception",
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "performance",
+   "title": "Performance",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Entertaining an audience.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "charisma",
+     "ref": "charisma"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Act, tell a story, perform music, or dance."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "influence",
+       "text": "Amusing a monster"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "persuasion",
+   "title": "Persuasion",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Convincing someone honestly and politely.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "charisma",
+     "ref": "charisma"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Honestly and graciously convince someone of something."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "influence",
+       "text": "Persuading a monster that understands you"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "deception",
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "religion",
+   "title": "Religion",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Knowing about gods, faiths and their rites.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "intelligence",
+     "ref": "intelligence"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Recall lore about gods, religious rituals, and holy symbols."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "study",
+       "text": "Deities, religious hierarchies and rites, holy symbols, cults, and certain creatures (Celestials, Fiends, and Undead)"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "sleight-of-hand",
+   "title": "Sleight of Hand",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Quick, quiet tricks with your hands.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "dexterity",
+     "ref": "dexterity"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Pick a pocket, conceal a handheld object, or perform legerdemain."
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "stealth",
+   "title": "Stealth",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Moving quietly and staying out of sight.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "dexterity",
+     "ref": "dexterity"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Escape notice by moving quietly and hiding behind things."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "hide",
+       "text": "DC 15 Dexterity (Stealth) check to hide"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "hide",
+    "invisible",
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "survival",
+   "title": "Survival",
+   "tag": "Skill",
+   "category": "skills",
+   "summary": "Tracking, foraging and finding your way in the wild.",
+   "facts": [
+    {
+     "label": "Ability",
+     "value": "wisdom",
+     "ref": "wisdom"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Typical uses: Follow tracks, forage, find a trail, or avoid natural hazards."
+    },
+    {
+     "type": "usedBy",
+     "items": [
+      {
+       "ref": "search",
+       "text": "Tracks or food"
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "proficiency"
+   ],
+   "pages": [
+    9
+   ]
+  },
+  {
+   "id": "ability-check",
+   "title": "Ability Check",
+   "tag": null,
+   "category": "d20",
+   "summary": "A d20 roll to see whether you manage something hard, like forcing a door or spotting a trap.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An ability check is a D20 Test that represents using one of the six abilities—or a specific skill associated with an ability—to overcome a challenge."
+    },
+    {
+     "type": "table",
+     "caption": "Ability Check Examples",
+     "columns": [
+      "Ability",
+      "Make a check to …"
+     ],
+     "rows": [
+      [
+       "Strength",
+       "Lift, push, pull, or break something"
+      ],
+      [
+       "Dexterity",
+       "Move nimbly, quickly, or quietly"
+      ],
+      [
+       "Constitution",
+       "Push your body beyond normal limits"
+      ],
+      [
+       "Intelligence",
+       "Reason or remember"
+      ],
+      [
+       "Wisdom",
+       "Notice things in the environment or in creatures’ behavior"
+      ],
+      [
+       "Charisma",
+       "Influence, entertain, or deceive"
+      ]
+     ]
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "difficulty-class",
+    "proficiency"
+   ],
+   "pages": [
+    6,
+    176
+   ]
+  },
+  {
+   "id": "ability-score-and-modifier",
+   "title": "Ability Score and Modifier",
+   "tag": null,
+   "category": "d20",
+   "summary": "Your six abilities each have a score, and the score gives a modifier you add to rolls.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature has six ability scores—Strength, Dexterity, Constitution, Intelligence, Wisdom, and Charisma—each of which has a corresponding modifier. Add the modifier when you make a D20 Test with the corresponding ability or when a rule asks you to do so."
+    },
+    {
+     "type": "table",
+     "caption": "Ability Scores",
+     "columns": [
+      "Score",
+      "Meaning"
+     ],
+     "rows": [
+      [
+       "1",
+       "The lowest a score can normally go. If an effect reduces a score to 0, that effect explains what happens."
+      ],
+      [
+       "2–9",
+       "A weak capability."
+      ],
+      [
+       "10–11",
+       "The human average."
+      ],
+      [
+       "12–19",
+       "A strong capability."
+      ],
+      [
+       "20",
+       "The highest an adventurer’s score can go unless a feature says otherwise."
+      ],
+      [
+       "21–29",
+       "An extraordinary capability."
+      ],
+      [
+       "30",
+       "The highest a score can go."
+      ]
+     ]
+    },
+    {
+     "type": "table",
+     "caption": "Ability Modifiers",
+     "columns": [
+      "Score",
+      "Modifier"
+     ],
+     "rows": [
+      [
+       "1",
+       "−5"
+      ],
+      [
+       "2–3",
+       "−4"
+      ],
+      [
+       "4–5",
+       "−3"
+      ],
+      [
+       "6–7",
+       "−2"
+      ],
+      [
+       "8–9",
+       "−1"
+      ],
+      [
+       "10–11",
+       "+0"
+      ],
+      [
+       "12–13",
+       "+1"
+      ],
+      [
+       "14–15",
+       "+2"
+      ],
+      [
+       "16–17",
+       "+3"
+      ],
+      [
+       "18–19",
+       "+4"
+      ],
+      [
+       "20–21",
+       "+5"
+      ],
+      [
+       "22–23",
+       "+6"
+      ],
+      [
+       "24–25",
+       "+7"
+      ],
+      [
+       "26–27",
+       "+8"
+      ],
+      [
+       "28–29",
+       "+9"
+      ],
+      [
+       "30",
+       "+10"
+      ]
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    5,
+    6,
+    176
+   ]
+  },
+  {
+   "id": "advantage",
+   "title": "Advantage",
+   "tag": null,
+   "category": "d20",
+   "summary": "Roll two d20s and keep the higher one.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you have Advantage on a D20 Test, roll two d20s, and use the higher roll. A roll can’t be affected by more than one Advantage, and Advantage and Disadvantage on the same roll cancel each other."
+    },
+    {
+     "type": "example",
+     "text": "If you have Disadvantage and roll an 18 and a 3, use the 3. If you instead have Advantage and roll those numbers, use the 18."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    8,
+    176
+   ]
+  },
+  {
+   "id": "d20-test",
+   "title": "D20 Test",
+   "tag": null,
+   "category": "d20",
+   "summary": "The umbrella name for the game’s three d20 rolls: ability checks, saving throws and attack rolls.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "D20 Tests encompass the three main d20 rolls of the game: ability checks, attack rolls, and saving throws. If something in the game affects D20 Tests, it affects all three of these rolls. The GM determines whether a D20 Test is warranted in a given circumstance."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    180
+   ]
+  },
+  {
+   "id": "difficulty-class",
+   "title": "Difficulty Class",
+   "tag": null,
+   "category": "d20",
+   "summary": "The number you need to reach on an ability check or saving throw.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Difficulty Class (DC) is the target number for an ability check or a saving throw."
+    },
+    {
+     "type": "table",
+     "caption": "Typical Difficulty Classes",
+     "columns": [
+      "Task difficulty",
+      "DC"
+     ],
+     "rows": [
+      [
+       "Very easy",
+       "5"
+      ],
+      [
+       "Easy",
+       "10"
+      ],
+      [
+       "Medium",
+       "15"
+      ],
+      [
+       "Hard",
+       "20"
+      ],
+      [
+       "Very hard",
+       "25"
+      ],
+      [
+       "Nearly impossible",
+       "30"
+      ]
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    6,
+    181
+   ]
+  },
+  {
+   "id": "disadvantage",
+   "title": "Disadvantage",
+   "tag": null,
+   "category": "d20",
+   "summary": "Roll two d20s and keep the lower one.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you have Disadvantage on a D20 Test, roll two d20s and use the lower roll. A roll can’t be affected by more than one Disadvantage, and Advantage and Disadvantage on the same roll cancel each other."
+    },
+    {
+     "type": "example",
+     "text": "If you have Disadvantage and roll an 18 and a 3, use the 3. If you instead have Advantage and roll those numbers, use the 18."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    8,
+    181
+   ]
+  },
+  {
+   "id": "expertise",
+   "title": "Expertise",
+   "tag": null,
+   "category": "d20",
+   "summary": "Doubles your Proficiency Bonus for one skill.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Expertise is a feature that enhances your use of a skill proficiency. When you make an ability check with a skill proficiency in which you have Expertise, your Proficiency Bonus is doubled for that check unless the bonus is doubled by another feature."
+    },
+    {
+     "type": "text",
+     "text": "If you gain Expertise, you gain it in one skill in which you have proficiency. You can’t have Expertise in the same skill proficiency more than once."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "heroic-inspiration",
+   "title": "Heroic Inspiration",
+   "tag": null,
+   "category": "d20",
+   "summary": "A one-time reroll of any die, usually given by the GM for great play.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you (a player character) have Heroic Inspiration, you can expend it to reroll any die immediately after rolling it, and you must use the new roll."
+    },
+    {
+     "type": "text",
+     "text": "If you gain Heroic Inspiration but already have it, it’s lost unless you give it to a player character who lacks it."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    183
+   ]
+  },
+  {
+   "id": "per-day",
+   "title": "Per Day",
+   "tag": null,
+   "category": "d20",
+   "summary": "\"Per day\" means the uses come back when you finish a Long Rest.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If a rule says you can use something a certain number of times per day, that means you must finish a Long Rest to use it again after you run out of uses."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    186
+   ]
+  },
+  {
+   "id": "proficiency",
+   "title": "Proficiency",
+   "tag": null,
+   "category": "d20",
+   "summary": "Being trained in something, which lets you add your Proficiency Bonus to rolls with it.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you have proficiency with something, you can add your Proficiency Bonus to any D20 Test you make using that thing. A creature might have proficiency in a skill or saving throw or with a weapon or tool."
+    },
+    {
+     "type": "table",
+     "caption": "Proficiency Bonus",
+     "columns": [
+      "Level or CR",
+      "Bonus"
+     ],
+     "rows": [
+      [
+       "Up to 4",
+       "+2"
+      ],
+      [
+       "5–8",
+       "+3"
+      ],
+      [
+       "9–12",
+       "+4"
+      ],
+      [
+       "13–16",
+       "+5"
+      ],
+      [
+       "17–20",
+       "+6"
+      ],
+      [
+       "21–24",
+       "+7"
+      ],
+      [
+       "25–28",
+       "+8"
+      ],
+      [
+       "29–30",
+       "+9"
+      ]
+     ]
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "The bonus doesn’t stack",
+       "text": "Your Proficiency Bonus can’t be added to a die roll or another number more than once. Whenever the bonus is used, it can be multiplied only once and divided only once."
+      }
+     ]
+    },
+    {
+     "type": "example",
+     "text": "If a rule allows you to make a Charisma (Deception or Persuasion) check, you add your Proficiency Bonus if you’re proficient in either skill, but you don’t add it twice if you’re proficient in both skills."
+    }
+   ],
+   "seeAlso": [
+    "skill",
+    "expertise"
+   ],
+   "pages": [
+    8,
+    186
+   ]
+  },
+  {
+   "id": "round-down",
+   "title": "Round Down",
+   "tag": null,
+   "category": "d20",
+   "summary": "When a rule divides or multiplies, drop any fraction, even one half.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Whenever you divide or multiply a number in the game, round down if you end up with a fraction, even if the fraction is one-half or greater. Some rules make an exception and tell you to round up."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    187
+   ]
+  },
+  {
+   "id": "save",
+   "title": "Save",
+   "tag": null,
+   "category": "d20",
+   "summary": "Short for saving throw.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Save is another name for a saving throw."
+    }
+   ],
+   "seeAlso": [
+    "saving-throw"
+   ],
+   "pages": [
+    187
+   ]
+  },
+  {
+   "id": "saving-throw",
+   "title": "Saving Throw",
+   "tag": null,
+   "category": "d20",
+   "summary": "A d20 roll to resist or avoid something bad happening to you.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A saving throw—also called a save—represents an attempt to avoid or resist a threat. You normally make a saving throw only when a rule requires you to do so, but you can decide to fail the save without rolling. The result of a save is detailed in the effect that allowed it. If a target is forced to make a save and lacks the ability score used by it, the target automatically fails."
+    },
+    {
+     "type": "table",
+     "caption": "Saving Throw Examples",
+     "columns": [
+      "Ability",
+      "Make a save to …"
+     ],
+     "rows": [
+      [
+       "Strength",
+       "Physically resist direct force"
+      ],
+      [
+       "Dexterity",
+       "Dodge out of harm’s way"
+      ],
+      [
+       "Constitution",
+       "Endure a toxic hazard"
+      ],
+      [
+       "Intelligence",
+       "Recognize an illusion as fake"
+      ],
+      [
+       "Wisdom",
+       "Resist a mental assault"
+      ],
+      [
+       "Charisma",
+       "Assert your identity"
+      ]
+     ]
+    }
+   ],
+   "seeAlso": [
+    "difficulty-class",
+    "proficiency"
+   ],
+   "pages": [
+    7,
+    187
+   ]
+  },
+  {
+   "id": "simultaneous-effects",
+   "title": "Simultaneous Effects",
+   "tag": null,
+   "category": "d20",
+   "summary": "When things happen at the same moment, whoever’s turn it is picks the order.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If two or more things happen at the same time on a turn, the person at the game table—player or GM— whose turn it is decides the order in which those things happen."
+    },
+    {
+     "type": "example",
+     "text": "If two effects occur at the start of a player character’s turn, the player decides which of the effects happens first."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    187
+   ]
+  },
+  {
+   "id": "skill",
+   "title": "Skill",
+   "tag": null,
+   "category": "d20",
+   "summary": "A specialty, like Stealth or Persuasion, that adds your Proficiency Bonus to related checks.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A skill is an area of specialization associated with an ability check. If you have proficiency in a skill, you can add your Proficiency Bonus when you make an ability check associated with that skill."
+    }
+   ],
+   "seeAlso": [
+    "proficiency",
+    "expertise"
+   ],
+   "pages": [
+    188
+   ]
+  },
+  {
+   "id": "action",
+   "title": "Action",
+   "tag": null,
+   "category": "actions",
+   "summary": "The one main thing you can do on your turn, such as Attack, Dash or Hide.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "On your turn, you can take one action. Choose which action to take from those below or from the special actions provided by your features. These actions are defined elsewhere in this glossary:"
+    },
+    {
+     "type": "links",
+     "items": [
+      "attack",
+      "dash",
+      "disengage",
+      "dodge",
+      "help",
+      "hide",
+      "influence",
+      "magic",
+      "ready",
+      "search",
+      "study",
+      "utilize"
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    176
+   ]
+  },
+  {
+   "id": "attack",
+   "title": "Attack",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Make one attack with a weapon or an Unarmed Strike.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "When you take the Attack action, you can make one attack roll with a weapon or an Unarmed Strike."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Equipping and Unequipping Weapons",
+       "text": "You can either equip or unequip one weapon when you make an attack as part of this action. You do so either before or after the attack. If you equip a weapon before an attack, you don’t need to use it for that attack. Equipping a weapon includes drawing it from a sheath or picking it up. Unequipping a weapon includes sheathing, stowing, or dropping it."
+      },
+      {
+       "label": "Moving between Attacks",
+       "text": "If you move on your turn and have a feature, such as Extra Attack, that gives you more than one attack as part of the Attack action, you can use some or all of that movement to move between those attacks."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    177
+   ]
+  },
+  {
+   "id": "bonus-action",
+   "title": "Bonus Action",
+   "tag": null,
+   "category": "actions",
+   "summary": "An extra, smaller action you get only when a rule gives you one.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Bonus Action is a special action that you can take on the same turn that you take an action. You can’t take more than one Bonus Action on a turn, and you have a Bonus Action to take only if a rule explicitly says so."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    177
+   ]
+  },
+  {
+   "id": "dash",
+   "title": "Dash",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Gain extra movement equal to your Speed this turn.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "When you take the Dash action, you gain extra movement for the current turn. The increase equals your Speed after applying any modifiers. With a Speed of 30 feet, for example, you can move up to 60 feet on your turn if you Dash. If your Speed of 30 feet is reduced to 15 feet, you can move up to 30 feet this turn if you Dash."
+    },
+    {
+     "type": "text",
+     "text": "If you have a special speed, such as a Fly Speed or Swim Speed, you can use that speed instead of your Speed when you take this action. You choose which speed to use each time you take it."
+    }
+   ],
+   "seeAlso": [
+    "speed"
+   ],
+   "pages": [
+    180
+   ]
+  },
+  {
+   "id": "disengage",
+   "title": "Disengage",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Move away this turn without provoking Opportunity Attacks.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you take the Disengage action, your movement doesn’t provoke Opportunity Attacks for the rest of the current turn."
+    }
+   ],
+   "seeAlso": [
+    "opportunity-attacks"
+   ],
+   "pages": [
+    181
+   ]
+  },
+  {
+   "id": "dodge",
+   "title": "Dodge",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Make yourself harder to hit until your next turn.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you take the Dodge action, you gain the following benefits: until the start of your next turn, any attack roll made against you has Disadvantage if you can see the attacker, and you make Dexterity saving throws with Advantage."
+    },
+    {
+     "type": "text",
+     "text": "You lose these benefits if you have the Incapacitated condition or if your Speed is 0."
+    }
+   ],
+   "seeAlso": [
+    "disadvantage",
+    "advantage"
+   ],
+   "pages": [
+    181
+   ]
+  },
+  {
+   "id": "help",
+   "title": "Help",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Give an ally Advantage on their next check or attack.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "When you take the Help action, you do one of the following."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Assist an Ability Check",
+       "text": "Choose one of your skill or tool proficiencies and one ally who is near enough for you to assist verbally or physically when they make an ability check. That ally has Advantage on the next ability check they make with the chosen skill or tool. This benefit expires if the ally doesn’t use it before the start of your next turn. The GM has final say on whether your assistance is possible."
+      },
+      {
+       "label": "Assist an Attack Roll",
+       "text": "You momentarily distract an enemy within 5 feet of you, giving Advantage to the next attack roll by one of your allies against that enemy. This benefit expires at the start of your next turn."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "advantage"
+   ],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "hide",
+   "title": "Hide",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Try to slip out of sight with a Dexterity (Stealth) check.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "With the Hide action, you try to hide yourself. To do so, you must succeed on a DC 15 Dexterity (Stealth) check while you’re Heavily Obscured or behind Three-Quarters Cover or Total Cover, and you must be out of any enemy’s line of sight; if you can see a creature, you can discern whether it can see you."
+    },
+    {
+     "type": "text",
+     "text": "On a successful check, you have the Invisible condition while hidden. Make note of your check’s total, which is the DC for a creature to find you with a Wisdom (Perception) check."
+    },
+    {
+     "type": "text",
+     "text": "You stop being hidden immediately after any of the following occurs: you make a sound louder than a whisper, an enemy finds you, you make an attack roll, or you cast a spell with a Verbal component."
+    }
+   ],
+   "seeAlso": [
+    "stealth",
+    "invisible",
+    "cover",
+    "heavily-obscured"
+   ],
+   "pages": [
+    183
+   ]
+  },
+  {
+   "id": "influence",
+   "title": "Influence",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Try to get a creature to do what you want by talking, threatening or charming it.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "With the Influence action, you urge a monster to do something. Describe or roleplay how you’re communicating with the monster. Are you trying to deceive, intimidate, amuse, or gently persuade? The GM then determines whether the monster feels willing, unwilling, or hesitant due to your interaction; this determination establishes whether an ability check is necessary, as explained below."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Willing",
+       "text": "If your urging aligns with the monster’s desires, no ability check is necessary; the monster fulfills your request in a way it prefers."
+      },
+      {
+       "label": "Unwilling",
+       "text": "If your urging is repugnant to the monster or counter to its alignment, no ability check is necessary; it doesn’t comply."
+      },
+      {
+       "label": "Hesitant",
+       "text": "If you urge the monster to do something that it is hesitant to do, you must make an ability check, which is affected by the monster’s attitude: Indifferent, Friendly, or Hostile, each of which is defined in this glossary. The Influence Checks table suggests which ability check to make based on how you’re interacting with the monster. The GM chooses the check, which has a default DC equal to 15 or the monster’s Intelligence score, whichever is higher. On a successful check, the monster does as urged. On a failed check, you must wait 24 hours (or a duration set by the GM) before urging it in the same way again."
+      }
+     ]
+    },
+    {
+     "type": "table",
+     "caption": "Influence Checks",
+     "columns": [
+      "Ability Check",
+      "Interaction"
+     ],
+     "rows": [
+      [
+       "Charisma (Deception)",
+       "Deceiving a monster that understands you"
+      ],
+      [
+       "Charisma (Intimidation)",
+       "Intimidating a monster"
+      ],
+      [
+       "Charisma (Performance)",
+       "Amusing a monster"
+      ],
+      [
+       "Charisma (Persuasion)",
+       "Persuading a monster that understands you"
+      ],
+      [
+       "Wisdom (Animal Handling)",
+       "Gently coaxing a Beast or Monstrosity"
+      ]
+     ]
+    }
+   ],
+   "seeAlso": [
+    "attitude",
+    "friendly",
+    "indifferent",
+    "hostile",
+    "deception",
+    "intimidation",
+    "performance",
+    "persuasion",
+    "animal-handling"
+   ],
+   "pages": [
+    184
+   ]
+  },
+  {
+   "id": "magic",
+   "title": "Magic",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Cast a spell or use a magic item or magical feature.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "When you take the Magic action, you cast a spell that has a casting time of an action or use a feature or magic item that requires a Magic action to be activated."
+    },
+    {
+     "type": "text",
+     "text": "If you cast a spell that has a casting time of 1 minute or longer, you must take the Magic action on each turn of that casting, and you must maintain Concentration while you do so. If your Concentration is broken, the spell fails, but you don’t expend a spell slot."
+    }
+   ],
+   "seeAlso": [
+    "concentration"
+   ],
+   "pages": [
+    185
+   ]
+  },
+  {
+   "id": "reaction",
+   "title": "Reaction",
+   "tag": null,
+   "category": "actions",
+   "summary": "An instant response to a trigger, usable once per round, even on someone else’s turn.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Reaction is a special action taken in response to a trigger defined in the Reaction’s description. You can take a Reaction on another creature’s turn, and if you take it on your turn, you can do so even if you also take an action, a Bonus Action, or both. Once you take a Reaction, you can’t take another one until the start of your next turn. The Opportunity Attack is a Reaction available to all creatures."
+    }
+   ],
+   "seeAlso": [
+    "opportunity-attacks"
+   ],
+   "pages": [
+    186
+   ]
+  },
+  {
+   "id": "ready",
+   "title": "Ready",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Prepare an action that you take later, when a trigger you choose happens.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "You take the Ready action to wait for a particular circumstance before you act. To do so, you take this action on your turn, which lets you act by taking a Reaction before the start of your next turn."
+    },
+    {
+     "type": "text",
+     "text": "First, you decide what perceivable circumstance will trigger your Reaction. Then, you choose the action you will take in response to that trigger, or you choose to move up to your Speed in response to it."
+    },
+    {
+     "type": "example",
+     "text": "Examples include “If the cultist steps on the trapdoor, I’ll pull the lever that opens it,” and “If the zombie steps next to me, I move away.”"
+    },
+    {
+     "type": "text",
+     "text": "When the trigger occurs, you can either take your Reaction right after the trigger finishes or ignore the trigger."
+    },
+    {
+     "type": "text",
+     "text": "When you Ready a spell, you cast it as normal (expending any resources used to cast it) but hold its energy, which you release with your Reaction when the trigger occurs. To be readied, a spell must have a casting time of an action, and holding on to the spell’s magic requires Concentration, which you can maintain up to the start of your next turn. If your Concentration is broken, the spell dissipates without taking effect."
+    }
+   ],
+   "seeAlso": [
+    "reaction"
+   ],
+   "pages": [
+    186
+   ]
+  },
+  {
+   "id": "search",
+   "title": "Search",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Look for something that isn’t obvious, using a Wisdom check.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "When you take the Search action, you make a Wisdom check to discern something that isn’t obvious. The Search table suggests which skills are applicable when you take this action, depending on what you’re trying to detect."
+    },
+    {
+     "type": "table",
+     "caption": "Search",
+     "columns": [
+      "Skill",
+      "Thing to Detect"
+     ],
+     "rows": [
+      [
+       "Insight",
+       "Creature’s state of mind"
+      ],
+      [
+       "Medicine",
+       "Creature’s ailment or cause of death"
+      ],
+      [
+       "Perception",
+       "Concealed creature or object"
+      ],
+      [
+       "Survival",
+       "Tracks or food"
+      ]
+     ]
+    }
+   ],
+   "seeAlso": [
+    "insight",
+    "medicine",
+    "perception",
+    "survival"
+   ],
+   "pages": [
+    187
+   ]
+  },
+  {
+   "id": "study",
+   "title": "Study",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Recall or work out knowledge, using an Intelligence check.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "When you take the Study action, you make an Intelligence check to study your memory, a book, a clue, or another source of knowledge and call to mind an important piece of information about it."
+    },
+    {
+     "type": "text",
+     "text": "The Areas of Knowledge table suggests which skills are applicable to various areas of knowledge."
+    },
+    {
+     "type": "table",
+     "caption": "Areas of Knowledge",
+     "columns": [
+      "Skill",
+      "Areas"
+     ],
+     "rows": [
+      [
+       "Arcana",
+       "Spells, magic items, eldritch symbols, magical traditions, planes of existence, and certain creatures (Aberrations, Constructs, Elementals, Fey, and Monstrosities)"
+      ],
+      [
+       "History",
+       "Historic events and people, ancient civilizations, wars, and certain creatures (Giants and Humanoids)"
+      ],
+      [
+       "Investigation",
+       "Traps, ciphers, riddles, and gadgetry"
+      ],
+      [
+       "Nature",
+       "Terrain, flora, weather, and certain creatures (Beasts, Dragons, Oozes, and Plants)"
+      ],
+      [
+       "Religion",
+       "Deities, religious hierarchies and rites, holy symbols, cults, and certain creatures (Celestials, Fiends, and Undead)"
+      ]
+     ]
+    }
+   ],
+   "seeAlso": [
+    "arcana",
+    "history",
+    "investigation",
+    "nature",
+    "religion"
+   ],
+   "pages": [
+    189
+   ]
+  },
+  {
+   "id": "utilize",
+   "title": "Utilize",
+   "tag": "Action",
+   "category": "actions",
+   "summary": "Use an object that takes an action to use, like a lever or a potion.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "You normally interact with an object while doing something else, such as when you draw a sword as part of the Attack action. When an object requires an action for its use, you take the Utilize action."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    191
+   ]
+  },
+  {
+   "id": "ally",
+   "title": "Ally",
+   "tag": null,
+   "category": "combat",
+   "summary": "A creature on your side.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature is your ally if it is a member of your adventuring party, your friend, on your side in combat, or a creature that the rules or the GM designates as your ally."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    176
+   ]
+  },
+  {
+   "id": "armor-class",
+   "title": "Armor Class",
+   "tag": null,
+   "category": "combat",
+   "summary": "How hard you are to hit. Attackers must roll this number or higher.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An Armor Class (AC) is the target number for an attack roll. AC represents how difficult it is to hit a target."
+    },
+    {
+     "type": "text",
+     "text": "Your base AC calculation is 10 plus your Dexterity modifier. If a rule gives you another base AC calculation, you choose which calculation to use; you can’t use more than one."
+    }
+   ],
+   "seeAlso": [
+    "attack-roll"
+   ],
+   "pages": [
+    177
+   ]
+  },
+  {
+   "id": "armor-training",
+   "title": "Armor Training",
+   "tag": null,
+   "category": "combat",
+   "summary": "Lets you wear a kind of armor without penalties.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Armor training allows you to use armor of a certain category without the following drawbacks. If you wear Light, Medium, or Heavy armor and lack training with it, you have Disadvantage on any D20 Test that involves Strength or Dexterity, and you can’t cast spells. If you use a Shield and lack training with it, you don’t gain its AC bonus."
+    }
+   ],
+   "seeAlso": [
+    "disadvantage"
+   ],
+   "pages": [
+    177
+   ]
+  },
+  {
+   "id": "attack-roll",
+   "title": "Attack Roll",
+   "tag": null,
+   "category": "combat",
+   "summary": "A d20 roll to hit a target; you hit if you equal or beat its Armor Class.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An attack roll is a D20 Test that represents making an attack with a weapon, an Unarmed Strike, or a spell."
+    },
+    {
+     "type": "table",
+     "caption": "Attack Roll Abilities",
+     "columns": [
+      "Ability",
+      "Attack type"
+     ],
+     "rows": [
+      [
+       "Strength",
+       "Melee attack with a weapon or an Unarmed Strike"
+      ],
+      [
+       "Dexterity",
+       "Ranged attack with a weapon"
+      ],
+      [
+       "Varies",
+       "Spell attack (the ability is set by the spellcaster’s spellcasting feature)"
+      ]
+     ]
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Natural 20",
+       "text": "If you roll a 20 on the d20 for an attack roll, the attack hits regardless of any modifiers or the target’s AC. This is called a Critical Hit."
+      },
+      {
+       "label": "Natural 1",
+       "text": "If you roll a 1 on the d20 for an attack roll, the attack misses regardless of any modifiers or the target’s AC."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    7,
+    177
+   ]
+  },
+  {
+   "id": "breaking-objects",
+   "title": "Breaking Objects",
+   "tag": null,
+   "category": "combat",
+   "summary": "How to smash doors, chests and other objects.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Objects can be harmed by attacks and by some spells, using the rules below. If an object is exceedingly fragile, the GM may allow a creature to break it automatically with the Attack or Utilize action."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Armor Class",
+       "text": "The Object Armor Class table suggests ACs for various substances."
+      }
+     ]
+    },
+    {
+     "type": "table",
+     "caption": "Object Armor Class",
+     "columns": [
+      "AC",
+      "Substance"
+     ],
+     "rows": [
+      [
+       "11",
+       "Cloth, paper, rope"
+      ],
+      [
+       "13",
+       "Crystal, glass, ice"
+      ],
+      [
+       "15",
+       "Wood"
+      ],
+      [
+       "17",
+       "Stone"
+      ],
+      [
+       "19",
+       "Iron, steel"
+      ],
+      [
+       "21",
+       "Mithral"
+      ],
+      [
+       "23",
+       "Adamantine"
+      ]
+     ]
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Hit Points",
+       "text": "An object is destroyed when it has 0 Hit Points. The Object Hit Points table suggests Hit Points for fragile and resilient objects that are Large or smaller. To track Hit Points for a Huge or Gargantuan object, divide it into Large or smaller sections, and track each section’s Hit Points separately. The GM determines whether destroying part of an object causes the whole thing to collapse."
+      }
+     ]
+    },
+    {
+     "type": "table",
+     "caption": "Object Hit Points",
+     "columns": [
+      "Size",
+      "Fragile",
+      "Resilient"
+     ],
+     "rows": [
+      [
+       "Tiny (bottle, lock)",
+       "2 (1d4)",
+       "5 (2d4)"
+      ],
+      [
+       "Small (chest, lute)",
+       "3 (1d6)",
+       "10 (3d6)"
+      ],
+      [
+       "Medium (barrel, chandelier)",
+       "4 (1d8)",
+       "18 (4d8)"
+      ],
+      [
+       "Large (cart, dining table)",
+       "5 (1d10)",
+       "27 (5d10)"
+      ]
+     ]
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Damage Types and Objects",
+       "text": "Objects have Immunity to Poison and Psychic damage. The GM might decide that some damage types are more or less effective against an object. For example, Bludgeoning damage works well for smashing things but not for cutting. Paper or cloth objects might have Vulnerability to Fire damage."
+      },
+      {
+       "label": "Damage Threshold",
+       "text": "Big objects, such as castle walls, often have extra resilience represented by a damage threshold."
+      },
+      {
+       "label": "No Ability Scores",
+       "text": "An object lacks ability scores unless a rule assigns scores to the object. Without ability scores, an object can’t make ability checks, and it fails all saving throws."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "damage-threshold"
+   ],
+   "pages": [
+    177
+   ]
+  },
+  {
+   "id": "cover",
+   "title": "Cover",
+   "tag": null,
+   "category": "combat",
+   "summary": "Something between you and an attacker that makes you harder to hit.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Cover provides a degree of protection to a target behind it. There are three degrees of cover, each of which provides a different benefit to a target: Half Cover (+2 bonus to AC and Dexterity saving throws), Three-Quarters Cover (+5 bonus to AC and Dexterity saving throws), and Total Cover (can’t be targeted directly). If behind more than one degree of cover, a target benefits only from the most protective degree."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    179
+   ]
+  },
+  {
+   "id": "critical-hit",
+   "title": "Critical Hit",
+   "tag": null,
+   "category": "combat",
+   "summary": "A natural 20 on an attack: it always hits, and you roll the damage dice twice.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you roll a 20 on the d20 for an attack roll, you score a Critical Hit, and the attack hits regardless of any modifiers or the target’s AC. A Critical Hit lets you roll extra dice for the attack’s damage against the target. Roll all of the attack’s damage dice twice and add them together. Then add any relevant modifiers."
+    }
+   ],
+   "seeAlso": [
+    "attack-roll"
+   ],
+   "pages": [
+    179
+   ]
+  },
+  {
+   "id": "damage",
+   "title": "Damage",
+   "tag": null,
+   "category": "combat",
+   "summary": "Harm that takes away Hit Points.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Damage represents harm that causes a creature or an object to lose Hit Points."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    180
+   ]
+  },
+  {
+   "id": "damage-roll",
+   "title": "Damage Roll",
+   "tag": null,
+   "category": "combat",
+   "summary": "The roll that decides how much damage something deals.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A damage roll is a die roll, adjusted by any applicable modifiers, that deals damage to a target."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    180
+   ]
+  },
+  {
+   "id": "damage-threshold",
+   "title": "Damage Threshold",
+   "tag": null,
+   "category": "combat",
+   "summary": "Damage below this number in one hit does nothing at all.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature or an object that has a damage threshold has Immunity to all damage unless it takes an amount of damage from a single attack or effect equal to or greater than its damage threshold, in which case it takes that entire instance of damage. Any damage that fails to meet or exceed the damage threshold is superficial and doesn’t reduce Hit Points. If the same object is dealt 11 damage, it takes all of that damage."
+    },
+    {
+     "type": "example",
+     "text": "If an object has a damage threshold of 10, the object takes no damage if 9 damage is dealt to it, since that damage fails to exceed the threshold."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    180
+   ]
+  },
+  {
+   "id": "damage-types",
+   "title": "Damage Types",
+   "tag": null,
+   "category": "combat",
+   "summary": "The kind of harm, like Fire or Slashing, which matters for Resistance and Immunity.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Attacks and other harmful effects deal different types of damage. Damage types have no rules of their own, but other rules, such as Resistance, rely on the types. The Damage Types table offers examples to help a GM assign a type to a new effect."
+    },
+    {
+     "type": "table",
+     "caption": "Damage Types",
+     "columns": [
+      "Type",
+      "Examples"
+     ],
+     "rows": [
+      [
+       "Acid",
+       "Corrosive liquids, digestive enzymes"
+      ],
+      [
+       "Bludgeoning",
+       "Blunt objects, constriction, falling"
+      ],
+      [
+       "Cold",
+       "Freezing water, icy blasts"
+      ],
+      [
+       "Fire",
+       "Flames, unbearable heat"
+      ],
+      [
+       "Force",
+       "Pure magical energy"
+      ],
+      [
+       "Lightning",
+       "Electricity"
+      ],
+      [
+       "Necrotic",
+       "Life-draining energy"
+      ],
+      [
+       "Piercing",
+       "Fangs, puncturing objects"
+      ],
+      [
+       "Poison",
+       "Toxic gas, venom"
+      ],
+      [
+       "Psychic",
+       "Mind-rending energy"
+      ],
+      [
+       "Radiant",
+       "Holy energy, searing radiation"
+      ],
+      [
+       "Slashing",
+       "Claws, cutting objects"
+      ],
+      [
+       "Thunder",
+       "Concussive sound"
+      ]
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    180
+   ]
+  },
+  {
+   "id": "enemy",
+   "title": "Enemy",
+   "tag": null,
+   "category": "combat",
+   "summary": "A creature working against you.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature is your enemy if it fights against you in combat, actively works to harm you, or is designated as your enemy by the rules or GM."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    181
+   ]
+  },
+  {
+   "id": "grappling",
+   "title": "Grappling",
+   "tag": null,
+   "category": "combat",
+   "summary": "Grabbing and holding a creature so it can’t move away.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature can grapple another creature. Characters typically grapple by using an Unarmed Strike. Many monsters have special attacks that allow them to quickly grapple prey. However a grapple is initiated, it follows these rules."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Grappled Condition",
+       "text": "Successfully grappling a creature gives it the Grappled condition."
+      },
+      {
+       "label": "One Grapple per Hand",
+       "text": "A creature must have a hand free to grapple another creature. Some stat blocks and game effects allow a creature to grapple using a tentacle, a maw, or another body part. Whatever part a grappler uses, it can grapple only one creature at a time with that part, and the grappler can’t use that part to target another creature unless it ends the grapple."
+      },
+      {
+       "label": "Ending a Grapple",
+       "text": "A Grappled creature can use its action to make a Strength (Athletics) or Dexterity (Acrobatics) check against the grapple’s escape DC, ending the condition on itself on a success. The condition also ends if the grappler has the Incapacitated condition or if the distance between the Grappled target and the grappler exceeds the grapple’s range. In addition, the grappler can release the target at any time (no action required)."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "unarmed-strike",
+    "grappled"
+   ],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "immunity",
+   "title": "Immunity",
+   "tag": null,
+   "category": "combat",
+   "summary": "That damage type or condition doesn’t affect you at all.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you have Immunity to a damage type or a condition, it doesn’t affect you in any way."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    183
+   ]
+  },
+  {
+   "id": "improvised-weapons",
+   "title": "Improvised Weapons",
+   "tag": null,
+   "category": "combat",
+   "summary": "Fighting with something that isn’t a weapon, like a chair leg or a bottle.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An improvised weapon is an object wielded as a makeshift weapon, such as broken glass, a table leg, or a frying pan. A Simple or Martial weapon also counts as an improvised weapon if it’s wielded in a way contrary to its design; if you use a Ranged weapon to make a melee attack or throw a Melee weapon that lacks the Thrown property, the weapon counts as an improvised weapon. An improvised weapon follows the rules below."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Proficiency",
+       "text": "Don’t add your Proficiency Bonus to attack rolls with an improvised weapon."
+      },
+      {
+       "label": "Damage",
+       "text": "On a hit, the weapon deals 1d4 damage of a type the GM thinks is appropriate for the object."
+      },
+      {
+       "label": "Range",
+       "text": "If you throw the weapon, it has a normal range of 20 feet and a long range of 60 feet."
+      },
+      {
+       "label": "Weapon Equivalents",
+       "text": "If an improvised weapon resembles a Simple or Martial weapon, the GM may say it functions as that weapon and uses that weapon’s rules. For example, the GM could treat a table leg as a Club."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    183
+   ]
+  },
+  {
+   "id": "initiative",
+   "title": "Initiative",
+   "tag": null,
+   "category": "combat",
+   "summary": "Decides the turn order in combat.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Initiative determines the order of turns during combat. The combat rules in “Playing the Game” explain how to roll Initiative."
+    },
+    {
+     "type": "text",
+     "text": "Sometimes a GM might have combatants use their Initiative scores instead of rolling Initiative. Your Initiative score equals 10 plus your Dexterity modifier. If you have Advantage on Initiative rolls, increase your Initiative score by 5. If you have Disadvantage on those rolls, decrease that score by 5."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    184
+   ]
+  },
+  {
+   "id": "knocking-out-a-creature",
+   "title": "Knocking Out a Creature",
+   "tag": null,
+   "category": "combat",
+   "summary": "Drop a foe to 1 Hit Point and knock it out instead of killing it.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "When you would reduce a creature to 0 Hit Points with a melee attack, you can instead reduce the creature to 1 Hit Point. The creature then has the Unconscious condition and starts a Short Rest."
+    },
+    {
+     "type": "text",
+     "text": "The creature remains Unconscious until it regains any Hit Points or until someone uses an action to administer first aid to it, which requires a successful DC 10 Wisdom (Medicine) check."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    184
+   ]
+  },
+  {
+   "id": "opportunity-attacks",
+   "title": "Opportunity Attacks",
+   "tag": null,
+   "category": "combat",
+   "summary": "A free swing at a creature that moves out of your reach.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "You can make an Opportunity Attack when a creature that you can see leaves your reach using its action, its Bonus Action, its Reaction, or one of its speeds. To make the Opportunity Attack, take a Reaction to make one melee attack with a weapon or an Unarmed Strike against the provoking creature. The attack occurs right before the creature leaves your reach."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    185
+   ]
+  },
+  {
+   "id": "reach",
+   "title": "Reach",
+   "tag": null,
+   "category": "combat",
+   "summary": "How far away you can make melee attacks: 5 feet unless a rule says otherwise.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature has a reach of 5 feet unless a rule says otherwise."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    186
+   ]
+  },
+  {
+   "id": "resistance",
+   "title": "Resistance",
+   "tag": null,
+   "category": "combat",
+   "summary": "You take half damage from that damage type.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you have Resistance to a damage type, damage of that type is halved against you (round down). Resistance is applied only once to an instance of damage."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    187
+   ]
+  },
+  {
+   "id": "surprise",
+   "title": "Surprise",
+   "tag": null,
+   "category": "combat",
+   "summary": "Being caught off guard when combat starts gives you Disadvantage on Initiative.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If a creature is caught unawares by the start of combat, that creature is surprised, which causes it to have Disadvantage on its Initiative roll."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    189
+   ]
+  },
+  {
+   "id": "target",
+   "title": "Target",
+   "tag": null,
+   "category": "combat",
+   "summary": "The creature or object an attack, spell or effect is aimed at.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A target is the creature or object targeted by an attack roll, forced to make a saving throw by an effect, or selected to receive the effects of a spell or another phenomenon."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    190
+   ]
+  },
+  {
+   "id": "unarmed-strike",
+   "title": "Unarmed Strike",
+   "tag": null,
+   "category": "combat",
+   "summary": "A punch, kick or shove instead of a weapon attack.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Instead of using a weapon to make a melee attack, you can use a punch, kick, headbutt, or similar forceful blow. In game terms, this is an Unarmed Strike—a melee attack that involves you using your body to damage, grapple, or shove a target within 5 feet of you."
+    },
+    {
+     "type": "text",
+     "text": "Whenever you use your Unarmed Strike, choose one of the following options for its effect."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Damage",
+       "text": "You make an attack roll against the target. Your bonus to the roll equals your Strength modifier plus your Proficiency Bonus. On a hit, the target takes Bludgeoning damage equal to 1 plus your Strength modifier."
+      },
+      {
+       "label": "Grapple",
+       "text": "The target must succeed on a Strength or Dexterity saving throw (it chooses which), or it has the Grappled condition. The DC for the saving throw and any escape attempts equals 8 plus your Strength modifier and Proficiency Bonus. This grapple is possible only if the target is no more than one size larger than you and if you have a hand free to grab it."
+      },
+      {
+       "label": "Shove",
+       "text": "The target must succeed on a Strength or Dexterity saving throw (it chooses which), or you either push it 5 feet away or cause it to have the Prone condition. The DC for the saving throw equals 8 plus your Strength modifier and Proficiency Bonus. This shove is possible only if the target is no more than one size larger than you."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "grappling"
+   ],
+   "pages": [
+    190
+   ]
+  },
+  {
+   "id": "vulnerability",
+   "title": "Vulnerability",
+   "tag": null,
+   "category": "combat",
+   "summary": "You take double damage from that damage type.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you have Vulnerability to a damage type, damage of that type is doubled against you. Vulnerability is applied only once to an instance of damage."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    191
+   ]
+  },
+  {
+   "id": "weapon",
+   "title": "Weapon",
+   "tag": null,
+   "category": "combat",
+   "summary": "Any item in the Simple or Martial weapon category.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A weapon is an object that is in the Simple or Martial weapon category."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    191
+   ]
+  },
+  {
+   "id": "weapon-attack",
+   "title": "Weapon Attack",
+   "tag": null,
+   "category": "combat",
+   "summary": "An attack roll made with a weapon.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A weapon attack is an attack roll made with a weapon."
+    }
+   ],
+   "seeAlso": [
+    "weapon"
+   ],
+   "pages": [
+    191
+   ]
+  },
+  {
+   "id": "bloodied",
+   "title": "Bloodied",
+   "tag": null,
+   "category": "health",
+   "summary": "At half your Hit Points or fewer.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature is Bloodied while it has half its Hit Points or fewer remaining."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    177
+   ]
+  },
+  {
+   "id": "dead",
+   "title": "Dead",
+   "tag": null,
+   "category": "health",
+   "summary": "Out of the game unless magic brings you back.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A dead creature has no Hit Points and can’t regain them unless it is first revived by magic such as the Raise Dead or Revivify spell. When such a spell is cast, the spirit knows who is casting it and can refuse. The spirit of a dead creature has left the body and departed for the Outer Planes, and reviving the creature requires calling the spirit back."
+    },
+    {
+     "type": "text",
+     "text": "If the creature returns to life, the revival effect determines the creature’s current Hit Points. Unless otherwise stated, the creature returns to life with any conditions, magical contagions, or curses that were affecting it at death if the durations of those effects are still ongoing. If the creature died with any Exhaustion levels, it returns with 1 fewer level. If the creature had Attunement to one or more magic items, it is no longer attuned to them."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    180
+   ]
+  },
+  {
+   "id": "death-saving-throw",
+   "title": "Death Saving Throw",
+   "tag": null,
+   "category": "health",
+   "summary": "At 0 Hit Points, roll each turn: three successes and you stabilize, three failures and you die.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A player character must make a Death Saving Throw (also called a Death Save) if they start their turn with 0 Hit Points."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Three successes or failures",
+       "text": "Roll 1d20. If the roll is 10 or higher, you succeed. Otherwise, you fail. On your third success, you become Stable. On your third failure, you die. The successes and failures don’t need to be consecutive. Both are reset to zero when you regain any Hit Points or become Stable."
+      },
+      {
+       "label": "Rolling a 1 or 20",
+       "text": "When you roll a 1 on the d20 for a Death Saving Throw, you suffer two failures. If you roll a 20, you regain 1 Hit Point."
+      },
+      {
+       "label": "Damage at 0 Hit Points",
+       "text": "If you take any damage while you have 0 Hit Points, you suffer a Death Saving Throw failure. If the damage is from a Critical Hit, you suffer two failures instead. If the damage equals or exceeds your Hit Point maximum, you die."
+      },
+      {
+       "label": "Stabilizing a character",
+       "text": "You can take the Help action to try to stabilize a creature with 0 Hit Points, which requires a successful DC 10 Wisdom (Medicine) check. A Stable creature that isn’t healed regains 1 Hit Point after 1d4 hours."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "stable",
+    "dead",
+    "hit-points"
+   ],
+   "pages": [
+    17,
+    18,
+    181
+   ]
+  },
+  {
+   "id": "healing",
+   "title": "Healing",
+   "tag": null,
+   "category": "health",
+   "summary": "Getting Hit Points back.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Healing is how you regain Hit Points."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "hit-point-dice",
+   "title": "Hit Point Dice",
+   "tag": null,
+   "category": "health",
+   "summary": "Dice you spend on a Short Rest to heal. Also called Hit Dice.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Hit Point Dice, or Hit Dice for short, help determine a player character’s Hit Point maximum, as explained in “Character Creation.” Most monsters also have Hit Dice. A creature can spend Hit Dice during a Short Rest to regain Hit Points."
+    }
+   ],
+   "seeAlso": [
+    "short-rest"
+   ],
+   "pages": [
+    183
+   ]
+  },
+  {
+   "id": "hit-points",
+   "title": "Hit Points",
+   "tag": null,
+   "category": "health",
+   "summary": "How much harm you can take before you drop.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Hit Points (HP) are a measure of how difficult it is to kill or destroy a creature or an object. Damage reduces Hit Points, and healing restores them. You can’t have more Hit Points than your Hit Point maximum, and you can’t have less than 0."
+    }
+   ],
+   "seeAlso": [
+    "breaking-objects",
+    "temporary-hit-points",
+    "healing",
+    "death-saving-throw"
+   ],
+   "pages": [
+    183
+   ]
+  },
+  {
+   "id": "long-rest",
+   "title": "Long Rest",
+   "tag": null,
+   "category": "health",
+   "summary": "Eight hours of rest that restores all Hit Points and Hit Point Dice.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Long Rest is a period of extended downtime—at least 8 hours—available to any creature. During a Long Rest, you sleep for at least 6 hours and perform no more than 2 hours of light activity, such as reading, talking, eating, or standing watch."
+    },
+    {
+     "type": "text",
+     "text": "During sleep, you have the Unconscious condition. After you finish a Long Rest, you must wait at least 16 hours before starting another one."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Benefits of the Rest",
+       "text": "To start a Long Rest, you must have at least 1 Hit Point. When you finish the rest, you gain the following benefits:",
+       "items": [
+        {
+         "label": "Regain All HP",
+         "text": "You regain all lost Hit Points and all spent Hit Point Dice. If your Hit Point maximum was reduced, it returns to normal."
+        },
+        {
+         "label": "Ability Scores Restored",
+         "text": "If any of your ability scores were reduced, they return to normal."
+        },
+        {
+         "label": "Exhaustion Reduced",
+         "text": "If you have the Exhaustion condition, its level decreases by 1."
+        },
+        {
+         "label": "Special Feature",
+         "text": "Some features are recharged by a Long Rest. If you have such a feature, it recharges in the way specified in its description."
+        }
+       ]
+      },
+      {
+       "label": "Interrupting the Rest",
+       "text": "A Long Rest is stopped by the following interruptions:",
+       "bullets": [
+        "Rolling Initiative",
+        "Casting a spell other than a cantrip",
+        "Taking any damage",
+        "1 hour of walking or other physical exertion"
+       ]
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "text": "If you rested at least 1 hour before the interruption, you gain the benefits of a Short Rest."
+    },
+    {
+     "type": "text",
+     "text": "You can resume a Long Rest immediately after an interruption. If you do so, the rest requires 1 additional hour per interruption to finish."
+    }
+   ],
+   "seeAlso": [
+    "short-rest",
+    "exhaustion"
+   ],
+   "pages": [
+    185
+   ]
+  },
+  {
+   "id": "short-rest",
+   "title": "Short Rest",
+   "tag": null,
+   "category": "health",
+   "summary": "An hour of rest where you can spend Hit Point Dice to heal.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Short Rest is a 1-hour period of downtime, during which a creature does nothing more strenuous than reading, talking, eating, or standing watch. To start a Short Rest, you must have at least 1 Hit Point."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Benefits of the Rest",
+       "text": "When you finish the rest, you gain the following benefits:",
+       "items": [
+        {
+         "label": "Spend Hit Point Dice",
+         "text": "You can spend one or more of your Hit Point Dice to regain Hit Points. For each Hit Point Die you spend in this way, roll the die and add your Constitution modifier to it. You regain Hit Points equal to the total (minimum of 1 Hit Point). You can decide to spend an additional Hit Point Die after each roll."
+        },
+        {
+         "label": "Special Feature",
+         "text": "Some features are recharged by a Short Rest. If you have such a feature, it recharges in the way specified in its description."
+        }
+       ]
+      },
+      {
+       "label": "Interrupting the Rest",
+       "text": "A Short Rest is stopped by the following interruptions:",
+       "bullets": [
+        "Rolling Initiative",
+        "Casting a spell other than a cantrip",
+        "Taking any damage"
+       ]
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "text": "An interrupted Short Rest confers no benefits."
+    }
+   ],
+   "seeAlso": [
+    "hit-point-dice",
+    "long-rest"
+   ],
+   "pages": [
+    187
+   ]
+  },
+  {
+   "id": "stable",
+   "title": "Stable",
+   "tag": null,
+   "category": "health",
+   "summary": "At 0 Hit Points but no longer rolling Death Saving Throws.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature is Stable if it has 0 Hit Points but isn’t required to make Death Saving Throws."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    188
+   ]
+  },
+  {
+   "id": "temporary-hit-points",
+   "title": "Temporary Hit Points",
+   "tag": null,
+   "category": "health",
+   "summary": "A buffer of extra points that is lost before your real Hit Points.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Temporary Hit Points are granted by certain effects and act as a buffer against losing real Hit Points."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Lose them first",
+       "text": "If you have Temporary Hit Points and take damage, those points are lost first, and any leftover damage carries over to your Hit Points."
+      },
+      {
+       "label": "Duration",
+       "text": "Temporary Hit Points last until they’re depleted or you finish a Long Rest."
+      },
+      {
+       "label": "They don’t stack",
+       "text": "If you have Temporary Hit Points and receive more of them, you decide whether to keep the ones you have or to gain the new ones."
+      },
+      {
+       "label": "Not Hit Points or healing",
+       "text": "Temporary Hit Points can’t be added to your Hit Points, and healing can’t restore them. If you have 0 Hit Points, receiving Temporary Hit Points doesn’t restore you to consciousness."
+      }
+     ]
+    },
+    {
+     "type": "example",
+     "text": "If you have 5 Temporary Hit Points and take 7 damage, you lose those points and then lose 2 Hit Points. If a spell grants you 12 Temporary Hit Points when you already have 10, you can have 12 or 10, not 22."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    18,
+    190
+   ]
+  },
+  {
+   "id": "blinded",
+   "title": "Blinded",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You can’t see; attacks against you are easier and yours are harder.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Blinded condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Can’t See",
+       "text": "You can’t see and automatically fail any ability check that requires sight."
+      },
+      {
+       "label": "Attacks Affected",
+       "text": "Attack rolls against you have Advantage, and your attack rolls have Disadvantage."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    177
+   ]
+  },
+  {
+   "id": "charmed",
+   "title": "Charmed",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You won’t harm the charmer, and it has the upper hand socially.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Charmed condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Can’t Harm the Charmer",
+       "text": "You can’t attack the charmer or target the charmer with damaging abilities or magical effects."
+      },
+      {
+       "label": "Social Advantage",
+       "text": "The charmer has Advantage on any ability check to interact with you socially."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    178
+   ]
+  },
+  {
+   "id": "condition",
+   "title": "Condition",
+   "tag": null,
+   "category": "conditions",
+   "summary": "A temporary state, like Prone or Poisoned, with fixed effects.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A condition is a temporary game state. The definition of a condition says how it affects its recipient, and various rules define how to end a condition. This glossary defines these conditions:"
+    },
+    {
+     "type": "links",
+     "items": [
+      "blinded",
+      "charmed",
+      "deafened",
+      "exhaustion",
+      "frightened",
+      "grappled",
+      "incapacitated",
+      "invisible",
+      "paralyzed",
+      "petrified",
+      "poisoned",
+      "prone",
+      "restrained",
+      "stunned",
+      "unconscious"
+     ]
+    },
+    {
+     "type": "text",
+     "text": "A condition doesn’t stack with itself; a recipient either has a condition or doesn’t. The Exhaustion condition is an exception to that rule."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    179
+   ]
+  },
+  {
+   "id": "deafened",
+   "title": "Deafened",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You can’t hear.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Deafened condition, you experience the following effect."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Can’t Hear",
+       "text": "You can’t hear and automatically fail any ability check that requires hearing."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    181
+   ]
+  },
+  {
+   "id": "exhaustion",
+   "title": "Exhaustion",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "Stacking fatigue: each level weakens every roll and your Speed. Six levels kills.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Exhaustion condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Exhaustion Levels",
+       "text": "This condition is cumulative. Each time you receive it, you gain 1 Exhaustion level. You die if your Exhaustion level is 6."
+      },
+      {
+       "label": "D20 Tests Affected",
+       "text": "When you make a D20 Test, the roll is reduced by 2 times your Exhaustion level."
+      },
+      {
+       "label": "Speed Reduced",
+       "text": "Your Speed is reduced by a number of feet equal to 5 times your Exhaustion level."
+      },
+      {
+       "label": "Removing Exhaustion Levels",
+       "text": "Finishing a Long Rest removes 1 of your Exhaustion levels. When your Exhaustion level reaches 0, the condition ends."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    181
+   ]
+  },
+  {
+   "id": "frightened",
+   "title": "Frightened",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You’re scared of a source: worse rolls while you see it, and you can’t move closer.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Frightened condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Ability Checks and Attacks Affected",
+       "text": "You have Disadvantage on ability checks and attack rolls while the source of fear is within line of sight."
+      },
+      {
+       "label": "Can’t Approach",
+       "text": "You can’t willingly move closer to the source of fear."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "grappled",
+   "title": "Grappled",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You’re held: Speed 0 until you break free.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Grappled condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Speed 0",
+       "text": "Your Speed is 0 and can’t increase."
+      },
+      {
+       "label": "Attacks Affected",
+       "text": "You have Disadvantage on attack rolls against any target other than the grappler."
+      },
+      {
+       "label": "Movable",
+       "text": "The grappler can drag or carry you when it moves, but every foot of movement costs it 1 extra foot unless you are Tiny or two or more sizes smaller than it."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "incapacitated",
+   "title": "Incapacitated",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You can’t act, react or speak.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Incapacitated condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Inactive",
+       "text": "You can’t take any action, Bonus Action, or Reaction."
+      },
+      {
+       "label": "No Concentration",
+       "text": "Your Concentration is broken."
+      },
+      {
+       "label": "Speechless",
+       "text": "You can’t speak."
+      },
+      {
+       "label": "Surprised",
+       "text": "If you’re Incapacitated when you roll Initiative, you have Disadvantage on the roll."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    184
+   ]
+  },
+  {
+   "id": "invisible",
+   "title": "Invisible",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "Nobody can see you: you’re easier to miss and better at attacking.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Invisible condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Surprise",
+       "text": "If you’re Invisible when you roll Initiative, you have Advantage on the roll."
+      },
+      {
+       "label": "Concealed",
+       "text": "You aren’t affected by any effect that requires its target to be seen unless the effect’s creator can somehow see you. Any equipment you are wearing or carrying is also concealed."
+      },
+      {
+       "label": "Attacks Affected",
+       "text": "Attack rolls against you have Disadvantage, and your attack rolls have Advantage. If a creature can somehow see you, you don’t gain this benefit against that creature."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    184
+   ]
+  },
+  {
+   "id": "paralyzed",
+   "title": "Paralyzed",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You can’t move or act, and nearby attackers score automatic Critical Hits.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Paralyzed condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Incapacitated",
+       "text": "You have the Incapacitated condition."
+      },
+      {
+       "label": "Speed 0",
+       "text": "Your Speed is 0 and can’t increase."
+      },
+      {
+       "label": "Saving Throws Affected",
+       "text": "You automatically fail Strength and Dexterity saving throws."
+      },
+      {
+       "label": "Attacks Affected",
+       "text": "Attack rolls against you have Advantage."
+      },
+      {
+       "label": "Automatic Critical Hits",
+       "text": "Any attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    186
+   ]
+  },
+  {
+   "id": "petrified",
+   "title": "Petrified",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You’re turned to stone.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Petrified condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Turned to Inanimate Substance",
+       "text": "You are transformed, along with any nonmagical objects you are wearing and carrying, into a solid inanimate substance (usually stone). Your weight increases by a factor of ten, and you cease aging."
+      },
+      {
+       "label": "Incapacitated",
+       "text": "You have the Incapacitated condition."
+      },
+      {
+       "label": "Speed 0",
+       "text": "Your Speed is 0 and can’t increase."
+      },
+      {
+       "label": "Attacks Affected",
+       "text": "Attack rolls against you have Advantage."
+      },
+      {
+       "label": "Saving Throws Affected",
+       "text": "You automatically fail Strength and Dexterity saving throws."
+      },
+      {
+       "label": "Resist Damage",
+       "text": "You have Resistance to all damage."
+      },
+      {
+       "label": "Poison Immunity",
+       "text": "You have Immunity to the Poisoned condition."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    186
+   ]
+  },
+  {
+   "id": "poisoned",
+   "title": "Poisoned",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You have Disadvantage on attacks and ability checks.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Poisoned condition, you experience the following effect."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Ability Checks and Attacks Affected",
+       "text": "You have Disadvantage on attack rolls and ability checks."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    186
+   ]
+  },
+  {
+   "id": "prone",
+   "title": "Prone",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You’re on the ground: hard to hit from afar, easy to hit up close.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Prone condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Restricted Movement",
+       "text": "Your only movement options are to crawl or to spend an amount of movement equal to half your Speed (round down) to right yourself and thereby end the condition. If your Speed is 0, you can’t right yourself."
+      },
+      {
+       "label": "Attacks Affected",
+       "text": "You have Disadvantage on attack rolls. An attack roll against you has Advantage if the attacker is within 5 feet of you. Otherwise, that attack roll has Disadvantage."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "speed",
+    "advantage",
+    "disadvantage",
+    "crawling"
+   ],
+   "pages": [
+    186
+   ]
+  },
+  {
+   "id": "restrained",
+   "title": "Restrained",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You’re stuck in place and easier to hit.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Restrained condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Speed 0",
+       "text": "Your Speed is 0 and can’t increase."
+      },
+      {
+       "label": "Attacks Affected",
+       "text": "Attack rolls against you have Advantage, and your attack rolls have Disadvantage."
+      },
+      {
+       "label": "Saving Throws Affected",
+       "text": "You have Disadvantage on Dexterity saving throws."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    187
+   ]
+  },
+  {
+   "id": "stunned",
+   "title": "Stunned",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You can’t act and fail Strength and Dexterity saves.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Stunned condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Incapacitated",
+       "text": "You have the Incapacitated condition."
+      },
+      {
+       "label": "Saving Throws Affected",
+       "text": "You automatically fail Strength and Dexterity saving throws."
+      },
+      {
+       "label": "Attacks Affected",
+       "text": "Attack rolls against you have Advantage."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    189
+   ]
+  },
+  {
+   "id": "unconscious",
+   "title": "Unconscious",
+   "tag": "Condition",
+   "category": "conditions",
+   "summary": "You’re knocked out: you drop everything and fall Prone.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you have the Unconscious condition, you experience the following effects."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Inert",
+       "text": "You have the Incapacitated and Prone conditions, and you drop whatever you’re holding. When this condition ends, you remain Prone."
+      },
+      {
+       "label": "Speed 0",
+       "text": "Your Speed is 0 and can’t increase."
+      },
+      {
+       "label": "Attacks Affected",
+       "text": "Attack rolls against you have Advantage."
+      },
+      {
+       "label": "Saving Throws Affected",
+       "text": "You automatically fail Strength and Dexterity saving throws."
+      },
+      {
+       "label": "Automatic Critical Hits",
+       "text": "Any attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you."
+      },
+      {
+       "label": "Unaware",
+       "text": "You’re unaware of your surroundings."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    191
+   ]
+  },
+  {
+   "id": "burrow-speed",
+   "title": "Burrow Speed",
+   "tag": null,
+   "category": "movement",
+   "summary": "Lets you move through sand, earth, mud or ice.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature that has a Burrow Speed can use that speed to move through sand, earth, mud, or ice. The creature can’t burrow through solid rock unless the creature has a trait that allows it to do so."
+    }
+   ],
+   "seeAlso": [
+    "speed"
+   ],
+   "pages": [
+    178
+   ]
+  },
+  {
+   "id": "carrying-capacity",
+   "title": "Carrying Capacity",
+   "tag": null,
+   "category": "movement",
+   "summary": "How much weight you can carry, based on your Strength and size.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Your size and Strength score determine the maximum weight in pounds that you can carry, as shown in the Carrying Capacity table. The table also shows the maximum weight you can drag, lift, or push."
+    },
+    {
+     "type": "text",
+     "text": "While dragging, lifting, or pushing weight in excess of the maximum weight you can carry, your Speed can be no more than 5 feet."
+    },
+    {
+     "type": "table",
+     "caption": "Carrying Capacity",
+     "columns": [
+      "Creature Size",
+      "Carry",
+      "Drag/Lift/Push"
+     ],
+     "rows": [
+      [
+       "Tiny",
+       "Str. × 7.5 lb.",
+       "Str. × 15 lb."
+      ],
+      [
+       "Small/Medium",
+       "Str. × 15 lb.",
+       "Str. × 30 lb."
+      ],
+      [
+       "Large",
+       "Str. × 30 lb.",
+       "Str. × 60 lb."
+      ],
+      [
+       "Huge",
+       "Str. × 60 lb.",
+       "Str. × 120 lb."
+      ],
+      [
+       "Gargantuan",
+       "Str. × 120 lb.",
+       "Str. × 240 lb."
+      ]
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    178
+   ]
+  },
+  {
+   "id": "climb-speed",
+   "title": "Climb Speed",
+   "tag": null,
+   "category": "movement",
+   "summary": "Lets you climb without paying extra movement.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Climb Speed can be used in place of Speed to traverse a vertical surface without expending the extra movement normally associated with climbing."
+    }
+   ],
+   "seeAlso": [
+    "climbing",
+    "speed"
+   ],
+   "pages": [
+    179
+   ]
+  },
+  {
+   "id": "climbing",
+   "title": "Climbing",
+   "tag": null,
+   "category": "movement",
+   "summary": "Climbing costs double movement unless you have a Climb Speed.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you’re climbing, each foot of movement costs 1 extra foot (2 extra feet in Difficult Terrain). You ignore this extra cost if you have a Climb Speed and use it to climb."
+    },
+    {
+     "type": "text",
+     "text": "At the GM’s option, climbing a slippery surface or one with few handholds might require a successful DC 15 Strength (Athletics) check."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    178
+   ]
+  },
+  {
+   "id": "crawling",
+   "title": "Crawling",
+   "tag": null,
+   "category": "movement",
+   "summary": "Crawling costs double movement.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you’re crawling, each foot of movement costs 1 extra foot (2 extra feet in Difficult Terrain)."
+    }
+   ],
+   "seeAlso": [
+    "speed"
+   ],
+   "pages": [
+    179
+   ]
+  },
+  {
+   "id": "difficult-terrain",
+   "title": "Difficult Terrain",
+   "tag": null,
+   "category": "movement",
+   "summary": "Rough ground where every foot of movement costs 2.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If a space is Difficult Terrain, every foot of movement in that space costs 1 extra foot. Difficult Terrain isn’t cumulative; either a space is Difficult Terrain or it isn’t."
+    },
+    {
+     "type": "example",
+     "text": "Moving 5 feet through Difficult Terrain costs 10 feet of movement."
+    },
+    {
+     "type": "text",
+     "text": "A space is Difficult Terrain if the space contains any of the following or something similar:"
+    },
+    {
+     "type": "bullets",
+     "items": [
+      "A creature that isn’t Tiny or your ally",
+      "Furniture that is sized for creatures of your size or larger",
+      "Heavy snow, ice, rubble, or undergrowth",
+      "Liquid that’s between shin- and waist-deep",
+      "A narrow opening sized for a creature one size smaller than you",
+      "A slope of 20 degrees or more"
+     ]
+    }
+   ],
+   "seeAlso": [
+    "speed"
+   ],
+   "pages": [
+    181
+   ]
+  },
+  {
+   "id": "fly-speed",
+   "title": "Fly Speed",
+   "tag": null,
+   "category": "movement",
+   "summary": "Lets you move through the air.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Fly Speed can be used to travel through the air. While you have a Fly Speed, you can stay aloft until you land, fall, or die."
+    }
+   ],
+   "seeAlso": [
+    "flying",
+    "speed"
+   ],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "flying",
+   "title": "Flying",
+   "tag": null,
+   "category": "movement",
+   "summary": "Flying creatures fall if they’re knocked Prone or can’t act, unless they can hover.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A variety of effects allow a creature to fly. While flying, you fall if you have the Incapacitated or Prone condition or your Fly Speed is reduced to 0. You can stay aloft in those circumstances if you can hover."
+    }
+   ],
+   "seeAlso": [
+    "falling",
+    "fly-speed"
+   ],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "high-jump",
+   "title": "High Jump",
+   "tag": null,
+   "category": "movement",
+   "summary": "Jump up 3 plus your Strength modifier in feet with a running start.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "When you make a High Jump, you leap into the air a number of feet equal to 3 plus your Strength modifier (minimum of 0 feet) if you move at least 10 feet on foot immediately before the jump. When you make a standing High Jump, you can jump only half that distance. Either way, each foot of the jump costs a foot of movement."
+    },
+    {
+     "type": "text",
+     "text": "You can extend your arms half your height above yourself during the jump. Thus, you can reach a distance equal to the height of the jump plus 1½ times your height."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    183
+   ]
+  },
+  {
+   "id": "hover",
+   "title": "Hover",
+   "tag": null,
+   "category": "movement",
+   "summary": "Lets a flying creature stay in the air even when it would otherwise fall.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Some creatures can hover, as noted in their stat blocks, and some spells and other effects grant the ability to hover. Hovering while flying prevents you from falling in certain circumstances."
+    }
+   ],
+   "seeAlso": [
+    "flying"
+   ],
+   "pages": [
+    183
+   ]
+  },
+  {
+   "id": "jumping",
+   "title": "Jumping",
+   "tag": null,
+   "category": "movement",
+   "summary": "Jumps are either Long Jumps (across) or High Jumps (up).",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "When you jump, you make either a Long Jump (horizontal) or a High Jump (vertical)."
+    }
+   ],
+   "seeAlso": [
+    "long-jump",
+    "high-jump"
+   ],
+   "pages": [
+    184
+   ]
+  },
+  {
+   "id": "long-jump",
+   "title": "Long Jump",
+   "tag": null,
+   "category": "movement",
+   "summary": "Jump across up to your Strength score in feet with a running start.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "When you make a Long Jump, you leap horizontally a number of feet up to your Strength score if you move at least 10 feet immediately before the jump. When you make a standing Long Jump, you can leap only half that distance. Either way, each foot you jump costs a foot of movement."
+    },
+    {
+     "type": "text",
+     "text": "If you land in Difficult Terrain, you must succeed on a DC 10 Dexterity (Acrobatics) check or have the Prone condition."
+    },
+    {
+     "type": "text",
+     "text": "This Long Jump rule assumes that the height of the jump doesn’t matter, such as a jump across a stream or chasm. At your GM’s option, you must succeed on a DC 10 Strength (Athletics) check to clear a low obstacle (no taller than a quarter of the jump’s distance), such as a hedge or low wall. Otherwise, you hit the obstacle."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    184
+   ]
+  },
+  {
+   "id": "occupied-space",
+   "title": "Occupied Space",
+   "tag": null,
+   "category": "movement",
+   "summary": "A space with a creature in it or filled with objects.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A space is occupied if a creature is in it or if it is completely filled by objects."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    185
+   ]
+  },
+  {
+   "id": "size",
+   "title": "Size",
+   "tag": null,
+   "category": "movement",
+   "summary": "Tiny to Gargantuan: how much space a creature takes up.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature or an object belongs to a size category: Tiny, Small, Medium, Large, Huge, or Gargantuan. A creature’s size determines how much space the creature occupies in combat. An object’s size affects its Hit Points."
+    }
+   ],
+   "seeAlso": [
+    "breaking-objects"
+   ],
+   "pages": [
+    188
+   ]
+  },
+  {
+   "id": "speed",
+   "title": "Speed",
+   "tag": null,
+   "category": "movement",
+   "summary": "How far you can move on your turn, in feet.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature has a Speed, which is the distance in feet the creature can cover when it moves on its turn."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Special Speeds",
+       "text": "Some creatures have special speeds, such as a Burrow Speed, Climb Speed, Fly Speed, or Swim Speed, each of which is defined in this glossary. If you have more than one speed, choose which one to use when you move; you can switch between the speeds during your move. Whenever you switch, subtract the distance already moved from the new speed. The result determines how much farther you can move. If the result is 0 or less, you can’t use the new speed during the current move. For example, if you have a Speed of 30 and a Fly Speed of 40, you could fly 10 feet, walk 10 feet, and leap into the air to fly 20 feet more."
+      },
+      {
+       "label": "Changes to Your Speeds",
+       "text": "If an effect increases or decreases your Speed for a time, any special speed you have increases or decreases by an equal amount for the same duration. For example, if your Speed is reduced to 0 and you have a Climb Speed, your Climb Speed is also reduced to 0. Similarly, if your Speed is halved and you have a Fly Speed, your Fly Speed is also halved."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "climbing",
+    "crawling",
+    "flying",
+    "jumping",
+    "swimming"
+   ],
+   "pages": [
+    188
+   ]
+  },
+  {
+   "id": "swim-speed",
+   "title": "Swim Speed",
+   "tag": null,
+   "category": "movement",
+   "summary": "Lets you swim without paying extra movement.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Swim Speed can be used to swim without expending the extra movement normally associated with swimming."
+    }
+   ],
+   "seeAlso": [
+    "swimming",
+    "speed"
+   ],
+   "pages": [
+    189
+   ]
+  },
+  {
+   "id": "swimming",
+   "title": "Swimming",
+   "tag": null,
+   "category": "movement",
+   "summary": "Swimming costs double movement unless you have a Swim Speed.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "While you’re swimming, each foot of movement costs 1 extra foot (2 extra feet in Difficult Terrain). You ignore this extra cost if you have a Swim Speed and use it to swim. At the GM’s option, moving any distance in rough water might require a successful DC 15 Strength (Athletics) check."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    189
+   ]
+  },
+  {
+   "id": "unoccupied-space",
+   "title": "Unoccupied Space",
+   "tag": null,
+   "category": "movement",
+   "summary": "A space with no creatures and room to stand.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A space is unoccupied if no creatures are in it and it isn’t completely filled by objects."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    191
+   ]
+  },
+  {
+   "id": "blindsight",
+   "title": "Blindsight",
+   "tag": null,
+   "category": "senses",
+   "summary": "Perceive your surroundings within a range without needing to see.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you have Blindsight, you can see within a specific range without relying on physical sight. Within that range, you can see anything that isn’t behind Total Cover even if you have the Blinded condition or are in Darkness. Moreover, in that range, you can see something that has the Invisible condition."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    177
+   ]
+  },
+  {
+   "id": "bright-light",
+   "title": "Bright Light",
+   "tag": null,
+   "category": "senses",
+   "summary": "Normal light. Everyone can see.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Bright Light is normal illumination."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    178
+   ]
+  },
+  {
+   "id": "darkness",
+   "title": "Darkness",
+   "tag": null,
+   "category": "senses",
+   "summary": "No light: Heavily Obscured.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An area of Darkness is Heavily Obscured."
+    }
+   ],
+   "seeAlso": [
+    "heavily-obscured"
+   ],
+   "pages": [
+    180
+   ]
+  },
+  {
+   "id": "darkvision",
+   "title": "Darkvision",
+   "tag": null,
+   "category": "senses",
+   "summary": "See in the dark as if it were dim light, in shades of gray.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you have Darkvision, you can see in Dim Light within a specified range as if it were Bright Light and in Darkness within that range as if it were Dim Light. You discern colors in that Darkness only as shades of gray."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    180
+   ]
+  },
+  {
+   "id": "dim-light",
+   "title": "Dim Light",
+   "tag": null,
+   "category": "senses",
+   "summary": "Shadowy light: Lightly Obscured.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An area with Dim Light is Lightly Obscured."
+    }
+   ],
+   "seeAlso": [
+    "lightly-obscured"
+   ],
+   "pages": [
+    181
+   ]
+  },
+  {
+   "id": "heavily-obscured",
+   "title": "Heavily Obscured",
+   "tag": null,
+   "category": "senses",
+   "summary": "Impossible to see into: you’re effectively Blinded looking into it.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "You have the Blinded condition while trying to see something in a Heavily Obscured space."
+    }
+   ],
+   "seeAlso": [
+    "blinded",
+    "darkness"
+   ],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "lightly-obscured",
+   "title": "Lightly Obscured",
+   "tag": null,
+   "category": "senses",
+   "summary": "Hard to see into: Disadvantage on Perception checks that rely on sight.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "You have Disadvantage on Wisdom (Perception) checks to see something in a Lightly Obscured space."
+    }
+   ],
+   "seeAlso": [
+    "dim-light"
+   ],
+   "pages": [
+    184
+   ]
+  },
+  {
+   "id": "passive-perception",
+   "title": "Passive Perception",
+   "tag": null,
+   "category": "senses",
+   "summary": "How much you notice without trying: 10 plus your Perception bonus.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Passive Perception is a score that reflects a creature’s general awareness of its surroundings. The GM uses this score when determining whether a creature notices something without consciously making a Wisdom (Perception) check."
+    },
+    {
+     "type": "text",
+     "text": "A creature’s Passive Perception equals 10 plus the creature’s Wisdom (Perception) check bonus. If the creature has Advantage on such checks, increase the score by 5. If the creature has Disadvantage on them, decrease the score by 5. If that character has Advantage on Wisdom (Perception) checks, the score becomes 19."
+    },
+    {
+     "type": "example",
+     "text": "A level 1 character with a Wisdom of 15 and proficiency in Perception has a Passive Perception of 14 (10 + 2 + 2)."
+    }
+   ],
+   "seeAlso": [
+    "perception"
+   ],
+   "pages": [
+    186
+   ]
+  },
+  {
+   "id": "tremorsense",
+   "title": "Tremorsense",
+   "tag": null,
+   "category": "senses",
+   "summary": "Sense creatures through vibrations in the ground.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature with Tremorsense can pinpoint the location of creatures and moving objects within a specific range, provided that the creature with Tremorsense and anything it is detecting are both in contact with the same surface (such as the ground, a wall, or a ceiling) or the same liquid."
+    },
+    {
+     "type": "text",
+     "text": "Tremorsense can’t detect creatures or objects in the air, and it doesn’t count as a form of sight."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    190
+   ]
+  },
+  {
+   "id": "truesight",
+   "title": "Truesight",
+   "tag": null,
+   "category": "senses",
+   "summary": "See through darkness, invisibility, illusions and magical transformations.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you have Truesight, your vision is enhanced within a specified range. Within that range, your vision pierces through the following:"
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Darkness",
+       "text": "You can see in normal and magical Darkness."
+      },
+      {
+       "label": "Invisibility",
+       "text": "You see creatures and objects that have the Invisible condition."
+      },
+      {
+       "label": "Visual Illusions",
+       "text": "Visual illusions appear transparent to you, and you automatically succeed on saving throws against them."
+      },
+      {
+       "label": "Transformations",
+       "text": "You discern the true form of any creature or object you see that has been transformed by magic."
+      },
+      {
+       "label": "Ethereal Plane",
+       "text": "You see into the Ethereal Plane."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    190
+   ]
+  },
+  {
+   "id": "attitude",
+   "title": "Attitude",
+   "tag": null,
+   "category": "social",
+   "summary": "How a creature feels about you: Friendly, Indifferent or Hostile.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A monster has a starting attitude toward a player character: Friendly, Hostile, or Indifferent."
+    }
+   ],
+   "seeAlso": [
+    "friendly",
+    "hostile",
+    "indifferent",
+    "influence"
+   ],
+   "pages": [
+    177
+   ]
+  },
+  {
+   "id": "friendly",
+   "title": "Friendly",
+   "tag": "Attitude",
+   "category": "social",
+   "summary": "Likes you: you have Advantage when influencing it.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Friendly creature views you favorably. You have Advantage on an ability check to influence a Friendly creature."
+    }
+   ],
+   "seeAlso": [
+    "influence"
+   ],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "hostile",
+   "title": "Hostile",
+   "tag": "Attitude",
+   "category": "social",
+   "summary": "Dislikes you: you have Disadvantage when influencing it.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Hostile creature views you unfavorably. You have Disadvantage on an ability check to influence a Hostile creature."
+    }
+   ],
+   "seeAlso": [
+    "influence"
+   ],
+   "pages": [
+    183
+   ]
+  },
+  {
+   "id": "indifferent",
+   "title": "Indifferent",
+   "tag": "Attitude",
+   "category": "social",
+   "summary": "Doesn’t care either way. The default attitude.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An Indifferent creature has no desire to help or hinder you. Indifferent is the default attitude of a monster."
+    }
+   ],
+   "seeAlso": [
+    "influence"
+   ],
+   "pages": [
+    184
+   ]
+  },
+  {
+   "id": "burning",
+   "title": "Burning",
+   "tag": "Hazard",
+   "category": "hazards",
+   "summary": "On fire: 1d4 Fire damage each turn until you put it out.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A burning creature or object takes 1d4 Fire damage at the start of each of its turns. As an action, you can extinguish fire on yourself by giving yourself the Prone condition and rolling on the ground. The fire also goes out if it is doused, submerged, or suffocated."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    178
+   ]
+  },
+  {
+   "id": "dehydration",
+   "title": "Dehydration",
+   "tag": "Hazard",
+   "category": "hazards",
+   "summary": "Not drinking enough water causes Exhaustion.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature requires an amount of water per day based on its size, as shown in the Water Needs per Day table. A creature that drinks less than half the required water for a day gains 1 Exhaustion level at the day’s end. Exhaustion caused by dehydration can’t be removed until the creature drinks the full amount of water required for a day."
+    },
+    {
+     "type": "table",
+     "caption": "Water Needs per Day",
+     "columns": [
+      "Size",
+      "Water"
+     ],
+     "rows": [
+      [
+       "Tiny",
+       "1/4 gallon"
+      ],
+      [
+       "Small",
+       "1 gallon"
+      ],
+      [
+       "Medium",
+       "1 gallon"
+      ],
+      [
+       "Large",
+       "4 gallons"
+      ],
+      [
+       "Huge",
+       "16 gallons"
+      ],
+      [
+       "Gargantuan",
+       "64 gallons"
+      ]
+     ]
+    }
+   ],
+   "seeAlso": [
+    "exhaustion"
+   ],
+   "pages": [
+    181
+   ]
+  },
+  {
+   "id": "falling",
+   "title": "Falling",
+   "tag": "Hazard",
+   "category": "hazards",
+   "summary": "1d6 Bludgeoning damage per 10 feet fallen, and you land Prone.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature that falls takes 1d6 Bludgeoning damage at the end of the fall for every 10 feet it fell, to a maximum of 20d6. When the creature lands, it has the Prone condition unless it avoids taking any damage from the fall."
+    },
+    {
+     "type": "text",
+     "text": "A creature that falls into water or another liquid can use its Reaction to make a DC 15 Strength (Athletics) or Dexterity (Acrobatics) check to hit the surface head or feet first. On a successful check, any damage resulting from the fall is halved."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "hazard",
+   "title": "Hazard",
+   "tag": null,
+   "category": "hazards",
+   "summary": "A danger from the environment, like fire or falling.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A hazard is an environmental danger."
+    }
+   ],
+   "seeAlso": [
+    "burning",
+    "dehydration",
+    "falling",
+    "malnutrition",
+    "suffocation"
+   ],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "malnutrition",
+   "title": "Malnutrition",
+   "tag": "Hazard",
+   "category": "hazards",
+   "summary": "Not eating enough causes Exhaustion.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature needs an amount of food per day based on its size, as shown in the Food Needs per Day table. A creature that eats but consumes less than half the required food for a day must succeed on a DC 10 Constitution saving throw or gain 1 Exhaustion level at the day’s end. A creature that eats nothing for 5 days automatically gains 1 Exhaustion level at the end of the fifth day as well as an additional level at the end of each subsequent day without food."
+    },
+    {
+     "type": "text",
+     "text": "Exhaustion caused by malnutrition can’t be removed until the creature eats the full amount of food required for a day."
+    },
+    {
+     "type": "table",
+     "caption": "Food Needs per Day",
+     "columns": [
+      "Size",
+      "Food"
+     ],
+     "rows": [
+      [
+       "Tiny",
+       "1/4 pound"
+      ],
+      [
+       "Small",
+       "1 pound"
+      ],
+      [
+       "Medium",
+       "1 pound"
+      ],
+      [
+       "Large",
+       "4 pounds"
+      ],
+      [
+       "Huge",
+       "16 pounds"
+      ],
+      [
+       "Gargantuan",
+       "64 pounds"
+      ]
+     ]
+    }
+   ],
+   "seeAlso": [
+    "exhaustion"
+   ],
+   "pages": [
+    185
+   ]
+  },
+  {
+   "id": "suffocation",
+   "title": "Suffocation",
+   "tag": "Hazard",
+   "category": "hazards",
+   "summary": "Out of breath: you gain Exhaustion every turn.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature can hold its breath for a number of minutes equal to 1 plus its Constitution modifier (minimum of 30 seconds) before suffocation begins. When a creature runs out of breath or is choking, it gains 1 Exhaustion level at the end of each of its turns. When a creature can breathe again, it removes all levels of Exhaustion it gained from suffocating."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    189
+   ]
+  },
+  {
+   "id": "area-of-effect",
+   "title": "Area of Effect",
+   "tag": null,
+   "category": "magic",
+   "summary": "The shape a spell or effect covers, like a Cone or Sphere.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "The descriptions of many spells and other features specify that they have an area of effect, which typically has one of six shapes. These shapes are defined elsewhere in this glossary:"
+    },
+    {
+     "type": "links",
+     "items": [
+      "cone",
+      "cube",
+      "cylinder",
+      "emanation",
+      "line",
+      "sphere"
+     ]
+    },
+    {
+     "type": "text",
+     "text": "An area of effect has a point of origin, a location from which the effect’s energy erupts. The rules for each shape specify how to position its point of origin. If all straight lines extending from the point of origin to a location in the area of effect are blocked, that location isn’t included in the area of effect. To block a line, an obstruction must provide Total Cover."
+    },
+    {
+     "type": "text",
+     "text": "If the creator of an area of effect places it at an unseen point and an obstruction—such as a wall— is between the creator and that point, the point of origin comes into being on the near side of the obstruction."
+    }
+   ],
+   "seeAlso": [
+    "cover"
+   ],
+   "pages": [
+    177
+   ]
+  },
+  {
+   "id": "attunement",
+   "title": "Attunement",
+   "tag": null,
+   "category": "magic",
+   "summary": "Bonding with a magic item to use it. You can attune to three at a time.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Some magic items require a creature to form a bond—called Attunement—with them before the creature can use an item’s magical properties. A creature can have Attunement with no more than three magic items at a time."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    177
+   ]
+  },
+  {
+   "id": "cantrip",
+   "title": "Cantrip",
+   "tag": null,
+   "category": "magic",
+   "summary": "A spell you can cast at will, without a spell slot.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A cantrip is a level 0 spell, which is cast without a spell slot."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    178
+   ]
+  },
+  {
+   "id": "concentration",
+   "title": "Concentration",
+   "tag": null,
+   "category": "magic",
+   "summary": "Some spells last only while you keep focusing on them.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Some spells and other effects require Concentration to remain active, as specified in their descriptions. If the effect’s creator loses Concentration, the effect ends. If the effect has a maximum duration, the effect’s description specifies how long the creator can concentrate on it: up to 1 minute, 1 hour, or some other duration. The creator can end Concentration at any time (no action required). The following factors break Concentration."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Another Concentration Effect",
+       "text": "You lose Concentration on an effect the moment you start casting a spell that requires Concentration or activate another effect that requires Concentration."
+      },
+      {
+       "label": "Damage",
+       "text": "If you take damage, you must succeed on a Constitution saving throw to maintain Concentration. The DC equals 10 or half the damage taken (round down), whichever number is higher, up to a maximum DC of 30."
+      },
+      {
+       "label": "Incapacitated or Dead",
+       "text": "Your Concentration ends if you have the Incapacitated condition or you die."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    179
+   ]
+  },
+  {
+   "id": "cone",
+   "title": "Cone",
+   "tag": "Area of Effect",
+   "category": "magic",
+   "summary": "An area that widens as it extends from you.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Cone is an area of effect that extends in straight lines from a point of origin in a direction its creator chooses. A Cone’s width at any point along its length is equal to that point’s distance from the point of origin. The effect that creates a Cone specifies its maximum length."
+    },
+    {
+     "type": "example",
+     "text": "A Cone is 15 feet wide at a point along its length that is 15 feet from the point of origin."
+    },
+    {
+     "type": "text",
+     "text": "A Cone’s point of origin isn’t included in the area of effect unless its creator decides otherwise."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    179
+   ]
+  },
+  {
+   "id": "cube",
+   "title": "Cube",
+   "tag": "Area of Effect",
+   "category": "magic",
+   "summary": "An area shaped like a box.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Cube is an area of effect that extends in straight lines from a point of origin located anywhere on a face of the Cube. The effect that creates a Cube specifies its size, which is the length of each side."
+    },
+    {
+     "type": "text",
+     "text": "A Cube’s point of origin isn’t included in the area of effect unless its creator decides otherwise."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    179
+   ]
+  },
+  {
+   "id": "curses",
+   "title": "Curses",
+   "tag": null,
+   "category": "magic",
+   "summary": "A harmful magical effect that stays until it’s removed.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Some game effects curse a creature or an object. The effect that confers a curse defines what the curse does. Curses can be removed by the Remove Curse and Greater Restoration spells or other magic that explicitly ends curses."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    179
+   ]
+  },
+  {
+   "id": "cylinder",
+   "title": "Cylinder",
+   "tag": "Area of Effect",
+   "category": "magic",
+   "summary": "An area shaped like a column.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Cylinder is an area of effect that extends in straight lines from a point of origin located at the center of the circular top or bottom of the Cylinder. The effect that creates a Cylinder specifies the radius of the Cylinder’s base and the Cylinder’s height."
+    },
+    {
+     "type": "text",
+     "text": "A Cylinder’s point of origin is included in the area of effect."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    180
+   ]
+  },
+  {
+   "id": "emanation",
+   "title": "Emanation",
+   "tag": "Area of Effect",
+   "category": "magic",
+   "summary": "An area that spreads out from a creature or object and moves with it.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An Emanation is an area of effect that extends in straight lines from a creature or an object in all directions. The effect that creates an Emanation specifies the distance it extends."
+    },
+    {
+     "type": "text",
+     "text": "An Emanation moves with the creature or object that is its origin unless it is an instantaneous or a stationary effect."
+    },
+    {
+     "type": "text",
+     "text": "An Emanation’s origin (creature or object) isn’t included in the area of effect unless its creator decides otherwise."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    181
+   ]
+  },
+  {
+   "id": "illusions",
+   "title": "Illusions",
+   "tag": null,
+   "category": "magic",
+   "summary": "Magical fakes that fool the senses but have no real substance.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Spells and other effects sometimes create magical illusions. Such an effect defines what the illusion does and which senses or mental faculties it deceives."
+    },
+    {
+     "type": "text",
+     "text": "If an illusion manifests in space, the illusion is insubstantial and weightless, yet it seems to be affected by the environment as if the illusion were real unless the effect that created it specifies otherwise. Similarly, an audible illusion echoes in an echoey space."
+    },
+    {
+     "type": "example",
+     "text": "A visual illusion of a creature casts shadows and reflections, and wind appears to affect the illusory creature."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    183
+   ]
+  },
+  {
+   "id": "line",
+   "title": "Line",
+   "tag": "Area of Effect",
+   "category": "magic",
+   "summary": "An area in a straight path.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Line is an area of effect that extends from a point of origin in a straight path along its length and covers an area defined by its width. The effect that creates a Line specifies its length and width."
+    },
+    {
+     "type": "text",
+     "text": "A Line’s point of origin isn’t included in the area of effect unless its creator decides otherwise."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    184
+   ]
+  },
+  {
+   "id": "magical-effect",
+   "title": "Magical Effect",
+   "tag": null,
+   "category": "magic",
+   "summary": "Anything created by a spell, a magic item or something the rules call magical.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An effect is magical if it is created by a spell, a magic item, or a phenomenon that a rule labels as magical."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    185
+   ]
+  },
+  {
+   "id": "possession",
+   "title": "Possession",
+   "tag": null,
+   "category": "magic",
+   "summary": "Another being taking control of a creature’s body.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Some effects cause a creature to be possessed by another creature or entity. A possessing effect defines how the possession operates. Possession can be prevented by the Protection from Evil and Good spell and ended by the Dispel Evil and Good spell."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    186
+   ]
+  },
+  {
+   "id": "ritual",
+   "title": "Ritual",
+   "tag": null,
+   "category": "magic",
+   "summary": "Cast certain spells without a spell slot by taking 10 minutes longer.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If you have a spell prepared that has the Ritual tag, you can cast that spell as a Ritual. The Ritual version of a spell takes 10 minutes longer to cast than normal. It also doesn’t expend a spell slot, which means the ritual version of a spell can’t be cast at a higher level."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    187
+   ]
+  },
+  {
+   "id": "shape-shifting",
+   "title": "Shape-Shifting",
+   "tag": null,
+   "category": "magic",
+   "summary": "Taking another form, like with Wild Shape or Polymorph.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "If an effect, such as Wild Shape or the Polymorph spell, lets you shape-shift, its description specifies what happens to you. Unless that description says otherwise, any ongoing effects on you—conditions, spells, curses, and the like—carry over from one form to the other. You revert to your true form if you die."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    187
+   ]
+  },
+  {
+   "id": "spell",
+   "title": "Spell",
+   "tag": null,
+   "category": "magic",
+   "summary": "A magical effect described in the Spells chapter.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A spell is a magical effect that has the characteristics described in “Spells.”"
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    188
+   ]
+  },
+  {
+   "id": "spell-attack",
+   "title": "Spell Attack",
+   "tag": null,
+   "category": "magic",
+   "summary": "An attack roll made with a spell.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A spell attack is an attack roll made as part of a spell or another magical effect."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    188
+   ]
+  },
+  {
+   "id": "spellcasting-focus",
+   "title": "Spellcasting Focus",
+   "tag": null,
+   "category": "magic",
+   "summary": "An item, like a wand or holy symbol, that replaces simple spell components.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Spellcasting Focus is an object that certain creatures can use in place of a spell’s Material components if those materials aren’t consumed by the spell and don’t have a cost specified. Some classes allow its members to use certain types of Spellcasting Focuses."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    188
+   ]
+  },
+  {
+   "id": "sphere",
+   "title": "Sphere",
+   "tag": "Area of Effect",
+   "category": "magic",
+   "summary": "An area that spreads out in all directions from a point.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A Sphere is an area of effect that extends in straight lines from a point of origin outward in all directions. The effect that creates a Sphere specifies the distance it extends as the radius of the Sphere."
+    },
+    {
+     "type": "text",
+     "text": "A Sphere’s point of origin is included in the Sphere’s area of effect."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    188
+   ]
+  },
+  {
+   "id": "telepathy",
+   "title": "Telepathy",
+   "tag": null,
+   "category": "magic",
+   "summary": "Talking mind to mind, without needing a shared language.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Telepathy is a magical ability that allows a creature to communicate mentally with another creature within a specified range. Unless a rule states otherwise, the contacted creature doesn’t need to share a language with the telepath to understand this communication, but the contacted creature must be able to understand at least one language or be telepathic itself to understand."
+    },
+    {
+     "type": "text",
+     "text": "A telepath doesn’t need to see a contacted creature, and the telepath can start or end the telepathic contact at any time (no action required). Telepathic contact can’t be initiated and is immediately broken if either the telepath or the other creature has the Incapacitated condition. Telepathic contact is also broken if the contacted creature is no longer within the telepathy’s range or if the telepath contacts a different creature within range."
+    },
+    {
+     "type": "text",
+     "text": "A creature without telepathy can receive telepathic messages but can’t initiate a telepathic conversation. Once a telepathic conversation starts, the non-telepath can communicate mentally to the telepath until the telepathic connection ends."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    190
+   ]
+  },
+  {
+   "id": "teleportation",
+   "title": "Teleportation",
+   "tag": null,
+   "category": "magic",
+   "summary": "Vanishing and reappearing elsewhere instantly.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Teleportation is a special kind of magical transportation. If you teleport, you disappear and reappear elsewhere instantly, without moving through the intervening space. This transportation doesn’t expend movement unless a rule tells you otherwise, and teleportation never provokes Opportunity Attacks."
+    },
+    {
+     "type": "text",
+     "text": "When you teleport, all the equipment you’re wearing and carrying teleports with you. If you’re touching another creature when you teleport, that creature doesn’t teleport with you unless the teleportation effect says otherwise."
+    },
+    {
+     "type": "text",
+     "text": "If the destination space of your teleportation is occupied by another creature or blocked by a solid obstacle, you instead appear in the nearest unoccupied space of your choice."
+    },
+    {
+     "type": "text",
+     "text": "The description of a teleportation effect tells you if you must see the teleportation’s destination."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    190
+   ]
+  },
+  {
+   "id": "adventure",
+   "title": "Adventure",
+   "tag": null,
+   "category": "world",
+   "summary": "A series of encounters that tells a story.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An adventure is a series of encounters. A story emerges through playing them."
+    }
+   ],
+   "seeAlso": [
+    "encounter"
+   ],
+   "pages": [
+    176
+   ]
+  },
+  {
+   "id": "alignment",
+   "title": "Alignment",
+   "tag": null,
+   "category": "world",
+   "summary": "A creature’s moral outlook, like Lawful Good or Chaotic Neutral.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A creature’s alignment broadly describes its ethical attitudes and ideals. Alignment is a combination of two factors: one identifies morality (good, evil, or neutral), and the other describes attitudes toward order (lawful, chaotic, or neutral). These factors allow for nine possible combinations, such as Lawful Good and Neutral Evil."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    176
+   ]
+  },
+  {
+   "id": "campaign",
+   "title": "Campaign",
+   "tag": null,
+   "category": "world",
+   "summary": "A series of adventures.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A campaign is a series of adventures."
+    }
+   ],
+   "seeAlso": [
+    "adventure"
+   ],
+   "pages": [
+    178
+   ]
+  },
+  {
+   "id": "challenge-rating",
+   "title": "Challenge Rating",
+   "tag": null,
+   "category": "world",
+   "summary": "How dangerous a monster is for a group of four characters.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Challenge Rating (CR) summarizes the threat a monster poses to a group of four player characters. Compare a monster’s CR to the characters’ level. If the CR is higher, the monster is likely a danger. If the CR is lower, the monster likely poses little threat. But circumstances and the number of player characters can significantly alter how threatening a monster is in actual play. “Gameplay Toolbox” (“Combat Encounters”) provides guidance to the GM on using CR while planning potential combat encounters."
+    }
+   ],
+   "seeAlso": [
+    "stat-block"
+   ],
+   "pages": [
+    178
+   ]
+  },
+  {
+   "id": "character-sheet",
+   "title": "Character Sheet",
+   "tag": null,
+   "category": "world",
+   "summary": "Where you keep track of your character.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A character sheet is a paper or digital record that you use to track your character’s information."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    178
+   ]
+  },
+  {
+   "id": "creature",
+   "title": "Creature",
+   "tag": null,
+   "category": "world",
+   "summary": "Any being in the game, including player characters.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Any being in the game, including a player’s character, is a creature."
+    }
+   ],
+   "seeAlso": [
+    "creature-type"
+   ],
+   "pages": [
+    179
+   ]
+  },
+  {
+   "id": "creature-type",
+   "title": "Creature Type",
+   "tag": null,
+   "category": "world",
+   "summary": "A creature’s family, like Humanoid, Beast or Undead.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "Every creature, including every player character, has a tag in the rules that identifies the type of creature it is. Most player characters are of the Humanoid type. These are the game’s creature types:"
+    },
+    {
+     "type": "bullets",
+     "items": [
+      "Aberration",
+      "Beast",
+      "Celestial",
+      "Construct",
+      "Dragon",
+      "Elemental",
+      "Fey",
+      "Fiend",
+      "Giant",
+      "Humanoid",
+      "Monstrosity",
+      "Ooze",
+      "Plant",
+      "Undead"
+     ]
+    },
+    {
+     "type": "text",
+     "text": "The types don’t have rules themselves, but some rules in the game affect creatures of certain types in different ways."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    179
+   ]
+  },
+  {
+   "id": "encounter",
+   "title": "Encounter",
+   "tag": null,
+   "category": "world",
+   "summary": "A scene of social interaction, exploration or combat.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An encounter is a scene in an adventure that is part of at least one of the game’s three pillars: social interaction, exploration, or combat."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    181
+   ]
+  },
+  {
+   "id": "experience-points",
+   "title": "Experience Points",
+   "tag": null,
+   "category": "world",
+   "summary": "Points the GM awards; enough of them raise your level.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "As they overcome challenges and complete adventures, characters earn Experience Points (XP), which are awarded by the Game Master. When a character’s XP total crosses certain thresholds, the character’s level increases."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    182
+   ]
+  },
+  {
+   "id": "monster",
+   "title": "Monster",
+   "tag": null,
+   "category": "world",
+   "summary": "Any creature the GM controls, friendly or not.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A monster is a creature controlled by the GM, even if the creature is benevolent."
+    }
+   ],
+   "seeAlso": [
+    "creature"
+   ],
+   "pages": [
+    185
+   ]
+  },
+  {
+   "id": "nonplayer-character",
+   "title": "Nonplayer Character",
+   "tag": null,
+   "category": "world",
+   "summary": "A named monster with its own personality, played by the GM.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A nonplayer character (NPC) is a monster that has a personal name and a distinct personality."
+    }
+   ],
+   "seeAlso": [
+    "monster"
+   ],
+   "pages": [
+    185
+   ]
+  },
+  {
+   "id": "object",
+   "title": "Object",
+   "tag": null,
+   "category": "world",
+   "summary": "A nonliving thing, like a door, a cart or a sword.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "An object is a nonliving, distinct thing. Composite things, like buildings, comprise more than one object."
+    }
+   ],
+   "seeAlso": [
+    "breaking-objects"
+   ],
+   "pages": [
+    185
+   ]
+  },
+  {
+   "id": "player-character",
+   "title": "Player Character",
+   "tag": null,
+   "category": "world",
+   "summary": "A character controlled by a player.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A player character is a character controlled by a player."
+    }
+   ],
+   "seeAlso": [],
+   "pages": [
+    186
+   ]
+  },
+  {
+   "id": "stat-block",
+   "title": "Stat Block",
+   "tag": null,
+   "category": "world",
+   "summary": "A monster’s game statistics, all in one place.",
+   "facts": [],
+   "blocks": [
+    {
+     "type": "text",
+     "text": "A stat block contains the game statistics of a monster. Each stat block includes the following information presented after the monster’s name."
+    },
+    {
+     "type": "effects",
+     "items": [
+      {
+       "label": "Size",
+       "text": "A monster is Tiny, Small, Medium, Large, Huge, or Gargantuan."
+      },
+      {
+       "label": "Creature Type",
+       "text": "This entry notes the family of beings a monster belongs to, along with any descriptive tags."
+      },
+      {
+       "label": "Alignment",
+       "text": "An alignment is suggested for the monster, with the GM determining its actual alignment."
+      },
+      {
+       "label": "AC, Initiative, and HP",
+       "text": "These entries give the monster’s Armor Class, Initiative, and Hit Points, which are detailed in “Playing the Game.” In parentheses after the Hit Points, the monster’s Hit Point Dice are provided, along with the contribution of its Constitution, if any, to its Hit Points. Following the Initiative modifier is an Initiative score. Some creatures that are created by magic lack Hit Dice and Initiative information."
+      },
+      {
+       "label": "Speed",
+       "text": "Here the monster’s Speed is provided, along with any special speeds."
+      },
+      {
+       "label": "Ability Scores",
+       "text": "A table provides the monster’s ability scores, modifiers, and saving throw modifiers, all of which are detailed in “Playing the Game.”"
+      },
+      {
+       "label": "Skills",
+       "text": "This entry lists the monster’s skill proficiencies, if any."
+      },
+      {
+       "label": "Resistances and Vulnerabilities",
+       "text": "These entries list the monster’s Resistances and Vulnerabilities, if any."
+      },
+      {
+       "label": "Immunities",
+       "text": "This section lists the monster’s damage and condition Immunities, if any."
+      },
+      {
+       "label": "Gear",
+       "text": "If the monster has any equipment that can be given away or retrieved, it’s listed in this entry."
+      },
+      {
+       "label": "Senses",
+       "text": "This entry lists the monster’s special senses, such as Darkvision, and its Passive Perception."
+      },
+      {
+       "label": "Languages",
+       "text": "This entry lists any languages the monster knows."
+      },
+      {
+       "label": "CR",
+       "text": "Challenge Rating summarizes the threat a monster poses and is detailed in “Monsters.” The Experience Points characters receive for defeating a monster and its Proficiency Bonus follow. Some creatures that are created by magic have no CR."
+      },
+      {
+       "label": "Traits",
+       "text": "The monster’s traits, if any, are features that are active at all times or in certain situations."
+      },
+      {
+       "label": "Actions",
+       "text": "The monster can take these actions in addition to those detailed in this glossary."
+      },
+      {
+       "label": "Bonus Actions",
+       "text": "If the monster has Bonus Action options, they are listed in this section."
+      },
+      {
+       "label": "Reactions",
+       "text": "If the monster can take special Reactions, those are listed in this section."
+      },
+      {
+       "label": "Attack Notation",
+       "text": "The entry for a monster’s attack starts by identifying whether the attack is a melee or a ranged attack and then provides the attack roll’s bonus, its reach or range, and what happens on a hit. An attack is against one target unless its entry says otherwise."
+      },
+      {
+       "label": "Saving Throw Effect Notation",
+       "text": "If an effect forces a saving throw, the effect’s entry starts by identifying the kind of saving throw required and then provides the save’s DC, a description of which creatures must make the save, and what happens on a failed or a successful save."
+      },
+      {
+       "label": "Damage Notation",
+       "text": "A stat block usually provides both a static number and a die expression for each instance of damage. For example, an attack might deal 4 (1d4 + 2) damage on a hit. The GM determines whether you use the static number or the die expression in parentheses; you don’t use both."
+      }
+     ]
+    }
+   ],
+   "seeAlso": [
+    "size",
+    "creature-type",
+    "alignment",
+    "burrow-speed",
+    "climb-speed",
+    "fly-speed",
+    "swim-speed",
+    "resistance",
+    "vulnerability",
+    "immunity",
+    "passive-perception",
+    "challenge-rating",
+    "experience-points"
+   ],
+   "pages": [
+    188
+   ]
+  }
+ ]
+}

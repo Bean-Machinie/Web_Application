@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useElementSize } from "@/hooks/use-element-size"
 import { onRuleScroll } from "@/lib/rules-focus"
-import { matchingTerms, ruleTerm } from "@/lib/rules-terms"
+import { matchingEntries, ruleEntry } from "@/lib/rules-terms"
 import { RuleSource } from "./RuleSource"
 import { RuleTermView } from "./RuleTermView"
 import { RulesList } from "./RulesList"
@@ -24,7 +24,7 @@ export function RulesDocument({ termId, onSelect }: Props) {
   const [own, setOwn] = useState<string | undefined>()
   const picked = onSelect ? termId : own
   const select = useCallback((id: string | undefined) => (onSelect ?? setOwn)(id), [onSelect])
-  const terms = useMemo(() => matchingTerms(query), [query])
+  const entries = useMemo(() => matchingEntries(query), [query])
 
   useEffect(() => {
     const stop = onRuleScroll((id) => select(id))
@@ -33,15 +33,15 @@ export function RulesDocument({ termId, onSelect }: Props) {
 
   const wide = size.width >= WIDE_PX
   // Wide, there is always a term beside the list: the first of what is listed.
-  const shown = ruleTerm(picked)?.id ?? (wide ? terms[0]?.id : undefined)
-  const list = <RulesList query={query} onQuery={setQuery} terms={terms} selectedId={shown} onSelect={select} />
+  const shown = ruleEntry(picked)?.id ?? (wide ? entries[0]?.id : undefined)
+  const list = <RulesList query={query} onQuery={setQuery} entries={entries} selectedId={shown} onSelect={select} />
   // The term scrolls above its source line, which stays at the bottom of the pane.
   const term = shown && (
     <div className="flex h-full min-w-0 flex-1 flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-8 md:px-10">
         <RuleTermView key={shown} termId={shown} onSelect={select} onBack={wide ? undefined : () => select(undefined)} />
       </div>
-      <RuleSource page={ruleTerm(shown)!.entry.page} />
+      <RuleSource pages={ruleEntry(shown)!.pages} />
     </div>
   )
 

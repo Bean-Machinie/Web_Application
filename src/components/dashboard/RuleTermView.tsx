@@ -1,9 +1,10 @@
-import { ChevronLeft, Dices } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { GLOSSARY_TERMS, glossaryIdFor } from "@/lib/glossary-terms"
-import { ruleTerm } from "@/lib/rules-terms"
-import { DiceText } from "./DiceText"
-import { RuleLinkedText } from "./RuleLinkedText"
+import { ruleEntry } from "@/lib/rules-terms"
+import { RuleBlockView } from "./RuleBlockView"
+import { RuleLinks } from "./RuleLinks"
+import { RuleText } from "./RuleText"
 
 type Props = {
   termId: string
@@ -12,69 +13,48 @@ type Props = {
   onBack?: () => void
 }
 
-// The other terms a term's text mentions, in the order they first appear.
-function relatedIds(text: string, selfId: string) {
-  const ids = [...text.matchAll(GLOSSARY_TERMS)].map((found) => glossaryIdFor(found[0]))
-  return [...new Set(ids)].filter((id): id is string => !!id && id !== selfId)
-}
-
-// One term: its definition, how it works, an example, and the terms it mentions.
+// One entry of the rules reference: title, summary, facts, its blocks, and where to read on.
 export function RuleTermView({ termId, onSelect, onBack }: Props) {
-  const term = ruleTerm(termId)
-  if (!term) return null
-  const { id, entry } = term
-  const related = relatedIds(`${entry.what} ${entry.use}`, id)
-
-  const link = (target: string, label: string) => (
-    <button
-      type="button"
-      onClick={() => onSelect(target)}
-      className="decoration-muted-foreground/60 hover:decoration-foreground cursor-pointer underline decoration-dotted underline-offset-4"
-    >
-      {label}
-    </button>
-  )
+  const entry = ruleEntry(termId)
+  if (!entry) return null
 
   return (
-    <article className="flex max-w-prose flex-col gap-8 text-sm font-normal">
+    <article className="flex max-w-prose flex-col gap-6 text-sm font-normal">
       {onBack && (
-        <Button variant="ghost" size="sm" className="text-muted-foreground -mb-3 -ml-2 self-start" onClick={onBack}>
+        <Button variant="ghost" size="sm" className="text-muted-foreground -mb-2 -ml-2 self-start" onClick={onBack}>
           <ChevronLeft /> All rules
         </Button>
       )}
-      <header className="grid gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">{entry.title}</h1>
+      <header className="grid gap-3">
+        <div className="flex items-center gap-2.5">
+          <h1 className="text-2xl font-semibold tracking-tight">{entry.title}</h1>
+          {entry.tag && (
+            <Badge variant="secondary" className="text-muted-foreground">
+              {entry.tag}
+            </Badge>
+          )}
+        </div>
         <p className="text-base leading-relaxed">
-          <RuleLinkedText text={entry.what} selfId={id} link={link} />
+          <RuleText text={entry.summary} selfId={entry.id} onSelect={onSelect} />
         </p>
+        {entry.facts.length > 0 && (
+          <p className="text-muted-foreground">
+            {entry.facts.map((fact, index) => (
+              <span key={fact.label}>
+                {index > 0 && " · "}
+                {fact.label}:{" "}
+                {fact.ref ? <RuleLinks ids={[fact.ref]} onSelect={onSelect} /> : fact.value}
+              </span>
+            ))}
+          </p>
+        )}
       </header>
-      <section className="grid gap-2">
-        <h2 className="text-sm font-semibold">How it works</h2>
-        <p className="leading-relaxed">
-          <RuleLinkedText text={entry.use} selfId={id} link={link} />
-        </p>
-      </section>
-      {entry.example && (
-        <aside className="bg-muted/40 rounded-lg border px-4 py-3">
-          <p className="text-muted-foreground mb-1 flex items-center gap-1.5 text-xs font-medium">
-            <Dices className="size-3.5" /> Example
-          </p>
-          <p className="leading-relaxed">
-            <DiceText text={entry.example} />
-          </p>
-        </aside>
-      )}
-      {related.length > 0 && (
-        <p className="text-muted-foreground text-sm">
-          See also:{" "}
-          {related.map((target, index) => (
-            <span key={target}>
-              {index > 0 && " · "}
-              <button type="button" onClick={() => onSelect(target)} className="text-foreground cursor-pointer hover:underline">
-                {ruleTerm(target)?.entry.title}
-              </button>
-            </span>
-          ))}
+      {entry.blocks.map((block, index) => (
+        <RuleBlockView key={index} block={block} selfId={entry.id} onSelect={onSelect} />
+      ))}
+      {entry.seeAlso.length > 0 && (
+        <p className="text-muted-foreground">
+          See also: <RuleLinks ids={entry.seeAlso} onSelect={onSelect} />
         </p>
       )}
     </article>
