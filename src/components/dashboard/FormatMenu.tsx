@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FadingScroll } from "./FadingScroll"
-import { menuUnder } from "./format-menu-switch"
+import { leaveTo } from "./format-menu-switch"
 import type { MenuControl } from "./format-menu-switch"
 
 type Option = { label: string; active: boolean; onPick: () => void; style?: CSSProperties }
@@ -50,8 +50,7 @@ export function FormatMenu({ label, current, currentStyle, options, control, onC
         className="w-(--radix-select-trigger-width) min-w-0 overflow-hidden shadow-lg"
         onPointerDownOutside={(event) => {
           event.preventDefault()
-          const under = menuUnder(event)
-          control.choose(under === control.id ? null : under, control.id)
+          leaveTo(event, control)
         }}
         onCloseAutoFocus={(event) => {
           event.preventDefault()

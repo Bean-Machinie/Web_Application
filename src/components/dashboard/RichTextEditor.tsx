@@ -64,7 +64,7 @@ export function RichTextEditor({
   })
 
   if (!editor) return null
-  if (page) return <PageEditorFrame editor={editor} toolbar={toolbar} />
+  if (page) return <PageEditorFrame editor={editor} toolbar={toolbar} entryId={entryId} />
 
   // The box does not clip: the mention picker opens inside it and may reach past
   // its edge. Only the text area scrolls.

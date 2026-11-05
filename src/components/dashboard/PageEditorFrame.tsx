@@ -12,9 +12,16 @@ import { RichTextToolbar } from "./RichTextToolbar"
 // text lines up with the title above it, while the drag handle, and the pointer that
 // finds it, have the margin to sit in. The mention and slash menus open inside this
 // frame; the format bar floats over the screen, above the selected text.
-export function PageEditorFrame({ editor, toolbar }: { editor: Editor; toolbar: boolean }) {
+export function PageEditorFrame({ editor, toolbar, entryId }: { editor: Editor; toolbar: boolean; entryId: string }) {
   // Where the right-click menu is open, if it is, for the format bar to line up with.
   const [menuAt, setMenuAt] = useState<Point | null>(null)
+  const closeMenu = (open: boolean, viaBar: boolean) => {
+    if (open) return
+    // A press on the bar closes the menu before the click lands on the button; the bar
+    // is kept until the click has.
+    if (viaBar) window.addEventListener("click", () => setMenuAt(null), { once: true })
+    else setMenuAt(null)
+  }
   return (
     <div
       data-mention-root
@@ -22,13 +29,13 @@ export function PageEditorFrame({ editor, toolbar }: { editor: Editor; toolbar: 
       onContextMenuCapture={(event) => editor.isEditable && setMenuAt({ x: event.clientX, y: event.clientY })}
     >
       {toolbar && <RichTextToolbar editor={editor} />}
-      <PageContextMenu editor={editor} onOpenChange={(open) => !open && setMenuAt(null)}>
+      <PageContextMenu editor={editor} onOpenChange={closeMenu}>
         <div>
           <EditorContent editor={editor} />
         </div>
       </PageContextMenu>
       <PageDragHandle editor={editor} />
-      <PageFormatBar editor={editor} menuAt={menuAt} />
+      <PageFormatBar editor={editor} entryId={entryId} menuAt={menuAt} />
     </div>
   )
 }

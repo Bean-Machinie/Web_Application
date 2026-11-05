@@ -16,18 +16,16 @@ import {
 import { useExclusiveMenu } from "@/hooks/use-exclusive-menu"
 import { useSelectionAnchor } from "@/hooks/use-selection-anchor"
 import type { Point } from "@/hooks/use-selection-anchor"
-import { FONT_FAMILIES, FONT_SIZES, HIGHLIGHTS, TEXT_COLORS } from "./format-options"
-import { FormatMenu } from "./FormatMenu"
+import { HIGHLIGHTS, TEXT_COLORS } from "./format-options"
+import { FormatBarHead } from "./FormatBarHead"
 import { FormatSwatches } from "./FormatSwatches"
 import { FormatToggle } from "./FormatToggle"
 
-const DEFAULT_SIZE_PX = 14
-
 // A small bar that floats above the end of the selected text, or right above the
 // right-click menu while that is open, in two rows as in Word: font and size over the
-// styles, highlight, colour and lists. It stays while one of its menus has the focus,
+// styles, highlight, colour and lists, with the blocks of / and the links of @. It stays while one of its menus has the focus,
 // and goes when the selection or the editor's focus does.
-export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Point | null }) {
+export function PageFormatBar({ editor, entryId, menuAt }: { editor: Editor; entryId: string; menuAt: Point | null }) {
   const bar = useRef<HTMLDivElement>(null)
   const menus = useExclusiveMenu()
   const state = useEditorState({
@@ -63,12 +61,20 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
 
   // The right-click menu brings the bar with it, over the caret when nothing is selected.
   const shown =
-    editor.isEditable && !pressing && (!!menuAt || (state.selected && (state.focused || menus.openId !== null)))
-  const place = useSelectionAnchor(editor, shown, bar, menuAt)
+    editor.isEditable &&
+    !pressing &&
+    (!!menuAt || menus.busy || (state.selected && state.focused))
+  // Where the right-click menu was stays the bar's place after the menu is gone, so it
+  // does not jump to the selection while one of its own lists opens.
+  const pinned = useRef<Point | null>(null)
+  if (menuAt) pinned.current = menuAt
+  const place = useSelectionAnchor(editor, shown, bar, menuAt ?? pinned.current)
 
   const { closeAll } = menus
   useEffect(() => {
-    if (!shown) closeAll()
+    if (shown) return
+    pinned.current = null
+    closeAll()
   }, [shown, closeAll])
 
   if (!shown) return null
@@ -82,12 +88,12 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
   }
   const set = (mark: string, attributes: Record<string, string> | null) =>
     attributes ? chain().setMark(mark, attributes).run() : chain().unsetMark(mark).run()
-  const sizeNow = state.size ? Math.round(parseFloat(state.size)) : DEFAULT_SIZE_PX
 
   return createPortal(
     <div
       ref={bar}
       role="toolbar"
+      data-format-bar
       aria-label="Format text"
       // Appears the way the context menu does, and only once it has its place. No
       // duration class: it would also make `left` and `top` transition, so the bar
@@ -97,36 +103,15 @@ export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Poin
       // Pressing the bar's own gaps must not take the selection from the text.
       onMouseDown={(event) => event.preventDefault()}
     >
-      <div className="flex items-center gap-1 pb-0.5">
-        <FormatMenu
-          label="Font"
-          current={FONT_FAMILIES.find((font) => font.value === state.family)?.label ?? "Default"}
-          currentStyle={state.family ? { fontFamily: state.family } : undefined}
-          fill
-          control={control("font")}
-          onClosed={back}
-          options={FONT_FAMILIES.map((font) => ({
-            label: font.label,
-            active: font.value === state.family,
-            style: font.value ? { fontFamily: font.value } : undefined,
-            onPick: () => set("fontFamily", font.value ? { family: font.value } : null),
-          }))}
-        />
-        <FormatMenu
-          label="Font size"
-          current={String(sizeNow)}
-          control={control("size")}
-          onClosed={back}
-          options={[
-            { label: "Default", active: !state.size, onPick: () => set("fontSize", null) },
-            ...FONT_SIZES.map((size) => ({
-              label: String(size),
-              active: state.size === `${size}px`,
-              onPick: () => set("fontSize", { size: `${size}px` }),
-            })),
-          ]}
-        />
-      </div>
+      <FormatBarHead
+        editor={editor}
+        entryId={entryId}
+        family={state.family}
+        size={state.size}
+        control={control}
+        set={set}
+        onClosed={back}
+      />
       <div className="flex items-center gap-0.5">
         <FormatToggle label="Bold" icon={Bold} active={state.bold} onClick={() => chain().toggleBold().run()} />
         <FormatToggle label="Italic" icon={Italic} active={state.italic} onClick={() => chain().toggleItalic().run()} />

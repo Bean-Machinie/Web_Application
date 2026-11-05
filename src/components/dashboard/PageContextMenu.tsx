@@ -93,22 +93,35 @@ export function PageContextMenu({
   children,
 }: {
   editor: Editor
-  // So the format bar can stay over the selection while the menu has the focus.
-  onOpenChange: (open: boolean) => void
+  // So the format bar can stay over the menu; `viaBar` is when a press on the bar closed it.
+  onOpenChange: (open: boolean, viaBar: boolean) => void
   children: ReactNode
 }) {
   const pending = useRef<(() => void) | null>(null)
+  const viaBar = useRef(false)
 
   if (!editor.isEditable) return children
 
   return (
-    <ContextMenu onOpenChange={onOpenChange}>
+    // Not modal: the format bar sits over the page beside the menu and has to be pressable.
+    <ContextMenu
+      modal={false}
+      onOpenChange={(open) => {
+        if (open) viaBar.current = false
+        onOpenChange(open, viaBar.current)
+      }}
+    >
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent
         className="w-56"
+        onPointerDownOutside={(event) => {
+          const target = event.detail.originalEvent.target
+          viaBar.current = target instanceof Element && !!target.closest("[data-format-bar]")
+        }}
         onCloseAutoFocus={(event) => {
           event.preventDefault()
-          editor.commands.focus()
+          // The bar's own list is opening; taking the focus now would close it.
+          if (!viaBar.current) editor.commands.focus()
           pending.current?.()
           pending.current = null
         }}

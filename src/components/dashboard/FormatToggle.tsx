@@ -1,5 +1,7 @@
 import type { LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { FORMAT_BUTTON, FORMAT_BUTTON_ON } from "./format-button-style"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 type Props = { label: string; icon: LucideIcon; active: boolean; onClick: () => void }
@@ -11,8 +13,9 @@ export function FormatToggle({ label, icon: Icon, active, onClick }: Props) {
       <TooltipTrigger asChild>
         <Button
           type="button"
-          variant={active ? "secondary" : "ghost"}
+          variant="ghost"
           size="icon-sm"
+          className={cn(FORMAT_BUTTON, active && FORMAT_BUTTON_ON)}
           aria-label={label}
           aria-pressed={active}
           // Keeps the selection in the text while it is pressed.

@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import { menuUnder } from "./format-menu-switch"
+import { FORMAT_BUTTON, FORMAT_BUTTON_ON } from "./format-button-style"
+import { leaveTo } from "./format-menu-switch"
 import type { MenuControl } from "./format-menu-switch"
 
 type Props = {
@@ -32,8 +33,9 @@ export function FormatSwatches({ label, icon: Icon, colors, current, onPick, con
           <PopoverTrigger asChild>
             <Button
               type="button"
-              variant={current ? "secondary" : "ghost"}
+              variant="ghost"
               size="icon-sm"
+              className={cn(FORMAT_BUTTON, current && FORMAT_BUTTON_ON)}
               aria-label={label}
               data-format-menu={control.id}
               onMouseDown={(event) => event.preventDefault()}
@@ -51,10 +53,12 @@ export function FormatSwatches({ label, icon: Icon, colors, current, onPick, con
         side="bottom"
         sideOffset={6}
         className="w-auto flex-row gap-1.5 p-2"
+        // The text keeps its focus, as it does for bold: moving it into the list and back
+        // is when the selection has been seen to change.
+        onOpenAutoFocus={(event) => event.preventDefault()}
         onPointerDownOutside={(event) => {
           event.preventDefault()
-          const under = menuUnder(event)
-          control.choose(under === control.id ? null : under, control.id)
+          leaveTo(event, control)
         }}
         onCloseAutoFocus={(event) => {
           event.preventDefault()

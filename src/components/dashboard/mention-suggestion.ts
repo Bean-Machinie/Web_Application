@@ -2,6 +2,7 @@ import { PluginKey } from "@tiptap/pm/state"
 import type { SuggestionOptions } from "@tiptap/suggestion"
 import { loadMentionEntries } from "@/lib/mention-entries"
 import { normalize } from "@/lib/world-search"
+import type { WorldEntry } from "@/lib/world-entries"
 import type { WorldScope } from "@/lib/world-scope"
 import { MentionList } from "./MentionList"
 import type { MentionItem } from "./MentionList"
@@ -10,11 +11,11 @@ import { suggestionRender } from "./suggestion-render"
 const MAX_ITEMS = 8
 const MENTION_KEY = new PluginKey("mentionPicker")
 
-// What @ offers: the entries of the scope that match what was typed, names
-// starting with it first. The entry being edited is left out.
-async function items(scope: WorldScope, exceptId: string, query: string): Promise<MentionItem[]> {
+// The entries that match what was typed, names starting with it first. The entry
+// being edited is left out. Shared by @ and the format bar's link menu.
+export function matchingEntries(entries: WorldEntry[], exceptId: string, query: string): WorldEntry[] {
   const words = normalize(query).split(/\s+/).filter(Boolean)
-  const found = (await loadMentionEntries(scope))
+  return entries
     .filter((entry) => entry.id !== exceptId)
     .map((entry) => ({ entry, name: normalize(entry.name) }))
     .filter(({ name }) => words.every((word) => name.includes(word)))
@@ -23,8 +24,13 @@ async function items(scope: WorldScope, exceptId: string, query: string): Promis
         Number(b.name.startsWith(words[0] ?? "")) - Number(a.name.startsWith(words[0] ?? "")) ||
         a.name.localeCompare(b.name)
     )
+    .map(({ entry }) => entry)
+}
 
-  return found.slice(0, MAX_ITEMS).map(({ entry }) => ({
+async function items(scope: WorldScope, exceptId: string, query: string): Promise<MentionItem[]> {
+  const found = matchingEntries(await loadMentionEntries(scope), exceptId, query)
+
+  return found.slice(0, MAX_ITEMS).map((entry) => ({
     id: entry.id,
     label: entry.name,
     kind: entry.kind,
