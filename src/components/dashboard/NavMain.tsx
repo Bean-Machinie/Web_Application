@@ -19,11 +19,15 @@ type Props = {
 }
 
 export function NavMain({ items, className }: Props) {
-  const { isMobile, setOpenMobile } = useSidebar()
+  const { isMobile, setOpenMobile, setOpen } = useSidebar()
   const isActive = useIsActiveRoute()
 
-  // Tapping a link on mobile should close the drawer it was tapped in.
-  const closeOnMobile = () => isMobile && setOpenMobile(false)
+  // Tapping a link on mobile should close the drawer it was tapped in; some pages also
+  // fold the sidebar to its icons on desktop.
+  const onPick = (item: NavItem) => {
+    if (isMobile) setOpenMobile(false)
+    else if (item.foldsSidebar) setOpen(false)
+  }
 
   return (
     <SidebarGroup className={cn("px-2", className)}>
@@ -37,7 +41,7 @@ export function NavMain({ items, className }: Props) {
                 tooltip={item.title}
                 isActive={isActive(item.to, item.exact)}
               >
-                <NavLink to={item.to} onClick={closeOnMobile}>
+                <NavLink to={item.to} onClick={() => onPick(item)}>
                   {/* Lighter lines than the icons' own 2, so they sit back in the rail. */}
                   <HoverIcon icon={item.icon} size={22} delay={200} className={cn("[&_svg]:[stroke-width:1.5]", item.iconClassName)} />
                   <span>{item.title}</span>

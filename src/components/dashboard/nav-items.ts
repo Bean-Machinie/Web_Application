@@ -21,11 +21,13 @@ export type NavItem = {
   badge?: string
   // Only the page itself lights the item, not the pages below it.
   exact?: boolean
+  // Going there folds the sidebar to its icons, for a page that wants the room.
+  foldsSidebar?: boolean
 }
 
 export const campaignNav = (id: string): NavItem[] => [
   { title: "Overview", to: campaignPath(id), icon: MonitorIcon, exact: true },
-  { title: "Journal", to: campaignPath(id, "journal"), icon: BookOpenIcon },
+  { title: "Journal", to: campaignPath(id, "journal"), icon: BookOpenIcon, foldsSidebar: true },
   { title: "World", to: campaignPath(id, "world"), icon: ScrollTextIcon },
   { title: "Sessions", to: campaignPath(id, "sessions"), icon: CalendarFoldIcon },
   { title: "Characters", to: campaignPath(id, "characters"), icon: UserRoundIcon },

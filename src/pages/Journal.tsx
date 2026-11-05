@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useMatch } from "react-router-dom"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { BreadcrumbContext } from "@/components/dashboard/BreadcrumbContext"
@@ -11,6 +11,7 @@ import { useJournalTabContext } from "@/components/dashboard/useJournalTabContex
 import { usePageTrail } from "@/components/dashboard/usePageTrail"
 import { RAIL_PX, TREE_MAX_PX, TREE_MIN_PX, useJournalSide } from "@/hooks/use-journal-side"
 import { useJournalShortcuts } from "@/hooks/use-journal-shortcuts"
+import { useSidebarGlide } from "@/hooks/use-sidebar-glide"
 import { useJournalTree } from "@/hooks/use-journal-tree"
 import { useJournalUrlSync } from "@/hooks/use-journal-url-sync"
 import { useJournalWorkspace } from "@/hooks/use-journal-workspace"
@@ -35,6 +36,8 @@ export function Journal() {
   const ctx = useJournalTabContext(current.id, tree.nodes)
   const pageId = useMatch(campaignPath(current.id, "journal/:pageId"))?.params.pageId
   const side = useJournalSide()
+  const box = useRef<HTMLDivElement>(null)
+  const glide = useSidebarGlide(box)
   const { prune, open } = space
 
   useJournalUrlSync(current.id, pageId, space)
@@ -62,8 +65,11 @@ export function Journal() {
   )
 
   return (
-    <div data-journal-root className="-m-4 h-[calc(100svh-var(--header-height))] min-w-0 flex-none md:-m-6">
+    <div ref={box} className="-m-4 h-[calc(100svh-var(--header-height))] min-w-0 flex-none overflow-x-clip md:-m-6">
       <PlainBackground />
+      {/* While the sidebar slides the page is held at the width it will have, and the box
+          around it clips: the text is laid out once, not at every width on the way. */}
+      <div className="h-full" style={{ width: glide ?? undefined }}>
       {/* The tree is a panel of its own width, 200 to 320 px, that narrows to a rail
           the way the sidebar does. The workspace is always the second panel, so
           narrowing or widening the tree does not reload it. */}
@@ -102,6 +108,7 @@ export function Journal() {
           </BreadcrumbContext.Provider>
         </ResizablePanel>
       </ResizablePanelGroup>
+      </div>
     </div>
   )
 }
