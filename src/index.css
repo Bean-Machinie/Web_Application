@@ -40,6 +40,7 @@
     --color-foreground: var(--foreground);
     --color-highlight: var(--highlight);
     --color-background: var(--background);
+    --color-header: var(--header);
     --radius-*: initial;
     --radius-xs: calc(var(--radius) / 4);
     --radius-sm: calc(var(--radius) / 2);
@@ -49,46 +50,54 @@
 }
 
 :root, .light {
-    /* Radix gray, light: page step 4, sidebar and fills 5-6, cards step 1, borders 8, text 11-12. */
-    --background: oklch(0.931 0 0);
+    /* Radix gray, light, with no pure white: page 3, sidebar and top bar 4, cards and panes 2,
+       popovers 1, hover 4, selected 5, borders 6, input borders 7, text 12 and 11. */
+    --background: #f0f0f0;
+    /* The top bar: its own token so that it can differ from the page in light only. */
+    --header: #e8e8e8;
     /* The one colour of the app: what the player has chosen, in the start page's sentence. */
     --highlight: oklch(0.47 0.2 275);
-    --foreground: oklch(0.2435 0 0);
-    --card: oklch(0.9911 0 0);
-    --card-foreground: oklch(0.2435 0 0);
-    --popover: oklch(0.9911 0 0);
-    --popover-foreground: oklch(0.2435 0 0);
-    --primary: oklch(0.2435 0 0);
-    --primary-foreground: oklch(0.9911 0 0);
-    --secondary: oklch(0.9067 0 0);
-    --secondary-foreground: oklch(0.2435 0 0);
-    --muted: oklch(0.9067 0 0);
-    --muted-foreground: oklch(0.4819 0 0);
-    --accent: oklch(0.9067 0 0);
-    --accent-foreground: oklch(0.2435 0 0);
+    --foreground: #202020;
+    --card: #f9f9f9;
+    --card-foreground: #202020;
+    --popover: #fcfcfc;
+    --popover-foreground: #202020;
+    --primary: #202020;
+    --primary-foreground: #fcfcfc;
+    --secondary: #e8e8e8;
+    --secondary-foreground: #202020;
+    --muted: #e8e8e8;
+    --muted-foreground: #646464;
+    --accent: #e0e0e0;
+    --accent-foreground: #202020;
     --destructive: oklch(0.55 0.22 27);
-    --border: oklch(0.7921 0 0);
-    --input: oklch(0.7921 0 0);
+    --border: #d9d9d9;
+    --input: #cecece;
     --ring: oklch(0.61 0 0);
+    /* The soft shadow of popovers, dropdowns, dialogs and tooltips, which all use shadow-md. */
+    --shadow-md: 0 4px 16px rgb(0 0 0 / 0.06);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
     --radius: 0.5rem;
-    --sidebar: oklch(0.9067 0 0);
-    --sidebar-foreground: oklch(0.2435 0 0);
-    --sidebar-primary: oklch(0.2435 0 0);
-    --sidebar-primary-foreground: oklch(0.9911 0 0);
-    --sidebar-accent: oklch(0.8853 0 0);
-    --sidebar-accent-foreground: oklch(0.2435 0 0);
-    --sidebar-border: oklch(0.7921 0 0);
+    --sidebar: #e8e8e8;
+    --sidebar-foreground: #202020;
+    --sidebar-primary: #202020;
+    --sidebar-primary-foreground: #fcfcfc;
+    --sidebar-accent: #e0e0e0;
+    --sidebar-accent-foreground: #202020;
+    --sidebar-border: #d9d9d9;
     --sidebar-ring: oklch(0.61 0 0);
 }
 
 .dark {
     /* Radix gray, dark: page step 1, sidebar 2, cards 3, popover and fills 4-5. */
     --background: oklch(0.1776 0 0);
+    --header: oklch(0.1776 0 0);
+    /* Tailwind's own shadow-md, put back after the light theme's softer one. */
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --highlight: oklch(0.8 0.12 275);
     --foreground: oklch(0.9491 0 0);
     --card: oklch(0.252 0 0);

@@ -45,7 +45,7 @@ function SegmentedControl<T extends string>({ value, onValueChange, options, cla
       data-slot="segmented-control"
       style={{ "--count": options.length, "--index": index } as React.CSSProperties}
       // Sunk into the surface: darker than what is around it, with its top edge in shadow and a faint lip of light along the bottom.
-      className={cn("bg-muted dark:bg-black/15 relative grid grid-flow-col auto-cols-fr rounded-lg p-0.5 shadow-[inset_0_1px_2px_rgb(0_0_0/0.12),0_1px_0_rgb(255_255_255/0.4)] dark:shadow-[inset_0_1px_3px_rgb(0_0_0/0.3),0_1px_0_rgb(255_255_255/0.03)] data-[disabled]:opacity-50", className)}
+      className={cn("bg-muted dark:bg-black/15 relative grid grid-flow-col auto-cols-fr rounded-lg p-0.5 shadow-[inset_0_1px_2px_rgb(0_0_0/0.12),0_1px_0_color-mix(in_oklab,var(--popover)_40%,transparent)] dark:shadow-[inset_0_1px_3px_rgb(0_0_0/0.3),0_1px_0_rgb(255_255_255/0.03)] data-[disabled]:opacity-50", className)}
     >
       <span
         aria-hidden
