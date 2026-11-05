@@ -1,19 +1,7 @@
 import { useRef } from "react"
 import type { ReactNode } from "react"
 import type { Editor } from "@tiptap/react"
-import {
-  Bold,
-  ClipboardPaste,
-  Copy,
-  Italic,
-  MousePointer2,
-  Redo2,
-  RemoveFormatting,
-  Scissors,
-  Strikethrough,
-  Underline,
-  Undo2,
-} from "lucide-react"
+import { ClipboardPaste, Copy, MousePointer2, Redo2, Scissors, Undo2 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import {
   ContextMenu,
@@ -23,11 +11,10 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 import { KeyChips } from "@/components/ui/key-chips"
-import { cn } from "@/lib/utils"
 
 const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl"
 
-type Entry = { label: string; icon: LucideIcon; keys?: string[]; disabled?: boolean; active?: boolean; run: () => void }
+type Entry = { label: string; icon: LucideIcon; keys?: string[]; disabled?: boolean; run: () => void }
 
 // Text from the clipboard as it is, one paragraph to a line.
 async function pastePlain(editor: Editor) {
@@ -58,13 +45,6 @@ function groupsOf(editor: Editor): Entry[][] {
       { label: "Paste", icon: ClipboardPaste, keys: [MOD, "V"], run: () => void pastePlain(editor).catch(() => {}) },
       { label: "Select all", icon: MousePointer2, keys: [MOD, "A"], run: () => editor.commands.selectAll() },
     ],
-    [
-      { label: "Bold", icon: Bold, keys: [MOD, "B"], active: editor.isActive("bold"), run: () => chain().toggleBold().run() },
-      { label: "Italic", icon: Italic, keys: [MOD, "I"], active: editor.isActive("italic"), run: () => chain().toggleItalic().run() },
-      { label: "Underline", icon: Underline, keys: [MOD, "U"], active: editor.isActive("underline"), run: () => chain().toggleUnderline().run() },
-      { label: "Strikethrough", icon: Strikethrough, keys: [MOD, "Shift", "S"], active: editor.isActive("strike"), run: () => chain().toggleStrike().run() },
-      { label: "Clear formatting", icon: RemoveFormatting, disabled: !hasSelection, run: () => chain().unsetAllMarks().run() },
-    ],
   ]
 }
 
@@ -73,10 +53,10 @@ function Items({ editor, choose }: { editor: Editor; choose: (run: () => void) =
   return groupsOf(editor).map((group, index) => (
     <div key={index}>
       {index > 0 && <ContextMenuSeparator />}
-      {group.map(({ label, icon: Icon, keys, disabled, active, run }) => (
+      {group.map(({ label, icon: Icon, keys, disabled, run }) => (
         <ContextMenuItem key={label} disabled={disabled} onSelect={() => choose(run)}>
-          <Icon className={cn(active ? "text-foreground" : "text-muted-foreground")} />
-          <span className={cn(active && "font-medium")}>{label}</span>
+          <Icon className="text-muted-foreground" />
+          <span>{label}</span>
           {keys && <KeyChips keys={keys} className="ml-auto" />}
         </ContextMenuItem>
       ))}
