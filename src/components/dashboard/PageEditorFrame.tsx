@@ -1,4 +1,5 @@
 import { useState } from "react"
+import type { Point } from "@/hooks/use-selection-anchor"
 import { EditorContent } from "@tiptap/react"
 import type { Editor } from "@tiptap/react"
 import { PageDragHandle } from "./PageDragHandle"
@@ -12,17 +13,22 @@ import { RichTextToolbar } from "./RichTextToolbar"
 // finds it, have the margin to sit in. The mention and slash menus open inside this
 // frame; the format bar floats over the screen, above the selected text.
 export function PageEditorFrame({ editor, toolbar }: { editor: Editor; toolbar: boolean }) {
-  const [menuOpen, setMenuOpen] = useState(false)
+  // Where the right-click menu is open, if it is, for the format bar to line up with.
+  const [menuAt, setMenuAt] = useState<Point | null>(null)
   return (
-    <div data-mention-root className="relative -ml-7 pl-7">
+    <div
+      data-mention-root
+      className="relative -ml-7 pl-7"
+      onContextMenuCapture={(event) => editor.isEditable && setMenuAt({ x: event.clientX, y: event.clientY })}
+    >
       {toolbar && <RichTextToolbar editor={editor} />}
-      <PageContextMenu editor={editor} onOpenChange={setMenuOpen}>
+      <PageContextMenu editor={editor} onOpenChange={(open) => !open && setMenuAt(null)}>
         <div>
           <EditorContent editor={editor} />
         </div>
       </PageContextMenu>
       <PageDragHandle editor={editor} />
-      <PageFormatBar editor={editor} held={menuOpen} />
+      <PageFormatBar editor={editor} menuAt={menuAt} />
     </div>
   )
 }

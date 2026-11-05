@@ -14,6 +14,7 @@ import {
   Underline,
 } from "lucide-react"
 import { useSelectionAnchor } from "@/hooks/use-selection-anchor"
+import type { Point } from "@/hooks/use-selection-anchor"
 import { FONT_FAMILIES, FONT_SIZES, HIGHLIGHTS, TEXT_COLORS } from "./format-options"
 import { FormatMenu } from "./FormatMenu"
 import { FormatSwatches } from "./FormatSwatches"
@@ -21,11 +22,11 @@ import { FormatToggle } from "./FormatToggle"
 
 const DEFAULT_SIZE_PX = 14
 
-// A small bar that floats above the end of the selected text, in two rows as in Word:
-// font and size over the styles, highlight, colour and lists. It stays while one of its
-// menus, or the page's right-click menu (`held`), has the focus, and goes when the
-// selection or the editor's focus does.
-export function PageFormatBar({ editor, held }: { editor: Editor; held: boolean }) {
+// A small bar that floats above the end of the selected text, or right above the
+// right-click menu while that is open, in two rows as in Word: font and size over the
+// styles, highlight, colour and lists. It stays while one of its menus has the focus,
+// and goes when the selection or the editor's focus does.
+export function PageFormatBar({ editor, menuAt }: { editor: Editor; menuAt: Point | null }) {
   const [engaged, setEngaged] = useState(false)
   const bar = useRef<HTMLDivElement>(null)
   const state = useEditorState({
@@ -59,8 +60,10 @@ export function PageFormatBar({ editor, held }: { editor: Editor; held: boolean 
     }
   }, [editor])
 
-  const shown = editor.isEditable && !pressing && state.selected && (state.focused || engaged || held)
-  const place = useSelectionAnchor(editor, shown, bar)
+  // The right-click menu brings the bar with it, over the caret when nothing is selected.
+  const shown =
+    editor.isEditable && !pressing && (!!menuAt || (state.selected && (state.focused || engaged)))
+  const place = useSelectionAnchor(editor, shown, bar, menuAt)
 
   if (!shown) return null
 
@@ -75,7 +78,10 @@ export function PageFormatBar({ editor, held }: { editor: Editor; held: boolean 
       ref={bar}
       role="toolbar"
       aria-label="Format text"
-      className="bg-popover text-popover-foreground ring-foreground/10 animate-in fade-in-0 fixed z-40 flex flex-col gap-0.5 rounded-lg p-1 shadow-lg ring-1 duration-100"
+      // Appears the way the context menu does, and only once it has its place. No
+      // duration class: it would also make `left` and `top` transition, so the bar
+      // would slide in from the corner it is drawn at before it is measured.
+      className={`bg-popover text-popover-foreground ring-foreground/10 fixed z-40 flex origin-bottom-left flex-col gap-0.5 rounded-lg p-1 shadow-lg ring-1 transition-none ${place ? "animate-in fade-in-0 zoom-in-95" : ""}`}
       style={{ left: place?.left ?? 0, top: place?.top ?? 0, visibility: place?.visible ? "visible" : "hidden" }}
       // Pressing the bar's own gaps must not take the selection from the text.
       onMouseDown={(event) => event.preventDefault()}
