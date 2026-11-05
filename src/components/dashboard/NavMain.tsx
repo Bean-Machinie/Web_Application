@@ -38,7 +38,8 @@ export function NavMain({ items, className }: Props) {
                 isActive={isActive(item.to, item.exact)}
               >
                 <NavLink to={item.to} onClick={closeOnMobile}>
-                  <HoverIcon icon={item.icon} size={22} delay={200} className={item.iconClassName} />
+                  {/* Lighter lines than the icons' own 2, so they sit back in the rail. */}
+                  <HoverIcon icon={item.icon} size={22} delay={200} className={cn("[&_svg]:[stroke-width:1.5]", item.iconClassName)} />
                   <span>{item.title}</span>
                 </NavLink>
               </SidebarMenuButton>
