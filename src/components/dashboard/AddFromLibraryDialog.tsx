@@ -3,17 +3,19 @@ import { AddFromLibraryBody } from "./AddFromLibraryBody"
 import { HelpHint } from "./HelpHint"
 import { LibraryShell } from "./LibraryShell"
 import { MODIFIER_KEY } from "@/lib/selection-hint"
+import type { Monster } from "@/lib/compendium-monsters"
 import type { AddFromLibrary } from "@/lib/world-copy-flow"
 
 type Props = {
   open: boolean
   add: AddFromLibrary
+  addMonster?: (monster: Monster) => Promise<unknown>
   onAdded: (count: number, note: string) => void
   onClose: () => void
 }
 
 const DESCRIPTION =
-  "Adds copies to this campaign. They start hidden, and changing a copy does not change your library."
+  "Adds copies to this campaign. They start hidden, and changing a copy does not change the original."
 
 export function AddFromLibraryDialog({ open, onClose, ...body }: Props) {
   // True while entries are picked: the first Escape lets go of them, the next
@@ -27,13 +29,13 @@ export function AddFromLibraryDialog({ open, onClose, ...body }: Props) {
     <LibraryShell
       open={open}
       onClose={onClose}
-      title="Add from your library"
+      title="Add from library"
       description={DESCRIPTION}
       onEscapeKeyDown={(event) => holding.current && event.preventDefault()}
       help={
         <HelpHint
-          title="Add from your library"
-          summary="Pick entries from your library to copy into this campaign."
+          title="Add from library"
+          summary="Pick entries from your library, or SRD creatures, to copy into this campaign."
           lines={[
             { label: "Pick an entry", keys: ["Click"] },
             { label: "Pick a range", keys: ["Shift", "Click"] },
@@ -41,7 +43,7 @@ export function AddFromLibraryDialog({ open, onClose, ...body }: Props) {
             { label: "Pick with a box", how: "Drag across the cards" },
             { label: "Let go of the picks", keys: ["Esc"] },
           ]}
-          note="Copies start hidden, and changing a copy does not change your library."
+          note="Copies start hidden, and changing a copy does not change the original."
         />
       }
     >

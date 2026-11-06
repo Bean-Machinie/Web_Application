@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react"
 import { Link } from "react-router-dom"
 import { TiltCard } from "@/components/TiltCard"
 import { Badge } from "@/components/ui/badge"
@@ -21,14 +22,19 @@ type Props = {
   selection: EntrySelection | null
   // A landscape picture, for maps in the library.
   wide?: boolean
+  // For an entry that is not in the database, such as an SRD creature: where the card goes, the line
+  // under the name in place of the kind, and what stands in for a picture.
+  to?: string
+  subtitle?: string
+  icon?: LucideIcon
 }
 
-export function WorldEntryCard({ entry, manage, selection, wide }: Props) {
+export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, icon }: Props) {
   const selected = selection?.isSelected(entry.id) ?? false
   const { basePath, hasVisibility, imageFolder } = useWorldScope()
   // A library has no visibility, so nothing in it is drawn as hidden.
   const hidden = hasVisibility && !entry.revealed
-  const { icon: KindIcon } = WORLD_KINDS[entry.kind]
+  const KindIcon = icon ?? WORLD_KINDS[entry.kind].icon
   // A map with no published image may still have a saved scene, drawn once the card is in view.
   const { ref, seen } = useSeen<HTMLDivElement>()
   const draft = useMapPreview(entry.id, entry.kind === "map" && !entry.imageUrl && seen, 480, imageFolder)
@@ -87,7 +93,7 @@ export function WorldEntryCard({ entry, manage, selection, wide }: Props) {
       <div className="flex flex-col gap-0.5 p-2.5">
         {/* The stretched link makes the whole card clickable. */}
         <Link
-          to={`${basePath}/${entry.id}`}
+          to={to ?? `${basePath}/${entry.id}`}
           onClick={(event) => {
             // Once anything is picked a click picks; Shift or Ctrl/Cmd picks too.
             if (!selection) return
@@ -100,7 +106,7 @@ export function WorldEntryCard({ entry, manage, selection, wide }: Props) {
         >
           {entry.name}
         </Link>
-        <KindLabel kind={entry.kind} />
+        {subtitle ? <span className="text-muted-foreground truncate text-xs font-medium">{subtitle}</span> : <KindLabel kind={entry.kind} />}
       </div>
       </div>
       {actions && (

@@ -10,7 +10,7 @@ const userPages = [
   { title: "Support", to: "/app/support" },
   { title: "Legal notices", to: "/app/legal" },
   { title: "Workshop", to: "/app/workshop" },
-  { title: "Your library", to: "/app/library" },
+  { title: "Library", to: "/app/library" },
   { title: "New campaign", to: "/app/campaigns/new" },
   { title: "Join campaign", to: "/app/campaigns/join" },
   { title: "Campaigns", to: "/app/campaigns" },

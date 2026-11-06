@@ -49,7 +49,7 @@ export function RulesHover({ editor }: { editor: Editor }) {
       if (!id || !(event.ctrlKey || event.metaKey)) return
       window.clearTimeout(timer.current)
       setShown(null)
-      if (!openIn) return navigate(rulesPath(campaignId, id))
+      if (!openIn) return navigate(rulesPath(id))
       openIn(id, "other", "rule")
     }
     dom.addEventListener("mouseover", over)
@@ -80,7 +80,7 @@ export function RulesHover({ editor }: { editor: Editor }) {
           Open in rules
         </button>
       ) : (
-        <Link to={rulesPath(campaignId, shown.id)} className={OPEN_LINK}>
+        <Link to={rulesPath(shown.id)} className={OPEN_LINK}>
           Open in rules
         </Link>
       )}

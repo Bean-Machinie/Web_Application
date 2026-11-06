@@ -1,7 +1,10 @@
 import type { ComponentType, ReactNode } from "react"
 import type { WorldFieldType } from "@/lib/world-fields"
+import { isCreatureStatsEmpty } from "@/lib/creature-stats"
 import { isStatBlockEmpty } from "@/lib/stat-block"
 import type { FieldDef } from "@/lib/world-kinds"
+import { CreatureStatsEditor } from "./CreatureStatsEditor"
+import { CreatureStatsView } from "./CreatureStatsView"
 import { ImageFieldEditor } from "./ImageFieldEditor"
 import { ImageFieldView } from "./ImageFieldView"
 import { RichTextEditor } from "./RichTextEditor"
@@ -70,6 +73,13 @@ export const FIELD_TYPES: Record<
     Editor: StatActionsEditor,
     View: StatActionsView,
     isEmpty: isStatBlockEmpty,
+    saveAtOnce: false,
+  },
+  // A creature's whole stat block, copied from the compendium.
+  creature_stats: {
+    Editor: CreatureStatsEditor,
+    View: CreatureStatsView,
+    isEmpty: isCreatureStatsEmpty,
     saveAtOnce: false,
   },
   image: {

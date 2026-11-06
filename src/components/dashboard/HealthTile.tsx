@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRunningTotal } from "@/hooks/use-running-total"
 import { currentHealth } from "@/lib/stat-block"
-import type { StatBlock } from "@/lib/stat-block"
+import type { LegacyStatBlock } from "@/lib/stat-block"
 import { HealthBar } from "./HealthBar"
 import { HealthMax } from "./HealthMax"
 import { HealthZone } from "./HealthZone"
 
 type Props = {
-  block: StatBlock
+  block: LegacyStatBlock
   // Null for players: read-only, no controls.
-  onChange: ((change: Partial<StatBlock>) => void) | null
+  onChange: ((change: Partial<LegacyStatBlock>) => void) | null
 }
 
 // Sized like the Defense and Speed tiles. For a GM it works like a life

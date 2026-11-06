@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
+import type { ReactNode } from "react"
 import { useElementSize } from "@/hooks/use-element-size"
 import { onRuleScroll } from "@/lib/rules-focus"
 import { matchingEntries, ruleEntry } from "@/lib/rules-terms"
@@ -14,11 +15,13 @@ type Props = {
   termId?: string
   // Called with the term picked, or undefined for a way back to the list.
   onSelect?: (termId: string | undefined) => void
+  // Shown above the search of the list, such as the compendium's section tabs.
+  tabs?: ReactNode
 }
 
 // The rules: a list of terms and the one picked, side by side where there is room and one at a
 // time where there is not. A term asked for from a page (a glossary word) is picked here.
-export function RulesDocument({ termId, onSelect }: Props) {
+export function RulesDocument({ termId, onSelect, tabs }: Props) {
   const { ref, size } = useElementSize<HTMLDivElement>()
   const [query, setQuery] = useState("")
   const [own, setOwn] = useState<string | undefined>()
@@ -55,7 +58,7 @@ export function RulesDocument({ termId, onSelect }: Props) {
     setTrail((steps) => steps.slice(0, -1))
     select(previous?.id)
   }
-  const list = <RulesList query={query} onQuery={setQuery} entries={entries} selectedId={shown} onSelect={pick} />
+  const list = <RulesList query={query} onQuery={setQuery} entries={entries} selectedId={shown} onSelect={pick} top={tabs} />
   // The term scrolls above its source line, which stays at the bottom of the pane.
   const term = shown && (
     <div className="flex h-full min-w-0 flex-1 flex-col">

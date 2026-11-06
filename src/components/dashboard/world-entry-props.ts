@@ -1,3 +1,4 @@
+import type { EntrySource } from "@/lib/entry-source"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import type { WorldFieldsState } from "./WorldFields"
 
@@ -12,6 +13,8 @@ export type EntryProps = {
   // Just made, and not yet left: the name is ready to be typed over.
   fresh: boolean
   state: WorldFieldsState
+  // Where it was copied from, if it was.
+  source: EntrySource | null
   onRename: (name: string) => Promise<void>
   onRevealedChange: (revealed: boolean) => void
   // Asks to delete; WorldEntryView confirms first.

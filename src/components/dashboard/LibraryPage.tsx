@@ -3,9 +3,12 @@ import { PlusIcon } from "@/components/icons/PlusIcon"
 import { FormAlert } from "@/components/auth/FormAlert"
 import { LoadingGate } from "@/components/LoadingGate"
 import { Button } from "@/components/ui/button"
+import { useNavigate } from "react-router-dom"
 import { useCharacters } from "@/hooks/use-characters"
 import { RECENCY_TEXT } from "@/lib/library-recency"
 import { CHARACTERS_SECTION, hasGraph } from "@/lib/library-sections"
+import { srdPath } from "@/lib/srd-paths"
+import type { SrdSection } from "@/lib/srd-paths"
 import { cn } from "@/lib/utils"
 import { AddToCampaignDialog } from "./AddToCampaignDialog"
 import { AddToCampaignNotice } from "./AddToCampaignNotice"
@@ -15,7 +18,7 @@ import { CopyWithLinksDialog } from "./CopyWithLinksDialog"
 import { LibraryAllView } from "./LibraryAllView"
 import { LibraryCharacters } from "./LibraryCharacters"
 import { LibrarySearch } from "./LibrarySearch"
-import { LibrarySections } from "./LibrarySections"
+import { LibrarySidebar } from "./LibrarySidebar"
 import { LibraryToolbar } from "./LibraryToolbar"
 import { NewMapDialog } from "./NewMapDialog"
 import { useLibraryPage } from "./useLibraryPage"
@@ -34,6 +37,7 @@ export function LibraryPage() {
   const { section, mode, selection, addTo } = page
   const { characters } = useCharacters()
   const newCharacter = useNewCharacter()
+  const navigate = useNavigate()
   const onCharacters = section.id === CHARACTERS_SECTION.id
   const searching = page.query.trim() !== "" || page.recency !== "any"
   const problem = page.error ?? page.actionError
@@ -66,11 +70,12 @@ export function LibraryPage() {
       >
         <div className="flex flex-1 flex-col gap-4 md:flex-row md:gap-8">
           <aside className="md:sticky md:top-[calc(var(--collection-top)+1.5rem)] md:self-start">
-            <LibrarySections
+            <LibrarySidebar
               entries={page.entries}
+              source="mine"
               active={section.id}
-              onChange={page.setSection}
-              extra={[{ section: CHARACTERS_SECTION, count: characters?.length ?? null }]}
+              onMine={page.setSection}
+              onSrd={(id) => navigate(srdPath(id as SrdSection))}
             />
           </aside>
           <div className="flex min-w-0 flex-1 flex-col gap-5">

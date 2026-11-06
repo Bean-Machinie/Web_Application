@@ -20,7 +20,7 @@ export function QuickBuildPage({ id }: { id: string }) {
   const fresh = (state as { justCreated?: boolean } | null)?.justCreated === true
   useDiscardUntitledCharacter(fresh, character, sheet.fields, sheet.values)
   usePageTrail([
-    { label: "Your library", to: "/app/library?section=characters" },
+    { label: "Library", to: "/app/library?section=characters" },
     { label: character?.name ?? "…", to: characterPath(id) },
     { label: "Start" },
   ])

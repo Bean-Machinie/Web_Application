@@ -1,4 +1,6 @@
 import type { TemplateEntry, TemplateField } from "./campaign-template-types"
+import { monsterById } from "./compendium-monsters"
+import { CREATURE_STATS_FIELD, newCreatureStats } from "./creature-stats"
 import { GOBLIN_NPCS } from "./goblin-arrows-npcs"
 import { GOBLIN_CREATURES, GOBLIN_LOCATIONS } from "./goblin-arrows-places"
 import type { RawEntry } from "./goblin-arrows-raw"
@@ -22,6 +24,12 @@ const NOTES_FIELD: Record<WorldEntryKind, string> = {
 // The names a mention chip shows, by key. Pages use them too.
 export const GOBLIN_LABELS: Labels = Object.fromEntries(RAW.map((raw) => [raw.key, raw.name]))
 
+// The stat block copied from the compendium, private like the rest of an entry's hidden detail.
+function statsField(monsterId: string | undefined): TemplateField[] {
+  const monster = monsterById(monsterId)
+  return monster ? [{ key: CREATURE_STATS_FIELD, type: "creature_stats", value: newCreatureStats(monster), private: true }] : []
+}
+
 function convert(raw: RawEntry): TemplateEntry {
   const short = (key: string, value: string | undefined): TemplateField[] =>
     value ? [{ key, type: "short_text", value }] : []
@@ -37,6 +45,7 @@ function convert(raw: RawEntry): TemplateEntry {
       ...short("role", raw.role),
       ...short("type", raw.type),
       ...short("value", raw.value),
+      ...statsField(raw.monster),
       ...(notes
         ? [{ key: NOTES_FIELD[raw.kind], type: "rich_text" as const, value: markup(notes, GOBLIN_LABELS), private: true }]
         : []),

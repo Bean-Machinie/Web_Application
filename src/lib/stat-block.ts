@@ -3,7 +3,7 @@ export type StatAction = { id: string; name: string; text: string }
 // Every part is optional. `v` lets the shape grow (dice, system presets)
 // without a migration. `health` is the maximum; without `healthCurrent` a
 // creature is at full health.
-export type StatBlock = {
+export type LegacyStatBlock = {
   v: 1
   health?: number
   healthCurrent?: number
@@ -12,7 +12,7 @@ export type StatBlock = {
   actions?: StatAction[]
 }
 
-export function readStatBlock(value: unknown): StatBlock {
+export function readStatBlock(value: unknown): LegacyStatBlock {
   const raw = (value && typeof value === "object" ? value : {}) as Record<string, unknown>
   const number = (n: unknown) => (typeof n === "number" && Number.isFinite(n) ? n : undefined)
   const actions = Array.isArray(raw.actions)
@@ -39,12 +39,12 @@ export function isStatBlockEmpty(value: unknown) {
 }
 
 // What gets stored: null once nothing is left.
-export function toStoredStatBlock(block: StatBlock) {
+export function toStoredStatBlock(block: LegacyStatBlock) {
   return isStatBlockEmpty(block) ? null : block
 }
 
 // Never below 0 or above the maximum; undefined while there is no maximum.
-export function currentHealth(block: StatBlock) {
+export function currentHealth(block: LegacyStatBlock) {
   if (block.health === undefined) return undefined
   return Math.min(Math.max(block.healthCurrent ?? block.health, 0), block.health)
 }

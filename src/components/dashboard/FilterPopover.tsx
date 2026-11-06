@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { SegmentedControl } from "@/components/ui/segmented-control"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export type FilterGroup = {
   label: string
@@ -11,6 +12,8 @@ export type FilterGroup = {
   // The first is "no filter": all, any time.
   options: { value: string; label: string }[]
   onChange: (value: string) => void
+  // A drop-down, for a filter with more choices than a segmented control holds.
+  select?: boolean
 }
 
 // Every filter in the app: one quiet "Filter" button, and under it a small popover with a
@@ -57,12 +60,27 @@ export function FilterPopover({ groups }: { groups: FilterGroup[] }) {
                   </button>
                 )}
               </div>
-              <SegmentedControl
-                aria-label={group.label}
-                value={group.value}
-                onValueChange={group.onChange}
-                options={group.options}
-              />
+              {group.select ? (
+                <Select value={group.value} onValueChange={group.onChange}>
+                  <SelectTrigger aria-label={group.label} className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {group.options.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <SegmentedControl
+                  aria-label={group.label}
+                  value={group.value}
+                  onValueChange={group.onChange}
+                  options={group.options}
+                />
+              )}
             </div>
           )
         })}

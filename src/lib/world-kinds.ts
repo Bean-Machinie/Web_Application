@@ -1,5 +1,6 @@
 import { BookOpen, Box, Map as MapIcon, Pin, PawPrint, UserStar } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import { CREATURE_STATS_FIELD } from "./creature-stats"
 import type { WorldFieldType } from "./world-fields"
 
 // The kinds of world entry. A new kind is one more entry here (with its
@@ -29,6 +30,8 @@ export type FieldDef = {
   privateByDefault?: boolean
   // Shown as a compact fact beside the name instead of as a section below.
   summary?: boolean
+  // Not offered to the GM until it has something in it; it is filled some other way.
+  hiddenWhenEmpty?: boolean
 }
 
 type KindDef = {
@@ -94,6 +97,18 @@ function statBlock(): FieldDef {
   }
 }
 
+// The stat block copied from the compendium; the GM edits the copy.
+function creatureStats(): FieldDef {
+  return {
+    key: CREATURE_STATS_FIELD,
+    label: "Stat block",
+    type: "creature_stats",
+    canBePrivate: true,
+    privateByDefault: true,
+    hiddenWhenEmpty: true,
+  }
+}
+
 function richText(key: string, label: string, placeholder: string, extra: Partial<FieldDef> = {}): FieldDef {
   return { key, label, type: "rich_text", canBePrivate: true, placeholder, ...extra }
 }
@@ -140,6 +155,7 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
         ["Hostile", "negative"],
       ]),
       description("Who are they, what do they want, what do they hide?"),
+      creatureStats(),
       richText("motivation", "Motivation", "What do they want, and what will they do to get it?"),
       shortText("voice", "Voice & mannerisms", "e.g. Gruff, taps the bar when lying", {
         canBePrivate: true,
@@ -165,6 +181,7 @@ export const WORLD_KINDS: Record<WorldEntryKind, KindDef> = {
       shortText("type", "Type", "e.g. Beast", { summary: true }),
       shortText("threat", "Threat", "e.g. CR 3 or Tier II", { summary: true, canBePrivate: true }),
       description("What is it, where does it live, how does it behave?"),
+      creatureStats(),
       statBlock(),
       richText("weaknesses", "Weaknesses", "What hurts it, scares it or shuts it down?", {
         privateByDefault: true,

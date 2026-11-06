@@ -7,6 +7,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import type { WorldEntry } from "@/lib/world-entries"
+import type { LibrarySection } from "@/lib/library-sections"
 import { LibrarySections } from "./LibrarySections"
 
 type Props = {
@@ -28,6 +29,8 @@ type Props = {
   // How one entry looks, and where it stands in the list; the window lays them out.
   // `wide` in the Maps section, whose entries are laid out as landscape tiles.
   renderEntry: (entry: WorldEntry, index: number, wide: boolean) => ReactNode
+  // Sections of things that are not entries, listed after the others with their own counts.
+  extra?: { section: LibrarySection; count: number | null }[]
   // Said when the library has no entries at all.
   emptyText: string
   rootRef?: Ref<HTMLDivElement>
@@ -63,6 +66,7 @@ export function LibraryWindow(props: Props) {
           active={props.section}
           onChange={props.onSection}
           compact={compact}
+          extra={props.extra}
         />
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
           <div className="flex shrink-0 items-center gap-2">

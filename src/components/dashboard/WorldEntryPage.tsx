@@ -1,6 +1,8 @@
 import { useEntryConnections } from "@/hooks/use-entry-connections"
 import { cn } from "@/lib/utils"
 import { ConnectionsRail } from "./ConnectionsRail"
+import { EntrySourceLine } from "./EntrySourceLine"
+import { ResetToCompendium } from "./ResetToCompendium"
 import { WorldEntryDetails } from "./WorldEntryDetails"
 import { WorldEntryHeader } from "./WorldEntryHeader"
 import { WorldEntryTitleBar } from "./WorldEntryTitleBar"
@@ -43,6 +45,7 @@ export function WorldEntryPage(props: EntryProps) {
             onOpenDetails={() => props.onDetailsOpenChange(true)}
             fresh={props.fresh}
           />
+          <EntrySourceLine source={props.source} />
         </div>
         <WorldEntryHeader
           entryId={entryId}
@@ -73,7 +76,9 @@ export function WorldEntryPage(props: EntryProps) {
           onRevealedChange={props.onRevealedChange}
           onDelete={props.onDelete}
           onSaveToLibrary={props.onSaveToLibrary}
-        />
+        >
+          {canManage && <ResetToCompendium state={state} />}
+        </WorldEntryDetails>
       </div>
     </div>
   )

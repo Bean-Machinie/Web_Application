@@ -9,6 +9,8 @@ import {
 import type { WorldEntry } from "./world-entries"
 import { fetchLibrarySearchText, fetchSearchText } from "./world-search"
 import type { SearchText } from "./world-search"
+import { addMonsterToCampaign } from "./add-monster"
+import type { Monster } from "./compendium-monsters"
 import { copyEntries } from "./world-copy-flow"
 import type { AddFromLibrary } from "./world-copy-flow"
 import { campaignPath } from "./campaign-paths"
@@ -35,6 +37,8 @@ export type WorldScope = {
   canSaveToLibrary: boolean
   // Copies a library entry into this scope. Absent where that makes no sense.
   addFromLibrary?: AddFromLibrary
+  // Adds an SRD creature to this scope as a Creature. Absent where that makes no sense.
+  addMonster?: (monster: Monster) => Promise<unknown>
   // First folder of the files of this scope's entries in storage.
   imageFolder: string
   fetchEntries: () => Promise<WorldEntry[]>
@@ -54,6 +58,7 @@ export function campaignScope(campaignId: string, canManage: boolean): WorldScop
     hasVisibility: true,
     canSaveToLibrary: true,
     addFromLibrary: (items, ask) => copyEntries(items, { campaignId, folder: campaignId }, ask),
+    addMonster: (monster) => addMonsterToCampaign(campaignId, monster),
     imageFolder: campaignId,
     fetchEntries: () => fetchWorldEntries(campaignId),
     createEntry: (kind, name) => createWorldEntry(campaignId, kind, name),
@@ -67,7 +72,7 @@ export function libraryScope(userId: string): WorldScope {
   return {
     key: `library:${userId}`,
     basePath: "/app/library",
-    label: "Your library",
+    label: "Library",
     canManage: true,
     kinds: worldKinds,
     hasVisibility: false,

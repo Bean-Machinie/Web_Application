@@ -17,6 +17,7 @@ import { useJournalUrlSync } from "@/hooks/use-journal-url-sync"
 import { useJournalWorkspace } from "@/hooks/use-journal-workspace"
 import { campaignPath } from "@/lib/campaign-paths"
 import { activeTab } from "@/lib/journal-workspace"
+import type { Tab } from "@/lib/journal-workspace"
 import { interceptPalette } from "@/lib/palette-intercept"
 import { requestRuleScroll, RULES_TAB } from "@/lib/rules-focus"
 import { cn } from "@/lib/utils"
@@ -57,10 +58,17 @@ export function Journal() {
   useEffect(
     () =>
       interceptPalette((path) => {
-        const found = path.match(new RegExp(`^/app/c/${current.id}/(world|journal|rules)/([^/?#]+)$`))
+        const found = path.match(new RegExp(`^(?:/app/c/${current.id}/(world|journal)|/app/library/srd/(rules|creatures))/([^/?#]+)$`))
         if (!found) return false
-        if (found[1] === "rules") requestRuleScroll(found[2])
-        const tab = found[1] === "rules" ? { kind: "rule", id: RULES_TAB } : { kind: found[1] === "world" ? "entry" : "page", id: found[2] }
+        const [, campaignPart, srdPart, itemId] = found
+        if (srdPart === "rules") requestRuleScroll(itemId)
+        const kinds: Record<string, Tab> = {
+          rules: { kind: "rule", id: RULES_TAB },
+          creatures: { kind: "monster", id: itemId },
+          world: { kind: "entry", id: itemId },
+          journal: { kind: "page", id: itemId },
+        }
+        const tab = kinds[campaignPart ?? srdPart]
         open(tab, { kind: "newTab" })
         return true
       }),

@@ -1,5 +1,4 @@
 import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
-import { BookMarkedIcon } from "@/components/icons/BookMarkedIcon"
 import { BookOpenIcon } from "@/components/icons/BookOpenIcon"
 import { CalendarFoldIcon } from "@/components/icons/CalendarFoldIcon"
 import { LifeBuoyIcon } from "@/components/icons/LifeBuoyIcon"
@@ -36,7 +35,6 @@ export const campaignNav = (id: string): NavItem[] => [
   { title: "World", to: campaignPath(id, "world"), icon: ScrollTextIcon },
   { title: "Sessions", to: campaignPath(id, "sessions"), icon: CalendarFoldIcon },
   { title: "Characters", to: campaignPath(id, "characters"), icon: UserRoundIcon },
-  { title: "Rules", to: campaignPath(id, "rules"), icon: BookMarkedIcon, dnd5eOnly: true },
   { title: "Party", to: campaignPath(id, "party"), icon: UsersRoundIcon },
 ]
 
@@ -51,7 +49,7 @@ export const campaignSettingsNav = (id: string): NavItem[] => [
 export const homeNav: NavItem[] = [
   { title: "Workshop", to: "/app/workshop", icon: PlusIcon, iconClassName: "scale-125" },
   { title: "Campaigns", to: "/app/campaigns", icon: SwordsIcon },
-  { title: "Your library", to: "/app/library", icon: PackageIcon },
+  { title: "Library", to: "/app/library", icon: PackageIcon },
 ]
 
 // The pages the command palette offers everywhere.

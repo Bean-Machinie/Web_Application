@@ -1,6 +1,9 @@
 import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
 import { BookMarkedIcon } from "@/components/icons/BookMarkedIcon"
+import { SwordsIcon } from "@/components/icons/SwordsIcon"
 import { campaignPath } from "./campaign-paths"
+import { MONSTERS } from "./compendium-monsters"
+import { monsterPath } from "./srd-paths"
 import { roleLabel } from "./campaign-list"
 import { can } from "./campaign-permissions"
 import type { Campaign } from "./campaigns"
@@ -138,7 +141,7 @@ export function buildGroups(input: PaletteInput): PaletteGroup[] {
         items: best(input.campaignPages, query, (page) => page.title, (page, matched) => pageItem(page, current.name, matched)),
       }
     )
-    // A rules term is not worth remembering as a recent, so it is a page row, not an entry.
+    // A rules term or a monster is not worth remembering as a recent, so it is a page row, not an entry.
     if (usesDnd5e(current)) {
       groups.push({
         heading: "Rules",
@@ -146,8 +149,19 @@ export function buildGroups(input: PaletteInput): PaletteGroup[] {
           id: `rule:${term.id}`,
           name: term.title,
           context: "Rules",
-          path: rulesPath(current.id, term.id),
+          path: rulesPath(term.id),
           visual: { type: "page", icon: BookMarkedIcon },
+          matched,
+        })),
+      })
+      groups.push({
+        heading: "Creatures",
+        items: best(MONSTERS, query, (monster) => monster.name, (monster, matched) => ({
+          id: `monster:${monster.id}`,
+          name: monster.name,
+          context: `CR ${monster.statBlock.cr.value} · ${monster.statBlock.type}`,
+          path: monsterPath(monster.id),
+          visual: { type: "page", icon: SwordsIcon },
           matched,
         })),
       })

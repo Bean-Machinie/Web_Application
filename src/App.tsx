@@ -23,13 +23,14 @@ import { JoinCampaign } from "@/pages/JoinCampaign"
 import { Journal } from "@/pages/Journal"
 import { Legal } from "@/pages/Legal"
 import { Library } from "@/pages/Library"
+import { LibrarySrd } from "@/pages/LibrarySrd"
 import { MapBuild } from "@/pages/MapBuild"
 import { NewCampaign } from "@/pages/NewCampaign"
 import { Overview } from "@/pages/Overview"
 import { Party } from "@/pages/Party"
 import { ResetPassword } from "@/pages/ResetPassword"
 import { RootRedirect } from "@/pages/RootRedirect"
-import { Rules } from "@/pages/Rules"
+import { SrdRedirect } from "@/pages/SrdRedirect"
 import { Sessions } from "@/pages/Sessions"
 import { LogIn } from "@/pages/LogIn"
 import { SettingsRedirect } from "@/pages/SettingsRedirect"
@@ -74,7 +75,8 @@ export default function App() {
               </Route>
               <Route path="sessions" element={<Sessions />} />
               <Route path="characters" element={<Characters />} />
-              <Route path="rules/:termId?" element={<Rules />} />
+              <Route path="compendium/:section?/:itemId?" element={<SrdRedirect />} />
+              <Route path="rules/:termId?" element={<SrdRedirect />} />
               <Route path="party" element={<Party />} />
               <Route path="campaign-settings" element={<CampaignSettings />}>
                 <Route index element={<Navigate to="general" replace />} />
@@ -91,6 +93,7 @@ export default function App() {
             </Route>
             <Route path="library" element={<LibraryWorldScope />}>
               <Route index element={<Library />} />
+              <Route path="srd/:section?/:itemId?" element={<LibrarySrd />} />
               <Route path=":entryId" element={<WorldEntry />} />
               <Route path=":entryId/build" element={<MapBuild />} />
             </Route>

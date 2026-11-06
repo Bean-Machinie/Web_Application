@@ -3,6 +3,7 @@ import { tiltCardSkin } from "@/components/tilt-card-styles"
 import type { ClickModifiers } from "@/lib/entry-selection"
 import type { WorldEntry } from "@/lib/world-entries"
 import { cn } from "@/lib/utils"
+import { monsterIcon, monsterSubtitle, srdMonster } from "@/lib/srd-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { KindLabel } from "./KindLabel"
 import { SelectHint } from "./SelectHint"
@@ -20,7 +21,9 @@ type Props = {
 // A library entry as in the world page's grid, a square picture over its name
 // and kind. A click picks it or puts it back, so several can be added at once.
 export function LibraryPickCard({ entry, selected, disabled, wide, onToggle }: Props) {
-  const { icon: KindIcon } = WORLD_KINDS[entry.kind]
+  // An SRD creature has its type's icon and "CR 1/4 · Fey" where the others have the kind.
+  const monster = srdMonster(entry)
+  const KindIcon = monster ? monsterIcon(monster) : WORLD_KINDS[entry.kind].icon
 
   const card = (
     <button
@@ -45,7 +48,7 @@ export function LibraryPickCard({ entry, selected, disabled, wide, onToggle }: P
       </span>
       <span className="flex flex-col gap-1 p-3">
         <span className="truncate font-medium">{entry.name}</span>
-        <KindLabel kind={entry.kind} />
+        {monster ? <span className="text-muted-foreground truncate text-xs font-medium">{monsterSubtitle(monster)}</span> : <KindLabel kind={entry.kind} />}
       </span>
     </button>
   )

@@ -15,4 +15,6 @@ export type RawEntry = {
   type?: string
   value?: string
   location?: string
+  // The compendium monster whose stat block the entry starts with, as a copy.
+  monster?: string
 }

@@ -2,7 +2,7 @@ import { Footprints, Shield } from "lucide-react"
 import { STAT_BLOCK_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { isStatBlockEmpty, readStatBlock, toStoredStatBlock } from "@/lib/stat-block"
-import type { StatBlock } from "@/lib/stat-block"
+import type { LegacyStatBlock } from "@/lib/stat-block"
 import { HealthTile } from "./HealthTile"
 import { PrivateToggle } from "./PrivateToggle"
 import { StatTile } from "./StatTile"
@@ -33,9 +33,9 @@ export function StatTiles({ kind, canManage, state, hidden }: Props) {
   if (!canManage && (isPrivate || isStatBlockEmpty(stored?.value))) return null
 
   const block = readStatBlock(stored?.value)
-  const save = (change: Partial<StatBlock>) =>
+  const save = (change: Partial<LegacyStatBlock>) =>
     setValue(def.key, def.type, toStoredStatBlock({ ...block, ...change }))
-  const edit = (apply: (text: string) => Partial<StatBlock>) =>
+  const edit = (apply: (text: string) => Partial<LegacyStatBlock>) =>
     canManage ? (text: string) => save(apply(text)) : null
 
   return (

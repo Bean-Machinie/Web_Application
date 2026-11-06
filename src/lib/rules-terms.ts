@@ -1,5 +1,5 @@
 import data from "@/data/srd-rules-reference.json"
-import { campaignPath } from "./campaign-paths"
+import { srdPath } from "./srd-paths"
 import type { RuleBlock, RuleCategory, RuleEffect, RuleEntry } from "./srd-rules-types"
 
 export const RULE_CATEGORIES = data.categories as RuleCategory[]
@@ -11,7 +11,7 @@ export const categoryTitle = (id: string) => RULE_CATEGORIES.find((category) => 
 
 export const ruleEntry = (id: string | undefined) => (id ? BY_ID.get(id) : undefined)
 
-export const rulesPath = (campaignId: string, termId?: string) => campaignPath(campaignId, termId ? `rules/${termId}` : "rules")
+export const rulesPath = (termId?: string) => srdPath("rules", termId)
 
 const effectText = (effect: RuleEffect): string[] => [effect.label, effect.text, ...(effect.example ? [effect.example] : []), ...(effect.bullets ?? []), ...(effect.items ?? []).flatMap(effectText)]
 

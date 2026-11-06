@@ -9,6 +9,8 @@ import { useWorldEntry } from "@/hooks/use-world-entry"
 import { useWorldFields } from "@/hooks/use-world-fields"
 import { readBackTo } from "@/lib/back-link"
 import { entryTrail } from "@/lib/breadcrumbs"
+import { CREATURE_STATS_FIELD } from "@/lib/creature-stats"
+import { getEntrySource } from "@/lib/entry-source"
 import { errorMessage } from "@/lib/campaigns"
 import { deleteWorldEntry, renameWorldEntry } from "@/lib/world-entries"
 import { deleteWorldImage, toWorldImage } from "@/lib/world-images"
@@ -116,6 +118,7 @@ export function WorldEntryView({ entryId }: { entryId: string }) {
                     canManage,
                     fresh,
                     state: fieldsState,
+                    source: getEntrySource(entry, fieldsState.fields?.[CREATURE_STATS_FIELD]?.value),
                     onRename: async (name: string) => {
                       try {
                         setActionError(null)

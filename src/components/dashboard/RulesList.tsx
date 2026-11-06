@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from "react"
+import type { ReactNode } from "react"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { groupByCategory } from "@/lib/rules-terms"
@@ -10,6 +11,8 @@ type Props = {
   entries: RuleEntry[]
   selectedId: string | undefined
   onSelect: (termId: string) => void
+  // Above the search, such as the compendium's section tabs.
+  top?: ReactNode
 }
 
 // The title with what was typed in stronger type.
@@ -30,7 +33,7 @@ const ROW =
 
 // The search and the entries under their categories, A to Z within each, under small headings
 // that stay in view.
-export function RulesList({ query, onQuery, entries, selectedId, onSelect }: Props) {
+export function RulesList({ query, onQuery, entries, selectedId, onSelect, top }: Props) {
   const selected = useRef<HTMLButtonElement>(null)
   const groups = useMemo(() => groupByCategory(entries), [entries])
   // The selected row is always in view, whether it was clicked or opened from a page; the rows keep a
@@ -41,6 +44,7 @@ export function RulesList({ query, onQuery, entries, selectedId, onSelect }: Pro
 
   return (
     <div className="flex h-full min-h-0 flex-col">
+      {top}
       {/* The search is its own row: the list scrolls under it, and the headings stay in the
           list's own box, never over the search. */}
       <div className="bg-background relative z-20 shrink-0 border-b p-3">

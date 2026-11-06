@@ -1,8 +1,10 @@
 import type { ComponentType } from "react"
-import { BookMarked, File, FileText } from "lucide-react"
+import { BookMarked, File, FileText, Skull } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import type { JournalTreeState } from "@/hooks/use-journal-tree"
 import { campaignPath } from "@/lib/campaign-paths"
+import { monsterById } from "@/lib/compendium-monsters"
+import { monsterPath } from "@/lib/srd-paths"
 import { fetchJournalContent } from "@/lib/journal"
 import { previewLines } from "@/lib/journal-preview"
 import type { TabPreview } from "@/lib/journal-preview"
@@ -16,6 +18,7 @@ import { RULES_TAB } from "@/lib/rules-focus"
 import { rulesPath } from "@/lib/rules-terms"
 import { COVER_FIELD, WORLD_KINDS } from "@/lib/world-kinds"
 import { JournalEntryTab } from "./JournalEntryTab"
+import { JournalMonsterTab } from "./JournalMonsterTab"
 import { JournalPageTab } from "./JournalPageTab"
 import { JournalRuleTab } from "./JournalRuleTab"
 
@@ -96,7 +99,14 @@ export const TAB_KINDS: Record<string, TabKind> = {
     describe: () => ({ title: "Rules", icon: BookMarked }),
     exists: (id) => id === RULES_TAB,
     Content: JournalRuleTab,
-    fullPageHref: (campaignId) => rulesPath(campaignId),
+    fullPageHref: () => rulesPath(),
+  },
+  monster: {
+    // An SRD creature, one tab each.
+    describe: (id) => ({ title: monsterById(id)?.name ?? "Monster", icon: Skull }),
+    exists: (id) => monsterById(id) !== undefined,
+    Content: JournalMonsterTab,
+    fullPageHref: (_campaignId, id) => monsterPath(id),
   },
 }
 

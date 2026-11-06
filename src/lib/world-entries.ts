@@ -23,12 +23,16 @@ export type WorldEntry = {
   // person may not see them.
   role: string | null
   status: string | null
+  // The entry this one was copied from, while that still exists.
+  sourceEntryId?: string | null
+  // Whether it is in someone's library rather than a campaign.
+  inLibrary?: boolean
 }
 
 // The fields the list needs besides the entry itself.
 const LIST_FIELDS = [COVER_FIELD, "role", "status"]
 
-const COLUMNS = "id, kind, name, revealed, sort_order, created_at, updated_at"
+const COLUMNS = "id, kind, name, revealed, sort_order, created_at, updated_at, owner_id, source_entry_id"
 
 export function toEntry(row: Record<string, unknown>): WorldEntry {
   const fields = (row.world_entry_fields as { key: string; value: unknown }[] | undefined) ?? []
@@ -50,6 +54,8 @@ export function toEntry(row: Record<string, unknown>): WorldEntry {
     imagePath: cover?.path ?? null,
     role: text("role"),
     status: text("status"),
+    sourceEntryId: (row.source_entry_id as string | null | undefined) ?? null,
+    inLibrary: row.owner_id != null,
   }
 }
 

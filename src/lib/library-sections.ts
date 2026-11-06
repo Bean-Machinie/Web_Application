@@ -1,4 +1,4 @@
-import { Box, LayoutGrid, Map as MapIcon, User } from "lucide-react"
+import { BookMarked, Box, LayoutGrid, Map as MapIcon, Skull, User } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import type { WorldEntry } from "./world-entries"
 import { WORLD_KINDS, worldKinds } from "./world-kinds"
@@ -45,6 +45,23 @@ export const CHARACTERS_SECTION: LibrarySection = {
   id: "characters",
   label: "Characters",
   icon: User,
+  matches: () => false,
+  makes: [],
+}
+
+// The SRD is a source of its own beside the library: its sections are read-only and open pages
+// of their own, so they filter nothing here.
+export const SRD_SECTIONS: LibrarySection[] = [
+  { id: "creatures", label: "Creatures", icon: Skull, matches: () => false, makes: [] },
+  { id: "rules", label: "Rules", icon: BookMarked, matches: () => false, makes: [] },
+]
+
+// In the window that adds to a campaign, the SRD creatures are one more section beside Mine's:
+// the only part of the SRD that can become an entry.
+export const SRD_PICK_SECTION: LibrarySection = {
+  id: "srd:creatures",
+  label: "SRD creatures",
+  icon: Skull,
   matches: () => false,
   makes: [],
 }

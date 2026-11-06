@@ -28,7 +28,7 @@ export function WorldFields({ entryId, folder, kind, canManage, state }: Props) 
   if (!fields && !error) return <Skeleton className="my-5 h-44 w-full" />
 
   const shown = canManage
-    ? defs
+    ? defs.filter((def) => !def.hiddenWhenEmpty || !FIELD_TYPES[def.type].isEmpty(fields?.[def.key]?.value))
     : defs.filter(
         (def) =>
           fields &&
