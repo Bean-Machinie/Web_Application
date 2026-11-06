@@ -6,13 +6,15 @@ import { useSeen } from "@/hooks/use-seen"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import { HiddenBadge } from "./HiddenBadge"
 import { KindLabel } from "./KindLabel"
+import { useEntryPanel } from "./useEntryPanel"
 import { useWorldScope } from "./useWorldScope"
 import { WorldTableContext } from "./WorldTableContext"
 
 // The picture, the name with the role under it, and a badge for a hidden entry.
 export function WorldNameCell({ entry }: { entry: WorldEntry }) {
   const { selection } = useContext(WorldTableContext)
-  const { basePath, hasVisibility } = useWorldScope()
+  const { hasVisibility } = useWorldScope()
+  const panel = useEntryPanel()
   const { icon: KindIcon } = WORLD_KINDS[entry.kind]
   const hidden = hasVisibility && !entry.revealed
   // A map with no published image may still have a saved scene, drawn once the row is in view.
@@ -38,7 +40,7 @@ export function WorldNameCell({ entry }: { entry: WorldEntry }) {
       <div className="flex min-w-0 flex-col items-start gap-0.5">
         <div className="flex max-w-full min-w-0 items-center gap-2">
           <Link
-            to={`${basePath}/${entry.id}`}
+            to={panel.href(entry.id)}
             onClick={(event) => {
               if (!selection) return
               if (selection.active || event.shiftKey || event.ctrlKey || event.metaKey) {

@@ -1,28 +1,29 @@
-import { useParams } from "react-router-dom"
-import { LibrarySrdPage } from "@/components/dashboard/LibrarySrdPage"
+import { Navigate, useNavigate, useParams } from "react-router-dom"
+import { RuleTermView } from "@/components/dashboard/RuleTermView"
 import { SrdCreatureView } from "@/components/dashboard/SrdCreatureView"
 import { usePageTrail } from "@/components/dashboard/usePageTrail"
 import { monsterById } from "@/lib/compendium-monsters"
 import { ruleEntry } from "@/lib/rules-terms"
-import { SRD_LABEL, srdPath } from "@/lib/srd-paths"
+import { SRD_LABEL, srdNodeId, srdPath } from "@/lib/srd-paths"
 import type { SrdSection } from "@/lib/srd-paths"
 
-// The SRD in the library. An opened creature is a page of its own, like a library entry; the
-// creature list and the rules sit in the library's layout.
+// An SRD creature or rules term on a page of its own, which the library's panel links to as
+// "Open full page". Without an item there is nothing to show: the library has the list.
 export function LibrarySrd() {
   const { section: asked, itemId } = useParams()
+  const navigate = useNavigate()
   const section: SrdSection = asked === "rules" ? "rules" : "creatures"
   const monster = section === "creatures" ? monsterById(itemId) : undefined
-  const item = monster?.name ?? (section === "rules" ? ruleEntry(itemId)?.title : undefined)
+  const rule = section === "rules" ? ruleEntry(itemId) : undefined
+  const item = monster?.name ?? rule?.title
   usePageTrail([
-    { label: "Library", to: "/app/library" },
-    { label: SRD_LABEL, to: srdPath() },
-    { label: section === "rules" ? "Rules" : "Creatures", to: srdPath(section) },
+    { label: "Library", to: `/app/library?section=${encodeURIComponent(srdNodeId(section))}` },
+    { label: SRD_LABEL, to: `/app/library?section=${encodeURIComponent(srdNodeId(section))}` },
     ...(item ? [{ label: item }] : []),
   ])
 
-  if (section === "creatures" && itemId) {
-    return monster ? <SrdCreatureView monster={monster} /> : <p className="text-muted-foreground text-sm">This creature is not in the SRD.</p>
-  }
-  return <LibrarySrdPage section={section} termId={itemId} />
+  if (!itemId) return <Navigate to={`/app/library?section=${encodeURIComponent(srdNodeId(section))}`} replace />
+  if (monster) return <SrdCreatureView monster={monster} />
+  if (rule) return <RuleTermView termId={rule.id} onSelect={(id) => navigate(srdPath("rules", id))} />
+  return <p className="text-muted-foreground text-sm">This is not in the SRD.</p>
 }

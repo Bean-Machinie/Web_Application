@@ -33,6 +33,8 @@ export type WorldScope = {
   // Whether entries are hidden from or revealed to players. A library is
   // private to its owner, so it has neither.
   hasVisibility: boolean
+  // Whether an entry opens in a panel beside the list rather than on a page of its own.
+  inPanel?: boolean
   // Whether its entries can be copied into the library.
   canSaveToLibrary: boolean
   // Copies a library entry into this scope. Absent where that makes no sense.
@@ -73,6 +75,7 @@ export function libraryScope(userId: string): WorldScope {
     key: `library:${userId}`,
     basePath: "/app/library",
     label: "Library",
+    inPanel: true,
     canManage: true,
     kinds: worldKinds,
     hasVisibility: false,

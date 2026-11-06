@@ -17,11 +17,12 @@ function readWidth(text: string | null) {
 
 // The side panel of the journal as a resizable panel that narrows to a rail. The panel
 // is the one source of truth for open or not: dragging it past its minimum collapses it
-// the same as the button does. Its width and whether it is open are remembered.
-export function useJournalSide() {
+// the same as the button does. Its width and whether it is open are remembered, under the
+// prefix, so the library's panel keeps its own.
+export function useJournalSide(prefix = "journal") {
   const panel = usePanelRef()
-  const [open, setOpen] = useStoredValue("journal-tree-open", readOpen)
-  const [width, setWidth] = useStoredValue("journal-tree-width", readWidth)
+  const [open, setOpen] = useStoredValue(`${prefix}-tree-open`, readOpen)
+  const [width, setWidth] = useStoredValue(`${prefix}-tree-width`, readWidth)
   const lastWidth = useRef(width)
   const element = useRef<HTMLDivElement>(null)
   // The width only eases while a button moves it; during a drag it must follow the pointer.

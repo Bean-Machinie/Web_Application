@@ -1,134 +1,73 @@
-import { HoverIcon } from "@/components/icons/HoverIcon"
-import { PlusIcon } from "@/components/icons/PlusIcon"
-import { FormAlert } from "@/components/auth/FormAlert"
-import { LoadingGate } from "@/components/LoadingGate"
-import { Button } from "@/components/ui/button"
-import { useNavigate } from "react-router-dom"
-import { useCharacters } from "@/hooks/use-characters"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
+import { RAIL_PX, TREE_MAX_PX, TREE_MIN_PX, useJournalSide } from "@/hooks/use-journal-side"
 import { RECENCY_TEXT } from "@/lib/library-recency"
-import { CHARACTERS_SECTION, hasGraph } from "@/lib/library-sections"
-import { srdPath } from "@/lib/srd-paths"
-import type { SrdSection } from "@/lib/srd-paths"
 import { cn } from "@/lib/utils"
 import { AddToCampaignDialog } from "./AddToCampaignDialog"
 import { AddToCampaignNotice } from "./AddToCampaignNotice"
-import { CollectionPage } from "./CollectionPage"
 import { CollectionFilterPill } from "./CollectionFilterPill"
 import { CopyWithLinksDialog } from "./CopyWithLinksDialog"
-import { LibraryAllView } from "./LibraryAllView"
-import { LibraryCharacters } from "./LibraryCharacters"
-import { LibrarySearch } from "./LibrarySearch"
-import { LibrarySidebar } from "./LibrarySidebar"
-import { LibraryToolbar } from "./LibraryToolbar"
+import { LibraryContent } from "./LibraryContent"
+import { LibraryDetail } from "./LibraryDetail"
+import { LibraryPanel } from "./LibraryPanel"
+import { LibrarySide } from "./LibrarySide"
 import { NewMapDialog } from "./NewMapDialog"
 import { useLibraryPage } from "./useLibraryPage"
 import { useNewCharacter } from "./useNewCharacter"
 import { WorldBulkBar } from "./WorldBulkBar"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
-import { WorldEntryResults } from "./WorldEntryResults"
-import { WorldGridSkeleton } from "./WorldGridSkeleton"
 
-// The library as a page, unlike a campaign's World: one sticky row with the search on the
-// left and the filters, views and New for the open section on the right, and
-// below it a sticky column of sections (All, Maps, World entries and its kinds) beside the
-// entries. Maps are landscape tiles. "All" is the newest of each section.
+// The gap between the panels, where the handle is: no line, the panels have their own borders.
+const GAP = "w-2 bg-transparent after:w-2"
+
+// The library laid out like the journal: a tree of what is in it in a panel at the left, the
+// cards or list of the open node in the middle, and, once something is clicked, its panel at the
+// right. The tree and the panel are solid and stand on the bottom of the window; the cards are on
+// the page's own background.
 export function LibraryPage() {
   const page = useLibraryPage()
-  const { section, mode, selection, addTo } = page
-  const { characters } = useCharacters()
+  const side = useJournalSide("library")
   const newCharacter = useNewCharacter()
-  const navigate = useNavigate()
-  const onCharacters = section.id === CHARACTERS_SECTION.id
-  const searching = page.query.trim() !== "" || page.recency !== "any"
-  const problem = page.error ?? page.actionError
-  const grouped = section.id === "all" && mode === "grid" && !searching
+  const { selection, addTo } = page
+  // Characters have a page of their own, so they open no panel.
+  const detail = page.item !== null && page.section.id !== "characters"
 
   return (
     <>
-      <CollectionPage
-        tabs={<LibrarySearch query={page.query} onQuery={page.setQuery} />}
-        actions={
-          onCharacters ? (
-            <Button onClick={newCharacter.open}>
-              <HoverIcon icon={PlusIcon} size={16} />
-              New character
-            </Button>
-          ) : (
-            <LibraryToolbar
-              recency={page.recency}
-              onRecency={page.setRecency}
-              mode={mode}
-              onMode={page.setMode}
-              graph={hasGraph(section)}
-              cardSize={page.cardSize}
-              onCardSize={page.setCardSize}
-              makes={section.makes}
-              onNew={page.make}
-            />
-          )
-        }
-      >
-        <div className="flex flex-1 flex-col gap-4 md:flex-row md:gap-8">
-          <aside className="md:sticky md:top-[calc(var(--collection-top)+1.5rem)] md:self-start">
-            <LibrarySidebar
-              entries={page.entries}
-              source="mine"
-              active={section.id}
-              onMine={page.setSection}
-              onSrd={(id) => navigate(srdPath(id as SrdSection))}
-            />
-          </aside>
-          <div className="flex min-w-0 flex-1 flex-col gap-5">
-            {problem && <FormAlert tone="error">{problem}</FormAlert>}
-            {onCharacters ? (
-              <LibraryCharacters characters={characters} query={page.query} onNew={newCharacter.open} />
-            ) : (
-            <LoadingGate
-              loading={!page.entries && !page.error}
-              className="flex min-h-0 flex-1 flex-col"
-              skeleton={<WorldGridSkeleton />}
-            >
-              {() =>
-                page.shown && (
-                  <div
-                    className={cn(
-                      "flex flex-1 flex-col",
-                      mode === "graph" &&
-                        "h-[calc(100svh-var(--collection-top)-3rem)] min-h-[28rem] overflow-hidden rounded-lg border"
-                    )}
-                  >
-                    {grouped && page.shown.length > 0 ? (
-                      <LibraryAllView
-                        entries={page.shown}
-                        manage={page.manage}
-                        selection={selection}
-                        size={page.cardSize}
-                        onSee={page.setSection}
-                      />
-                    ) : (
-                      <WorldEntryResults
-                        entries={page.shown}
-                        mode={mode}
-                        kind={null}
-                        filtered={searching}
-                        canManage
-                        manage={page.manage}
-                        selection={selection}
-                        sort={page.sort}
-                        onSort={page.setSort}
-                        cardSize={page.cardSize}
-                        connections={null}
-                        wide={section.id === "maps"}
-                      />
-                    )}
-                  </div>
-                )
-              }
-            </LoadingGate>
-            )}
-          </div>
-        </div>
-      </CollectionPage>
+      <div className="-m-4 h-[calc(100svh-var(--header-height))] min-w-0 flex-none md:-m-6">
+        <ResizablePanelGroup
+          orientation="horizontal"
+          onLayoutChanged={side.saveWidth}
+          className={cn("p-2 pb-0", side.easing && "[&>[data-panel]]:transition-[flex-grow] [&>[data-panel]]:duration-200 [&>[data-panel]]:ease-linear motion-reduce:[&>[data-panel]]:transition-none")}
+        >
+          <ResizablePanel
+            id="library-tree"
+            panelRef={side.panel}
+            elementRef={side.element}
+            collapsible
+            collapsedSize={`${RAIL_PX}px`}
+            minSize={`${TREE_MIN_PX}px`}
+            maxSize={`${TREE_MAX_PX}px`}
+            defaultSize={`${side.open ? side.width : RAIL_PX}px`}
+            onResize={side.onResize}
+          >
+            <LibraryPanel>
+              <LibrarySide active={page.nodeId} count={page.count} onSelect={page.setSection} open={side.open} onToggle={side.toggle} />
+            </LibraryPanel>
+          </ResizablePanel>
+          <ResizableHandle disabled={!side.open} className={GAP} />
+          <ResizablePanel id="library-main" minSize="30%">
+            <LibraryContent page={page} onNewCharacter={newCharacter.open} />
+          </ResizablePanel>
+          {detail && (
+            <>
+              <ResizableHandle className={GAP} />
+              <ResizablePanel id="library-detail" defaultSize="40%" minSize="25%" maxSize="65%">
+                <LibraryDetail page={page} />
+              </ResizablePanel>
+            </>
+          )}
+        </ResizablePanelGroup>
+      </div>
 
       {page.recency !== "any" && (
         <CollectionFilterPill

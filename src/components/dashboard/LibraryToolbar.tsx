@@ -1,51 +1,36 @@
 import type { CardSize } from "@/hooks/use-world-card-size"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
-import type { Recency } from "@/lib/library-recency"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { CardSizeControl } from "./CardSizeControl"
 import { FilterPopover } from "./FilterPopover"
+import type { FilterGroup } from "./FilterPopover"
 import { LibraryNewButton } from "./LibraryNewButton"
 import { WorldViewToggle } from "./WorldViewToggle"
 
 type Props = {
-  recency: Recency
-  onRecency: (recency: Recency) => void
+  filters: FilterGroup[]
   mode: WorldViewMode
   onMode: (mode: WorldViewMode) => void
-  // Whether the graph is offered; only for world entries.
-  graph: boolean
+  // The views offered: the graph only for world entries.
+  modes: WorldViewMode[]
   cardSize: CardSize
   onCardSize: (size: CardSize) => void
-  // What New makes in the section that is open.
+  // What New makes in the node that is open; none under the SRD, which cannot be added to.
   makes: WorldEntryKind[]
   onNew: (kind: WorldEntryKind) => void
 }
 
-// The right of the library's toolbar row: filter, how to look, and New for the section.
+// The right of the library's toolbar, the same for every node: filter, how to look, and New
+// where there is something to make.
 export function LibraryToolbar(props: Props) {
-  const modes: WorldViewMode[] = props.graph ? ["list", "grid", "graph"] : ["list", "grid"]
-
   return (
     <>
-      <FilterPopover
-        groups={[
-          {
-            label: "Last changed",
-            value: props.recency,
-            options: [
-              { value: "any", label: "Any time" },
-              { value: "week", label: "7 days" },
-              { value: "month", label: "30 days" },
-            ],
-            onChange: (value) => props.onRecency(value as Recency),
-          },
-        ]}
-      />
+      <FilterPopover groups={props.filters} />
       {props.mode === "grid" && <CardSizeControl value={props.cardSize} onChange={props.onCardSize} />}
       <div className="max-md:hidden">
-        <WorldViewToggle mode={props.mode} onChange={props.onMode} modes={modes} />
+        <WorldViewToggle mode={props.mode} onChange={props.onMode} modes={props.modes} />
       </div>
-      <LibraryNewButton kinds={props.makes} onPick={props.onNew} />
+      {props.makes.length > 0 && <LibraryNewButton kinds={props.makes} onPick={props.onNew} />}
     </>
   )
 }

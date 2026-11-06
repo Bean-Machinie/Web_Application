@@ -49,4 +49,6 @@ const TYPE_ICONS: Record<string, LucideIcon> = {
 }
 
 // What stands in for a picture: the creature's type.
-export const monsterIcon = ({ statBlock }: Monster): LucideIcon => TYPE_ICONS[statBlock.type] ?? Skull
+export const monsterTypeIcon = (type: string): LucideIcon => TYPE_ICONS[type] ?? Skull
+
+export const monsterIcon = ({ statBlock }: Monster) => monsterTypeIcon(statBlock.type)

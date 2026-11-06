@@ -5,6 +5,7 @@ import type { EntrySelection } from "@/hooks/use-entry-selection"
 import type { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
 import { SelectHint } from "./SelectHint"
+import { useEntryPanel } from "./useEntryPanel"
 import { useWorldScope } from "./useWorldScope"
 
 type Props = {
@@ -21,9 +22,10 @@ type Props = {
 // One entry of the list view: the row that opens it, picks it, and can be moved.
 export function WorldEntryRow({ entry, selection, managed, rowProps, children }: Props) {
   const navigate = useNavigate()
-  const { basePath, hasVisibility } = useWorldScope()
+  const { hasVisibility } = useWorldScope()
+  const panel = useEntryPanel()
   const hidden = hasVisibility && !entry.revealed
-  const selected = selection?.isSelected(entry.id) ?? false
+  const selected = (selection?.isSelected(entry.id) ?? false) || panel.openId === entry.id
 
   const row = (
     <TableRow
@@ -39,7 +41,7 @@ export function WorldEntryRow({ entry, selection, managed, rowProps, children }:
           selection.click(entry.id, event)
           return
         }
-        navigate(`${basePath}/${entry.id}`)
+        navigate(panel.href(entry.id))
       }}
       data-state={selected ? "selected" : undefined}
       className={`group/row h-14 data-[state=selected]:bg-primary/10! ${hidden ? "bg-muted/50 " : ""}${

@@ -1,5 +1,9 @@
-import { BookMarked, Box, LayoutGrid, Map as MapIcon, Skull, User } from "lucide-react"
+import { BookMarked, Box, FileText, LayoutGrid, Map as MapIcon, Skull, User } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import { MONSTER_TYPES } from "./compendium-monsters"
+import { RULE_CATEGORIES } from "./rules-terms"
+import { SRD_LABEL } from "./srd-paths"
+import { monsterTypeIcon } from "./srd-entries"
 import type { WorldEntry } from "./world-entries"
 import { WORLD_KINDS, worldKinds } from "./world-kinds"
 import type { WorldEntryKind } from "./world-kinds"
@@ -49,11 +53,31 @@ export const CHARACTERS_SECTION: LibrarySection = {
   makes: [],
 }
 
-// The SRD is a source of its own beside the library: its sections are read-only and open pages
-// of their own, so they filter nothing here.
+// The SRD is a source of its own beside the library: read only, and not entries, so its
+// sections filter none (see srd-items). Creatures nest by type, rules by category.
 export const SRD_SECTIONS: LibrarySection[] = [
-  { id: "creatures", label: "Creatures", icon: Skull, matches: () => false, makes: [] },
-  { id: "rules", label: "Rules", icon: BookMarked, matches: () => false, makes: [] },
+  {
+    id: "srd:creatures",
+    label: "Creatures",
+    icon: Skull,
+    matches: () => false,
+    makes: [],
+    children: MONSTER_TYPES.map((type) => ({ id: `srd:creatures:${type}`, label: type, icon: monsterTypeIcon(type), matches: () => false, makes: [] })),
+  },
+  {
+    id: "srd:rules",
+    label: "Rules",
+    icon: BookMarked,
+    matches: () => false,
+    makes: [],
+    children: RULE_CATEGORIES.map((category) => ({ id: `srd:rules:${category.id}`, label: category.title, icon: FileText, matches: () => false, makes: [] })),
+  },
+]
+
+// What the library's tree is organised by: the two sources, each with a title.
+export const LIBRARY_GROUPS = [
+  { title: "Yours", sections: [...LIBRARY_SECTIONS, CHARACTERS_SECTION] },
+  { title: SRD_LABEL, hint: "Free D&D 5e content included with Heliosyn", sections: SRD_SECTIONS },
 ]
 
 // In the window that adds to a campaign, the SRD creatures are one more section beside Mine's:

@@ -13,6 +13,7 @@ import { KindLabel } from "./KindLabel"
 import { MemberMenu } from "./MemberMenu"
 import { RevealButton } from "./RevealButton"
 import { StatusMarker } from "./StatusMarker"
+import { useEntryPanel } from "./useEntryPanel"
 import { useWorldScope } from "./useWorldScope"
 import type { WorldManage } from "./world-manage"
 
@@ -27,11 +28,14 @@ type Props = {
   to?: string
   subtitle?: string
   icon?: LucideIcon
+  // Marked as the one open in the panel; entries find that out for themselves.
+  highlighted?: boolean
 }
 
-export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, icon }: Props) {
-  const selected = selection?.isSelected(entry.id) ?? false
-  const { basePath, hasVisibility, imageFolder } = useWorldScope()
+export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, icon, highlighted }: Props) {
+  const { hasVisibility, imageFolder } = useWorldScope()
+  const panel = useEntryPanel()
+  const selected = (selection?.isSelected(entry.id) ?? false) || (highlighted ?? panel.openId === entry.id)
   // A library has no visibility, so nothing in it is drawn as hidden.
   const hidden = hasVisibility && !entry.revealed
   const KindIcon = icon ?? WORLD_KINDS[entry.kind].icon
@@ -93,7 +97,7 @@ export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, i
       <div className="flex flex-col gap-0.5 p-2.5">
         {/* The stretched link makes the whole card clickable. */}
         <Link
-          to={to ?? `${basePath}/${entry.id}`}
+          to={to ?? panel.href(entry.id)}
           onClick={(event) => {
             // Once anything is picked a click picks; Shift or Ctrl/Cmd picks too.
             if (!selection) return

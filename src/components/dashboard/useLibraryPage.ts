@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
+import { useCharacters } from "@/hooks/use-characters"
 import { useCreateEntry } from "@/hooks/use-create-entry"
 import { useEntrySelection } from "@/hooks/use-entry-selection"
 import { useLibraryScenes } from "@/hooks/use-library-scenes"
@@ -8,11 +9,15 @@ import { useWorldCardSize } from "@/hooks/use-world-card-size"
 import { useWorldEntries } from "@/hooks/use-world-entries"
 import { useWorldEntryDelete } from "@/hooks/use-world-entry-delete"
 import { useWorldSearchText } from "@/hooks/use-world-search-text"
+import { useStoredValue } from "@/hooks/use-stored-value"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
+import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import { currentKindName } from "@/lib/legacy-kinds"
 import { changedWithin } from "@/lib/library-recency"
 import type { Recency } from "@/lib/library-recency"
-import { CHARACTERS_SECTION, findSection, hasGraph } from "@/lib/library-sections"
+import { CHARACTERS_SECTION, countIn, findSection, hasGraph } from "@/lib/library-sections"
+import { withItem } from "@/lib/library-nav"
+import { isSrdNode, srdCount } from "@/lib/srd-items"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
@@ -21,6 +26,10 @@ import { useAddToCampaign } from "./useAddToCampaign"
 import { useWorldScope } from "./useWorldScope"
 import { createWorldManage } from "./world-manage"
 
+const readRulesMode = (text: string | null): WorldViewMode => (text === "grid" ? "grid" : "list")
+
+export type LibraryPageState = ReturnType<typeof useLibraryPage>
+
 // Everything the library page keeps track of: the section (in the address, so the
 // back button and links work), the search and filters, the entries they leave, what
 // is picked, and the dialogs. The page itself only lays it out.
@@ -28,11 +37,18 @@ export function useLibraryPage() {
   const scope = useWorldScope()
   const { entries, error, reload, setRevealed, reorder } = useWorldEntries(scope)
   const [params, setParams] = useSearchParams()
-  const sectionId = currentKindName(params.get("section")) ?? "all"
-  const section = sectionId === CHARACTERS_SECTION.id ? CHARACTERS_SECTION : findSection(sectionId)
+  const askedNode = params.get("section")
+  // The node of the tree that is open: one of the library's sections, or a node of the SRD.
+  const nodeId = askedNode?.startsWith("srd:") ? askedNode : (currentKindName(askedNode) ?? "all")
+  const onSrd = isSrdNode(nodeId)
+  const section = nodeId === CHARACTERS_SECTION.id ? CHARACTERS_SECTION : findSection(onSrd ? "all" : nodeId)
+  const item = params.get("item")
+  const { characters } = useCharacters()
   const [query, setQuery] = useState("")
   const [recency, setRecency] = useState<Recency>("any")
   const [chosenMode, setMode] = useWorldViewMode()
+  // The rules read better as a list, so that is where they start.
+  const [rulesMode, setRulesMode] = useStoredValue("library-rules-view", readRulesMode)
   const [cardSize, setCardSize] = useWorldCardSize()
   const [sort, setSort] = useState<Sort>(null)
   const createEntry = useCreateEntry(scope)
@@ -42,10 +58,13 @@ export function useLibraryPage() {
   const removal = useWorldEntryDelete(reload, setActionError)
   const addTo = useAddToCampaign()
   const navigate = useNavigate()
+  const location = useLocation()
   const scenes = useLibraryScenes(entries)
 
   // The graph is only for world entries; elsewhere the cards are shown instead.
-  const mode = chosenMode === "graph" && !hasGraph(section) ? "grid" : chosenMode
+  const onRules = nodeId.startsWith("srd:rules")
+  const picked = onRules ? rulesMode : chosenMode
+  const mode = picked === "graph" && (onSrd || !hasGraph(section)) ? "grid" : picked
   const searchText = useWorldSearchText(scope, query.trim() !== "")
   const sortBy = mode === "list" ? sort : null
   const shown = useMemo(
@@ -64,7 +83,7 @@ export function useLibraryPage() {
   const selection = useEntrySelection({
     visibleIds: shown?.map((entry) => entry.id) ?? [],
     allIds: entries?.map((entry) => entry.id) ?? [],
-    viewKey: `${section.id}|${query}|${recency}`,
+    viewKey: `${nodeId}|${query}|${recency}`,
   })
   const bulk = useWorldBulk({ entries, selection, reload, setError: setActionError })
   const manage = createWorldManage({
@@ -100,9 +119,16 @@ export function useLibraryPage() {
   }, [wanted, setParams])
 
   return {
-    entries, error, reload, section, mode, setMode, cardSize, setCardSize, sort, setSort,
+    entries, error, reload, section, nodeId, onSrd, item, mode, setMode: onRules ? setRulesMode : setMode, cardSize, setCardSize, sort, setSort,
     query, setQuery, recency, setRecency, shown, selection, bulk, manage, addTo, removal,
     making, setMaking, renaming, setRenaming, actionError, make,
+    // Moving to another node closes the panel.
     setSection: (id: string) => setParams(id === "all" ? {} : { section: id }, { replace: true }),
+    // Opening an item is a step in the history, so Back closes it; closing is not.
+    setItem: (id: string | null) => navigate(withItem(location.search, id), { replace: id === null }),
+    count: (id: string) => {
+      if (isSrdNode(id)) return srdCount(id)
+      return id === CHARACTERS_SECTION.id ? (characters?.length ?? null) : countIn(findSection(id), entries)
+    },
   }
 }

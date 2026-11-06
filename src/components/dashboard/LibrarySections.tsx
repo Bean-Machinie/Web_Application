@@ -15,7 +15,7 @@ type Props = {
 
 type RowProps = Props & { section: LibrarySection; depth: number; count?: number | null }
 
-export function Row({ section, entries, active, onChange, depth, count }: RowProps) {
+function Row({ section, entries, active, onChange, depth, count }: RowProps) {
   const Icon = section.icon
   const selected = active === section.id
 

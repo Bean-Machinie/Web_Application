@@ -16,6 +16,7 @@ import type { JournalNode } from "@/lib/journal"
 import { startPageDrag } from "@/lib/journal-page-drag"
 import type { DropTarget } from "@/lib/journal-drop-target"
 import { filteredRows, guidesFor, visibleRows } from "@/lib/journal-tree"
+import { readIds, writeIds } from "@/lib/stored-ids"
 import { activeTab, tabKey } from "@/lib/journal-workspace"
 import type { Where } from "@/lib/journal-workspace"
 import { JournalTreeRow } from "./JournalTreeRow"
@@ -33,17 +34,6 @@ type Props = {
   onRenaming: (id: string | null) => void
   onDelete: (page: JournalNode) => void
 }
-
-function readIds(text: string | null): ReadonlySet<string> {
-  try {
-    const ids = JSON.parse(text ?? "[]") as unknown
-    return new Set(Array.isArray(ids) ? ids.filter((id): id is string => typeof id === "string") : [])
-  } catch {
-    return new Set()
-  }
-}
-
-const writeIds = (ids: ReadonlySet<string>) => JSON.stringify([...ids])
 
 const WHERE: Record<OpenMode, Where> = {
   current: { kind: "current" },
