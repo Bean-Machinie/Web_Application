@@ -2,17 +2,19 @@ import type { LucideIcon } from "lucide-react"
 import { Link } from "react-router-dom"
 import { TiltCard } from "@/components/TiltCard"
 import { Badge } from "@/components/ui/badge"
-import { tiltCardSkin } from "@/components/tilt-card-styles"
+import { entityCardSkin } from "@/components/tilt-card-styles"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
 import { useMapPreview } from "@/hooks/use-map-preview"
 import { useSeen } from "@/hooks/use-seen"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
+import { ActionContextMenu } from "./ActionContextMenu"
 import { HiddenBadge } from "./HiddenBadge"
 import { KindLabel } from "./KindLabel"
 import { MemberMenu } from "./MemberMenu"
 import { RevealButton } from "./RevealButton"
 import { StatusMarker } from "./StatusMarker"
+import { openInNewTab } from "./openInNewTab"
 import { useEntryPanel } from "./useEntryPanel"
 import { useWorldScope } from "./useWorldScope"
 import type { WorldManage } from "./world-manage"
@@ -30,9 +32,11 @@ type Props = {
   icon?: LucideIcon
   // Marked as the one open in the panel; entries find that out for themselves.
   highlighted?: boolean
+  // What the panel opens it by when that is not the entry's own id (an SRD creature's).
+  itemId?: string
 }
 
-export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, icon, highlighted }: Props) {
+export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, icon, highlighted, itemId }: Props) {
   const { hasVisibility, imageFolder } = useWorldScope()
   const panel = useEntryPanel()
   const selected = (selection?.isSelected(entry.id) ?? false) || (highlighted ?? panel.openId === entry.id)
@@ -62,12 +66,14 @@ export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, i
     },
   ]
 
+  const menu = [...openInNewTab(panel.openNew, itemId ?? entry.id), ...(actions ?? [])]
+
   return (
+    <ActionContextMenu actions={menu}>
+    <div className="h-full">
     <TiltCard
-      className={`group ${selected ? "bg-primary/10" : "bg-card"} rounded-lg border ${tiltCardSkin(selected ? "selected" : "default")} ${
-        hidden ? "border-dashed" : ""
-      } ${selected ? "border-primary ring-primary ring-2" : ""}`}>
-      <div className="overflow-hidden rounded-[inherit]">
+      className={`group ${entityCardSkin(selected)} ${hidden ? "border-dashed" : ""}`}>
+      <div className="flex h-full flex-col overflow-hidden rounded-[inherit]">
       <div
         ref={ref}
         className={`bg-muted text-muted-foreground relative flex items-center justify-center overflow-hidden ${
@@ -89,12 +95,12 @@ export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, i
             </Badge>
           </>
         ) : (
-          <KindIcon className="size-10" />
+          <KindIcon className="size-5" />
         )}
         {hidden && <HiddenBadge className="absolute right-2 bottom-2" />}
         <StatusMarker entry={entry} />
       </div>
-      <div className="flex flex-col gap-0.5 p-2.5">
+      <div className="flex flex-1 flex-col gap-0.5 p-2.5">
         {/* The stretched link makes the whole card clickable. */}
         <Link
           to={to ?? panel.href(entry.id)}
@@ -128,5 +134,7 @@ export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, i
         </div>
       )}
     </TiltCard>
+    </div>
+    </ActionContextMenu>
   )
 }

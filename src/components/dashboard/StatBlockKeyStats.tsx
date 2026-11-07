@@ -22,7 +22,7 @@ export function StatBlockKeyStats({ block }: { block: StatBlock }) {
         {signed(block.initiative.modifier)} ({block.initiative.score})
       </Stat>
       <Stat label="HP">
-        <DiceText text={`${block.hp.average} (${block.hp.formula})`} />
+        <DiceText text={`${block.hp.average} · ${block.hp.formula}`} />
       </Stat>
       <Stat label="Speed">{speedText(block.speed)}</Stat>
     </dl>

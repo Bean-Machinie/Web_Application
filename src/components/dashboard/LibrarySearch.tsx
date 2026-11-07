@@ -9,7 +9,7 @@ type Props = { query: string; onQuery: (query: string) => void; placeholder?: st
 // always a field.
 export function LibrarySearch({ query, onQuery, placeholder = "Search your library" }: Props) {
   return (
-    <div className="flex items-center">
+    <div className="flex min-w-0 items-center">
       <InputGroup className="w-full sm:w-64">
         <InputGroupAddon>
           <HoverIcon icon={SearchIcon} size={16} />

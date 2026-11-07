@@ -21,6 +21,7 @@ import { activeTab, tabKey } from "@/lib/journal-workspace"
 import type { Where } from "@/lib/journal-workspace"
 import { JournalTreeRow } from "./JournalTreeRow"
 import { mountPageTag } from "./page-drag-tag"
+import { PanelHeader } from "./PanelHeader"
 import type { OpenMode } from "./JournalTreeRow"
 
 type Props = {
@@ -123,7 +124,7 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse, re
 
   return (
     <nav ref={nav} aria-label="Journal pages" className="flex min-h-0 flex-1 flex-col">
-      <div className="flex h-9 shrink-0 items-center gap-1 border-b px-1.5">
+      <PanelHeader>
         <Input
           aria-label="Filter pages"
           placeholder="Filter pages…"
@@ -139,7 +140,7 @@ export function JournalTree({ tree, space, campaignId, canManage, onCollapse, re
         <Button variant="ghost" size="icon-sm" aria-label="Collapse panel" onClick={onCollapse}>
           <PanelLeftClose />
         </Button>
-      </div>
+      </PanelHeader>
       <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2">
         {tree.error && <FormAlert tone="error">{tree.error}</FormAlert>}
         {tree.nodes === null && !tree.error && <Skeleton className="h-24 w-full" />}

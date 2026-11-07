@@ -6,7 +6,7 @@ import { DiceText } from "./DiceText"
 type Props = { text: string; selfId: string; onSelect: (termId: string) => void; dice?: boolean }
 
 // One block of the rules' text: the other entries' titles in it are links (the first time each
-// appears, never the entry's own), and dice are rollable chips.
+// appears, never the entry's own), and dice roll inline.
 export function RuleText({ text, selfId, onSelect, dice = true }: Props) {
   // Dice are chips only where the text is a rule to use, and only with a count (1d4, never d20).
   const plain = (part: string, key: string) => (dice ? <DiceText key={key} text={part} counted /> : <Fragment key={key}>{part}</Fragment>)

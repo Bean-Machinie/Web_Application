@@ -1,5 +1,6 @@
 import { Info, PanelLeftClose } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useStoredValue } from "@/hooks/use-stored-value"
 import { guidesFor } from "@/lib/journal-tree"
@@ -7,6 +8,7 @@ import { LIBRARY_GROUPS } from "@/lib/library-sections"
 import { libraryRows } from "@/lib/library-tree"
 import { readIds, writeIds } from "@/lib/stored-ids"
 import { LibraryTreeRow } from "./LibraryTreeRow"
+import { PanelHeader } from "./PanelHeader"
 
 type Props = {
   active: string
@@ -29,13 +31,14 @@ export function LibraryTree({ active, count, onSelect, onCollapse }: Props) {
 
   return (
     <nav aria-label="Library" className="flex min-h-0 flex-1 flex-col">
-      <div className="flex h-9 shrink-0 items-center justify-between border-b pr-1.5 pl-3">
-        <span className="text-sm font-medium">Library</span>
+      <PanelHeader className="h-12 justify-end">
         <Button variant="ghost" size="icon-sm" aria-label="Collapse panel" onClick={onCollapse}>
           <PanelLeftClose />
         </Button>
-      </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-2">
+      </PanelHeader>
+      {/* The bar floats over the list, so a long list never narrows or shifts the rows. */}
+      <ScrollArea type="hover" className="min-h-0 flex-1 [&>[data-slot=scroll-area-viewport]>div]:block!">
+      <div className="flex flex-col gap-4 p-2">
         {LIBRARY_GROUPS.map((group) => {
           const rows = libraryRows(group.sections, collapsed)
           return (
@@ -73,6 +76,7 @@ export function LibraryTree({ active, count, onSelect, onCollapse }: Props) {
           )
         })}
       </div>
+      </ScrollArea>
     </nav>
   )
 }

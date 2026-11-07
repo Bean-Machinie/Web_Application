@@ -19,11 +19,13 @@ type Props = {
   size: CardSize
   // The item open in the panel.
   openId: string | null
+  // The rule's category badge: not inside a category, where every row has the same one.
+  showTag: boolean
 }
 
 // The SRD's creatures or rules, as the library's cards or its list. Clicking one opens it in the
 // panel; nothing here can be changed, so there is no menu and nothing to pick.
-export function SrdResults({ creatures, rules, mode, size, openId }: Props) {
+export function SrdResults({ creatures, rules, mode, size, openId, showTag }: Props) {
   const { search } = useLocation()
   const to = (id: string) => withItem(search, id)
   const count = (creatures ?? rules ?? []).length
@@ -35,7 +37,7 @@ export function SrdResults({ creatures, rules, mode, size, openId }: Props) {
           const Icon = monsterIcon(monster)
           return { id: monster.id, to: to(monster.id), title: monster.name, tag: monster.statBlock.type, summary: `CR ${monster.statBlock.cr.value}`, icon: <Icon /> }
         })
-      : (rules ?? []).map((entry) => ({ id: entry.id, to: to(entry.id), title: entry.title, tag: entry.tag ?? categoryTitle(entry.category), summary: entry.summary }))
+      : (rules ?? []).map((entry) => ({ id: entry.id, to: to(entry.id), title: entry.title, tag: showTag ? (entry.tag ?? categoryTitle(entry.category)) : undefined, summary: entry.summary }))
     return <SrdList rows={rows} openId={openId} />
   }
 
@@ -52,9 +54,10 @@ export function SrdResults({ creatures, rules, mode, size, openId }: Props) {
               subtitle={monsterSubtitle(monster)}
               icon={monsterIcon(monster)}
               highlighted={openId === monster.id}
+              itemId={monster.id}
             />
           ))
-        : (rules ?? []).map((entry) => <SrdRuleCard key={entry.id} entry={entry} to={to(entry.id)} highlighted={openId === entry.id} />)}
+        : (rules ?? []).map((entry) => <SrdRuleCard key={entry.id} entry={entry} to={to(entry.id)} highlighted={openId === entry.id} showTag={showTag} />)}
     </div>
   )
 }

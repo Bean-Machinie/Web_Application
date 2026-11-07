@@ -9,7 +9,7 @@ export function AddMonsterButton({ monster }: { monster: Monster }) {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Add to campaign</Button>
+      <Button size="sm" onClick={() => setOpen(true)}>Add to campaign</Button>
       <AddMonsterDialog monster={monster} open={open} onClose={() => setOpen(false)} />
     </>
   )

@@ -5,6 +5,7 @@ import { tabKey } from "@/lib/journal-workspace"
 import type { Pane, Tab } from "@/lib/journal-workspace"
 import { cn } from "@/lib/utils"
 import { JournalTab } from "./JournalTab"
+import { PanelHeader } from "./PanelHeader"
 import type { MemberAction } from "./MemberMenu"
 import type { TabLabel } from "./journal-tab-kinds"
 
@@ -35,11 +36,11 @@ export function JournalTabStrip(props: Props) {
   const { pane, focused, scrolled, label, actionsFor, canSplit, fullPage } = props
 
   return (
-    <div
+    <PanelHeader
       data-journal-strip=""
       className={cn(
         // In the dark theme the strip is chrome, and the tab showing sits right over the panel.
-        "bg-muted/50 flex h-9 shrink-0 items-stretch border-b transition-colors duration-150 dark:bg-sidebar dark:border-b-0",
+        "bg-muted/50 items-stretch gap-0 px-0 transition-colors duration-150 dark:bg-sidebar dark:border-b-0",
         !scrolled && "border-b-transparent"
       )}
     >
@@ -87,6 +88,6 @@ export function JournalTabStrip(props: Props) {
           <TooltipContent>Split right</TooltipContent>
         </Tooltip>
       )}
-    </div>
+    </PanelHeader>
   )
 }

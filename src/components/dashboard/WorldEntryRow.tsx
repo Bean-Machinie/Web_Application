@@ -4,6 +4,8 @@ import { TableRow } from "@/components/ui/table"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
 import type { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
+import { ActionContextMenu } from "./ActionContextMenu"
+import { openInNewTab } from "./openInNewTab"
 import { SelectHint } from "./SelectHint"
 import { useEntryPanel } from "./useEntryPanel"
 import { useWorldScope } from "./useWorldScope"
@@ -28,6 +30,7 @@ export function WorldEntryRow({ entry, selection, managed, rowProps, children }:
   const selected = (selection?.isSelected(entry.id) ?? false) || panel.openId === entry.id
 
   const row = (
+    <ActionContextMenu actions={openInNewTab(panel.openNew, entry.id)}>
     <TableRow
       // The whole row opens the entry. A click handler, not a link
       // stretched over the row: phone browsers do not treat a
@@ -53,6 +56,7 @@ export function WorldEntryRow({ entry, selection, managed, rowProps, children }:
     >
       {children}
     </TableRow>
+    </ActionContextMenu>
   )
 
   return selection ? (

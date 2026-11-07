@@ -21,3 +21,8 @@ const BORDER = {
 
 export const tiltCardSkin = (variant: keyof typeof BORDER = "default") =>
   `${LAYER} ${FILL} ${BORDER[variant]} ${FADE_IN}`
+
+// The one card of the library: world entries, SRD creatures and rules. A stronger border on hover,
+// a ring when open or picked, no change of fill.
+export const entityCardSkin = (selected: boolean) =>
+  `relative isolate h-full rounded-lg border bg-card hover:border-border-strong ${selected ? "ring-ring/50 ring-2" : ""}`

@@ -21,7 +21,7 @@ export function WorldEntryImage({ entryId, folder, kind, canManage, state }: Pro
 
   const { Editor, View, saveAtOnce } = FIELD_TYPES[def.type]
   const KindIcon = WORLD_KINDS[kind].icon
-  const fallback = <KindIcon className="size-9" />
+  const fallback = <KindIcon className="size-5" />
   const value = state.fields[def.key]?.value ?? null
 
   return canManage ? (

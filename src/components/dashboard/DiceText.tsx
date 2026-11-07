@@ -1,10 +1,10 @@
 import { Fragment } from "react"
 import type { ReactNode } from "react"
 import { parseExpression } from "@/lib/dice-expression"
-import { rollExpression } from "@/lib/dice-roll-store"
-import { CHIP_CLASS, DICE, chipTitle } from "./rules-decorations"
+import { InlineDice } from "./InlineDice"
+import { DICE } from "./rules-decorations"
 
-// Plain text in which the dice (1d20+2) are the same rollable chips as in a journal page. With
+// Plain text in which the dice (1d20+2) are inline rollable dice. With
 // `counted`, only dice with a count are chips.
 export function DiceText({ text, counted = false }: { text: string; counted?: boolean }) {
   const parts: ReactNode[] = []
@@ -14,14 +14,7 @@ export function DiceText({ text, counted = false }: { text: string; counted?: bo
     parts.push(
       text.slice(last, found.index),
       <Fragment key={found.index}>
-        <button
-          type="button"
-          className={CHIP_CLASS}
-          title={chipTitle(found[0])}
-          onClick={(event) => rollExpression(found[0], { mode: event.shiftKey ? "advantage" : event.altKey ? "disadvantage" : "normal" })}
-        >
-          {found[0]}
-        </button>
+        <InlineDice expression={found[0]}>{found[0]}</InlineDice>
       </Fragment>
     )
     last = found.index + found[0].length

@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { CardSize } from "@/hooks/use-world-card-size"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
@@ -28,16 +29,15 @@ export function LibraryAllView({ entries, manage, selection, size, onSee }: Prop
         const matching = entries.filter(section.matches)
         if (matching.length === 0) return null
         const wide = section.id === "maps"
-        const Icon = section.icon
 
         return (
           <section key={section.id} className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <Icon className="text-muted-foreground size-4" />
-              <h3 className="font-medium">{section.label}</h3>
+            <div className="flex items-center gap-2 border-b pb-2">
+              <h3 className="text-base font-semibold tracking-tight">{section.label}</h3>
               <span className="text-muted-foreground text-sm tabular-nums">{matching.length}</span>
-              <Button variant="link" size="sm" className="ml-auto" onClick={() => onSee(section.id)}>
+              <Button variant="ghost" size="sm" className="text-muted-foreground ml-auto" onClick={() => onSee(section.id)}>
                 See all
+                <ArrowRight />
               </Button>
             </div>
             <div style={gridStyle(size, wide)} className="grid gap-4">

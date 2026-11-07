@@ -1,30 +1,27 @@
 import { useEffect } from "react"
 import { Link } from "react-router-dom"
-import { ArrowUpRight, X } from "lucide-react"
+import { ArrowUpRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { isTyping } from "@/lib/entry-selection"
-import { monsterById } from "@/lib/compendium-monsters"
-import { ruleEntry } from "@/lib/rules-terms"
-import { srdPath } from "@/lib/srd-paths"
-import { srdSectionOf } from "@/lib/srd-items"
 import { AddMonsterButton } from "./AddMonsterButton"
+import { DetailTab } from "./DetailTab"
 import { LibraryDetailBody } from "./LibraryDetailBody"
-import { LibraryPanel } from "./LibraryPanel"
+import { describeLibraryTab } from "./libraryDetailTab"
+import { PanelHeader } from "./PanelHeader"
 import type { LibraryPageState } from "./useLibraryPage"
 import { useWorldScope } from "./useWorldScope"
 
-// The panel at the right of the library: whatever was clicked, read (or, in Yours, edited) beside the
-// list. Its header has the name, the way to the item's own page, Add to campaign where it applies,
-// and a close button; Escape closes it too. No box is drawn inside it.
+// The panel at the right of the library, laid out as a journal pane: its tabs on top, with the way
+// to the showing item's own page and Add to campaign beside them, and the item read (or, in
+// Yours, edited) below. Escape closes the tab showing.
 export function LibraryDetail({ page }: { page: LibraryPageState }) {
-  const { nodeId, item, onSrd, setItem } = page
+  const { tabs } = page
   const { basePath } = useWorldScope()
-  const section = srdSectionOf(nodeId)
-  const entry = !onSrd ? page.entries?.find((candidate) => candidate.id === item) : undefined
-  const monster = onSrd && section === "creatures" ? monsterById(item ?? undefined) : undefined
-  const rule = onSrd && section === "rules" ? ruleEntry(item ?? undefined) : undefined
-  const title = entry?.name ?? monster?.name ?? rule?.title ?? ""
-  const fullPage = item && (onSrd ? srdPath(section, item) : `${basePath}/${item}`)
+  const active = tabs.activeTab
+  const showing = active && describeLibraryTab(active, page.entries, basePath)
+  const entry = showing && "entry" in showing ? showing.entry : undefined
+  const monster = showing && "monster" in showing ? showing.monster : undefined
+  const rule = showing && "rule" in showing ? showing.rule : undefined
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -33,20 +30,25 @@ export function LibraryDetail({ page }: { page: LibraryPageState }) {
       if (document.querySelector("[role=dialog], [role=menu], [data-radix-popper-content-wrapper]")) return
       // Picked entries are let go of first.
       if (page.selection.active) return
-      setItem(null)
+      tabs.close(tabs.active)
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [setItem, page.selection.active])
+  }, [tabs, page.selection.active])
 
   return (
-    <LibraryPanel>
-      <div className="flex h-full flex-col">
-        <div className="flex h-12 shrink-0 items-center gap-2 pr-2 pl-4">
-          <h2 className="min-w-0 flex-1 truncate font-semibold">{title}</h2>
-          {fullPage && (
+    <div className="bg-background flex h-full flex-col">
+      <PanelHeader className="h-12 items-stretch gap-0 px-0">
+        <div role="tablist" className="flex min-w-0 flex-1 items-stretch overflow-x-auto [scrollbar-width:none]">
+          {tabs.tabs.map((tab, index) => {
+            const label = describeLibraryTab(tab, page.entries, basePath)
+            return <DetailTab key={`${tab.kind}:${tab.id}`} icon={label.icon} title={label.title} active={index === tabs.active} onShow={() => tabs.show(index)} onClose={() => tabs.close(index)} />
+          })}
+        </div>
+        <div className="flex shrink-0 items-center gap-1 px-1.5">
+          {showing && (
             <Button asChild variant="ghost" size="sm">
-              <Link to={fullPage}>
+              <Link to={showing.fullPage}>
                 Open full page
                 <ArrowUpRight />
               </Link>
@@ -58,14 +60,11 @@ export function LibraryDetail({ page }: { page: LibraryPageState }) {
               Add to campaign
             </Button>
           )}
-          <Button variant="ghost" size="icon-sm" aria-label="Close" onClick={() => setItem(null)}>
-            <X />
-          </Button>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
-          {item && <LibraryDetailBody itemId={item} monster={monster} rule={rule} onSrd={onSrd} onSelectRule={setItem} />}
-        </div>
+      </PanelHeader>
+      <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-6">
+        {active && <LibraryDetailBody tab={active} monster={monster} rule={rule} onSelectRule={tabs.openRule} />}
       </div>
-    </LibraryPanel>
+    </div>
   )
 }

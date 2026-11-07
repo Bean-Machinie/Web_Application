@@ -24,6 +24,7 @@
     --color-ring: var(--ring);
     --color-input: var(--input);
     --color-border: var(--border);
+    --color-border-strong: var(--border-strong);
     --color-destructive: var(--destructive);
     --color-accent-foreground: var(--accent-foreground);
     --color-accent: var(--accent);
@@ -72,6 +73,7 @@
     --accent-foreground: #202020;
     --destructive: oklch(0.55 0.22 27);
     --border: #d9d9d9;
+    --border-strong: #b8b8b8;
     --input: #cecece;
     --ring: oklch(0.61 0 0);
     /* The soft shadow of popovers, dropdowns, dialogs and tooltips, which all use shadow-md. */
@@ -115,6 +117,7 @@
     --accent-foreground: #eeeeee;
     --destructive: oklch(0.704 0.191 22.216);
     --border: #313131;
+    --border-strong: #4a4a4a;
     --input: #3a3a3a;
     --ring: oklch(0.5829 0 0);
     --chart-1: oklch(0.87 0 0);

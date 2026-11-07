@@ -1,3 +1,4 @@
+import type { LibraryTab } from "@/lib/library-tabs"
 import type { Monster } from "@/lib/compendium-monsters"
 import type { RuleEntry } from "@/lib/srd-rules-types"
 import { BreadcrumbContext } from "./BreadcrumbContext"
@@ -6,10 +7,9 @@ import { SrdCreatureBody } from "./SrdCreatureBody"
 import { WorldEntryView } from "./WorldEntryView"
 
 type Props = {
-  itemId: string
+  tab: LibraryTab
   monster: Monster | undefined
   rule: RuleEntry | undefined
-  onSrd: boolean
   onSelectRule: (termId: string) => void
 }
 
@@ -18,12 +18,12 @@ type Props = {
 // its own that is not shown.
 const OWN_TRAIL = { trail: null, setTrail: () => {} }
 
-export function LibraryDetailBody({ itemId, monster, rule, onSrd, onSelectRule }: Props) {
-  if (!onSrd) {
+export function LibraryDetailBody({ tab, monster, rule, onSelectRule }: Props) {
+  if (tab.kind === "entry") {
     return (
       <BreadcrumbContext.Provider value={OWN_TRAIL}>
         <div className="flex min-h-full flex-col gap-4">
-          <WorldEntryView key={itemId} entryId={itemId} />
+          <WorldEntryView key={tab.id} entryId={tab.id} />
         </div>
       </BreadcrumbContext.Provider>
     )

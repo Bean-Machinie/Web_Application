@@ -16,6 +16,7 @@ import { LibraryAllView } from "./LibraryAllView"
 import { LibraryCharacters } from "./LibraryCharacters"
 import { LibrarySearch } from "./LibrarySearch"
 import { LibraryToolbar } from "./LibraryToolbar"
+import { PanelHeader } from "./PanelHeader"
 import { SrdResults } from "./SrdResults"
 import type { LibraryPageState } from "./useLibraryPage"
 import { WorldEntryResults } from "./WorldEntryResults"
@@ -49,7 +50,7 @@ export function LibraryContent({ page, onNewCharacter }: Props) {
 
   return (
     <div className="flex h-full min-w-0 flex-col">
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 p-4 pb-3">
+      <PanelHeader className="h-12 justify-between gap-2 px-3">
         <LibrarySearch query={page.query} onQuery={page.setQuery} placeholder={`Search ${nodeLabel(nodeId).toLowerCase()}`} />
         <div className="flex items-center gap-2">
           {onCharacters ? (
@@ -70,11 +71,11 @@ export function LibraryContent({ page, onNewCharacter }: Props) {
             />
           )}
         </div>
-      </div>
-      <div style={{ "--collection-top": "0px" } as CSSProperties} className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 pb-4">
+      </PanelHeader>
+      <div style={{ "--collection-top": "0px" } as CSSProperties} className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-4">
         {problem && <FormAlert tone="error">{problem}</FormAlert>}
         {onSrd ? (
-          <SrdResults creatures={srd.creatures} rules={srd.rules} mode={mode} size={page.cardSize} openId={page.item} />
+          <SrdResults creatures={srd.creatures} rules={srd.rules} mode={mode} size={page.cardSize} openId={page.item} showTag={!nodeId.startsWith("srd:rules:") || searching} />
         ) : onCharacters ? (
           <LibraryCharacters characters={characters} query={page.query} onNew={onNewCharacter} />
         ) : (

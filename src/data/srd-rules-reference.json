@@ -23,7 +23,7 @@
   },
   {
    "id": "health",
-   "title": "Hit Points and Resting"
+   "title": "Hit Points & Rest"
   },
   {
    "id": "conditions",
@@ -31,11 +31,11 @@
   },
   {
    "id": "movement",
-   "title": "Movement and Space"
+   "title": "Movement"
   },
   {
    "id": "senses",
-   "title": "Light and Senses"
+   "title": "Senses"
   },
   {
    "id": "social",
@@ -51,7 +51,7 @@
   },
   {
    "id": "world",
-   "title": "The Game"
+   "title": "Game Terms"
   }
  ],
  "entries": [
