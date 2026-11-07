@@ -11,9 +11,8 @@ import { loadRecents } from "@/lib/recent-items"
 import { HomeChecklist } from "./HomeChecklist"
 import type { ChecklistStep } from "./HomeChecklist"
 import { HomeCharacters } from "./HomeCharacters"
-import { HomeContinue } from "./HomeContinue"
 import { HomeCreate } from "./HomeCreate"
-import { HomeGetStarted } from "./HomeGetStarted"
+import { HomeHero } from "./HomeHero"
 import { HomeRecent } from "./HomeRecent"
 import { useCampaign } from "./useCampaign"
 import { useNewCharacter } from "./useNewCharacter"
@@ -22,8 +21,8 @@ import { useWorldScope } from "./useWorldScope"
 const readFlag = (text: string | null) => text === "1"
 const writeFlag = (flag: boolean) => (flag ? "1" : "0")
 
-// Where you land, made to fit one screen: the campaign you were last in (or, for someone new, a
-// way to get started), the ways to create, and your characters; and at the right what you edited
+// Where you land, made to fit one screen: the hero (the way back into the campaign you were last in, or
+// for someone new a way in), the ways to create, and your characters; and at the right what you edited
 // last, or the first steps while they are not done.
 export function HomePage() {
   const userId = useAuth().session!.user.id
@@ -46,7 +45,6 @@ export function HomePage() {
 
   const characters = cards ?? []
   const resume = lastOpenedCampaign(loadRecents(userId), campaigns)
-  const newUser = campaigns.length === 0 && characters.length === 0
   const steps: ChecklistStep[] = [
     { label: "Create a character", done: characters.length > 0, onClick: newCharacter.open },
     { label: "Join or start a campaign", done: campaigns.length > 0, to: "/app/campaigns" },
@@ -60,7 +58,7 @@ export function HomePage() {
       {failure && <FormAlert tone="error">{failure}</FormAlert>}
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
         <div className="flex min-w-0 flex-col gap-8">
-          {resume ? <HomeContinue campaign={resume} /> : newUser && <HomeGetStarted onCreateCharacter={newCharacter.open} />}
+          <HomeHero campaign={resume} onCreateCharacter={newCharacter.open} />
           <HomeCreate entries={entries} onNewCharacter={newCharacter.open} />
           <HomeCharacters cards={characters} onCreate={newCharacter.open} />
         </div>

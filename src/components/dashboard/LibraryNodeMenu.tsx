@@ -1,9 +1,8 @@
 import { useState } from "react"
-import { ChevronDown, Info } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useStoredValue } from "@/hooks/use-stored-value"
 import type { LibraryGroup } from "@/lib/library-sections"
 import { libraryRows } from "@/lib/library-tree"
@@ -64,16 +63,6 @@ export function LibraryNodeMenu({ groups, active, count, onSelect }: Props) {
                 {index > 0 && <Separator className="bg-border-strong my-1" />}
                 <h2 className="text-muted-foreground flex items-center gap-1.5 px-2 pt-1.5 pb-1 text-xs font-medium">
                   {group.title}
-                  {group.hint && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button type="button" aria-label={`About ${group.title}`} className="outline-none">
-                          <Info className="size-3.5" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>{group.hint}</TooltipContent>
-                    </Tooltip>
-                  )}
                 </h2>
                 {rows.map(({ section, depth }) => (
                   <LibraryNodeRow

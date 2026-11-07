@@ -63,14 +63,14 @@ export const SRD_SECTIONS: LibrarySection[] = [
   },
 ]
 
-export type LibraryGroup = { title: string; hint?: string; sections: LibrarySection[] }
+export type LibraryGroup = { title: string; sections: LibrarySection[] }
 
 // What the library's menu is organised by: only the person's own content.
 export const LIBRARY_GROUPS: LibraryGroup[] = [{ title: "Yours", sections: LIBRARY_SECTIONS }]
 
 // What the menu of the compendium is organised by: the SRD, creatures first and rules last.
 export const COMPENDIUM_GROUPS: LibraryGroup[] = [
-  { title: SRD_LABEL, hint: "Free D&D 5e content included with Heliosyn", sections: SRD_SECTIONS },
+  { title: SRD_LABEL, sections: SRD_SECTIONS },
 ]
 
 // In the window that adds to a campaign, the SRD creatures are one more section beside Mine's:

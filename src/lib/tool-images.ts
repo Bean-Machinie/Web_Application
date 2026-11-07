@@ -18,8 +18,6 @@ export function mapToolImage(entries: WorldEntry[] | null) {
   return withImage[0]?.imageUrl ?? null
 }
 
-// What stands in for a picture on the tile that starts a campaign.
-export const NEW_CAMPAIGN_IMAGE = "/templates/starter-village/forest-road.webp"
 
 // An NPC portrait of the starter village, until the creator has a picture of its own.
 export const CHARACTER_CREATOR_IMAGE = "/templates/starter-village/captain-mara-dorn.webp"
