@@ -4,10 +4,18 @@ import { intersects } from "@/lib/entry-selection"
 
 const ITEM = "[data-entry-id]"
 // Pressing on any of these is a click on them, not the start of a box.
-const IGNORE = `${ITEM}, button, a, input, textarea, select, [role='checkbox'], [role='menuitem']`
+const IGNORE = `${ITEM}, thead, button, a, input, textarea, select, [role='checkbox'], [role='menuitem']`
 const MIN_PX = 4
 const EDGE_PX = 48
 const MAX_SCROLL_PX = 18
+
+// The nearest ancestor that scrolls, for a container that sits inside one.
+function scrollParentOf(element: HTMLElement): HTMLElement | null {
+  for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+    if (/(auto|scroll)/.test(getComputedStyle(parent).overflowY)) return parent
+  }
+  return null
+}
 
 // The box, in the scrolled content's own coordinates, so it grows with the
 // scroll as well as with the pointer.
@@ -18,8 +26,8 @@ type Options = {
   // and the items carry data-entry-id.
   container: RefObject<HTMLElement | null>
   enabled: boolean
-  // True when the page itself scrolls rather than the container; its bounds then
-  // move with the scroll, and the box grows with them.
+  // True when something around the container scrolls rather than the container itself (the
+  // page, or a panel it sits in); its bounds then move with the scroll, and the box grows with them.
   pageScroll?: boolean
   selected: ReadonlySet<string>
   // Called while the box moves with what it touches (plus what was already
@@ -103,12 +111,16 @@ export function useSelectionBox(options: Options) {
 
     // Near the top or bottom edge the list scrolls, so a long list can be
     // swept in one go.
+    const parent = pageScroll ? scrollParentOf(element) : null
     const tick = () => {
-      const bounds = pageScroll ? { top: 0, bottom: window.innerHeight } : element.getBoundingClientRect()
+      const bounds = parent ? parent.getBoundingClientRect() : pageScroll ? { top: 0, bottom: window.innerHeight } : element.getBoundingClientRect()
       const intoTop = bounds.top + EDGE_PX - pointer.y
       const intoBottom = pointer.y - (bounds.bottom - EDGE_PX)
-      const scrollBy = (delta: number) =>
-        pageScroll ? window.scrollBy(0, delta) : (element.scrollTop += delta)
+      const scrollBy = (delta: number) => {
+        if (parent) parent.scrollTop += delta
+        else if (pageScroll) window.scrollBy(0, delta)
+        else element.scrollTop += delta
+      }
       if (moved && intoTop > 0) scrollBy(-Math.min(intoTop / EDGE_PX, 1) * MAX_SCROLL_PX)
       else if (moved && intoBottom > 0) scrollBy(Math.min(intoBottom / EDGE_PX, 1) * MAX_SCROLL_PX)
       update()

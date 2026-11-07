@@ -5,8 +5,10 @@ import { TableRow } from "@/components/ui/table"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
 import type { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
+import { timeAgo } from "@/lib/time"
+import { WORLD_KINDS } from "@/lib/world-kinds"
 import { ActionContextMenu } from "./ActionContextMenu"
-import { addToCampaignAction, openInNewTab } from "./openInNewTab"
+import { openInNewTab } from "./openInNewTab"
 import { WorldTableContext } from "./WorldTableContext"
 import { SelectHint } from "./SelectHint"
 import { useEntryPanel } from "./useEntryPanel"
@@ -28,12 +30,14 @@ export function WorldEntryRow({ entry, selection, managed, rowProps, children }:
   const navigate = useNavigate()
   const { hasVisibility } = useWorldScope()
   const panel = useEntryPanel()
-  const { manage } = useContext(WorldTableContext)
+  const { manage, connections } = useContext(WorldTableContext)
+  const count = connections?.get(entry.id)
+  const details = [WORLD_KINDS[entry.kind].label, `Updated ${timeAgo(entry.updatedAt)}`, ...(count === undefined ? [] : [`${count} ${count === 1 ? "connection" : "connections"}`])]
   const hidden = hasVisibility && !entry.revealed
   const selected = (selection?.isSelected(entry.id) ?? false) || panel.openId === entry.id
 
   const row = (
-    <ActionContextMenu actions={[...openInNewTab(panel.openNew, entry.id), ...(manage?.onAddToCampaign ? [addToCampaignAction(() => manage.onAddToCampaign!(entry))] : [])]}>
+    <ActionContextMenu pickId={entry.id} details={details} actions={[...openInNewTab(panel.openNew, entry.id), ...(manage?.actionsFor(entry) ?? [])]}>
     <TableRow
       // The whole row opens the entry. A click handler, not a link
       // stretched over the row: phone browsers do not treat a
@@ -47,8 +51,12 @@ export function WorldEntryRow({ entry, selection, managed, rowProps, children }:
           selection.click(entry.id, event)
           return
         }
+        selection?.anchorOn(entry.id)
         navigate(panel.href(entry.id))
       }}
+      data-entry-id={entry.id}
+      // Shift-click picks a range; it must not also highlight the text between.
+      onMouseDown={(event) => event.shiftKey && event.preventDefault()}
       data-state={selected ? "selected" : undefined}
       className={`group/row h-14 data-[state=selected]:bg-primary/10! ${hidden ? "bg-muted/50 " : ""}${
         managed

@@ -111,6 +111,7 @@ export function LibraryContent({ page, onNewCharacter, detail }: Props) {
                   onSort={page.setSort}
                   connections={null}
                   wide={section.id === "maps"}
+                  reachMargins
                 />
               )}
             </div>

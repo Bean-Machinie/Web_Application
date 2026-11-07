@@ -49,29 +49,13 @@ export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, i
   const { ref, seen } = useSeen<HTMLDivElement>()
   const draft = useMapPreview(entry.id, entry.kind === "map" && !entry.imageUrl && seen, 480, imageFolder)
 
-  const save = manage?.onSaveToLibrary
-  const actions = manage && [
-    ...(manage.onOpenBuilder && manage.isBuilt?.(entry)
-      ? [{ label: "Open in builder", onSelect: () => manage.onOpenBuilder!(entry) }]
-      : []),
-    { label: "Rename", onSelect: () => manage.onRename(entry) },
-    ...(manage.onAddToCampaign
-      ? [{ label: "Add to campaign…", onSelect: () => manage.onAddToCampaign!(entry) }]
-      : []),
-    ...(save
-      ? [{ label: "Save to library", onSelect: () => save(entry) }]
-      : []),
-    {
-      label: "Delete",
-      destructive: true,
-      onSelect: () => manage.onDelete(entry),
-    },
-  ]
+  // The same list as the row's ⋯ menu in the table, so an entry is offered the same either way.
+  const actions = manage?.actionsFor(entry)
 
   const menu = [...openInNewTab(panel.openNew, itemId ?? entry.id), ...(onAdd ? [addToCampaignAction(onAdd)] : []), ...(actions ?? [])]
 
   return (
-    <ActionContextMenu actions={menu}>
+    <ActionContextMenu pickId={entry.id} actions={menu}>
     <div className="h-full">
     <TiltCard
       className={`group ${entityCardSkin(selected)} ${hidden ? "border-dashed" : ""}`}>
@@ -112,6 +96,8 @@ export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, i
             if (selection.active || event.shiftKey || event.ctrlKey || event.metaKey) {
               event.preventDefault()
               selection.click(entry.id, event)
+            } else {
+              selection.anchorOn(entry.id)
             }
           }}
           className="truncate font-medium outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-ring focus-visible:after:rounded-lg focus-visible:after:ring-2"
@@ -121,7 +107,7 @@ export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, i
         {subtitle ? <span className="text-muted-foreground truncate text-xs font-medium">{subtitle}</span> : <KindLabel kind={entry.kind} />}
       </div>
       </div>
-      {actions && (
+      {manage && actions && (
         // Focus only keeps it open for the keyboard; a mouse click leaves
         // focus on the button, which would pin it open after the cursor leaves.
         <div className="bg-background/85 absolute top-2 right-2 z-10 flex rounded-md backdrop-blur-sm transition-opacity has-[:focus-visible]:opacity-100 has-[[data-state=open]]:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100">

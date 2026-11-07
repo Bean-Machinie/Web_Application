@@ -15,13 +15,13 @@ import { CampaignPickList } from "./CampaignPickList"
 import { useCampaign } from "./useCampaign"
 import { useRouteCampaign } from "./useCurrentCampaign"
 
-type Props = { monster: Monster; open: boolean; onClose: () => void }
+type Props = { monsters: Monster[]; open: boolean; onClose: () => void }
 
 const KINDS = ["creature", "npc"] as const
 
 // Which campaign (skipped inside one, which is the obvious choice), then whether the monster
 // becomes a Creature or an NPC. Only campaigns whose world the person manages are offered.
-export function AddMonsterDialog({ monster, open, onClose }: Props) {
+export function AddMonsterDialog({ monsters, open, onClose }: Props) {
   const navigate = useNavigate()
   const { campaigns } = useCampaign()
   const inside = useRouteCampaign()
@@ -31,14 +31,18 @@ export function AddMonsterDialog({ monster, open, onClose }: Props) {
   const manageable = campaigns.filter((campaign) => can(campaign.role, "manage_world"))
   const campaign = picked ?? (inside && can(inside.role, "manage_world") ? inside : null)
 
+  const what = monsters.length === 1 ? monsters[0].name : `${monsters.length} creatures`
+
   async function add(kind: (typeof KINDS)[number]) {
     if (!campaign) return
     setBusy(true)
     setError(null)
     try {
-      const entry = await addMonsterToCampaign(campaign.id, monster, kind)
-      toast.success(`Added ${monster.name} to ${campaign.name}.`)
-      navigate(campaignPath(campaign.id, `world/${entry.id}`))
+      // One at a time, so the world keeps the order they were picked in.
+      const entries = []
+      for (const monster of monsters) entries.push(await addMonsterToCampaign(campaign.id, monster, kind))
+      toast.success(`Added ${what} to ${campaign.name}.`)
+      navigate(campaignPath(campaign.id, entries.length === 1 ? `world/${entries[0].id}` : "world"))
     } catch (failure) {
       setError(errorMessage(failure))
       setBusy(false)
@@ -51,7 +55,9 @@ export function AddMonsterDialog({ monster, open, onClose }: Props) {
         <DialogHeader>
           <DialogTitle>Add to campaign</DialogTitle>
           <DialogDescription>
-            {campaign ? `${monster.name} becomes a hidden entry in ${campaign.name}, with its own copy of the stat block.` : `${monster.name} will be copied into the world of the campaign you pick. It starts hidden, with its own copy of the stat block.`}
+            {campaign
+              ? `${what} ${monsters.length === 1 ? "becomes a hidden entry" : "become hidden entries"} in ${campaign.name}, each with its own copy of the stat block.`
+              : `${what} will be copied into the world of the campaign you pick. ${monsters.length === 1 ? "It starts" : "They start"} hidden, each with its own copy of the stat block.`}
           </DialogDescription>
         </DialogHeader>
         {error && <FormAlert tone="error">{error}</FormAlert>}

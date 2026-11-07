@@ -11,6 +11,7 @@ import { NewMapDialog } from "./NewMapDialog"
 import { useLibraryPage } from "./useLibraryPage"
 import { useNewCharacter } from "./useNewCharacter"
 import { WorldBulkBar } from "./WorldBulkBar"
+import { WorldBulkMenu } from "./WorldBulkMenu"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
 
 // The library laid out like the world: a menu of what is in it and a toolbar over the cards or list
@@ -24,11 +25,13 @@ export function LibraryPage() {
 
   return (
     <LibraryTabsContext.Provider value={tabsApi}>
+      <WorldBulkMenu selection={selection} bulk={page.bulk} onAddToCampaign={() => addTo.open(page.bulk.chosen)}>
       <LibraryContent
         page={page}
         onNewCharacter={newCharacter.open}
         detail={detail && <LibraryDetail tabs={page.tabs} entries={page.entries} selecting={selection.active} onAddToCampaign={(entry) => addTo.open([entry])} />}
       />
+      </WorldBulkMenu>
 
       {page.recency !== "any" && (
         <CollectionFilterPill

@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import type { Monster } from "@/lib/compendium-monsters"
 import { crNumber } from "@/lib/compendium-monsters"
 import { categoryTitle } from "@/lib/rules-terms"
-import { monsterIcon, monsterTypeIcon } from "@/lib/srd-entries"
+import { monsterIcon, monsterTypeIcon, srdEntry } from "@/lib/srd-entries"
 import type { RuleEntry } from "@/lib/srd-rules-types"
 import { addToCampaignAction } from "./openInNewTab"
 import type { SrdColumn } from "./SrdTable"
@@ -23,6 +23,7 @@ export function creatureRows(monsters: Monster[], to: (id: string) => string, on
     const TypeIcon = monsterTypeIcon(type)
     return {
       id: monster.id,
+      selectId: srdEntry(monster).id,
       to: to(monster.id),
       title: monster.name,
       subtitle: alignment,

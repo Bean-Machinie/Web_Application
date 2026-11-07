@@ -10,6 +10,7 @@ import { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { Sort, SortKey } from "@/lib/world-list"
 import { worldCellClass, worldHeadClass } from "./members-table-styles"
+import { SelectionArea } from "./SelectionArea"
 import { SortableHead } from "./SortableHead"
 import { useWorldScope } from "./useWorldScope"
 import { WorldEntryRow } from "./WorldEntryRow"
@@ -37,8 +38,14 @@ const WIDTH: Record<string, string> = {
   updated: "w-44",
   actions: "w-16",
 }
-// On a narrow screen the table keeps to what matters.
-const NARROW_HIDDEN = new Set(["kind", "connections", "updated"])
+// As the panel narrows the table keeps to what matters, one column at a time, the least first, so
+// Name always has room; the right-click menu still says what a dropped column showed. These are
+// the panel's widths (a container query), not the window's.
+const HIDDEN_BELOW: Record<string, string> = {
+  updated: "@max-[64rem]:hidden",
+  connections: "@max-[52rem]:hidden",
+  kind: "@max-[44rem]:hidden",
+}
 
 // The list view: a data table, full width, whose header stays under the toolbar while
 // the page scrolls. Rows are 56px. Name and Last updated sort; the order the GM
@@ -69,74 +76,76 @@ export function WorldEntryTable({ entries, manage, selection, connections, sort,
       onSort(next[0] ? { by: next[0].id as SortKey, dir: next[0].desc ? "desc" : "asc" } : null)
     },
   })
-  const hiddenOnNarrow = (id: string) => (NARROW_HIDDEN.has(id) ? "max-md:hidden" : "")
+  const hiddenOnNarrow = (id: string) => HIDDEN_BELOW[id] ?? ""
 
   return (
     <WorldTableContext value={{ manage, selection, connections }}>
-      <table data-slot="table" className="bg-card/60 w-full table-fixed caption-bottom text-sm">
-        <thead className="bg-background sticky top-(--collection-top) z-20 shadow-[inset_0_-1px_0_var(--border)]">
-          {table.getHeaderGroups().map((group) => (
-            <TableRow key={group.id} className="border-b-0 hover:bg-transparent">
-              {group.headers.map((header) => {
-                const { column } = header
-                const width = `${WIDTH[column.id] ?? ""} ${hiddenOnNarrow(column.id)}`
-                if (column.getCanSort()) {
+      <SelectionArea selection={selection}>
+        <table data-slot="table" className="bg-card/60 w-full table-fixed caption-bottom text-sm">
+          <thead className="bg-background sticky top-(--collection-top) z-20 shadow-[inset_0_-1px_0_var(--border)]">
+            {table.getHeaderGroups().map((group) => (
+              <TableRow key={group.id} className="border-b-0 hover:bg-transparent">
+                {group.headers.map((header) => {
+                  const { column } = header
+                  const width = `${WIDTH[column.id] ?? ""} ${hiddenOnNarrow(column.id)}`
+                  if (column.getCanSort()) {
+                    return (
+                      <SortableHead
+                        key={header.id}
+                        label={String(column.columnDef.header)}
+                        direction={column.getIsSorted() || null}
+                        onSort={() => column.toggleSorting()}
+                        base={worldHeadClass}
+                        className={width}
+                      />
+                    )
+                  }
                   return (
-                    <SortableHead
-                      key={header.id}
-                      label={String(column.columnDef.header)}
-                      direction={column.getIsSorted() || null}
-                      onSort={() => column.toggleSorting()}
-                      base={worldHeadClass}
-                      className={width}
-                    />
+                    <TableHead key={header.id} className={`${worldHeadClass} ${width}`}>
+                      {column.id === "actions" && sort ? (
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          className="text-muted-foreground"
+                          aria-label="Clear sort and return to your own order"
+                          title="Back to your own order"
+                          onClick={() => onSort(null)}
+                        >
+                          <HoverIcon icon={XIcon} />
+                        </Button>
+                      ) : (
+                        String(column.columnDef.header)
+                      )}
+                    </TableHead>
                   )
-                }
-                return (
-                  <TableHead key={header.id} className={`${worldHeadClass} ${width}`}>
-                    {column.id === "actions" && sort ? (
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="text-muted-foreground"
-                        aria-label="Clear sort and return to your own order"
-                        title="Back to your own order"
-                        onClick={() => onSort(null)}
-                      >
-                        <HoverIcon icon={XIcon} />
-                      </Button>
-                    ) : (
-                      String(column.columnDef.header)
-                    )}
-                  </TableHead>
-                )
-              })}
-            </TableRow>
-          ))}
-        </thead>
-        <TableBody>
-          {table.getRowModel().rows.map((row, index) => (
-            <WorldEntryRow
-              key={row.id}
-              entry={row.original}
-              selection={selection}
-              managed={manage !== null}
-              rowProps={rowProps(row.original.id, index)}
-            >
-              {row.getAllCells().map((cell) => (
-                <TableCell
-                  key={cell.id}
-                  className={`${worldCellClass} py-2 ${hiddenOnNarrow(cell.column.id)} ${
-                    cell.column.id === "actions" ? "text-right" : ""
-                  }`}
-                >
-                  <table.FlexRender cell={cell} />
-                </TableCell>
-              ))}
-            </WorldEntryRow>
-          ))}
-        </TableBody>
-      </table>
+                })}
+              </TableRow>
+            ))}
+          </thead>
+          <TableBody>
+            {table.getRowModel().rows.map((row, index) => (
+              <WorldEntryRow
+                key={row.id}
+                entry={row.original}
+                selection={selection}
+                managed={manage !== null}
+                rowProps={rowProps(row.original.id, index)}
+              >
+                {row.getAllCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className={`${worldCellClass} py-2 ${hiddenOnNarrow(cell.column.id)} ${
+                      cell.column.id === "actions" ? "text-right" : ""
+                    }`}
+                  >
+                    <table.FlexRender cell={cell} />
+                  </TableCell>
+                ))}
+              </WorldEntryRow>
+            ))}
+          </TableBody>
+        </table>
+      </SelectionArea>
     </WorldTableContext>
   )
 }

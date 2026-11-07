@@ -76,6 +76,11 @@ export function useEntrySelection(options: Options) {
     }
   }
 
+  // The entry that was just opened is where the next Shift-click's range starts, as in a file
+  // manager, where opening or clicking an item is also choosing where to extend from.
+  const anchorOn = (id: string) => {
+    anchor.current = id
+  }
   const deselect = (id: string) =>
     setSelected((old) => {
       const next = new Set(old)
@@ -135,6 +140,7 @@ export function useEntrySelection(options: Options) {
     everythingSelected: allIds.length > visibleIds.length && selected.size === allIds.length,
     total: allIds.length,
     toggle,
+    anchorOn,
     click,
     deselect,
     set,

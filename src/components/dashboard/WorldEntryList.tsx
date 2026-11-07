@@ -31,6 +31,7 @@ import { WorldEntryNotices } from "./WorldEntryNotices"
 import { WorldEntryResults } from "./WorldEntryResults"
 import { WorldGridSkeleton } from "./WorldGridSkeleton"
 import { WorldListSkeleton } from "./WorldListSkeleton"
+import { WorldBulkMenu } from "./WorldBulkMenu"
 import { WorldTabs } from "./WorldTabs"
 import { WorldToolbar } from "./WorldToolbar"
 import { createWorldManage } from "./world-manage"
@@ -111,6 +112,7 @@ export function WorldEntryList() {
 
   return (
     <LibraryTabsContext.Provider value={tabsApi}>
+      <WorldBulkMenu selection={selection} bulk={bulk}>
       <CollectionPage
         bleed={mode === "graph"}
         flush={mode === "list"}
@@ -165,6 +167,7 @@ export function WorldEntryList() {
           }
         </LoadingGate>
       </CollectionPage>
+      </WorldBulkMenu>
 
       {canManage && <WorldBulkBar selection={selection} bulk={bulk} />}
       <NewMapDialog open={makingMap} onClose={() => setMakingMap(false)} />
