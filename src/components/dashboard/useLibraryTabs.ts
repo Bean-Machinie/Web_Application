@@ -8,8 +8,8 @@ export type LibraryTabsState = ReturnType<typeof useLibraryTabs>
 // The tabs of the detail panel, kept in this browser so they stay across nodes and reloads. A link
 // that carries ?item= (a card, a row) opens that item in the tab showing, and the address is
 // cleaned of it.
-export function useLibraryTabs(nodeId: string) {
-  const [state, setState] = useStoredValue("library-tabs", readTabs, writeTabs)
+export function useLibraryTabs(nodeId: string, storageKey = "library-tabs") {
+  const [state, setState] = useStoredValue(storageKey, readTabs, writeTabs)
   const [params, setParams] = useSearchParams()
   const asked = params.get("item")
 

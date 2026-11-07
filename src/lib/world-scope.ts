@@ -57,6 +57,7 @@ export function campaignScope(campaignId: string, canManage: boolean): WorldScop
     label: "World",
     canManage,
     kinds: worldKinds,
+    inPanel: true,
     hasVisibility: true,
     canSaveToLibrary: true,
     addFromLibrary: (items, ask) => copyEntries(items, { campaignId, folder: campaignId }, ask),

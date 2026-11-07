@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react"
+import type { ReactNode } from "react"
 import { HoverIcon } from "@/components/icons/HoverIcon"
 import { PlusIcon } from "@/components/icons/PlusIcon"
 import { FormAlert } from "@/components/auth/FormAlert"
@@ -12,17 +12,23 @@ import { nodeLabel } from "@/lib/library-tree"
 import type { Recency } from "@/lib/library-recency"
 import { cn } from "@/lib/utils"
 import type { FilterGroup } from "./FilterPopover"
+import { CollectionPage } from "./CollectionPage"
 import { LibraryAllView } from "./LibraryAllView"
 import { LibraryCharacters } from "./LibraryCharacters"
+import { LibraryNodeMenu } from "./LibraryNodeMenu"
 import { LibrarySearch } from "./LibrarySearch"
 import { LibraryToolbar } from "./LibraryToolbar"
-import { PanelHeader } from "./PanelHeader"
 import { SrdResults } from "./SrdResults"
 import type { LibraryPageState } from "./useLibraryPage"
 import { WorldEntryResults } from "./WorldEntryResults"
 import { WorldGridSkeleton } from "./WorldGridSkeleton"
 
-type Props = { page: LibraryPageState; onNewCharacter: () => void }
+type Props = {
+  page: LibraryPageState
+  onNewCharacter: () => void
+  // The panel of tabs at the right, once something is open.
+  detail: ReactNode
+}
 
 const RECENCY: FilterGroup = {
   label: "Last changed",
@@ -35,9 +41,10 @@ const RECENCY: FilterGroup = {
   onChange: () => {},
 }
 
-// What the open node shows, for every node alike: a toolbar (the search scoped to the node, the
-// filter, size, list or grid, and New under Yours) above the cards or the list, which scroll.
-export function LibraryContent({ page, onNewCharacter }: Props) {
+// What the open node shows, for every node alike, on the collection page the world has: the menu of
+// nodes and a toolbar (the search scoped to the node, the filter, size, list or grid, and New under
+// Yours) above the cards or the list, which scroll, and at the right the panel of tabs.
+export function LibraryContent({ page, onNewCharacter, detail }: Props) {
   const { section, nodeId, onSrd, mode, selection } = page
   const { characters } = useCharacters()
   const srd = useSrdView(nodeId, page.query)
@@ -51,10 +58,13 @@ export function LibraryContent({ page, onNewCharacter }: Props) {
   const filters = onSrd ? srd.filters : [{ ...RECENCY, value: page.recency, onChange: (value: string) => page.setRecency(value as Recency) }]
 
   return (
-    <div className="flex h-full min-w-0 flex-col">
-      <PanelHeader className="h-12 justify-between gap-2 px-3">
-        <LibrarySearch query={page.query} onQuery={page.setQuery} placeholder={`Search ${nodeLabel(nodeId).toLowerCase()}`} />
-        <div className="flex items-center gap-2">
+    <CollectionPage
+      flush={flush}
+      detail={detail}
+      tabs={<LibraryNodeMenu active={nodeId} count={page.count} onSelect={page.setSection} />}
+      actions={
+        <>
+          <LibrarySearch query={page.query} onQuery={page.setQuery} placeholder={`Search ${nodeLabel(nodeId).toLowerCase()}`} />
           {onCharacters ? (
             <Button onClick={onNewCharacter}>
               <HoverIcon icon={PlusIcon} size={16} />
@@ -72,47 +82,42 @@ export function LibraryContent({ page, onNewCharacter }: Props) {
               onNew={page.make}
             />
           )}
-        </div>
-      </PanelHeader>
-      {/* No top padding on the scroller itself: the table's header sticks at its top edge, and rows
-          must not show above it. */}
-      <div style={{ "--collection-top": "0px" } as CSSProperties} className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
-        <div className={cn("flex min-h-full flex-col gap-5", !flush && "pt-4")}>
-        {problem && <FormAlert tone="error">{problem}</FormAlert>}
-        {onSrd ? (
-          <SrdResults creatures={srd.creatures} rules={srd.rules} mode={mode} size={page.cardSize} openId={page.item} showTag={!nodeId.startsWith("srd:rules:") || searching} />
-        ) : onCharacters ? (
-          <LibraryCharacters characters={characters} query={page.query} onNew={onNewCharacter} />
-        ) : (
-          <LoadingGate loading={!page.entries && !page.error} className="flex min-h-0 flex-1 flex-col" skeleton={<WorldGridSkeleton />}>
-            {() =>
-              page.shown && (
-                <div className={cn("flex flex-1 flex-col", mode === "graph" && "min-h-[28rem] overflow-hidden rounded-lg border")}>
-                  {grouped && page.shown.length > 0 ? (
-                    <LibraryAllView entries={page.shown} manage={page.manage} selection={selection} size={page.cardSize} onSee={page.setSection} />
-                  ) : (
-                    <WorldEntryResults
-                      entries={page.shown}
-                      mode={mode}
-                      kind={null}
-                      filtered={searching}
-                      canManage
-                      manage={page.manage}
-                      selection={selection}
-                      sort={page.sort}
-                      onSort={page.setSort}
-                      cardSize={page.cardSize}
-                      connections={null}
-                      wide={section.id === "maps"}
-                    />
-                  )}
-                </div>
-              )
-            }
-          </LoadingGate>
-        )}
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    >
+    {problem && <FormAlert tone="error">{problem}</FormAlert>}
+    {onSrd ? (
+      <SrdResults creatures={srd.creatures} rules={srd.rules} mode={mode} size={page.cardSize} openId={page.item} showTag={!nodeId.startsWith("srd:rules:") || searching} />
+    ) : onCharacters ? (
+      <LibraryCharacters characters={characters} query={page.query} onNew={onNewCharacter} />
+    ) : (
+      <LoadingGate loading={!page.entries && !page.error} className="flex min-h-0 flex-1 flex-col" skeleton={<WorldGridSkeleton />}>
+        {() =>
+          page.shown && (
+            <div className={cn("flex flex-1 flex-col", mode === "graph" && "min-h-[28rem] overflow-hidden rounded-lg border")}>
+              {grouped && page.shown.length > 0 ? (
+                <LibraryAllView entries={page.shown} manage={page.manage} selection={selection} size={page.cardSize} onSee={page.setSection} />
+              ) : (
+                <WorldEntryResults
+                  entries={page.shown}
+                  mode={mode}
+                  kind={null}
+                  filtered={searching}
+                  canManage
+                  manage={page.manage}
+                  selection={selection}
+                  sort={page.sort}
+                  onSort={page.setSort}
+                  cardSize={page.cardSize}
+                  connections={null}
+                  wide={section.id === "maps"}
+                />
+              )}
+            </div>
+          )
+        }
+      </LoadingGate>
+    )}
+    </CollectionPage>
   )
 }

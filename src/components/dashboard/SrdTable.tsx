@@ -32,7 +32,7 @@ export function SrdTable({ columns, rows, openId }: Props) {
 
   return (
     <table data-slot="table" className="bg-card/60 w-full table-fixed caption-bottom text-sm">
-      <thead className="bg-background sticky top-(--collection-top) z-[5] shadow-[inset_0_-1px_0_var(--border)]">
+      <thead className="bg-background sticky top-(--collection-top) z-20 shadow-[inset_0_-1px_0_var(--border)]">
         <TableRow className="border-b-0 hover:bg-transparent">
           {head("name", "Name")}
           {columns.map((column, index) => head(column.key, column.label, `${column.width} ${hide[index]}`))}

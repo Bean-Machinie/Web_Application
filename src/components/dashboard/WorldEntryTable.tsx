@@ -74,7 +74,7 @@ export function WorldEntryTable({ entries, manage, selection, connections, sort,
   return (
     <WorldTableContext value={{ manage, selection, connections }}>
       <table data-slot="table" className="bg-card/60 w-full table-fixed caption-bottom text-sm">
-        <thead className="bg-background sticky top-(--collection-top) z-[5] shadow-[inset_0_-1px_0_var(--border)]">
+        <thead className="bg-background sticky top-(--collection-top) z-20 shadow-[inset_0_-1px_0_var(--border)]">
           {table.getHeaderGroups().map((group) => (
             <TableRow key={group.id} className="border-b-0 hover:bg-transparent">
               {group.headers.map((header) => {

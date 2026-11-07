@@ -1,6 +1,8 @@
 import type { CSSProperties, ReactNode } from "react"
-import { useElementSize } from "@/hooks/use-element-size"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
+import { QUIET_SCROLL } from "@/lib/quiet-scroll"
 import { cn } from "@/lib/utils"
+import { PanelHeader } from "./PanelHeader"
 import { PlainBackground } from "./PlainBackground"
 
 type Props = {
@@ -8,46 +10,53 @@ type Props = {
   tabs: ReactNode
   // On the right: search, filter, view switch and the buttons that add.
   actions: ReactNode
-  // The content fills the window below the toolbar, edge to edge, and the page
-  // does not scroll: a graph or a map. Otherwise the content flows and the page scrolls.
+  // The content fills the window below the toolbar, edge to edge, and does not scroll: a graph or
+  // a map. Otherwise the content scrolls under the toolbar.
   bleed?: boolean
+  // A table: it starts right under the toolbar, so that its header is fixed there.
+  flush?: boolean
+  // The panel at the right, laid out as the library's; absent while nothing is open in it.
+  detail?: ReactNode
   children: ReactNode
 }
 
-// The page of a collection (the world, and later sessions, characters, the party):
-// the whole width beside the sidebar with the dashboard's side padding, one toolbar
-// that stays under the header, and no box round the content. It cancels the
-// dashboard's padding to span the width, and gives it back inside.
-export function CollectionPage({ tabs, actions, bleed, children }: Props) {
-  const { ref, size } = useElementSize<HTMLDivElement>()
-
+// The scroller keeps a gutter the width of the scrollbar at both sides, scrollbar or not, so the
+// list never shifts and the gaps match left and right.
+// The page of a collection (the world, and later sessions, characters, the party), laid out as the
+// library is: the whole window below the header, a toolbar over the content, which scrolls on its
+// own, and at the right a panel of tabs once something is open. It cancels the dashboard's padding
+// to span the width, and gives it back inside.
+export function CollectionPage({ tabs, actions, bleed, flush, detail, children }: Props) {
   return (
     <div
-      // What a sticky header inside the content sticks under: the page header
-      // (--header-height) and this toolbar.
-      style={{ "--collection-top": `calc(var(--header-height) + ${size.height}px)` } as CSSProperties}
-      className={cn(
-        "-m-4 flex min-w-0 flex-col md:-m-6",
-        bleed ? "h-[calc(100svh-var(--header-height))] flex-none" : "flex-1"
-      )}
+      // What a sticky header inside the content sticks under: the top of the content.
+      style={{ "--collection-top": "0px" } as CSSProperties}
+      className="-m-4 h-[calc(100svh-var(--header-height))] min-w-0 flex-none md:-m-6"
     >
       {bleed && <PlainBackground />}
-      {/* Above the content, whatever that lifts (a hovered card), and solid. */}
-      <div ref={ref} className="bg-background sticky top-(--header-height) z-30 shrink-0">
-        <div className="flex flex-col gap-2 border-b px-4 pt-2 md:h-12 md:flex-row md:items-end md:justify-between md:gap-4 md:px-6 md:pt-0">
-          <div className="min-w-0 md:flex-1">{tabs}</div>
-          <div className="flex items-center gap-2 pb-2 md:self-center md:pb-0">{actions}</div>
-        </div>
-      </div>
-      <div
-        className={cn(
-          // Its own stacking context: nothing inside can rise over the toolbar.
-          "isolate flex min-h-0 min-w-0 flex-1 flex-col",
-          !bleed && "gap-3 px-4 py-4 md:px-6 md:py-6"
+      <ResizablePanelGroup orientation="horizontal">
+        <ResizablePanel id="collection-main" minSize="30%">
+          <div className="@container flex h-full min-w-0 flex-col">
+            {/* One row whatever the width: where the panel is too narrow for the tabs, they are a
+                drop-down in the same place. */}
+            <PanelHeader className="h-12 items-end justify-between gap-4 px-4 md:px-6">
+              <div className="flex min-w-0 flex-1 items-end self-stretch">{tabs}</div>
+              <div className="flex shrink-0 items-center gap-2 self-center">{actions}</div>
+            </PanelHeader>
+            <div className={cn("isolate flex min-h-0 min-w-0 flex-1 flex-col", bleed ? "overflow-hidden" : `${QUIET_SCROLL} overflow-y-auto px-4 pb-4 [scrollbar-gutter:stable_both-edges] md:px-6 md:pb-6`)}>
+              <div className={cn("flex min-w-0 flex-col", bleed ? "min-h-0 flex-1" : "min-h-full gap-3", !bleed && !flush && "pt-4 md:pt-6")}>{children}</div>
+            </div>
+          </div>
+        </ResizablePanel>
+        {detail && (
+          <>
+            <ResizableHandle />
+            <ResizablePanel id="collection-detail" defaultSize="40%" minSize="25%" maxSize="65%">
+              {detail}
+            </ResizablePanel>
+          </>
         )}
-      >
-        {children}
-      </div>
+      </ResizablePanelGroup>
     </div>
   )
 }

@@ -21,7 +21,10 @@ import { rememberWorldKind } from "@/lib/world-tab"
 import type { Sort, VisibilityFilter } from "@/lib/world-list"
 import { CollectionPage } from "./CollectionPage"
 import { CopyWithLinksDialog } from "./CopyWithLinksDialog"
+import { LibraryDetail } from "./LibraryDetail"
+import { LibraryTabsContext } from "./LibraryTabsContext"
 import { NewMapDialog } from "./NewMapDialog"
+import { useLibraryTabs } from "./useLibraryTabs"
 import { useWorldScope } from "./useWorldScope"
 import { WorldBulkBar } from "./WorldBulkBar"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
@@ -105,11 +108,15 @@ export function WorldEntryList() {
 
   const [cardSize, setCardSize] = useWorldCardSize()
   const connections = useConnectionCounts(entries, mode === "list")
+  const tabs = useLibraryTabs("all", `world-tabs:${scope.key}`)
+  const tabsApi = useMemo(() => ({ activeId: tabs.activeTab?.id ?? null, openNew: tabs.openNew }), [tabs.activeTab?.id, tabs.openNew])
 
   return (
-    <>
+    <LibraryTabsContext.Provider value={tabsApi}>
       <CollectionPage
         bleed={mode === "graph"}
+        flush={mode === "list"}
+        detail={tabs.tabs.length > 0 && <LibraryDetail tabs={tabs} entries={entries} selecting={selection.active} />}
         tabs={<WorldTabs entries={entries} active={kind} />}
         actions={
           <WorldToolbar
@@ -175,6 +182,6 @@ export function WorldEntryList() {
         onCloseRename={() => setRenaming(null)}
         onCloseDelete={() => removal.setDeleting(null)}
       />
-    </>
+    </LibraryTabsContext.Provider>
   )
 }
