@@ -1,15 +1,22 @@
+import { useSortable } from "@dnd-kit/sortable"
 import type { LucideIcon } from "lucide-react"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-type Props = { icon: LucideIcon; title: string; active: boolean; onShow: () => void; onClose: () => void }
+type Props = { id: string; icon: LucideIcon; title: string; active: boolean; onShow: () => void; onClose: () => void }
 
 // A tab of the library's detail panel, drawn as the journal's: its icon, the name and a close
 // button; the one showing has the page's own colour and the bar across its top. A middle click
-// closes it.
-export function DetailTab({ icon: Icon, title, active, onShow, onClose }: Props) {
+// closes it. Drag it along the bar to put it elsewhere in the order, and only along the bar: it
+// cannot be taken out of the panel.
+export function DetailTab({ id, icon: Icon, title, active, onShow, onClose }: Props) {
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id })
+
   return (
     <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
       role="tab"
       aria-selected={active}
       onClick={onShow}
@@ -19,9 +26,12 @@ export function DetailTab({ icon: Icon, title, active, onShow, onClose }: Props)
         event.preventDefault()
         onClose()
       }}
+      // Sideways only: the vertical part of the drag is dropped.
+      style={{ transform: transform ? `translate3d(${transform.x}px, 0, 0)` : undefined, transition }}
       className={cn(
-        "group/tab after:bg-primary relative flex h-full max-w-52 min-w-24 shrink-0 cursor-default items-center gap-1.5 border-r px-3 text-xs select-none after:absolute after:inset-x-0 after:top-0 after:h-0.5 after:opacity-0",
-        active ? "bg-background text-foreground after:opacity-100" : "text-muted-foreground hover:text-foreground"
+        "group/tab after:bg-primary relative flex h-full max-w-52 min-w-24 shrink-0 cursor-default items-center gap-1.5 border-r px-3 text-xs outline-none select-none after:absolute after:inset-x-0 after:top-0 after:h-0.5 after:opacity-0",
+        active ? "bg-background text-foreground after:opacity-100" : "text-muted-foreground hover:text-foreground",
+        isDragging && "bg-background text-foreground z-10 shadow-md"
       )}
     >
       <Icon className="size-3.5 shrink-0" />
@@ -29,6 +39,8 @@ export function DetailTab({ icon: Icon, title, active, onShow, onClose }: Props)
       <button
         type="button"
         aria-label={`Close ${title}`}
+        // Pressing it must not start a drag of the tab.
+        onPointerDown={(event) => event.stopPropagation()}
         onClick={(event) => {
           event.stopPropagation()
           onClose()

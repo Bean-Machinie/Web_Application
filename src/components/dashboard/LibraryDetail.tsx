@@ -1,13 +1,14 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { ArrowUpRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { isTyping } from "@/lib/entry-selection"
+import { cn } from "@/lib/utils"
 import { QUIET_SCROLL } from "@/lib/quiet-scroll"
 import type { WorldEntry } from "@/lib/world-entries"
 import { AddMonsterButton } from "./AddMonsterButton"
-import { DetailTab } from "./DetailTab"
+import { DetailTabList } from "./DetailTabList"
 import { LibraryDetailBody } from "./LibraryDetailBody"
 import { describeLibraryTab } from "./libraryDetailTab"
 import { PanelHeader } from "./PanelHeader"
@@ -29,6 +30,9 @@ type Props = {
 export function LibraryDetail({ tabs, entries, selecting, onAddToCampaign }: Props) {
   const { basePath } = useWorldScope()
   const active = tabs.activeTab
+  const [scrolled, setScrolled] = useState(false)
+  const showingKey = active ? `${active.kind}:${active.id}` : "none"
+  useEffect(() => setScrolled(false), [showingKey])
   const showing = active && describeLibraryTab(active, entries, basePath)
   const entry = showing && "entry" in showing ? showing.entry : undefined
   const monster = showing && "monster" in showing ? showing.monster : undefined
@@ -53,13 +57,15 @@ export function LibraryDetail({ tabs, entries, selecting, onAddToCampaign }: Pro
 
   return (
     <div className="bg-background flex h-full flex-col">
-      <PanelHeader className="h-12 items-stretch gap-0 px-0">
-        <div role="tablist" className="flex min-w-0 flex-1 items-stretch overflow-x-auto [scrollbar-width:none]">
-          {tabs.tabs.map((tab, index) => {
-            const label = describeLibraryTab(tab, entries, basePath)
-            return <DetailTab key={`${tab.kind}:${tab.id}`} icon={label.icon} title={label.title} active={index === tabs.active} onShow={() => tabs.show(index)} onClose={() => tabs.close(index)} />
-          })}
-        </div>
+      <PanelHeader
+        className={cn(
+          // As the journal's strip: in the dark theme the tab showing sits right over the page, and
+          // the line under the bar shows only once the page has gone up.
+          "h-12 items-stretch gap-0 px-0 transition-colors duration-150 dark:border-b-0",
+          !scrolled && "border-b-transparent"
+        )}
+      >
+        <DetailTabList tabs={tabs} entries={entries} basePath={basePath} />
         <div className="flex shrink-0 items-center gap-1 px-1.5">
           {showing && (
             <Tooltip>
@@ -81,8 +87,15 @@ export function LibraryDetail({ tabs, entries, selecting, onAddToCampaign }: Pro
           )}
         </div>
       </PanelHeader>
-      <div key={active ? `${active.kind}:${active.id}` : "none"} className={`${QUIET_SCROLL} min-h-0 flex-1 overflow-y-auto p-4 pb-6`}>
-        {active && <LibraryDetailBody tab={active} monster={monster} rule={rule} onSelectRule={tabs.openRule} back={back} />}
+      <div className="relative min-h-0 flex-1">
+        <div key={showingKey} onScroll={(event) => setScrolled(event.currentTarget.scrollTop > 0)} className={`${QUIET_SCROLL} h-full overflow-y-auto p-4 pb-6`}>
+          {active && <LibraryDetailBody tab={active} monster={monster} rule={rule} onSelectRule={tabs.openRule} back={back} />}
+        </div>
+        {/* The shadow that falls from under the tabs once the page has gone up, as in the journal. */}
+        <div
+          aria-hidden
+          className={cn("pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-black/30 to-transparent transition-opacity duration-150", scrolled ? "opacity-100" : "opacity-0")}
+        />
       </div>
     </div>
   )

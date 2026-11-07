@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 import { useStoredValue } from "@/hooks/use-stored-value"
-import { backTab, closeTab, followRule, openTab, readTabs, tabKindFor, writeTabs } from "@/lib/library-tabs"
+import { backTab, closeTab, followRule, moveTab, openTab, readTabs, tabKindFor, writeTabs } from "@/lib/library-tabs"
 
 export type LibraryTabsState = ReturnType<typeof useLibraryTabs>
 
@@ -32,6 +32,7 @@ export function useLibraryTabs(nodeId: string, storageKey = "library-tabs") {
     tabs: state.tabs,
     active: state.active,
     activeTab,
+    move: (from: number, to: number) => setState(moveTab(state, from, to)),
     show: (index: number) => setState({ ...state, active: index }),
     close: (index: number) => setState(closeTab(state, index)),
     openNew: (id: string) => setState(openTab(state, { kind: tabKindFor(nodeId), id }, "new")),

@@ -54,6 +54,16 @@ export function backTab(state: LibraryTabs): LibraryTabs {
   return { ...state, tabs: state.tabs.map((open, i) => (i === state.active ? tab : open)) }
 }
 
+// A tab dragged along the bar to another place; the one showing stays the one showing.
+export function moveTab(state: LibraryTabs, from: number, to: number): LibraryTabs {
+  if (from === to || !state.tabs[from] || !state.tabs[to]) return state
+  const tabs = [...state.tabs]
+  const [moved] = tabs.splice(from, 1)
+  tabs.splice(to, 0, moved)
+  const showing = state.tabs[state.active]
+  return { tabs, active: Math.max(tabs.indexOf(showing), 0) }
+}
+
 export function closeTab(state: LibraryTabs, index: number): LibraryTabs {
   const tabs = state.tabs.filter((_, i) => i !== index)
   const active = index < state.active || state.active >= tabs.length ? state.active - 1 : state.active
