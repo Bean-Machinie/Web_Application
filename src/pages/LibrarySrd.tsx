@@ -1,17 +1,15 @@
-import { Navigate, useNavigate, useParams } from "react-router-dom"
-import { RuleTermView } from "@/components/dashboard/RuleTermView"
+import { Navigate, useParams } from "react-router-dom"
 import { SrdCreatureView } from "@/components/dashboard/SrdCreatureView"
 import { usePageTrail } from "@/components/dashboard/usePageTrail"
 import { monsterById } from "@/lib/compendium-monsters"
-import { ruleEntry } from "@/lib/rules-terms"
-import { SRD_LABEL, srdNodeId, srdPath } from "@/lib/srd-paths"
+import { ruleEntry, rulesPath } from "@/lib/rules-terms"
+import { SRD_LABEL, srdNodeId } from "@/lib/srd-paths"
 import type { SrdSection } from "@/lib/srd-paths"
 
 // An SRD creature or rules term on a page of its own, which the library's panel links to as
-// "Open full page". Without an item there is nothing to show: the library has the list.
+// "Open full page", for creatures. Rules open in the panel. Without an item there is nothing to show: the library has the list.
 export function LibrarySrd() {
   const { section: asked, itemId } = useParams()
-  const navigate = useNavigate()
   const section: SrdSection = asked === "rules" ? "rules" : "creatures"
   const monster = section === "creatures" ? monsterById(itemId) : undefined
   const rule = section === "rules" ? ruleEntry(itemId) : undefined
@@ -24,6 +22,7 @@ export function LibrarySrd() {
 
   if (!itemId) return <Navigate to={`/app/library?section=${encodeURIComponent(srdNodeId(section))}`} replace />
   if (monster) return <SrdCreatureView monster={monster} />
-  if (rule) return <RuleTermView termId={rule.id} onSelect={(id) => navigate(srdPath("rules", id))} />
+  // Rules are read in the library's panel, not on a page of their own.
+  if (rule) return <Navigate to={rulesPath(rule.id)} replace />
   return <p className="text-muted-foreground text-sm">This is not in the SRD.</p>
 }

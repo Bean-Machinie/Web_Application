@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import { ArrowUpRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useFlashText } from "@/hooks/use-flash-text"
 import { isTyping } from "@/lib/entry-selection"
 import { cn } from "@/lib/utils"
 import { QUIET_SCROLL } from "@/lib/quiet-scroll"
@@ -33,6 +34,8 @@ export function LibraryDetail({ tabs, entries, selecting, onAddToCampaign }: Pro
   const [scrolled, setScrolled] = useState(false)
   const showingKey = active ? `${active.kind}:${active.id}` : "none"
   useEffect(() => setScrolled(false), [showingKey])
+  const body = useRef<HTMLDivElement>(null)
+  useFlashText(body, tabs.flash, showingKey)
   const showing = active && describeLibraryTab(active, entries, basePath)
   const entry = showing && "entry" in showing ? showing.entry : undefined
   const monster = showing && "monster" in showing ? showing.monster : undefined
@@ -88,7 +91,7 @@ export function LibraryDetail({ tabs, entries, selecting, onAddToCampaign }: Pro
         </div>
       </PanelHeader>
       <div className="relative min-h-0 flex-1">
-        <div key={showingKey} onScroll={(event) => setScrolled(event.currentTarget.scrollTop > 0)} className={`${QUIET_SCROLL} h-full overflow-y-auto p-4 pb-6`}>
+        <div key={showingKey} ref={body} onScroll={(event) => setScrolled(event.currentTarget.scrollTop > 0)} className={`${QUIET_SCROLL} h-full overflow-y-auto p-4 pb-6`}>
           {active && <LibraryDetailBody tab={active} monster={monster} rule={rule} onSelectRule={tabs.openRule} back={back} />}
         </div>
         {/* The shadow that falls from under the tabs once the page has gone up, as in the journal. */}

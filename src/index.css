@@ -459,3 +459,14 @@
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='3' rx='2'/%3E%3Cpath d='M8 8h.01M8 12h.01M8 16h.01M16 8h.01M16 12h.01M16 16h.01'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='18' height='18' x='3' y='3' rx='2'/%3E%3Cpath d='M8 8h.01M8 12h.01M8 16h.01M16 8h.01M16 12h.01M16 16h.01'/%3E%3C/svg%3E") center / contain no-repeat;
 }
+
+/* Where a search found its words: lit when the page opens, then fading. The strength is a number
+   the page animates, so the fade is smooth; a highlight cannot be animated itself. */
+@property --flash-alpha {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+::highlight(search-flash) {
+  background-color: oklch(0.85 0.15 90 / var(--flash-alpha));
+}

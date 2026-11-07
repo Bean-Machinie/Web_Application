@@ -1,5 +1,6 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
+import type { Flash } from "@/hooks/use-flash-text"
 import { useStoredValue } from "@/hooks/use-stored-value"
 import { backTab, closeTab, followRule, moveTab, openTab, readTabs, tabKindFor, writeTabs } from "@/lib/library-tabs"
 
@@ -12,13 +13,18 @@ export function useLibraryTabs(nodeId: string, storageKey = "library-tabs") {
   const [state, setState] = useStoredValue(storageKey, readTabs, writeTabs)
   const [params, setParams] = useSearchParams()
   const asked = params.get("item")
+  // Words a search asked to light up in what it opens; a new one each time, so asking again lights again.
+  const [flash, setFlash] = useState<Flash | null>(null)
 
   useEffect(() => {
     if (!asked) return
     setState(openTab(state, { kind: tabKindFor(nodeId), id: asked }, "here"))
+    const find = params.get("find")
+    setFlash(find ? { text: find, n: Date.now(), key: `${tabKindFor(nodeId)}:${asked}` } : null)
     setParams(
       (current) => {
         current.delete("item")
+        current.delete("find")
         return current
       },
       { replace: true }
@@ -32,6 +38,7 @@ export function useLibraryTabs(nodeId: string, storageKey = "library-tabs") {
     tabs: state.tabs,
     active: state.active,
     activeTab,
+    flash,
     move: (from: number, to: number) => setState(moveTab(state, from, to)),
     show: (index: number) => setState({ ...state, active: index }),
     close: (index: number) => setState(closeTab(state, index)),

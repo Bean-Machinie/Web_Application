@@ -1,9 +1,4 @@
-import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
-import { BookMarkedIcon } from "@/components/icons/BookMarkedIcon"
-import { SwordsIcon } from "@/components/icons/SwordsIcon"
 import { campaignPath } from "./campaign-paths"
-import { MONSTERS } from "./compendium-monsters"
-import { monsterPath } from "./srd-paths"
 import { roleLabel } from "./campaign-list"
 import { can } from "./campaign-permissions"
 import type { Campaign } from "./campaigns"
@@ -11,16 +6,18 @@ import { characterPath } from "./characters"
 import type { Character } from "./characters"
 import { usesDnd5e } from "./game-system"
 import { matchText } from "./palette-search"
+import { best, entryItem, pageItem, withRecent } from "./palette-build"
+import type { Page } from "./palette-build"
+import { deepGroups } from "./palette-deep"
+import type { TextEntry } from "./palette-deep"
+import type { JournalNode } from "./journal"
+import { srdGroups } from "./palette-srd"
 import type { PaletteGroup, PaletteItem, Recent } from "./palette-items"
-import { RULE_ENTRIES, rulesPath } from "./rules-terms"
 import type { SearchHit } from "./search-entries"
-import type { WorldEntryKind } from "./world-kinds"
 import { WORLD_KINDS, worldKinds } from "./world-kinds"
 
 // Where the palette looks when something is typed.
 export type PaletteScope = "everywhere" | "campaign" | "campaigns" | "library"
-
-type Page = { title: string; to: string; icon: AnimatedIconComponent }
 
 export type PaletteInput = {
   query: string
@@ -32,49 +29,12 @@ export type PaletteInput = {
   hits: SearchHit[]
   // Your characters, matched by name here.
   characters: Character[]
+  // The open campaign's journal pages, and entries found by their text, once loaded.
+  pages: JournalNode[]
+  textEntries: TextEntry[]
   recents: Recent[]
   campaignPages: Page[]
   mainPages: Page[]
-}
-
-const withRecent = (item: Omit<PaletteItem, "recent">): PaletteItem => ({
-  ...item,
-  recent: { key: item.id, name: item.name, path: item.path, context: item.context, visual: item.visual },
-})
-
-const pageItem = (page: Page, context: string, matched: number[]): PaletteItem => ({
-  id: `page:${page.to}`,
-  name: page.title,
-  context,
-  path: page.to,
-  visual: { type: "page", icon: page.icon },
-  matched,
-})
-
-type EntryLike = { id: string; kind: WorldEntryKind; name: string; imageUrl: string | null }
-
-const entryItem = (entry: EntryLike, context: string, path: string, matched: number[]) =>
-  withRecent({
-    id: `entry:${entry.id}`,
-    name: entry.name,
-    context,
-    path,
-    visual: { type: "entry", kind: entry.kind, imageUrl: entry.imageUrl },
-    matched,
-  })
-
-// Everything that matches the search, best first.
-function best<T>(
-  things: T[],
-  query: string,
-  text: (thing: T) => string,
-  build: (thing: T, matched: number[]) => PaletteItem
-) {
-  return things
-    .map((thing) => ({ thing, hit: matchText(query, text(thing)) }))
-    .filter((found) => found.hit)
-    .sort((a, b) => b.hit!.score - a.hit!.score)
-    .map(({ thing, hit }) => build(thing, hit!.indices))
 }
 
 // "New ..." actions, offered only where they make sense for the scope.
@@ -141,32 +101,23 @@ export function buildGroups(input: PaletteInput): PaletteGroup[] {
         items: best(input.campaignPages, query, (page) => page.title, (page, matched) => pageItem(page, current.name, matched)),
       }
     )
-    // A rules term or a monster is not worth remembering as a recent, so it is a page row, not an entry.
-    if (usesDnd5e(current)) {
-      groups.push({
-        heading: "Rules",
-        items: best(RULE_ENTRIES, query, (term) => term.title, (term, matched) => ({
-          id: `rule:${term.id}`,
-          name: term.title,
-          context: "Rules",
-          path: rulesPath(term.id),
-          visual: { type: "page", icon: BookMarkedIcon },
-          matched,
-        })),
-      })
-      groups.push({
-        heading: "Creatures",
-        items: best(MONSTERS, query, (monster) => monster.name, (monster, matched) => ({
-          id: `monster:${monster.id}`,
-          name: monster.name,
-          context: `CR ${monster.statBlock.cr.value} · ${monster.statBlock.type}`,
-          path: monsterPath(monster.id),
-          visual: { type: "page", icon: SwordsIcon },
-          matched,
-        })),
-      })
-    }
   }
+
+  // The SRD belongs to the library and to D&D 5e campaigns, so it is searched there and everywhere.
+  const srd = everywhere || scope === "library" || (scope === "campaign" && !!current && usesDnd5e(current))
+  if (srd) groups.push(...srdGroups(query))
+
+  groups.push(
+    ...deepGroups({
+      query,
+      current,
+      inCampaign: scope === "campaign" || scope === "campaigns" || everywhere,
+      inLibrary: scope === "library" || everywhere,
+      pages: input.pages,
+      textEntries: input.textEntries,
+      found: new Set(input.hits.map((hit) => hit.id)),
+    })
+  )
 
   if (everywhere) {
     groups.push({ heading: "Other campaigns", items: hitItems("other", (hit) => hit.campaignName ?? "") })

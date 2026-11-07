@@ -23,6 +23,7 @@ import { PaletteScopeSelect } from "./PaletteScopeSelect"
 import { useCampaign } from "./useCampaign"
 import { useRouteCampaign } from "./useCurrentCampaign"
 import { useEntrySearch } from "./useEntrySearch"
+import { usePaletteDeep } from "./usePaletteDeep"
 
 type Props = { open: boolean; onOpenChange: (open: boolean) => void }
 
@@ -52,6 +53,7 @@ export function CommandPalette({ open, onOpenChange }: Props) {
     scope === "library" ? ["library"] : scope === "campaign" ? ["current"] : scope === "campaigns" ? ["current", "other"] : ["current", "other", "library"]
   const hits = useEntrySearch(open, query, current?.id ?? null, sources)
   const characters = usePaletteCharacters(open)
+  const { pages, textEntries } = usePaletteDeep(open, query, current)
 
   // Each opening, and a move into or out of a campaign, starts at the default scope.
   const defaultScope = scopes[0]
@@ -69,8 +71,10 @@ export function CommandPalette({ open, onOpenChange }: Props) {
         mainPages,
         hits,
         characters,
+        pages,
+        textEntries,
       }),
-    [query, scope, campaigns, current, recents, hits, characters]
+    [query, scope, campaigns, current, recents, hits, characters, pages, textEntries]
   )
   const shown = groups.map((group) => ({
     ...group,
