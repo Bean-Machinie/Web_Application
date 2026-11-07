@@ -1,7 +1,7 @@
 import { arrayMove } from "@dnd-kit/sortable"
 import type { TreeRow } from "./journal-tree"
 
-export const INDENT_PX = 16
+export const INDENT_PX = 12
 
 export type Drop = { parentId: string | null; position: number; depth: number }
 

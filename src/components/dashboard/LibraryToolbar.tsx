@@ -27,9 +27,11 @@ export function LibraryToolbar(props: Props) {
     <>
       <FilterPopover groups={props.filters} />
       {props.mode === "grid" && <CardSizeControl value={props.cardSize} onChange={props.onCardSize} />}
-      <div className="max-md:hidden">
-        <WorldViewToggle mode={props.mode} onChange={props.onMode} modes={props.modes} />
-      </div>
+      {props.modes.length > 1 && (
+        <div className="max-md:hidden">
+          <WorldViewToggle mode={props.mode} onChange={props.onMode} modes={props.modes} />
+        </div>
+      )}
       {props.makes.length > 0 && <LibraryNewButton kinds={props.makes} onPick={props.onNew} />}
     </>
   )

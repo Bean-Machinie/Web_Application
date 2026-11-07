@@ -75,7 +75,7 @@ export function JournalTreeRow(props: Props) {
           style={{ paddingLeft: depth * INDENT_PX }}
           className="relative flex outline-none"
         >
-          <IndentGuides guides={Array.from({ length: depth }, (_, level) => guides[level] ?? "none")} />
+          <IndentGuides guides={Array.from({ length: depth }, (_, level) => guides[level] ?? "none")} reach={hasChildren ? 0 : 14} />
           <div
             className={cn(
               // --row-bg is the row's colour as an opaque one, for the buttons that cover the end
@@ -94,7 +94,7 @@ export function JournalTreeRow(props: Props) {
               disabled={!hasChildren}
               onClick={props.onToggle}
               className={cn(
-                "text-muted-foreground flex size-5 shrink-0 items-center justify-center rounded-md outline-none",
+                "text-muted-foreground flex size-4 shrink-0 items-center justify-center rounded-md outline-none",
                 !hasChildren && "invisible"
               )}
             >

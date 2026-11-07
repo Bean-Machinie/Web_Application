@@ -45,16 +45,19 @@ const RECENCY: FilterGroup = {
 // nodes and a toolbar (the search scoped to the node, the filter, size, list or grid, and New under
 // Yours) above the cards or the list, which scroll, and at the right the panel of tabs.
 export function LibraryContent({ page, onNewCharacter, detail }: Props) {
-  const { section, nodeId, onSrd, mode, selection } = page
+  const { section, nodeId, onSrd, selection } = page
   const { characters } = useCharacters()
   const srd = useSrdView(nodeId, page.query)
+  // Rules are text, so they are only ever a list; cards would show nothing a row does not.
+  const onRules = onSrd && srd.rules !== null
+  const mode: WorldViewMode = onRules ? "list" : page.mode
   const onCharacters = section.id === CHARACTERS_SECTION.id
   const searching = page.query.trim() !== "" || page.recency !== "any"
   const problem = page.error ?? page.actionError
   const grouped = section.id === "all" && mode === "grid" && !searching
   // A table starts right under the toolbar so its header is fixed there; cards have space above them.
   const flush = mode === "list" && !onCharacters
-  const modes: WorldViewMode[] = !onSrd && hasGraph(section) ? ["list", "grid", "graph"] : ["list", "grid"]
+  const modes: WorldViewMode[] = onRules ? ["list"] : !onSrd && hasGraph(section) ? ["list", "grid", "graph"] : ["list", "grid"]
   const filters = onSrd ? srd.filters : [{ ...RECENCY, value: page.recency, onChange: (value: string) => page.setRecency(value as Recency) }]
 
   return (

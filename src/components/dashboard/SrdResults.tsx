@@ -9,7 +9,6 @@ import type { RuleEntry } from "@/lib/srd-rules-types"
 import { AddMonsterDialog } from "./AddMonsterDialog"
 import { SrdTable } from "./SrdTable"
 import { CREATURE_COLUMNS, creatureRows, ruleColumns, ruleRows } from "./srdTableData"
-import { SrdRuleCard } from "./SrdRuleCard"
 import { WorldEntryCard } from "./WorldEntryCard"
 import { gridStyle } from "./world-grid-style"
 
@@ -47,22 +46,20 @@ export function SrdResults({ creatures, rules, mode, size, openId, showTag }: Pr
 
   return (
     <div style={gridStyle(size)} className="grid gap-4">
-      {creatures
-        ? creatures.map((monster) => (
-            <WorldEntryCard
-              key={monster.id}
-              entry={srdEntry(monster)}
-              manage={null}
-              selection={null}
-              to={to(monster.id)}
-              subtitle={monsterSubtitle(monster)}
-              icon={monsterIcon(monster)}
-              highlighted={openId === monster.id}
-              itemId={monster.id}
-              onAdd={() => setAdding(monster)}
-            />
-          ))
-        : (rules ?? []).map((entry) => <SrdRuleCard key={entry.id} entry={entry} to={to(entry.id)} highlighted={openId === entry.id} showTag={showTag} />)}
+      {(creatures ?? []).map((monster) => (
+        <WorldEntryCard
+          key={monster.id}
+          entry={srdEntry(monster)}
+          manage={null}
+          selection={null}
+          to={to(monster.id)}
+          subtitle={monsterSubtitle(monster)}
+          icon={monsterIcon(monster)}
+          highlighted={openId === monster.id}
+          itemId={monster.id}
+          onAdd={() => setAdding(monster)}
+        />
+      ))}
       {dialog}
     </div>
   )

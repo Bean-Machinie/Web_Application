@@ -1,4 +1,6 @@
+import { useRef } from "react"
 import type { CSSProperties, ReactNode } from "react"
+import { useScrollbarWidth } from "@/hooks/use-scrollbar-width"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { QUIET_SCROLL } from "@/lib/quiet-scroll"
 import { cn } from "@/lib/utils"
@@ -27,8 +29,11 @@ type Props = {
 // own, and at the right a panel of tabs once something is open. It cancels the dashboard's padding
 // to span the width, and gives it back inside.
 export function CollectionPage({ tabs, actions, bleed, flush, detail, children }: Props) {
+  const root = useRef<HTMLDivElement>(null)
+  useScrollbarWidth(root)
   return (
     <div
+      ref={root}
       // What a sticky header inside the content sticks under: the top of the content.
       style={{ "--collection-top": "0px" } as CSSProperties}
       className="-m-4 h-[calc(100svh-var(--header-height))] min-w-0 flex-none md:-m-6"
@@ -39,7 +44,8 @@ export function CollectionPage({ tabs, actions, bleed, flush, detail, children }
           <div className="@container flex h-full min-w-0 flex-col">
             {/* One row whatever the width: where the panel is too narrow for the tabs, they are a
                 drop-down in the same place. */}
-            <PanelHeader className="h-12 items-end justify-between gap-4 px-4 md:px-6">
+            {/* The content's side margins, scrollbar gutter included, so the buttons line up with it. */}
+            <PanelHeader className={cn("h-12 items-end justify-between gap-4 px-4 md:px-6", !bleed && "px-[calc(1rem+var(--scrollbar-width,0px))] md:px-[calc(1.5rem+var(--scrollbar-width,0px))]")}>
               <div className="flex min-w-0 flex-1 items-end self-stretch">{tabs}</div>
               <div className="flex shrink-0 items-center gap-2 self-center">{actions}</div>
             </PanelHeader>
