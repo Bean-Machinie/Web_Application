@@ -46,8 +46,8 @@ export function CollectionPage({ tabs, actions, bleed, flush, detail, children }
                 drop-down in the same place. */}
             {/* The content's side margins, scrollbar gutter included, so the buttons line up with it. */}
             <PanelHeader className={cn("h-12 items-end justify-between gap-4 px-4 md:px-6", !bleed && "px-[calc(1rem+var(--scrollbar-width,0px))] md:px-[calc(1.5rem+var(--scrollbar-width,0px))]")}>
-              {/* Under the width where the menu fits whole beside the search at its narrowest, it narrows too. */}
-              <div className="flex min-w-36 flex-1 items-end self-stretch @[38rem]:min-w-56">{tabs}</div>
+              {/* The tabs and the actions give way together: the menu from 14rem, the search from its own width. */}
+              <div className="flex min-w-36 flex-[1_1_14rem] items-end self-stretch">{tabs}</div>
               <div className="flex min-w-0 shrink items-center gap-2 self-center">{actions}</div>
             </PanelHeader>
             <div className={cn("isolate flex min-h-0 min-w-0 flex-1 flex-col", bleed ? "overflow-hidden" : `${QUIET_SCROLL} overflow-y-auto px-4 pb-4 [scrollbar-gutter:stable_both-edges] md:px-6 md:pb-6`)}>

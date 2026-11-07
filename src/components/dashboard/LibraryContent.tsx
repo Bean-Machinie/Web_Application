@@ -69,9 +69,9 @@ export function LibraryContent({ page, onNewCharacter, detail }: Props) {
         <>
           <LibrarySearch query={page.query} onQuery={page.setQuery} label={`Search ${nodeLabel(nodeId).toLowerCase()}`} />
           {onCharacters ? (
-            <Button onClick={onNewCharacter}>
+            <Button className="@max-[50rem]:w-8 @max-[50rem]:px-0" onClick={onNewCharacter}>
               <HoverIcon icon={PlusIcon} size={16} />
-              New character
+              <span className="@max-[50rem]:sr-only">New character</span>
             </Button>
           ) : (
             <LibraryToolbar

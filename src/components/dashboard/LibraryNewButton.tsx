@@ -16,9 +16,9 @@ type Props = { kinds: WorldEntryKind[]; onPick: (kind: WorldEntryKind) => void }
 export function LibraryNewButton({ kinds, onPick }: Props) {
   if (kinds.length === 1) {
     return (
-      <Button onClick={() => onPick(kinds[0])}>
+      <Button className="@max-[50rem]:w-8 @max-[50rem]:px-0" onClick={() => onPick(kinds[0])}>
         <HoverIcon icon={PlusIcon} size={16} />
-        New {WORLD_KINDS[kinds[0]].noun}
+        <span className="@max-[50rem]:sr-only">New {WORLD_KINDS[kinds[0]].noun}</span>
       </Button>
     )
   }
@@ -26,9 +26,9 @@ export function LibraryNewButton({ kinds, onPick }: Props) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button>
+        <Button className="@max-[50rem]:w-8 @max-[50rem]:px-0">
           <HoverIcon icon={PlusIcon} size={16} />
-          New
+          <span className="@max-[50rem]:sr-only">New</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

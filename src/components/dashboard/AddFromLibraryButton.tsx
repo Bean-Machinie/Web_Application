@@ -28,13 +28,14 @@ export function AddFromLibraryButton({ onAdded }: Props) {
         <TooltipTrigger asChild>
           <Button
             variant="outline"
+            className="@max-[56rem]:w-8 @max-[56rem]:px-0"
             onClick={() => {
               setAdded(null)
               setOpen(true)
             }}
           >
             <Library className="size-4" />
-            <span className="max-sm:sr-only">Add from library</span>
+            <span className="@max-[56rem]:sr-only">Add from library</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent>Copy entries from your library or the SRD into this campaign</TooltipContent>

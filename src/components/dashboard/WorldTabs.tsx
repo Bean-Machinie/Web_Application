@@ -1,11 +1,9 @@
 import { LayoutGrid } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { WorldEntry } from "@/lib/world-entries"
 import { WORLD_KINDS } from "@/lib/world-kinds"
 import type { WorldEntryKind } from "@/lib/world-kinds"
-import { TabNav } from "./TabNav"
 import { useWorldScope } from "./useWorldScope"
 
 type Props = {
@@ -13,8 +11,8 @@ type Props = {
   active: WorldEntryKind | null
 }
 
-// All, then one tab per registry kind. The active tab lives in the URL. Where the panel is too
-// narrow for the tabs, one drop-down holds them, as the map maker's categories are.
+// All, then one entry per registry kind, in one drop-down whatever the width, as the library's menu
+// is, so the toolbar has room for its buttons. The active one lives in the URL.
 export function WorldTabs({ entries, active }: Props) {
   const scope = useWorldScope()
   const navigate = useNavigate()
@@ -34,10 +32,7 @@ export function WorldTabs({ entries, active }: Props) {
 
   return (
     <>
-      <div className="hidden min-w-0 @7xl:block">
-        <TabNav label={scope.label} tabs={tabs.map((tab) => ({ ...tab, badge: tab.count !== null && <Badge variant="secondary">{tab.count}</Badge> }))} bare />
-      </div>
-      <div className="my-auto w-44 @7xl:hidden">
+      <div className="my-auto w-56 max-w-full">
         <Select value={current.to} onValueChange={(to) => navigate(to)}>
           <SelectTrigger aria-label="Kind" className="w-full *:data-[slot=select-value]:w-full">
             <SelectValue />

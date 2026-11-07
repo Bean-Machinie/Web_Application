@@ -20,14 +20,14 @@ export function LibraryNodeRow({ section, depth, active, open, hasChildren, coun
   const Icon = section.icon
 
   return (
-    <ListRow selected={active} style={{ paddingLeft: depth * 20 }} className="h-8 gap-0.5 pr-2">
+    <ListRow selected={active} style={{ paddingLeft: depth * 20 }} className="hover:bg-accent/60 data-[selected]:hover:bg-accent h-8 gap-0.5 pr-2 transition-colors">
       <button
         type="button"
         aria-label={open ? "Collapse" : "Expand"}
         aria-expanded={hasChildren ? open : undefined}
         disabled={!hasChildren}
         onClick={onToggle}
-        className={cn("text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded-md outline-none", !hasChildren && "invisible")}
+        className={cn("text-muted-foreground hover:text-foreground flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md outline-none", !hasChildren && "invisible")}
       >
         <ChevronRight className={cn("size-3.5 transition-transform duration-150 ease-in-out", open && "rotate-90")} />
       </button>
@@ -35,7 +35,7 @@ export function LibraryNodeRow({ section, depth, active, open, hasChildren, coun
         type="button"
         onClick={onSelect}
         aria-current={active ? "page" : undefined}
-        className={cn("focus-visible:ring-ring flex h-full min-w-0 flex-1 items-center gap-2 rounded-sm text-left text-sm outline-none focus-visible:ring-2", depth > 0 && !active && "text-muted-foreground")}
+        className={cn("focus-visible:ring-ring flex h-full cursor-pointer min-w-0 flex-1 items-center gap-2 rounded-sm text-left text-sm outline-none focus-visible:ring-2", depth > 0 && !active && "text-muted-foreground")}
       >
         {depth === 0 && <Icon className="size-4 shrink-0" />}
         <span className="truncate">{section.label}</span>

@@ -22,9 +22,9 @@ export function NewEntryButton({ onPick }: { onPick: (kind: WorldEntryKind) => v
       <Tooltip>
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>
-            <Button>
+            <Button className="@max-[50rem]:w-8 @max-[50rem]:px-0">
               <HoverIcon icon={PlusIcon} size={16} />
-              New
+              <span className="@max-[50rem]:sr-only">New</span>
             </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>

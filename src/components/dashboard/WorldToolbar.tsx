@@ -31,7 +31,7 @@ export function WorldToolbar(props: Props) {
 
   return (
     <>
-      <InputGroup className="w-40 sm:w-56">
+      <InputGroup className="w-56 min-w-32 shrink">
         <InputGroupAddon>
           <HoverIcon icon={SearchIcon} size={16} />
         </InputGroupAddon>

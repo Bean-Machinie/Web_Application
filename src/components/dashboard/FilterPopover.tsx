@@ -26,12 +26,12 @@ export function FilterPopover({ groups }: { groups: FilterGroup[] }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="relative @max-[50rem]:w-8 @max-[50rem]:px-0">
           <HoverIcon icon={FilterIcon} />
-          Filter
+          <span className="@max-[50rem]:sr-only">Filter</span>
           {/* A box of one size whatever is in it, so the button is the same size with a count or
               without, and the row does not move when a count appears. */}
-          <span className="ml-0.5 flex size-4 items-center justify-center">
+          <span className="ml-0.5 flex size-4 items-center justify-center @max-[50rem]:absolute @max-[50rem]:-top-1.5 @max-[50rem]:-right-1.5 @max-[50rem]:m-0">
             {active.length > 0 && (
               // Not the Badge, whose padding and line height sit the digit off centre. In this font the
               // digit sits a little above the middle of its line, so it is lowered half a pixel.

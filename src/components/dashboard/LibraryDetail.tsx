@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import { Link } from "react-router-dom"
 import { ArrowUpRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { isTyping } from "@/lib/entry-selection"
 import { QUIET_SCROLL } from "@/lib/quiet-scroll"
 import type { WorldEntry } from "@/lib/world-entries"
@@ -61,12 +62,16 @@ export function LibraryDetail({ tabs, entries, selecting, onAddToCampaign }: Pro
         </div>
         <div className="flex shrink-0 items-center gap-1 px-1.5">
           {showing && (
-            <Button asChild variant="ghost" size="sm">
-              <Link to={showing.fullPage}>
-                Open full page
-                <ArrowUpRight />
-              </Link>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button asChild variant="ghost" size="icon-sm" className="shrink-0">
+                  <Link to={showing.fullPage} aria-label="Open full page">
+                    <ArrowUpRight />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Open full page</TooltipContent>
+            </Tooltip>
           )}
           {monster && <AddMonsterButton monster={monster} />}
           {entry && onAddToCampaign && (
