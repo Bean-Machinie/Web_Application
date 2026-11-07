@@ -10,7 +10,7 @@ import { WORLD_KINDS } from "@/lib/world-kinds"
 
 const FALLBACK: LucideIcon = FileText
 
-// What a tab of the detail panel shows of itself: its name and icon, where its own page is, and
+// What a tab of the detail panel shows of itself: its name and icon, where its own page is (none for a rule, which is read in the panel), and
 // the thing it opens (the entry, creature or rule), whichever it is.
 export function describeLibraryTab(tab: LibraryTab, entries: WorldEntry[] | null, basePath: string) {
   if (tab.kind === "creature") {
@@ -19,7 +19,7 @@ export function describeLibraryTab(tab: LibraryTab, entries: WorldEntry[] | null
   }
   if (tab.kind === "rule") {
     const rule = ruleEntry(tab.id)
-    return { title: rule?.title ?? "Rule", icon: BookMarked as LucideIcon, fullPage: srdPath("rules", tab.id), rule }
+    return { title: rule?.title ?? "Rule", icon: BookMarked as LucideIcon, fullPage: null, rule }
   }
   const entry = entries?.find((candidate) => candidate.id === tab.id)
   return { title: entry?.name ?? "Entry", icon: entry ? WORLD_KINDS[entry.kind].icon : FALLBACK, fullPage: `${basePath}/${tab.id}`, entry }

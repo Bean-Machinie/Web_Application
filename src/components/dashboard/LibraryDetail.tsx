@@ -67,7 +67,7 @@ export function LibraryDetail({ tabs, entries, selecting, onAddToCampaign }: Pro
       >
         <DetailTabList tabs={tabs} entries={entries} basePath={basePath} />
         <div className="flex shrink-0 items-center gap-1 px-1.5">
-          {showing && (
+          {showing?.fullPage && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button asChild variant="ghost" size="icon-sm" className="shrink-0">
