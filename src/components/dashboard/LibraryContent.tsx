@@ -67,7 +67,7 @@ export function LibraryContent({ page, onNewCharacter, detail }: Props) {
       tabs={<LibraryNodeMenu active={nodeId} count={page.count} onSelect={page.setSection} />}
       actions={
         <>
-          <LibrarySearch query={page.query} onQuery={page.setQuery} placeholder={`Search ${nodeLabel(nodeId).toLowerCase()}`} />
+          <LibrarySearch query={page.query} onQuery={page.setQuery} label={`Search ${nodeLabel(nodeId).toLowerCase()}`} />
           {onCharacters ? (
             <Button onClick={onNewCharacter}>
               <HoverIcon icon={PlusIcon} size={16} />
@@ -79,8 +79,6 @@ export function LibraryContent({ page, onNewCharacter, detail }: Props) {
               mode={mode}
               onMode={page.setMode}
               modes={modes}
-              cardSize={page.cardSize}
-              onCardSize={page.setCardSize}
               makes={onSrd ? [] : section.makes}
               onNew={page.make}
             />
@@ -90,7 +88,7 @@ export function LibraryContent({ page, onNewCharacter, detail }: Props) {
     >
     {problem && <FormAlert tone="error">{problem}</FormAlert>}
     {onSrd ? (
-      <SrdResults creatures={srd.creatures} rules={srd.rules} mode={mode} size={page.cardSize} openId={page.item} showTag={!nodeId.startsWith("srd:rules:") || searching} />
+      <SrdResults creatures={srd.creatures} rules={srd.rules} mode={mode} openId={page.item} showTag={!nodeId.startsWith("srd:rules:") || searching} />
     ) : onCharacters ? (
       <LibraryCharacters characters={characters} query={page.query} onNew={onNewCharacter} />
     ) : (
@@ -99,7 +97,7 @@ export function LibraryContent({ page, onNewCharacter, detail }: Props) {
           page.shown && (
             <div className={cn("flex flex-1 flex-col", mode === "graph" && "min-h-[28rem] overflow-hidden rounded-lg border")}>
               {grouped && page.shown.length > 0 ? (
-                <LibraryAllView entries={page.shown} manage={page.manage} selection={selection} size={page.cardSize} onSee={page.setSection} />
+                <LibraryAllView entries={page.shown} manage={page.manage} selection={selection} onSee={page.setSection} />
               ) : (
                 <WorldEntryResults
                   entries={page.shown}
@@ -111,7 +109,6 @@ export function LibraryContent({ page, onNewCharacter, detail }: Props) {
                   selection={selection}
                   sort={page.sort}
                   onSort={page.setSort}
-                  cardSize={page.cardSize}
                   connections={null}
                   wide={section.id === "maps"}
                 />

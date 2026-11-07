@@ -9,7 +9,6 @@ import { useWorldEntries } from "@/hooks/use-world-entries"
 import { useWorldEntryDelete } from "@/hooks/use-world-entry-delete"
 import { useConnectionCounts } from "@/hooks/use-connection-counts"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { useWorldCardSize } from "@/hooks/use-world-card-size"
 import { useWorldListMemory } from "@/hooks/use-world-list-memory"
 import { useWorldSearchText } from "@/hooks/use-world-search-text"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
@@ -106,7 +105,6 @@ export function WorldEntryList() {
       })
     : null
 
-  const [cardSize, setCardSize] = useWorldCardSize()
   const connections = useConnectionCounts(entries, mode === "list")
   const tabs = useLibraryTabs("all", `world-tabs:${scope.key}`)
   const tabsApi = useMemo(() => ({ activeId: tabs.activeTab?.id ?? null, openNew: tabs.openNew }), [tabs.activeTab?.id, tabs.openNew])
@@ -128,8 +126,6 @@ export function WorldEntryList() {
             onLibraryAdded={canManage ? reload : null}
             mode={mode}
             onMode={setMode}
-            cardSize={cardSize}
-            onCardSize={setCardSize}
           />
         }
       >
@@ -162,7 +158,6 @@ export function WorldEntryList() {
                 selection={canManage ? selection : null}
                 sort={sort}
                 onSort={setSort}
-                cardSize={cardSize}
                 connections={connections}
                 reachMargins
               />

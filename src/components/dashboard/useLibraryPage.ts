@@ -5,7 +5,6 @@ import { useCreateEntry } from "@/hooks/use-create-entry"
 import { useEntrySelection } from "@/hooks/use-entry-selection"
 import { useLibraryScenes } from "@/hooks/use-library-scenes"
 import { useWorldBulk } from "@/hooks/use-world-bulk"
-import { useWorldCardSize } from "@/hooks/use-world-card-size"
 import { useWorldEntries } from "@/hooks/use-world-entries"
 import { useWorldEntryDelete } from "@/hooks/use-world-entry-delete"
 import { useWorldSearchText } from "@/hooks/use-world-search-text"
@@ -49,7 +48,6 @@ export function useLibraryPage() {
   const [chosenMode, setMode] = useWorldViewMode()
   // The rules read better as a list, so that is where they start.
   const [rulesMode, setRulesMode] = useStoredValue("library-rules-view", readRulesMode)
-  const [cardSize, setCardSize] = useWorldCardSize()
   const [sort, setSort] = useState<Sort>(null)
   const createEntry = useCreateEntry(scope)
   const [making, setMaking] = useState(false)
@@ -118,7 +116,7 @@ export function useLibraryPage() {
   }, [wanted, setParams])
 
   return {
-    entries, error, reload, section, nodeId, onSrd, tabs, item: tabs.activeTab?.id ?? null, mode, setMode: onRules ? setRulesMode : setMode, cardSize, setCardSize, sort, setSort,
+    entries, error, reload, section, nodeId, onSrd, tabs, item: tabs.activeTab?.id ?? null, mode, setMode: onRules ? setRulesMode : setMode, sort, setSort,
     query, setQuery, recency, setRecency, shown, selection, bulk, manage, addTo, removal,
     making, setMaking, renaming, setRenaming, actionError, make,
     // Moving to another node leaves the tabs open.

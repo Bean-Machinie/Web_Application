@@ -39,10 +39,10 @@ export function LibraryNodeMenu({ active, count, onSelect }: Props) {
   }
 
   return (
-    <div className="my-auto">
+    <div className="my-auto w-56 max-w-full">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" aria-label="Library section" className="w-56 justify-between font-normal">
+          <Button variant="outline" aria-label="Library section" className="w-full justify-between font-normal">
             <span className="flex min-w-0 items-center gap-2">
               {Icon && <Icon className="text-muted-foreground" />}
               <span className="truncate">{current?.section.label}</span>

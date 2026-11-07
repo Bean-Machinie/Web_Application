@@ -1,6 +1,6 @@
 import { useRef } from "react"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
-import type { CardSize } from "@/hooks/use-world-card-size"
+import { useColumnGlide } from "@/hooks/use-column-glide"
 import { useFlipGrid } from "@/hooks/use-flip-grid"
 import { useRowReorder } from "@/hooks/use-row-reorder"
 import { useSelectionBox } from "@/hooks/use-selection-box"
@@ -17,7 +17,6 @@ type Props = {
   manage: WorldManage | null
   // Null where nothing can be picked, such as for players.
   selection: EntrySelection | null
-  size: CardSize
   // Landscape cards, for maps.
   wide?: boolean
   // True when the grid sits directly in the page's padding.
@@ -26,9 +25,10 @@ type Props = {
 
 const NOTHING: ReadonlySet<string> = new Set()
 
-export function WorldEntryGrid({ entries, manage, selection, size, wide, reachMargins }: Props) {
+export function WorldEntryGrid({ entries, manage, selection, wide, reachMargins }: Props) {
   const scroller = useRef<HTMLDivElement>(null)
   useFlipGrid(scroller, "[data-entry-id]")
+  useColumnGlide(scroller, "[data-entry-id]")
   const { rowProps } = useRowReorder({
     ids: entries.map((entry) => entry.id),
     // Holding a card to move it would fight with picking cards.
@@ -48,7 +48,7 @@ export function WorldEntryGrid({ entries, manage, selection, size, wide, reachMa
     <div
       ref={scroller}
       onPointerDown={onPointerDown}
-      style={gridStyle(size, wide)}
+      style={gridStyle(wide)}
       className={cn(
         "relative grid flex-1 content-start gap-4",
         // Takes over the page's padding so a box can start in the margins too.

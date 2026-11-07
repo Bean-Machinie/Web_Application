@@ -3,7 +3,7 @@ import { gridStyle } from "./world-grid-style"
 
 export function WorldGridSkeleton() {
   return (
-    <div style={gridStyle("medium")} className="grid gap-4">
+    <div style={gridStyle()} className="grid gap-4">
       {[0, 1, 2, 3, 4, 5, 6, 7].map((card) => (
         <div key={card} className="overflow-hidden rounded-lg border">
           <Skeleton className="aspect-square w-full rounded-none" />

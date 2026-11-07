@@ -1,11 +1,12 @@
 import type { CSSProperties } from "react"
-import { CARD_MIN_WIDTH } from "@/hooks/use-world-card-size"
-import type { CardSize } from "@/hooks/use-world-card-size"
 
-// As many columns as fit, each exactly the card size: a card is never stretched. What does not
-// make a whole card widens the gaps instead (never under the gap-4 minimum), so the first and last
-// cards sit on the same edges as the toolbar above. Wide cards (maps) are half as wide again.
-export const gridStyle = (size: CardSize, wide = false): CSSProperties => ({
-  gridTemplateColumns: `repeat(auto-fill, ${CARD_MIN_WIDTH[size] * (wide ? 1.6 : 1)}px)`,
-  justifyContent: "space-between",
+// A card is never narrower than this, and its image keeps its aspect ratio at any width, so a card
+// only ever scales. Wide cards (maps) are 1.6 times as wide.
+const MIN = 152
+
+// As many columns as fit at MIN, with the gap-4 gap always the same: all the free width goes to
+// the cards, which grow together, so a panel being dragged resizes them smoothly and the first and
+// last sit on the toolbar's edges. A new column comes in when one more card fits at MIN.
+export const gridStyle = (wide = false): CSSProperties => ({
+  gridTemplateColumns: `repeat(auto-fill, minmax(${MIN * (wide ? 1.6 : 1)}px, 1fr))`,
 })

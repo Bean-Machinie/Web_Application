@@ -1,12 +1,10 @@
 import { HoverIcon } from "@/components/icons/HoverIcon"
 import { SearchIcon } from "@/components/icons/SearchIcon"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
-import type { CardSize } from "@/hooks/use-world-card-size"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import type { VisibilityFilter } from "@/lib/world-list"
 import { AddFromLibraryButton } from "./AddFromLibraryButton"
-import { CardSizeControl } from "./CardSizeControl"
 import { ClearSearchButton } from "./ClearSearchButton"
 import { FilterPopover } from "./FilterPopover"
 import { NewEntryButton } from "./NewEntryButton"
@@ -24,8 +22,6 @@ type Props = {
   onLibraryAdded: (() => Promise<unknown>) | null
   mode: WorldViewMode
   onMode: (mode: WorldViewMode) => void
-  cardSize: CardSize
-  onCardSize: (size: CardSize) => void
 }
 
 // The right of the toolbar, laid out like the campaigns on Home: a search field and a
@@ -42,7 +38,7 @@ export function WorldToolbar(props: Props) {
         <InputGroupInput
           value={query}
           onChange={(event) => onQuery(event.target.value)}
-          placeholder="Search entries"
+          placeholder="Search"
           aria-label="Search entries"
         />
         <ClearSearchButton value={query} onClear={() => onQuery("")} />
@@ -63,7 +59,6 @@ export function WorldToolbar(props: Props) {
           ]}
         />
       )}
-      {mode === "grid" && <CardSizeControl value={props.cardSize} onChange={props.onCardSize} />}
       <div className="max-md:hidden">
         <WorldViewToggle mode={mode} onChange={onMode} />
       </div>

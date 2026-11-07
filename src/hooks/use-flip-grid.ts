@@ -13,8 +13,8 @@ function shiftOf(element: HTMLElement) {
   return { x: parseFloat(x) || 0, y: parseFloat(y) || 0 }
 }
 
-// Cards of a grid that move to another row, or to another place on one, when the grid is
-// resized or its cards change (the sidebar opening, a search) glide there rather than jump.
+// Cards of a grid that move to another row, or to another place on one, when its cards
+// change (a search, a filter, a reorder) glide there rather than jump.
 // Each starts from where it was last drawn, before the page is painted, and eases to its
 // new place. A card still gliding when the layout changes again carries on from where it is.
 // The sideways drift of a centred grid as it widens is left to the browser. It is a web
@@ -27,7 +27,7 @@ export function useFlipGrid(grid: RefObject<HTMLElement | null>, itemSelector: s
     // Where each card sits in the layout, with no shift counted.
     let placed = new Map<HTMLElement, { x: number; y: number }>()
 
-    const update = () => {
+    const update = (animate: boolean) => {
       const next = new Map<HTMLElement, { x: number; y: number }>()
       const moved: { element: HTMLElement; dx: number; dy: number }[] = []
 
@@ -45,6 +45,7 @@ export function useFlipGrid(grid: RefObject<HTMLElement | null>, itemSelector: s
         moved.push({ element, dx: before.x + shift.x - now.x, dy: before.y + shift.y - now.y })
       }
       placed = next
+      if (!animate) return
 
       for (const { element, dx, dy } of moved) {
         for (const running of element.getAnimations()) if (running.id === GLIDE) running.cancel()
@@ -56,10 +57,12 @@ export function useFlipGrid(grid: RefObject<HTMLElement | null>, itemSelector: s
       }
     }
 
-    update()
-    const resize = new ResizeObserver(update)
+    update(false)
+    // A resize only notes where the cards are: they scale with the panel, so a column coming or
+    // going is just the layout, not a move to animate, and gliding it fights the live resize.
+    const resize = new ResizeObserver(() => update(false))
     resize.observe(box)
-    const change = new MutationObserver(update)
+    const change = new MutationObserver(() => update(true))
     change.observe(box, { childList: true })
     return () => {
       resize.disconnect()

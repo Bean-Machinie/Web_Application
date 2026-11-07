@@ -1,22 +1,20 @@
 import { useState } from "react"
 import { useLocation } from "react-router-dom"
-import type { CardSize } from "@/hooks/use-world-card-size"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import type { Monster } from "@/lib/compendium-monsters"
 import { withItem } from "@/lib/library-nav"
 import { monsterIcon, monsterSubtitle, srdEntry } from "@/lib/srd-entries"
 import type { RuleEntry } from "@/lib/srd-rules-types"
 import { AddMonsterDialog } from "./AddMonsterDialog"
+import { CardGrid } from "./CardGrid"
 import { SrdTable } from "./SrdTable"
 import { CREATURE_COLUMNS, creatureRows, ruleColumns, ruleRows } from "./srdTableData"
 import { WorldEntryCard } from "./WorldEntryCard"
-import { gridStyle } from "./world-grid-style"
 
 type Props = {
   creatures: Monster[] | null
   rules: RuleEntry[] | null
   mode: WorldViewMode
-  size: CardSize
   // The item open in the panel.
   openId: string | null
   // The rule's category badge: not inside a category, where every row has the same one.
@@ -25,7 +23,7 @@ type Props = {
 
 // The SRD's creatures or rules, as the library's cards or its list. Clicking one opens it in the
 // panel; nothing here can be changed, so there is no menu and nothing to pick.
-export function SrdResults({ creatures, rules, mode, size, openId, showTag }: Props) {
+export function SrdResults({ creatures, rules, mode, openId, showTag }: Props) {
   const { search } = useLocation()
   const [adding, setAdding] = useState<Monster | null>(null)
   const to = (id: string) => withItem(search, id)
@@ -45,7 +43,7 @@ export function SrdResults({ creatures, rules, mode, size, openId, showTag }: Pr
   }
 
   return (
-    <div style={gridStyle(size)} className="grid gap-4">
+    <CardGrid>
       {(creatures ?? []).map((monster) => (
         <WorldEntryCard
           key={monster.id}
@@ -61,6 +59,6 @@ export function SrdResults({ creatures, rules, mode, size, openId, showTag }: Pr
         />
       ))}
       {dialog}
-    </div>
+    </CardGrid>
   )
 }

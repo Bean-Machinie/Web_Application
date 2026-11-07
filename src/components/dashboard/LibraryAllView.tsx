@@ -1,19 +1,17 @@
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import type { CardSize } from "@/hooks/use-world-card-size"
 import type { EntrySelection } from "@/hooks/use-entry-selection"
 import { LIBRARY_SECTIONS } from "@/lib/library-sections"
 import { newestFirst } from "@/lib/library-recency"
 import type { WorldEntry } from "@/lib/world-entries"
+import { CardGrid } from "./CardGrid"
 import { WorldEntryCard } from "./WorldEntryCard"
-import { gridStyle } from "./world-grid-style"
 import type { WorldManage } from "./world-manage"
 
 type Props = {
   entries: WorldEntry[]
   manage: WorldManage
   selection: EntrySelection
-  size: CardSize
   onSee: (sectionId: string) => void
 }
 
@@ -22,7 +20,7 @@ const SHOWN = { maps: 3, world: 6 } as Record<string, number>
 
 // "All": what changed last in each section, a row of its newest with a way to the rest.
 // Sections with nothing in them are left out.
-export function LibraryAllView({ entries, manage, selection, size, onSee }: Props) {
+export function LibraryAllView({ entries, manage, selection, onSee }: Props) {
   return (
     <div className="flex flex-col gap-10">
       {LIBRARY_SECTIONS.filter((section) => section.id !== "all").map((section) => {
@@ -40,13 +38,13 @@ export function LibraryAllView({ entries, manage, selection, size, onSee }: Prop
                 <ArrowRight />
               </Button>
             </div>
-            <div style={gridStyle(size, wide)} className="grid gap-4">
+            <CardGrid wide={wide}>
               {newestFirst(matching)
                 .slice(0, SHOWN[section.id] ?? 6)
                 .map((entry) => (
                   <WorldEntryCard key={entry.id} entry={entry} manage={manage} selection={selection} wide={wide} />
                 ))}
-            </div>
+            </CardGrid>
           </section>
         )
       })}
