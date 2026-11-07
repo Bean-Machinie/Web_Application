@@ -23,11 +23,11 @@ export function HomeContinue({ campaign }: { campaign: Campaign }) {
   ]
 
   return (
-    <section className="bg-card flex h-52 overflow-hidden rounded-xl border">
-      <img src={campaign.imageUrl ?? FALLBACK_COVER_IMAGE} alt="" className="size-52 shrink-0 object-cover" />
-      <div className="flex min-w-0 flex-1 flex-col gap-2 p-5">
+    <section className="bg-card flex h-[140px] overflow-hidden rounded-xl border">
+      <img src={campaign.imageUrl ?? FALLBACK_COVER_IMAGE} alt="" className="size-[140px] shrink-0 object-cover" />
+      <div className="flex min-w-0 flex-1 flex-col gap-1 p-3.5">
         <span className="text-muted-foreground text-xs">Continue where you left off</span>
-        <h2 className="truncate text-2xl font-semibold tracking-tight">{campaign.name}</h2>
+        <h2 className="truncate text-xl font-semibold tracking-tight">{campaign.name}</h2>
         <p className="text-muted-foreground flex min-w-0 items-center gap-1.5 truncate text-sm">
           <span className="shrink-0">{roleLabel(campaign.role)}</span>
           {people && <span className="shrink-0">· {members(people.length)}</span>}
@@ -40,13 +40,13 @@ export function HomeContinue({ campaign }: { campaign: Campaign }) {
           )}
         </p>
         <div className="mt-auto flex items-center gap-1">
-          <Button asChild className="mr-1">
+          <Button asChild size="sm" className="mr-1">
             <Link to={campaignPath(campaign.id, page ? `journal/${page.id}` : "")}>Continue</Link>
           </Button>
           {icons.map(({ label, to, icon: Icon }) => (
             <Tooltip key={label}>
               <TooltipTrigger asChild>
-                <Button asChild variant="ghost" size="icon">
+                <Button asChild variant="ghost" size="icon-sm">
                   <Link to={to} aria-label={label}>
                     <Icon />
                   </Link>

@@ -1,10 +1,13 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "react-router-dom"
+import { useAuth } from "@/auth/useAuth"
 import { useSrdView } from "@/hooks/use-srd-view"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
 import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import { COMPENDIUM_GROUPS } from "@/lib/library-sections"
+import { storage } from "@/lib/browser-storage"
 import { nodeLabel } from "@/lib/library-tree"
+import { compendiumVisitedKey } from "@/lib/onboarding"
 import { isSrdNode, srdCount } from "@/lib/srd-items"
 import { srdNodeId } from "@/lib/srd-paths"
 import { CollectionPage } from "./CollectionPage"
@@ -21,6 +24,9 @@ import { useLibraryTabs } from "./useLibraryTabs"
 // the library's.
 export function CompendiumPage() {
   const [params, setParams] = useSearchParams()
+  const userId = useAuth().session!.user.id
+  // The getting-started list on Home ticks once the compendium has been opened.
+  useEffect(() => storage.setItem(compendiumVisitedKey(userId), "1"), [userId])
   const asked = params.get("section")
   const nodeId = asked && isSrdNode(asked) ? asked : srdNodeId("creatures")
   const [query, setQuery] = useState("")
