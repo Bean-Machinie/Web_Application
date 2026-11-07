@@ -6,7 +6,7 @@ import { readStat } from "./character-values"
 
 // The species as the sentence reads it: a lineage that names the species stands in for it ("High
 // Elf"), and one that describes it leads it ("Red Dragonborn").
-function speciesText(context: GlossaryContext, species: SrdSpecies) {
+export function speciesText(context: GlossaryContext, species: SrdSpecies) {
   const card = cardsFor(context).find((candidate) => candidate.decl.field === "species-option")
   if (card?.decl.kind !== "options") return species.label
   const option = card.decl.options.find((candidate) => candidate.id === card.chosen[0])

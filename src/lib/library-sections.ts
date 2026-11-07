@@ -1,4 +1,4 @@
-import { BookMarked, Box, FileText, LayoutGrid, Map as MapIcon, Skull, User } from "lucide-react"
+import { BookMarked, Box, FileText, LayoutGrid, Map as MapIcon, Skull } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { MONSTER_TYPES } from "./compendium-monsters"
 import { RULE_CATEGORIES } from "./rules-terms"
@@ -8,8 +8,7 @@ import type { WorldEntry } from "./world-entries"
 import { WORLD_KINDS, worldKinds } from "./world-kinds"
 import type { WorldEntryKind } from "./world-kinds"
 
-// What the library is organised by. A new section (the person's own player
-// characters, assets) is one more entry here: the column beside the library, its
+// What the library is organised by. A new section (assets, say) is one more entry here: the column beside the library, its
 // counts and the filtering read this and need no other change. A section may nest
 // others; an entry belongs to one of the deepest.
 export type LibrarySection = {
@@ -43,16 +42,6 @@ export const LIBRARY_SECTIONS: LibrarySection[] = [
   },
 ]
 
-// Player characters are not world entries, so they are not among the sections that
-// filter entries; the library page lists this one beside them, with its own contents.
-export const CHARACTERS_SECTION: LibrarySection = {
-  id: "characters",
-  label: "Characters",
-  icon: User,
-  matches: () => false,
-  makes: [],
-}
-
 // The SRD is a source of its own beside the library: read only, and not entries, so its
 // sections filter none (see srd-items). Creatures nest by type, rules by category.
 export const SRD_SECTIONS: LibrarySection[] = [
@@ -74,9 +63,13 @@ export const SRD_SECTIONS: LibrarySection[] = [
   },
 ]
 
-// What the library's tree is organised by: the two sources, each with a title.
-export const LIBRARY_GROUPS = [
-  { title: "Yours", sections: [...LIBRARY_SECTIONS, CHARACTERS_SECTION] },
+export type LibraryGroup = { title: string; hint?: string; sections: LibrarySection[] }
+
+// What the library's menu is organised by: only the person's own content.
+export const LIBRARY_GROUPS: LibraryGroup[] = [{ title: "Yours", sections: LIBRARY_SECTIONS }]
+
+// What the menu of the compendium is organised by: the SRD, creatures first and rules last.
+export const COMPENDIUM_GROUPS: LibraryGroup[] = [
   { title: SRD_LABEL, hint: "Free D&D 5e content included with Heliosyn", sections: SRD_SECTIONS },
 ]
 

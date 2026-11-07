@@ -1,10 +1,11 @@
 import type { AnimatedIconComponent } from "@/components/AnimatedIcon"
 import { BookOpenIcon } from "@/components/icons/BookOpenIcon"
+import { BookMarkedIcon } from "@/components/icons/BookMarkedIcon"
 import { CalendarFoldIcon } from "@/components/icons/CalendarFoldIcon"
+import { HouseIcon } from "@/components/icons/HouseIcon"
 import { LifeBuoyIcon } from "@/components/icons/LifeBuoyIcon"
 import { MonitorIcon } from "@/components/icons/MonitorIcon"
 import { PackageIcon } from "@/components/icons/PackageIcon"
-import { PlusIcon } from "@/components/icons/PlusIcon"
 import { ScrollTextIcon } from "@/components/icons/ScrollTextIcon"
 import { SettingsIcon } from "@/components/icons/SettingsIcon"
 import { SwordsIcon } from "@/components/icons/SwordsIcon"
@@ -47,9 +48,11 @@ export const campaignSettingsNav = (id: string): NavItem[] => [
 
 // What the sidebar shows outside a campaign.
 export const homeNav: NavItem[] = [
-  { title: "Workshop", to: "/app/workshop", icon: PlusIcon, iconClassName: "scale-125" },
+  { title: "Home", to: "/app/home", icon: HouseIcon },
   { title: "Campaigns", to: "/app/campaigns", icon: SwordsIcon },
+  { title: "Characters", to: "/app/characters", icon: UserRoundIcon },
   { title: "Library", to: "/app/library", icon: PackageIcon },
+  { title: "Compendium", to: "/app/compendium", icon: BookMarkedIcon },
 ]
 
 // The pages the command palette offers everywhere.

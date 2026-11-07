@@ -11,13 +11,13 @@ export const categoryTitle = (id: string) => RULE_CATEGORIES.find((category) => 
 
 export const ruleEntry = (id: string | undefined) => (id ? BY_ID.get(id) : undefined)
 
-// Rules have no page of their own: they are read in the library, in the panel beside the list of
+// Rules have no page of their own: they are read in the compendium, in the panel beside the list of
 // rules. `find` is a word to light up in the rule once it opens, as a search for it asks.
 export const rulesPath = (termId?: string, find?: string) => {
   const params = new URLSearchParams({ section: srdNodeId("rules") })
   if (termId) params.set("item", termId)
   if (termId && find?.trim()) params.set("find", find.trim())
-  return `/app/library?${params}`
+  return `/app/compendium?${params}`
 }
 
 const effectText = (effect: RuleEffect): string[] => [effect.label, effect.text, ...(effect.example ? [effect.example] : []), ...(effect.bullets ?? []), ...(effect.items ?? []).flatMap(effectText)]

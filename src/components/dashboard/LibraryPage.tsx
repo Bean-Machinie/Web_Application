@@ -9,7 +9,6 @@ import { LibraryDetail } from "./LibraryDetail"
 import { LibraryTabsContext } from "./LibraryTabsContext"
 import { NewMapDialog } from "./NewMapDialog"
 import { useLibraryPage } from "./useLibraryPage"
-import { useNewCharacter } from "./useNewCharacter"
 import { WorldBulkBar } from "./WorldBulkBar"
 import { WorldBulkMenu } from "./WorldBulkMenu"
 import { WorldEntryDialogs } from "./WorldEntryDialogs"
@@ -18,7 +17,6 @@ import { WorldEntryDialogs } from "./WorldEntryDialogs"
 // of the open node, and, once something is clicked, its panel of tabs at the right.
 export function LibraryPage() {
   const page = useLibraryPage()
-  const newCharacter = useNewCharacter()
   const { selection, addTo } = page
   const detail = page.tabs.tabs.length > 0
   const tabsApi = useMemo(() => ({ activeId: page.item, openNew: page.tabs.openNew }), [page.item, page.tabs.openNew])
@@ -28,7 +26,6 @@ export function LibraryPage() {
       <WorldBulkMenu selection={selection} bulk={page.bulk} onAddToCampaign={() => addTo.open(page.bulk.chosen)}>
       <LibraryContent
         page={page}
-        onNewCharacter={newCharacter.open}
         detail={detail && <LibraryDetail tabs={page.tabs} entries={page.entries} selecting={selection.active} onAddToCampaign={(entry) => addTo.open([entry])} />}
       />
       </WorldBulkMenu>
@@ -45,7 +42,6 @@ export function LibraryPage() {
       <AddToCampaignDialog target={addTo} />
       <CopyWithLinksDialog {...addTo.copyDialog} />
       <NewMapDialog open={page.making} onClose={() => page.setMaking(false)} />
-      {newCharacter.dialog}
       <WorldEntryDialogs
         renaming={page.renaming}
         deleting={page.removal.deleting}

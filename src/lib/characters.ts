@@ -19,6 +19,8 @@ export type Character = {
   updatedAt: string
   // Built quickly and not created yet.
   draft: boolean
+  // Campaigns do not attach characters yet, so this is always null for now.
+  campaignId: string | null
 }
 
 // A field the player added.
@@ -48,6 +50,7 @@ function toCharacter(row: Record<string, unknown>): Character {
     templateVersion: row.template_version as number,
     updatedAt: row.updated_at as string,
     draft: false,
+    campaignId: null,
   }
 }
 

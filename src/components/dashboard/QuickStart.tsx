@@ -91,7 +91,7 @@ export function QuickStart({ sheet, character, actions, userId }: Props) {
               saveState={sheet.saveState}
               ready={ready}
               creating={busy}
-              onBack={() => navigate(fresh ? "/app/library?section=characters" : characterPath(character.id))}
+              onBack={() => navigate(fresh ? "/app/characters" : characterPath(character.id))}
               onRules={() => setRulesOpen(true)}
               onCreate={create}
             />

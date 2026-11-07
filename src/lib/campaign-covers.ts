@@ -23,6 +23,9 @@ export const DEFAULT_COVERS: DefaultCover[] = [
   { id: "nightfall", label: "Nightfall", colors: ["#14161f", "#4a4f78"] },
 ]
 
+// What a campaign without a picture shows where a square cover is wanted.
+export const FALLBACK_COVER_IMAGE = "/templates/starter-village/willowbrook.webp"
+
 export const gradientOf = ({ colors }: DefaultCover) =>
   `linear-gradient(135deg, ${colors[0]}, ${colors[1]})`
 

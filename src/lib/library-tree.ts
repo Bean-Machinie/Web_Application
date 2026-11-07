@@ -1,4 +1,4 @@
-import { LIBRARY_GROUPS } from "./library-sections"
+import { LIBRARY_GROUPS, COMPENDIUM_GROUPS } from "./library-sections"
 import type { LibrarySection } from "./library-sections"
 
 export type LibraryRow = { section: LibrarySection; depth: number }
@@ -18,4 +18,4 @@ export function libraryRows(sections: LibrarySection[], collapsed: ReadonlySet<s
 
 // What a node is called, for the search that is scoped to it.
 export const nodeLabel = (id: string) =>
-  libraryRows(LIBRARY_GROUPS.flatMap((group) => group.sections), new Set()).find((row) => row.section.id === id)?.section.label ?? "library"
+  libraryRows([...LIBRARY_GROUPS, ...COMPENDIUM_GROUPS].flatMap((group) => group.sections), new Set()).find((row) => row.section.id === id)?.section.label ?? "library"

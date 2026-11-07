@@ -15,6 +15,8 @@ import { Campaigns } from "@/pages/Campaigns"
 import { CharacterStartRoute } from "@/pages/CharacterStart"
 import { CharacterSheetPage } from "@/pages/CharacterSheet"
 import { Characters } from "@/pages/Characters"
+import { Compendium } from "@/pages/Compendium"
+import { Home } from "@/pages/Home"
 import { CreateAccount } from "@/pages/CreateAccount"
 import { ForgotPassword } from "@/pages/ForgotPassword"
 import { Invite } from "@/pages/Invite"
@@ -24,12 +26,14 @@ import { Journal } from "@/pages/Journal"
 import { Legal } from "@/pages/Legal"
 import { Library } from "@/pages/Library"
 import { LibrarySrd } from "@/pages/LibrarySrd"
+import { LibrarySrdRedirect } from "@/pages/LibrarySrdRedirect"
 import { MapBuild } from "@/pages/MapBuild"
 import { NewCampaign } from "@/pages/NewCampaign"
 import { Overview } from "@/pages/Overview"
 import { Party } from "@/pages/Party"
 import { ResetPassword } from "@/pages/ResetPassword"
 import { RootRedirect } from "@/pages/RootRedirect"
+import { RulesRedirect } from "@/pages/RulesRedirect"
 import { SrdRedirect } from "@/pages/SrdRedirect"
 import { Sessions } from "@/pages/Sessions"
 import { LogIn } from "@/pages/LogIn"
@@ -37,7 +41,7 @@ import { SettingsRedirect } from "@/pages/SettingsRedirect"
 import { Support } from "@/pages/Support"
 import { World } from "@/pages/World"
 import { WorldEntry } from "@/pages/WorldEntry"
-import { Workshop } from "@/pages/Workshop"
+import { YourCharacters } from "@/pages/YourCharacters"
 
 export default function App() {
   useTouchGuest()
@@ -57,7 +61,10 @@ export default function App() {
         <Route path="/invite" element={<Invite />} />
         <Route element={<CampaignShell />}>
           <Route path="/app" element={<DashboardLayout />}>
-            <Route index element={<Navigate to="workshop" replace />} />
+            <Route index element={<Navigate to="home" replace />} />
+            <Route path="home" element={<LibraryWorldScope />}>
+              <Route index element={<Home />} />
+            </Route>
             <Route path="campaigns" element={<Campaigns />} />
             <Route path="campaigns/new" element={<NewCampaign />} />
             <Route path="campaigns/join" element={<JoinCampaign />} />
@@ -85,18 +92,22 @@ export default function App() {
                 <Route path="advanced" element={<CampaignSettingsAdvanced />} />
               </Route>
             </Route>
+            <Route path="characters" element={<YourCharacters />} />
             <Route path="characters/:characterId" element={<CharacterSheetPage />} />
             <Route path="characters/:characterId/start" element={<CharacterStartRoute />} />
-            <Route path="create" element={<Navigate to="/app/workshop" replace />} />
-            <Route path="workshop" element={<LibraryWorldScope />}>
-              <Route index element={<Workshop />} />
-            </Route>
+            <Route path="create" element={<Navigate to="/app/home" replace />} />
+            <Route path="workshop" element={<Navigate to="/app/home" replace />} />
             <Route path="library" element={<LibraryWorldScope />}>
               <Route index element={<Library />} />
-              <Route path="srd/:section?/:itemId?" element={<LibrarySrd />} />
+              <Route path="srd/:section?/:itemId?" element={<LibrarySrdRedirect />} />
               <Route path=":entryId" element={<WorldEntry />} />
               <Route path=":entryId/build" element={<MapBuild />} />
             </Route>
+            <Route path="compendium" element={<LibraryWorldScope />}>
+              <Route index element={<Compendium />} />
+              <Route path=":section/:itemId?" element={<LibrarySrd />} />
+            </Route>
+            <Route path="rules/*" element={<RulesRedirect />} />
             <Route path="settings" element={<SettingsRedirect />} />
             <Route path="settings/:tab" element={<SettingsRedirect />} />
             <Route path="support" element={<Support />} />

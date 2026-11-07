@@ -5,12 +5,14 @@ import { BreadcrumbContext } from "./BreadcrumbContext"
 import { campaignNav, campaignSettingsNav } from "./nav-items"
 import { useRouteCampaign } from "./useCurrentCampaign"
 
-// Pages outside a campaign that are not the workshop.
+// Pages outside a campaign that are not Home.
 const userPages = [
   { title: "Support", to: "/app/support" },
   { title: "Legal notices", to: "/app/legal" },
-  { title: "Workshop", to: "/app/workshop" },
+  { title: "Home", to: "/app/home" },
+  { title: "Characters", to: "/app/characters" },
   { title: "Library", to: "/app/library" },
+  { title: "Compendium", to: "/app/compendium" },
   { title: "New campaign", to: "/app/campaigns/new" },
   { title: "Join campaign", to: "/app/campaigns/join" },
   { title: "Campaigns", to: "/app/campaigns" },
@@ -45,5 +47,5 @@ export function usePageCrumbs(): Crumb[] {
   }
 
   const page = userPages.find((item) => pathname.startsWith(item.to))
-  return [{ label: page?.title ?? "Workshop" }]
+  return [{ label: page?.title ?? "Home" }]
 }

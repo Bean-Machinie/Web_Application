@@ -1,3 +1,5 @@
+import type { WorldEntry } from "./world-entries"
+
 // The picture of the map builder for its card, if the file has been put in place;
 // null until then. Looked up with a glob so a missing file is no build error.
 const found = import.meta.glob<string>("/src/assets/tools/map-builder.png", {
@@ -7,6 +9,17 @@ const found = import.meta.glob<string>("/src/assets/tools/map-builder.png", {
 })
 
 export const MAP_BUILDER_IMAGE: string | null = Object.values(found)[0] ?? null
+
+// Until the builder has a picture of its own, the newest map that has one.
+export function mapToolImage(entries: WorldEntry[] | null) {
+  if (MAP_BUILDER_IMAGE) return MAP_BUILDER_IMAGE
+  const withImage = (entries ?? []).filter((entry) => entry.kind === "map" && entry.imageUrl)
+  withImage.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+  return withImage[0]?.imageUrl ?? null
+}
+
+// What stands in for a picture on the tile that starts a campaign.
+export const NEW_CAMPAIGN_IMAGE = "/templates/starter-village/forest-road.webp"
 
 // An NPC portrait of the starter village, until the creator has a picture of its own.
 export const CHARACTER_CREATOR_IMAGE = "/templates/starter-village/captain-mara-dorn.webp"

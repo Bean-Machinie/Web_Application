@@ -14,7 +14,7 @@ import { SidebarBrand } from "./SidebarBrand"
 import { SidebarSearch } from "./SidebarSearch"
 import { useRouteCampaign } from "./useCurrentCampaign"
 
-// Two modes: the home pages show Campaigns and the library; inside a campaign
+// Two modes: the home pages show Home, Campaigns, Characters, the library and the rules; inside a campaign
 // the sidebar is about that campaign alone.
 export function AppSidebar() {
   const inCampaign = useMatch("/app/c/:campaignId/*") !== null

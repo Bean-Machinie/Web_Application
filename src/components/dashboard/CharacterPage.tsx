@@ -3,8 +3,10 @@ import { FormAlert } from "@/components/auth/FormAlert"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCharacter } from "@/hooks/use-character"
 import { useDiscardUntitledCharacter } from "@/hooks/use-discard-untitled-character"
+import { characterPath } from "@/lib/characters"
 import { CharacterSheet } from "./CharacterSheet"
 import { usePageTrail } from "./usePageTrail"
+import { useRecordRecent } from "./useRecordRecent"
 
 // A character's sheet. Render with key={id} so moving between characters starts over.
 export function CharacterPage({ id }: { id: string }) {
@@ -14,7 +16,17 @@ export function CharacterPage({ id }: { id: string }) {
   // it is left unnamed and empty.
   const fresh = (useLocation().state as { justCreated?: boolean } | null)?.justCreated === true
   useDiscardUntitledCharacter(fresh, character, sheet.fields, sheet.values)
-  usePageTrail([{ label: "Library", to: "/app/library?section=characters" }, { label: character?.name ?? "…" }])
+  usePageTrail([{ label: "Characters", to: "/app/characters" }, { label: character?.name ?? "…" }])
+
+  useRecordRecent(
+    character && {
+      key: `character:${character.id}`,
+      name: character.name,
+      path: characterPath(character.id),
+      context: "Character",
+      visual: { type: "character", imageUrl: character.portrait?.url ?? null },
+    }
+  )
 
   if (sheet.error && !character) return <FormAlert tone="error">{sheet.error}</FormAlert>
   if (character === undefined || !sheet.loaded) return <Skeleton className="h-24 w-full" />

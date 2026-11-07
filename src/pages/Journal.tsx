@@ -58,7 +58,7 @@ export function Journal() {
   useEffect(
     () =>
       interceptPalette((path) => {
-        const found = path.match(new RegExp(`^(?:/app/c/${current.id}/(world|journal)|/app/library/srd/(rules|creatures))/([^/?#]+)$`))
+        const found = path.match(new RegExp(`^(?:/app/c/${current.id}/(world|journal)|/app/compendium/(rules|creatures))/([^/?#]+)$`))
         if (!found) return false
         const [, campaignPart, srdPart, itemId] = found
         if (srdPart === "rules") requestRuleScroll(itemId)

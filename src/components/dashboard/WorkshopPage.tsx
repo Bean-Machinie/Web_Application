@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { useCreateEntry } from "@/hooks/use-create-entry"
 import { useWorldEntries } from "@/hooks/use-world-entries"
-import { MAP_BUILDER_IMAGE } from "@/lib/tool-images"
+import { mapToolImage } from "@/lib/tool-images"
 import { CreateEntries } from "./CreateEntries"
 import { CreateTools } from "./CreateTools"
 import { NewMapDialog } from "./NewMapDialog"
@@ -19,13 +19,7 @@ export function WorkshopPage() {
   const newCharacter = useNewCharacter()
   const [makingMap, setMakingMap] = useState(false)
 
-  // Until the builder has a picture of its own, the newest map that has one.
-  const toolImage = useMemo(() => {
-    if (MAP_BUILDER_IMAGE) return MAP_BUILDER_IMAGE
-    const withImage = (entries ?? []).filter((entry) => entry.kind === "map" && entry.imageUrl)
-    withImage.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
-    return withImage[0]?.imageUrl ?? null
-  }, [entries])
+  const toolImage = useMemo(() => mapToolImage(entries), [entries])
 
   return (
     <>

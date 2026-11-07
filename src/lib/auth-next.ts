@@ -1,4 +1,4 @@
-export const APP_HOME = "/app/workshop"
+export const APP_HOME = "/app/home"
 
 // Only in-app paths are allowed, so a crafted link cannot send someone off-site.
 export function safeNext(next: string | null) {

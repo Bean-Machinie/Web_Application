@@ -49,7 +49,7 @@ export function CharacterSheet({ sheet, character, fresh }: Props) {
   async function remove() {
     try {
       await deleteCharacter(character.id, character.portrait?.path)
-      navigate("/app/library?section=characters")
+      navigate("/app/characters")
     } catch (error) {
       setFailure(errorMessage(error))
       setDeleting(false)

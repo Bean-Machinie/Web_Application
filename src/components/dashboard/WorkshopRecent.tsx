@@ -35,7 +35,7 @@ function groupByDay(items: RecentEntry[], by: RecentBy) {
 // changes: the rows turn into a skeleton of the same shape while the new ones load.
 // Whether room is made for it before loading follows what it held last time, so the
 // left side does not shift. With nothing to show it takes no room at all.
-export function WorkshopRecent() {
+export function WorkshopRecent({ className = SIDE }: { className?: string }) {
   const { campaigns } = useCampaign()
   const [by, setBy] = useState<RecentBy>("updated")
   const running = useMemo(
@@ -60,7 +60,7 @@ export function WorkshopRecent() {
     <LoadingGate
       loading={entries === null}
       className={
-        entries ? (entries.length > 0 ? SIDE : "hidden") : hadRecent ? SIDE : "hidden"
+        entries ? (entries.length > 0 ? className : "hidden") : hadRecent ? className : "hidden"
       }
       skeleton={
         <RecentCard by={by} onBy={setBy}>

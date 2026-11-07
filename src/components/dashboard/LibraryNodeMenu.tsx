@@ -5,12 +5,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useStoredValue } from "@/hooks/use-stored-value"
-import { LIBRARY_GROUPS } from "@/lib/library-sections"
+import type { LibraryGroup } from "@/lib/library-sections"
 import { libraryRows } from "@/lib/library-tree"
 import { readIds, writeIds } from "@/lib/stored-ids"
 import { LibraryNodeRow } from "./LibraryNodeRow"
 
 type Props = {
+  // The groups of nodes to choose from: the library's or the rules'.
+  groups: LibraryGroup[]
   active: string
   // Null where a count is not known yet.
   count: (sectionId: string) => number | null
@@ -20,12 +22,12 @@ type Props = {
 // Whatever is open is shown unfolded, so the node can always be seen in the list.
 const ancestorsOf = (id: string) => id.split(":").slice(0, -1).map((_, at, parts) => parts.slice(0, at + 1).join(":"))
 
-// What the library shows, chosen from one drop-down in the toolbar in place of a tree at the side:
-// Yours and the SRD, each a group of nodes that fold. Choosing a node closes it.
-export function LibraryNodeMenu({ active, count, onSelect }: Props) {
+// What the library or the rules show, chosen from one drop-down in the toolbar in place of a tree at the side:
+// each a group of nodes that fold. Choosing a node closes it.
+export function LibraryNodeMenu({ groups, active, count, onSelect }: Props) {
   const [open, setOpen] = useState(false)
   const [unfolded, setUnfolded] = useStoredValue("library-menu-open", readIds, writeIds)
-  const everything = libraryRows(LIBRARY_GROUPS.flatMap((group) => group.sections), new Set())
+  const everything = libraryRows(groups.flatMap((group) => group.sections), new Set())
   const current = everything.find((row) => row.section.id === active)
   // The icon of the top node it is under, as nested nodes have none of their own.
   const top = [...everything.slice(0, everything.indexOf(current!) + 1)].reverse().find((row) => row.depth === 0)
@@ -42,7 +44,7 @@ export function LibraryNodeMenu({ active, count, onSelect }: Props) {
     <div className="my-auto w-56 max-w-full">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" aria-label="Library section" className="w-full justify-between font-normal">
+          <Button variant="outline" aria-label="Section" className="w-full justify-between font-normal">
             <span className="flex min-w-0 items-center gap-2">
               {Icon && <Icon className="text-muted-foreground" />}
               <span className="truncate">{current?.section.label}</span>
@@ -54,7 +56,7 @@ export function LibraryNodeMenu({ active, count, onSelect }: Props) {
           </Button>
         </PopoverTrigger>
         <PopoverContent align="start" sideOffset={4} className="max-h-[min(32rem,var(--radix-popover-content-available-height))] w-72 gap-0 overflow-y-auto p-1">
-          {LIBRARY_GROUPS.map((group, index) => {
+          {groups.map((group, index) => {
             const folded = group.sections.filter((section) => section.children && !shown.has(section.id)).map((section) => section.id)
             const rows = libraryRows(group.sections, new Set(folded))
             return (
@@ -62,7 +64,7 @@ export function LibraryNodeMenu({ active, count, onSelect }: Props) {
                 {index > 0 && <Separator className="bg-border-strong my-1" />}
                 <h2 className="text-muted-foreground flex items-center gap-1.5 px-2 pt-1.5 pb-1 text-xs font-medium">
                   {group.title}
-                  {"hint" in group && (
+                  {group.hint && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button type="button" aria-label={`About ${group.title}`} className="outline-none">

@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 type Props = {
   name: string
@@ -9,18 +10,19 @@ type Props = {
   // The tile itself; a plain surface when there is none.
   image: string | null
   onOpen: () => void
+  className?: string
 }
 
 // A tool as a square picture, like a card in an app store: its icon and name at the
 // bottom left, on a fade so they read over any picture. The whole tile is one button.
 // On hover or focus the picture grows a little inside its frame, the frame takes a
 // ring in the primary colour and an "Open" chip shows at the corner.
-export function ToolTile({ name, tagline, icon: ToolIcon, image, onOpen }: Props) {
+export function ToolTile({ name, tagline, icon: ToolIcon, image, onOpen, className }: Props) {
   return (
     <button
       type="button"
       onClick={onOpen}
-      className="group/tile bg-muted focus-visible:border-primary focus-visible:ring-primary hover:border-primary hover:ring-primary relative block aspect-square w-full overflow-hidden rounded-lg border text-left outline-none transition-[border-color,box-shadow] duration-150 hover:ring-1 focus-visible:ring-1"
+      className={cn("group/tile bg-muted focus-visible:border-primary focus-visible:ring-primary hover:border-primary hover:ring-primary relative block aspect-square w-full overflow-hidden rounded-lg border text-left outline-none transition-[border-color,box-shadow] duration-150 hover:ring-1 focus-visible:ring-1", className)}
     >
       {image && (
         <img

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { useCharacters } from "@/hooks/use-characters"
 import { useCreateEntry } from "@/hooks/use-create-entry"
 import { useEntrySelection } from "@/hooks/use-entry-selection"
 import { useLibraryScenes } from "@/hooks/use-library-scenes"
@@ -8,14 +7,11 @@ import { useWorldBulk } from "@/hooks/use-world-bulk"
 import { useWorldEntries } from "@/hooks/use-world-entries"
 import { useWorldEntryDelete } from "@/hooks/use-world-entry-delete"
 import { useWorldSearchText } from "@/hooks/use-world-search-text"
-import { useStoredValue } from "@/hooks/use-stored-value"
 import { useWorldViewMode } from "@/hooks/use-world-view-mode"
-import type { WorldViewMode } from "@/hooks/use-world-view-mode"
 import { currentKindName } from "@/lib/legacy-kinds"
 import { changedWithin } from "@/lib/library-recency"
 import type { Recency } from "@/lib/library-recency"
-import { CHARACTERS_SECTION, countIn, findSection, hasGraph } from "@/lib/library-sections"
-import { isSrdNode, srdCount } from "@/lib/srd-items"
+import { countIn, findSection, hasGraph } from "@/lib/library-sections"
 import type { WorldEntry } from "@/lib/world-entries"
 import type { WorldEntryKind } from "@/lib/world-kinds"
 import { viewEntries } from "@/lib/world-list"
@@ -24,8 +20,6 @@ import { useAddToCampaign } from "./useAddToCampaign"
 import { useLibraryTabs } from "./useLibraryTabs"
 import { useWorldScope } from "./useWorldScope"
 import { createWorldManage } from "./world-manage"
-
-const readRulesMode = (text: string | null): WorldViewMode => (text === "grid" ? "grid" : "list")
 
 export type LibraryPageState = ReturnType<typeof useLibraryPage>
 
@@ -37,17 +31,13 @@ export function useLibraryPage() {
   const { entries, error, reload, setRevealed, reorder } = useWorldEntries(scope)
   const [params, setParams] = useSearchParams()
   const askedNode = params.get("section")
-  // The node of the tree that is open: one of the library's sections, or a node of the SRD.
-  const nodeId = askedNode?.startsWith("srd:") ? askedNode : (currentKindName(askedNode) ?? "all")
-  const onSrd = isSrdNode(nodeId)
-  const section = nodeId === CHARACTERS_SECTION.id ? CHARACTERS_SECTION : findSection(onSrd ? "all" : nodeId)
+  // The node of the tree that is open: one of the library's sections.
+  const nodeId = currentKindName(askedNode) ?? "all"
+  const section = findSection(nodeId)
   const tabs = useLibraryTabs(nodeId)
-  const { characters } = useCharacters()
   const [query, setQuery] = useState("")
   const [recency, setRecency] = useState<Recency>("any")
   const [chosenMode, setMode] = useWorldViewMode()
-  // The rules read better as a list, so that is where they start.
-  const [rulesMode, setRulesMode] = useStoredValue("library-rules-view", readRulesMode)
   const [sort, setSort] = useState<Sort>(null)
   const createEntry = useCreateEntry(scope)
   const [making, setMaking] = useState(false)
@@ -59,9 +49,7 @@ export function useLibraryPage() {
   const scenes = useLibraryScenes(entries)
 
   // The graph is only for world entries; elsewhere the cards are shown instead.
-  const onRules = nodeId.startsWith("srd:rules")
-  const picked = onRules ? rulesMode : chosenMode
-  const mode = picked === "graph" && (onSrd || !hasGraph(section)) ? "grid" : picked
+  const mode = chosenMode === "graph" && !hasGraph(section) ? "grid" : chosenMode
   const searchText = useWorldSearchText(scope, query.trim() !== "")
   const sortBy = mode === "list" ? sort : null
   const shown = useMemo(
@@ -116,14 +104,11 @@ export function useLibraryPage() {
   }, [wanted, setParams])
 
   return {
-    entries, error, reload, section, nodeId, onSrd, tabs, item: tabs.activeTab?.id ?? null, mode, setMode: onRules ? setRulesMode : setMode, sort, setSort,
+    entries, error, reload, section, nodeId, tabs, item: tabs.activeTab?.id ?? null, mode, setMode, sort, setSort,
     query, setQuery, recency, setRecency, shown, selection, bulk, manage, addTo, removal,
     making, setMaking, renaming, setRenaming, actionError, make,
     // Moving to another node leaves the tabs open.
     setSection: (id: string) => setParams(id === "all" ? {} : { section: id }, { replace: true }),
-    count: (id: string) => {
-      if (isSrdNode(id)) return srdCount(id)
-      return id === CHARACTERS_SECTION.id ? (characters?.length ?? null) : countIn(findSection(id), entries)
-    },
+    count: (id: string) => countIn(findSection(id), entries),
   }
 }
