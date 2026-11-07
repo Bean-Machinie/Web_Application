@@ -14,7 +14,7 @@ import { KindLabel } from "./KindLabel"
 import { MemberMenu } from "./MemberMenu"
 import { RevealButton } from "./RevealButton"
 import { StatusMarker } from "./StatusMarker"
-import { openInNewTab } from "./openInNewTab"
+import { addToCampaignAction, openInNewTab } from "./openInNewTab"
 import { useEntryPanel } from "./useEntryPanel"
 import { useWorldScope } from "./useWorldScope"
 import type { WorldManage } from "./world-manage"
@@ -34,9 +34,11 @@ type Props = {
   highlighted?: boolean
   // What the panel opens it by when that is not the entry's own id (an SRD creature's).
   itemId?: string
+  // Add to campaign, for an SRD creature; entries have it among their own actions.
+  onAdd?: () => void
 }
 
-export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, icon, highlighted, itemId }: Props) {
+export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, icon, highlighted, itemId, onAdd }: Props) {
   const { hasVisibility, imageFolder } = useWorldScope()
   const panel = useEntryPanel()
   const selected = (selection?.isSelected(entry.id) ?? false) || (highlighted ?? panel.openId === entry.id)
@@ -66,7 +68,7 @@ export function WorldEntryCard({ entry, manage, selection, wide, to, subtitle, i
     },
   ]
 
-  const menu = [...openInNewTab(panel.openNew, itemId ?? entry.id), ...(actions ?? [])]
+  const menu = [...openInNewTab(panel.openNew, itemId ?? entry.id), ...(onAdd ? [addToCampaignAction(onAdd)] : []), ...(actions ?? [])]
 
   return (
     <ActionContextMenu actions={menu}>

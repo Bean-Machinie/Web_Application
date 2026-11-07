@@ -11,6 +11,7 @@ import { errorMessage } from "@/lib/campaigns"
 import type { Campaign } from "@/lib/campaigns"
 import type { Monster } from "@/lib/compendium-monsters"
 import { WORLD_KINDS } from "@/lib/world-kinds"
+import { CampaignPickList } from "./CampaignPickList"
 import { useCampaign } from "./useCampaign"
 import { useRouteCampaign } from "./useCurrentCampaign"
 
@@ -46,11 +47,11 @@ export function AddMonsterDialog({ monster, open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && !busy && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" onOpenAutoFocus={(event) => event.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Add to campaign</DialogTitle>
           <DialogDescription>
-            {campaign ? `${monster.name} becomes a hidden entry in ${campaign.name}, with its own copy of the stat block.` : `Pick the campaign to add ${monster.name} to.`}
+            {campaign ? `${monster.name} becomes a hidden entry in ${campaign.name}, with its own copy of the stat block.` : `${monster.name} will be copied into the world of the campaign you pick. It starts hidden, with its own copy of the stat block.`}
           </DialogDescription>
         </DialogHeader>
         {error && <FormAlert tone="error">{error}</FormAlert>}
@@ -67,18 +68,8 @@ export function AddMonsterDialog({ monster, open, onClose }: Props) {
               )
             })}
           </div>
-        ) : manageable.length === 0 ? (
-          <p className="text-muted-foreground py-6 text-center text-sm">You do not manage the world of any campaign yet.</p>
         ) : (
-          <ul className="flex max-h-80 flex-col gap-1 overflow-y-auto">
-            {manageable.map((option) => (
-              <li key={option.id}>
-                <button type="button" onClick={() => setPicked(option)} className="hover:bg-accent focus-visible:ring-ring w-full truncate rounded-lg p-2 text-left font-medium outline-none focus-visible:ring-2">
-                  {option.name}
-                </button>
-              </li>
-            ))}
-          </ul>
+          <CampaignPickList campaigns={manageable} busy={busy} onPick={setPicked} />
         )}
       </DialogContent>
     </Dialog>

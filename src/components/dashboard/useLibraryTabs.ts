@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 import { useStoredValue } from "@/hooks/use-stored-value"
-import { closeTab, openTab, readTabs, tabKindFor, writeTabs } from "@/lib/library-tabs"
+import { backTab, closeTab, followRule, openTab, readTabs, tabKindFor, writeTabs } from "@/lib/library-tabs"
 
 export type LibraryTabsState = ReturnType<typeof useLibraryTabs>
 
@@ -35,7 +35,8 @@ export function useLibraryTabs(nodeId: string) {
     show: (index: number) => setState({ ...state, active: index }),
     close: (index: number) => setState(closeTab(state, index)),
     openNew: (id: string) => setState(openTab(state, { kind: tabKindFor(nodeId), id }, "new")),
-    // A rule linked from a creature opens beside it; from a rule, it takes that tab.
-    openRule: (id: string) => setState(openTab(state, { kind: "rule", id }, activeTab?.kind === "rule" ? "here" : "new")),
+    // A link inside the tab to a rule: the tab shows it, with a way back to what it showed.
+    openRule: (id: string) => setState(followRule(state, id)),
+    back: () => setState(backTab(state)),
   }
 }

@@ -11,6 +11,8 @@ type Props = {
   monster: Monster | undefined
   rule: RuleEntry | undefined
   onSelectRule: (termId: string) => void
+  // One step back along the links followed in this tab.
+  back?: { title: string; go: () => void }
 }
 
 // The entry's own page, the existing rule term view, or the read-only creature view. The entry's
@@ -18,7 +20,7 @@ type Props = {
 // its own that is not shown.
 const OWN_TRAIL = { trail: null, setTrail: () => {} }
 
-export function LibraryDetailBody({ tab, monster, rule, onSelectRule }: Props) {
+export function LibraryDetailBody({ tab, monster, rule, onSelectRule, back }: Props) {
   if (tab.kind === "entry") {
     return (
       <BreadcrumbContext.Provider value={OWN_TRAIL}>
@@ -29,6 +31,6 @@ export function LibraryDetailBody({ tab, monster, rule, onSelectRule }: Props) {
     )
   }
   if (monster) return <SrdCreatureBody monster={monster} />
-  if (rule) return <RuleTermView termId={rule.id} onSelect={onSelectRule} />
+  if (rule) return <RuleTermView termId={rule.id} onSelect={onSelectRule} back={back} />
   return <p className="text-muted-foreground text-sm">This is not in the SRD.</p>
 }

@@ -1,3 +1,4 @@
+import { useContext } from "react"
 import type { ReactNode } from "react"
 import { useNavigate } from "react-router-dom"
 import { TableRow } from "@/components/ui/table"
@@ -5,7 +6,8 @@ import type { EntrySelection } from "@/hooks/use-entry-selection"
 import type { useRowReorder } from "@/hooks/use-row-reorder"
 import type { WorldEntry } from "@/lib/world-entries"
 import { ActionContextMenu } from "./ActionContextMenu"
-import { openInNewTab } from "./openInNewTab"
+import { addToCampaignAction, openInNewTab } from "./openInNewTab"
+import { WorldTableContext } from "./WorldTableContext"
 import { SelectHint } from "./SelectHint"
 import { useEntryPanel } from "./useEntryPanel"
 import { useWorldScope } from "./useWorldScope"
@@ -26,11 +28,12 @@ export function WorldEntryRow({ entry, selection, managed, rowProps, children }:
   const navigate = useNavigate()
   const { hasVisibility } = useWorldScope()
   const panel = useEntryPanel()
+  const { manage } = useContext(WorldTableContext)
   const hidden = hasVisibility && !entry.revealed
   const selected = (selection?.isSelected(entry.id) ?? false) || panel.openId === entry.id
 
   const row = (
-    <ActionContextMenu actions={openInNewTab(panel.openNew, entry.id)}>
+    <ActionContextMenu actions={[...openInNewTab(panel.openNew, entry.id), ...(manage?.onAddToCampaign ? [addToCampaignAction(() => manage.onAddToCampaign!(entry))] : [])]}>
     <TableRow
       // The whole row opens the entry. A click handler, not a link
       // stretched over the row: phone browsers do not treat a

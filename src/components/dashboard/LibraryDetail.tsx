@@ -23,6 +23,10 @@ export function LibraryDetail({ page }: { page: LibraryPageState }) {
   const monster = showing && "monster" in showing ? showing.monster : undefined
   const rule = showing && "rule" in showing ? showing.rule : undefined
 
+  const last = active?.trail?.at(-1)
+  const previous = last && describeLibraryTab(last, page.entries, basePath)
+  const back = previous && { title: previous.title, go: tabs.back }
+
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape" || event.defaultPrevented || isTyping(event.target)) return
@@ -62,8 +66,8 @@ export function LibraryDetail({ page }: { page: LibraryPageState }) {
           )}
         </div>
       </PanelHeader>
-      <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-6">
-        {active && <LibraryDetailBody tab={active} monster={monster} rule={rule} onSelectRule={tabs.openRule} />}
+      <div key={active ? `${active.kind}:${active.id}` : "none"} className="min-h-0 flex-1 overflow-y-auto p-4 pb-6">
+        {active && <LibraryDetailBody tab={active} monster={monster} rule={rule} onSelectRule={tabs.openRule} back={back} />}
       </div>
     </div>
   )

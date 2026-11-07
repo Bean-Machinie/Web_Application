@@ -45,6 +45,8 @@ export function LibraryContent({ page, onNewCharacter }: Props) {
   const searching = page.query.trim() !== "" || page.recency !== "any"
   const problem = page.error ?? page.actionError
   const grouped = section.id === "all" && mode === "grid" && !searching
+  // A table starts right under the toolbar so its header is fixed there; cards have space above them.
+  const flush = mode === "list" && !onCharacters
   const modes: WorldViewMode[] = !onSrd && hasGraph(section) ? ["list", "grid", "graph"] : ["list", "grid"]
   const filters = onSrd ? srd.filters : [{ ...RECENCY, value: page.recency, onChange: (value: string) => page.setRecency(value as Recency) }]
 
@@ -72,7 +74,10 @@ export function LibraryContent({ page, onNewCharacter }: Props) {
           )}
         </div>
       </PanelHeader>
-      <div style={{ "--collection-top": "0px" } as CSSProperties} className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-4">
+      {/* No top padding on the scroller itself: the table's header sticks at its top edge, and rows
+          must not show above it. */}
+      <div style={{ "--collection-top": "0px" } as CSSProperties} className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+        <div className={cn("flex min-h-full flex-col gap-5", !flush && "pt-4")}>
         {problem && <FormAlert tone="error">{problem}</FormAlert>}
         {onSrd ? (
           <SrdResults creatures={srd.creatures} rules={srd.rules} mode={mode} size={page.cardSize} openId={page.item} showTag={!nodeId.startsWith("srd:rules:") || searching} />
@@ -106,6 +111,7 @@ export function LibraryContent({ page, onNewCharacter }: Props) {
             }
           </LoadingGate>
         )}
+        </div>
       </div>
     </div>
   )

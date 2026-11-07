@@ -1,7 +1,9 @@
 import { isSrdNode, srdSectionOf } from "./srd-items"
 
 // A tab of the library's detail panel: a world entry, an SRD creature or an SRD rule.
-export type LibraryTab = { kind: "entry" | "creature" | "rule"; id: string }
+export type LibraryStep = { kind: "entry" | "creature" | "rule"; id: string }
+// `trail` is where a link inside the tab was followed from, the last being the one to go back to.
+export type LibraryTab = LibraryStep & { trail?: LibraryStep[] }
 export type LibraryTabs = { tabs: LibraryTab[]; active: number }
 
 export const NO_TABS: LibraryTabs = { tabs: [], active: 0 }
@@ -31,6 +33,25 @@ export function openTab(state: LibraryTabs, tab: LibraryTab, where: "here" | "ne
   if (at >= 0) return { ...state, active: at }
   if (where === "here" && state.tabs.length > 0) return { ...state, tabs: state.tabs.map((open, i) => (i === state.active ? tab : open)) }
   return { tabs: [...state.tabs, tab], active: state.tabs.length }
+}
+
+// A link inside the tab to a rule: the tab shows the rule, and keeps what it showed to go back to.
+export function followRule(state: LibraryTabs, id: string): LibraryTabs {
+  const current = state.tabs[state.active]
+  if (!current) return openTab(state, { kind: "rule", id }, "new")
+  if (current.kind === "rule" && current.id === id) return state
+  const step: LibraryStep = { kind: current.kind, id: current.id }
+  const tab: LibraryTab = { kind: "rule", id, trail: [...(current.trail ?? []), step] }
+  return { ...state, tabs: state.tabs.map((open, i) => (i === state.active ? tab : open)) }
+}
+
+export function backTab(state: LibraryTabs): LibraryTabs {
+  const current = state.tabs[state.active]
+  const trail = current?.trail ?? []
+  if (trail.length === 0) return state
+  const previous = trail[trail.length - 1]
+  const tab: LibraryTab = { ...previous, trail: trail.slice(0, -1) }
+  return { ...state, tabs: state.tabs.map((open, i) => (i === state.active ? tab : open)) }
 }
 
 export function closeTab(state: LibraryTabs, index: number): LibraryTabs {

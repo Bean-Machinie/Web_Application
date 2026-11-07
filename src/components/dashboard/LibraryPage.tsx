@@ -23,7 +23,7 @@ import { WorldEntryDialogs } from "./WorldEntryDialogs"
 // a journal pane, its tab and body; the cards are on the page's own background.
 export function LibraryPage() {
   const page = useLibraryPage()
-  const side = useJournalSide("library")
+  const side = useJournalSide("library", false)
   const newCharacter = useNewCharacter()
   const { selection, addTo } = page
   const detail = page.tabs.tabs.length > 0
