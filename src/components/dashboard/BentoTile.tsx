@@ -22,6 +22,9 @@ type Props = {
   area: BentoArea
   // Two squares wide: the text in the left square, the art filling the right one.
   wide?: boolean
+  // A wide tile's art across the whole tile instead, with the text in the right square; the art
+  // fades itself away from the text.
+  artAcross?: boolean
   // Its picture, drawn over the faint flickering grid; given as a function it is told whether the tile is hot.
   art?: ReactNode | ((hot: boolean) => ReactNode)
   // Over the art's square but outside the tile's clipping, for what flies past its edges.
@@ -39,7 +42,7 @@ const fade: CSSProperties = { maskImage: FROM_LEFT, WebkitMaskImage: FROM_LEFT }
 // gradient; a wide one has its text in the left square and its art in the right. Pointed at, or holding
 // the keyboard focus, it rises a little and its border firms up, and what is inside can play its own
 // hover through useTileHot.
-export function BentoTile({ area, wide = false, art, float, onHot, children }: Props) {
+export function BentoTile({ area, wide = false, artAcross = false, art, float, onHot, children }: Props) {
   const reduced = useReducedMotion()
   const [hot, setHot] = useState(false)
   const turn = (next: boolean) => {
@@ -50,7 +53,7 @@ export function BentoTile({ area, wide = false, art, float, onHot, children }: P
   const onBlur = (event: FocusEvent<HTMLDivElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget)) turn(false)
   }
-  const square = wide ? "absolute inset-y-0 right-0 aspect-square max-w-[50%]" : "absolute inset-0"
+  const square = wide && !artAcross ? "absolute inset-y-0 right-0 aspect-square max-w-[50%]" : "absolute inset-0"
 
   return (
     <TileHotContext.Provider value={hot}>
@@ -68,7 +71,7 @@ export function BentoTile({ area, wide = false, art, float, onHot, children }: P
         <div className={cn("bg-background absolute inset-0 overflow-hidden rounded-xl border transition-colors duration-150", hot && "border-border-strong")}>
           {/* A solid base under the card colour, which is see-through in places. */}
           <div aria-hidden className="bg-card absolute inset-0" />
-          <div aria-hidden className={cn("pointer-events-none", square)} style={wide ? fade : undefined}>
+          <div aria-hidden className={cn("pointer-events-none", square)} style={wide && !artAcross ? fade : undefined}>
             <FlickeringGrid className="absolute inset-0 size-full" />
             {typeof art === "function" ? art(hot) : art}
           </div>
@@ -76,7 +79,7 @@ export function BentoTile({ area, wide = false, art, float, onHot, children }: P
         </div>
         {float && <div className={cn("pointer-events-none", square)}>{float(hot)}</div>}
         {/* Over the dark gradient a square tile's text always reads light. */}
-        <div className={cn("relative z-10 h-full", wide ? "max-w-[50%]" : "dark text-foreground")}>{children}</div>
+        <div className={cn("relative z-10 h-full", wide ? cn("max-w-[50%]", artAcross && "ml-auto") : "dark text-foreground")}>{children}</div>
       </motion.div>
     </TileHotContext.Provider>
   )
