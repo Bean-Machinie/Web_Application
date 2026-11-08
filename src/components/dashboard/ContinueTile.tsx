@@ -1,8 +1,9 @@
+import { useCampaignMembers } from "@/hooks/use-campaign-members"
 import type { Campaign } from "@/lib/campaigns"
 import { BentoTile } from "./BentoTile"
 import type { BentoArea } from "./BentoTile"
+import { CampaignOrbit } from "./CampaignOrbit"
 import { ContinueCampaign } from "./ContinueCampaign"
-import { DottedD20 } from "./DottedD20"
 import { HomeCardBody } from "./HomeCardBody"
 import { InviteField } from "./InviteField"
 
@@ -15,12 +16,12 @@ type Props = {
   openedAt: number | null
 }
 
-// The wide tile with a large dotted d20 globe in its bottom right corner, mostly cut off by the card:
-// first in the bento, the way back into the last campaign; or for a new player, further down, a way to
-// join one.
+// The wide tile with the last campaign's party orbiting a seal (dots for a new player): first in the
+// bento, the way back into the last campaign; or for a new player, further down, a way to join one.
 export function ContinueTile({ area, campaign, openedAt }: Props) {
+  const members = useCampaignMembers(campaign ? [campaign] : [])[campaign?.id ?? ""]
   return (
-    <BentoTile area={area} wide art={<DottedD20 className="absolute top-[8%] right-0 aspect-square h-[140%] translate-x-[30%]" />}>
+    <BentoTile area={area} wide art={<CampaignOrbit members={campaign ? members : []} className="absolute top-1/2 left-1/2 h-[82%] -translate-x-1/2 -translate-y-1/2" />}>
       {campaign ? (
         <ContinueCampaign campaign={campaign} openedAt={openedAt} />
       ) : (

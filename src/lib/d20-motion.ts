@@ -14,7 +14,7 @@ const HOT_IDLE = 0.45
 const TWIRL = 13
 // How fast a spin settles back to its idle speed, and a tilt back to its rest, per second.
 const SETTLE = 2
-const REST_PITCH = -0.3
+export const REST_PITCH = -0.3
 const MAX_PITCH = 1
 
 export const restingMotion = (): D20Motion => ({ yaw: 0.6, pitch: REST_PITCH, spin: IDLE, tilt: 0, dragging: false })

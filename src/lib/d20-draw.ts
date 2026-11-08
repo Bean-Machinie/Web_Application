@@ -1,18 +1,21 @@
-import { edgeDots, FACE_CENTRES, faceDots, rotate } from "./icosahedron"
+import { FACE_DOTS, FACE_STEPS } from "./d20-numbers"
+import { edgeDots, FACE_CENTRES } from "./icosahedron"
 import type { Vec3 } from "./icosahedron"
 
-const EDGES = edgeDots(18)
-const STIPPLE = faceDots(16)
+// The edges' dots as far apart as the faces', so the whole die shares one grain.
+const EDGES = edgeDots(FACE_STEPS)
 const VIEWER = 4
 const length = ([x, y, z]: Vec3) => Math.hypot(x, y, z)
 const unit = (v: Vec3): Vec3 => [v[0] / length(v), v[1] / length(v), v[2] / length(v)]
 const NORMALS = FACE_CENTRES.map(unit)
 // The light comes from the upper left, in front.
 const LIGHT = unit([-0.45, 0.6, 0.66])
-// The faces that carry a pin, spread round the die.
-export const PIN_FACES = [0, 3, 7, 10, 13, 16, 19]
-const PIN_LENGTH = 0.28
-const PULSE_MS = 1400
+
+// 0 below `from`, 1 above `to`, easing in between.
+const smoothstep = (from: number, to: number, value: number) => {
+  const t = Math.max(0, Math.min(1, (value - from) / (to - from)))
+  return t * t * (3 - 2 * t)
+}
 
 export type D20Look = {
   cx: number
@@ -21,28 +24,32 @@ export type D20Look = {
   yaw: number
   pitch: number
   ink: string
-  accent: string
-  // How far each pin stands out, 0 to 1, in the order of PIN_FACES.
-  pins: number[]
+  // The colour the numbers are drawn in, which stands out from the faces.
+  digit: string
   // How much the die is lit up as it is pointed at, 0 to 1.
   glow: number
-  now: number
 }
 
-// A d20 drawn as a dotted globe is: fine dots packed over its faces, each face as bright as the light
-// falling on it, its edges in brighter rows, a soft halo, and pins standing out of some faces with
-// glowing heads that ripple while it is lit. The far side is left out but for its faint edges.
+// A d20 drawn as a dotted globe: one even grid of fine dots over its faces, each face as bright as the
+// light falling on it but kept subtle, the dots on its number's strokes in a bright colour of their own,
+// its edges in brighter rows and a soft halo. Faces fade in gently as they turn into view and the far
+// side is left out, edges and all, so nothing shows through at the rim.
 export function drawD20(ctx: CanvasRenderingContext2D, look: D20Look) {
   const { cx, cy, radius, yaw, pitch, glow } = look
   const size = Math.max(1, radius / 160)
-  const project = (p: Vec3) => {
-    const [x, y, z] = rotate(p, yaw, pitch)
-    const s = VIEWER / (VIEWER - z)
-    return [cx + x * radius * s, cy - y * radius * s, z] as const
+  // The turn worked out once a frame, as there are thousands of dots to turn.
+  const [cosYaw, sinYaw, cosPitch, sinPitch] = [Math.cos(yaw), Math.sin(yaw), Math.cos(pitch), Math.sin(pitch)]
+  const turn = ([x, y, z]: Vec3): Vec3 => {
+    const x1 = x * cosYaw + z * sinYaw
+    const z1 = -x * sinYaw + z * cosYaw
+    return [x1, y * cosPitch - z1 * sinPitch, y * sinPitch + z1 * cosPitch]
   }
-  const square = (x: number, y: number, side: number, alpha: number) => {
-    ctx.globalAlpha = alpha
-    ctx.fillRect(x - side / 2, y - side / 2, side, side)
+  const fill = (points: Vec3[], side: number) => {
+    for (const point of points) {
+      const [x, y, z] = turn(point)
+      const s = (VIEWER / (VIEWER - z)) * radius
+      ctx.fillRect(cx + x * s - side / 2, cy - y * s - side / 2, side, side)
+    }
   }
 
   const halo = ctx.createRadialGradient(cx, cy, radius * 0.6, cx, cy, radius * 1.3)
@@ -52,51 +59,34 @@ export function drawD20(ctx: CanvasRenderingContext2D, look: D20Look) {
   ctx.globalAlpha = 0.05 + glow * 0.05
   ctx.fillRect(cx - radius * 1.3, cy - radius * 1.3, radius * 2.6, radius * 2.6)
 
-  const faces = NORMALS.map((normal) => {
-    const n = rotate(normal, yaw, pitch)
-    return { front: n[2], light: Math.max(0, n[0] * LIGHT[0] + n[1] * LIGHT[1] + n[2] * LIGHT[2]) }
+  NORMALS.forEach((normal, face) => {
+    const n = turn(normal)
+    if (n[2] <= 0) return
+    const light = Math.max(0, n[0] * LIGHT[0] + n[1] * LIGHT[1] + n[2] * LIGHT[2])
+    // Faces only just turned toward the viewer are squeezed into the rim, so they come in faintly.
+    const facing = smoothstep(0, 0.55, n[2])
+    const { plain, strokes } = FACE_DOTS[face]
+    ctx.fillStyle = look.ink
+    ctx.globalAlpha = (0.04 + light * (0.22 + glow * 0.08)) * facing
+    fill(plain, size * 1.3)
+    // The digits at full strength on a face turned toward the viewer, fading as it turns away.
+    ctx.fillStyle = look.digit
+    strokes.forEach((points, level) => {
+      ctx.globalAlpha = ((level + 1) / strokes.length) * facing
+      fill(points, size * 1.3)
+    })
   })
-  ctx.fillStyle = look.ink
-  for (const { face, point } of STIPPLE) {
-    const { front, light } = faces[face]
-    if (front <= 0) continue
-    const [x, y] = project(point)
-    square(x, y, size * 1.6, (0.07 + light * (0.5 + glow * 0.15)) * Math.sqrt(front))
-  }
-  for (const point of EDGES) {
-    const [x, y, z] = project(point)
-    square(x, y, size * (z > 0 ? 2 : 1.4), z > 0 ? 0.35 + z * 0.5 : 0.06)
-  }
 
-  PIN_FACES.forEach((face, index) => {
-    const centre = FACE_CENTRES[face]
-    const out = 1 + PIN_LENGTH * look.pins[index]
-    const [bx, by, bz] = project(centre)
-    const [tx, ty, tz] = project([centre[0] * out, centre[1] * out, centre[2] * out])
-    if (tz <= 0.05 || faces[face].front <= 0) return
-    const fade = Math.min(1, tz * 3)
-    ctx.strokeStyle = look.ink
-    ctx.lineWidth = size
-    ctx.globalAlpha = 0.55 * fade
-    ctx.beginPath()
-    ctx.moveTo(bx, by)
-    ctx.lineTo(tx, ty)
-    ctx.stroke()
-    ctx.fillStyle = look.accent
-    if (glow > 0) {
-      const phase = ((look.now / PULSE_MS + index * 0.17) % 1 + 1) % 1
-      ctx.globalAlpha = (1 - phase) * 0.6 * glow * fade
-      ctx.beginPath()
-      ctx.arc(tx, ty, size * (3 + phase * 9), 0, Math.PI * 2)
-      ctx.lineWidth = size
-      ctx.strokeStyle = look.accent
-      ctx.stroke()
-    }
-    ctx.globalAlpha = fade
-    ctx.beginPath()
-    ctx.arc(tx, ty, size * (2.4 + look.pins[index] * 0.8), 0, Math.PI * 2)
-    ctx.fill()
-    square(bx, by, size * 2, 0.6 * fade * (bz > 0 ? 1 : 0))
-  })
+  ctx.fillStyle = look.ink
+  for (const point of EDGES) {
+    const [x, y, z] = turn(point)
+    const s = (VIEWER / (VIEWER - z)) * radius
+    // Edges on the rim fade out just past it rather than showing through from the far side.
+    const shown = smoothstep(-0.12, 0.12, z)
+    if (shown === 0) continue
+    const side = size * 1.8
+    ctx.globalAlpha = (0.22 + Math.max(0, z) * 0.3) * shown
+    ctx.fillRect(cx + x * s - side / 2, cy - y * s - side / 2, side, side)
+  }
   ctx.globalAlpha = 1
 }
