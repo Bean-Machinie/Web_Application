@@ -10,9 +10,7 @@ import { compendiumVisitedKey } from "@/lib/onboarding"
 import { loadRecents } from "@/lib/recent-items"
 import { HomeChecklist } from "./HomeChecklist"
 import type { ChecklistStep } from "./HomeChecklist"
-import { HomeCharacters } from "./HomeCharacters"
-import { HomeCreate } from "./HomeCreate"
-import { HomeHero } from "./HomeHero"
+import { HomeBento } from "./HomeBento"
 import { HomeRecent } from "./HomeRecent"
 import { useCampaign } from "./useCampaign"
 import { useNewCharacter } from "./useNewCharacter"
@@ -21,9 +19,9 @@ import { useWorldScope } from "./useWorldScope"
 const readFlag = (text: string | null) => text === "1"
 const writeFlag = (flag: boolean) => (flag ? "1" : "0")
 
-// Where you land, made to fit one screen: the row of cards at the top (the way back into your recent campaigns, or
-// for someone new a way in), the ways to create, and your characters; and at the right what you edited
-// last, or the first steps while they are not done.
+// Where you land, made to fit one screen: a grid of tiles (the way back into your last campaign, or for
+// someone new a way in, your latest character and the ways to create); and at the right what you
+// edited last, or the first steps while they are not done.
 export function HomePage() {
   const userId = useAuth().session!.user.id
   const { campaigns, loading, error } = useCampaign()
@@ -45,7 +43,7 @@ export function HomePage() {
 
   const characters = cards ?? []
   const recents = loadRecents(userId)
-  const recent = recentCampaigns(recents, campaigns, 2)
+  const [last] = recentCampaigns(recents, campaigns, 1)
   const steps: ChecklistStep[] = [
     { label: "Create a character", done: characters.length > 0, onClick: newCharacter.open },
     { label: "Join or start a campaign", done: campaigns.length > 0, to: "/app/campaigns" },
@@ -58,10 +56,8 @@ export function HomePage() {
     <div className="mx-auto w-full max-w-[1600px] px-2 py-2 md:px-6">
       {failure && <FormAlert tone="error">{failure}</FormAlert>}
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
-        <div className="flex min-w-0 flex-col gap-8">
-          <HomeHero campaigns={recent} openedAt={recent[0] ? openedAt(recents, recent[0].id) : null} onCreateCharacter={newCharacter.open} />
-          <HomeCreate entries={entries} onNewCharacter={newCharacter.open} />
-          <HomeCharacters cards={characters} onCreate={newCharacter.open} />
+        <div className="min-w-0">
+          <HomeBento campaign={last ?? null} openedAt={last ? openedAt(recents, last.id) : null} cards={characters} onNewCharacter={newCharacter.open} />
         </div>
         {showSteps ? <HomeChecklist steps={steps} onDismiss={() => setDismissed(true)} /> : <HomeRecent />}
       </div>
