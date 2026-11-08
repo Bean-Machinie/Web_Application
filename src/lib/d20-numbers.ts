@@ -1,14 +1,12 @@
-import { GLYPH_HEIGHT, numberWidth, strokeDistance } from "./d20-glyphs"
+import { GLYPH_HEIGHT, numberWidth, strokeDepth } from "./d20-glyphs"
 import { FACE_CENTRES, FACES, faceDots } from "./icosahedron"
 import type { Vec3 } from "./icosahedron"
 import { REST_PITCH } from "./d20-motion"
 
 // Dots a side of each face: one grid for the face and its number alike.
 export const FACE_STEPS = 48
-// How large a digit's unit is on a face (a digit is 1 wide and GLYPH_HEIGHT high), and how far a stroke
-// reaches either side of its line, in digit units.
+// How large a digit's unit is on a face (a digit is 1 wide and GLYPH_HEIGHT high).
 const UNIT = 0.19
-const HALF_STROKE = 0.11
 // The face's dot spacing, in digit units, over which a stroke's edge fades out, so it reads smooth.
 const SPACING = 1.0515 / FACE_STEPS / UNIT
 // How strong a stroke dot is drawn is rounded to these steps, so dots of a strength go out together.
@@ -63,7 +61,7 @@ function inkOf(face: number, point: Vec3) {
   const value = NUMBERS[face]
   const x = dot(offset, right) / UNIT + numberWidth(value) / 2
   const y = -dot(offset, up) / UNIT + GLYPH_HEIGHT / 2
-  const ink = (HALF_STROKE + SPACING / 2 - strokeDistance(value, x, y)) / SPACING
+  const ink = (strokeDepth(value, x, y) + SPACING / 2) / SPACING
   return Math.ceil(Math.max(0, Math.min(1, ink)) * LEVELS) / LEVELS
 }
 

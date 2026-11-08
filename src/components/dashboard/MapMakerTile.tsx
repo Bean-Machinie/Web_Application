@@ -14,8 +14,8 @@ export function MapMakerTile({ entries }: { entries: WorldEntry[] | null }) {
   const image = useMemo(() => mapToolImage(entries), [entries])
 
   return (
-    <BentoTile area="map" art={(hot) => <MapRouteEffect src={image ?? null} active={hot} />}>
-      <HomeCardBody title="Map Maker" line="Paint world and region maps." actions={<Button size="lg" onClick={() => setOpen(true)}>Open Map Maker</Button>} />
+    <BentoTile area="map" strongShade art={(hot) => <MapRouteEffect src={image ?? null} active={hot} />}>
+      <HomeCardBody title="Map Maker" line="Paint world and region maps." actions={<Button onClick={() => setOpen(true)}>Open Map Maker</Button>} />
       <NewMapDialog open={open} onClose={() => setOpen(false)} />
     </BentoTile>
   )

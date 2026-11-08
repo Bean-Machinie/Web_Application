@@ -6,8 +6,8 @@ import { parseInviteCode } from "@/lib/campaigns"
 import { centreOf, useDitherRipple } from "./dither-ripple"
 
 // The field to paste an invite link into, with Join, which goes to the page that accepts it and sets a
-// ripple going in the background from the button.
-export function InviteField() {
+// ripple going in the background from the button. Next to a tile's own main button, Join is a secondary one.
+export function InviteField({ secondary = false }: { secondary?: boolean }) {
   const navigate = useNavigate()
   const triggerRipple = useDitherRipple()
   const [invite, setInvite] = useState("")
@@ -23,8 +23,8 @@ export function InviteField() {
         navigate(`/invite?code=${encodeURIComponent(parseInviteCode(invite))}`)
       }}
     >
-      <Input value={invite} onChange={(event) => setInvite(event.target.value)} placeholder="Paste your invite link" aria-label="Invite link" className="bg-background/80 h-9 w-44" />
-      <Button type="submit" size="lg" disabled={invite.trim() === ""}>
+      <Input value={invite} onChange={(event) => setInvite(event.target.value)} placeholder="Paste your invite link" aria-label="Invite link" className="bg-background/80 h-8 w-44" />
+      <Button type="submit" variant={secondary ? "outline" : "default"} disabled={invite.trim() === ""}>
         Join
       </Button>
     </form>

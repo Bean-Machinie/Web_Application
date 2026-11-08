@@ -85,7 +85,7 @@ export function drawD20(ctx: CanvasRenderingContext2D, look: D20Look) {
     const shown = smoothstep(-0.12, 0.12, z)
     if (shown === 0) continue
     const side = size * 1.8
-    ctx.globalAlpha = (0.22 + Math.max(0, z) * 0.3) * shown
+    ctx.globalAlpha = (0.18 + Math.max(0, z) * 0.24) * shown
     ctx.fillRect(cx + x * s - side / 2, cy - y * s - side / 2, side, side)
   }
   ctx.globalAlpha = 1

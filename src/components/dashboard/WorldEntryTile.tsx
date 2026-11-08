@@ -34,7 +34,7 @@ export function WorldEntryTile({ entries }: { entries: WorldEntry[] | null }) {
 
   return (
     <BentoTile area="world" onHot={(hot) => hot && setIndex((current) => another(current, pictures.length))} art={<ImageParticles src={pictures[index] ?? pictures[0]} className="absolute inset-0 size-full" />}>
-      <HomeCardBody title="World entry" line="People, places and things" actions={<Button size="lg" onClick={() => setChoosing(true)}>New entry</Button>} />
+      <HomeCardBody title="World entry" line="People, places and things" actions={<Button onClick={() => setChoosing(true)}>New entry</Button>} />
       <Dialog open={choosing} onOpenChange={setChoosing}>
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>

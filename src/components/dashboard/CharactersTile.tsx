@@ -7,15 +7,15 @@ import { characterPath, characterStartPath } from "@/lib/characters"
 import { reelCards } from "@/lib/character-reel-cards"
 import { BentoTile } from "./BentoTile"
 import { CharacterReel } from "./CharacterReel"
-import { HeroButton } from "./HeroButton"
 import { HomeCardBody } from "./HomeCardBody"
 import { TileLink } from "./TileLink"
 
 // Newest first, as the characters are ordered.
 type Props = { cards: CharacterCardData[]; onCreate: () => void }
 
-// Your characters (and the starter village's people) as cards on a slanted reel rising from the bottom left, with the latest
-// character, a way to make another and to see them all; for someone with none yet, Start.
+// Your characters (and the starter village's people) as cards on a slanted reel rising from under the
+// text, with the latest character, a way to make another and to see them all; for someone with none
+// yet, Start.
 export function CharactersTile({ cards, onCreate }: Props) {
   const latest = cards[0]
   const reel = useMemo(() => reelCards(cards), [cards])
@@ -23,15 +23,15 @@ export function CharactersTile({ cards, onCreate }: Props) {
 
   if (!latest) {
     return (
-      <BentoTile area="characters" wide artAcross art={art}>
-        <HomeCardBody title="Create a character" line="Choose a species, class and background. It only takes a few minutes." actions={<HeroButton onClick={onCreate}>Start</HeroButton>} />
+      <BentoTile area="characters" wide artAcross bottomShade art={art}>
+        <HomeCardBody title="Create a character" line="Choose a species, class and background. It only takes a few minutes." actions={<Button onClick={onCreate}>Start</Button>} />
       </BentoTile>
     )
   }
 
   const { character, summary } = latest
   return (
-    <BentoTile area="characters" wide artAcross art={art}>
+    <BentoTile area="characters" wide artAcross bottomShade art={art}>
       <HomeCardBody
         title={
           <Link to={character.draft ? characterStartPath(character.id) : characterPath(character.id)} className="focus-visible:ring-ring rounded-sm outline-none hover:underline focus-visible:ring-2">
@@ -41,7 +41,7 @@ export function CharactersTile({ cards, onCreate }: Props) {
         line={characterSubtitle(character, summary)}
         actions={
           <>
-            <Button size="lg" onClick={onCreate}>
+            <Button onClick={onCreate}>
               Create character
             </Button>
             <TileLink to="/app/characters">All characters</TileLink>

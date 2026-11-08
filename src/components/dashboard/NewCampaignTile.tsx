@@ -18,7 +18,7 @@ export function NewCampaignTile({ area, campaign }: { area: BentoArea; campaign:
   const ripple = (event: MouseEvent<HTMLAnchorElement>) => triggerRipple(...(event.detail === 0 ? centreOf(event.currentTarget) : ([event.clientX, event.clientY] as const)))
 
   const start = (
-    <Button asChild size="lg">
+    <Button asChild>
       <Link to="/app/campaigns/new" onClick={ripple}>
         New campaign
       </Link>
@@ -28,7 +28,7 @@ export function NewCampaignTile({ area, campaign }: { area: BentoArea; campaign:
   return (
     <BentoTile area={area} wide art={<DottedD20 className="absolute top-[8%] right-0 aspect-square h-[140%] translate-x-[30%]" />}>
       {campaign ? (
-        <HomeCardBody title="New campaign" line="Start one, or paste an invite link." actions={<>{start}<InviteField /></>} />
+        <HomeCardBody title="New campaign" line="Start one, or paste an invite link." actions={<>{start}<InviteField secondary /></>} />
       ) : (
         <HomeCardBody title="Run your own game" line="Create a campaign and invite your players." actions={start} />
       )}
