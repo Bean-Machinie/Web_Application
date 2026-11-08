@@ -1,4 +1,5 @@
 import { useMemo, useRef } from "react"
+import type { MutableRefObject } from "react"
 import { useDither } from "@/hooks/use-dither"
 import { useScopeId } from "@/hooks/use-scope-id"
 import { campaignScene, homeScene } from "@/lib/dither-scene"
@@ -7,12 +8,13 @@ import { campaignScene, homeScene } from "@/lib/dither-scene"
 // shown, which also stops it). It fills the whole window and the sidebar covers its left part, so
 // the sidebar changing width does not touch it. It sits
 // behind the content, which is positioned to come after it, and takes no pointer events. Still, it draws one frame and stops.
-// Inside a campaign it takes that campaign's colour and drift.
-export function DitherBackground({ still }: { still: boolean }) {
+// Inside a campaign it takes that campaign's colour and drift. The ripple ref is given the function
+// that starts a ripple, for DitherRippleContext.
+export function DitherBackground({ still, ripple }: { still: boolean; ripple: MutableRefObject<(x: number, y: number) => void> }) {
   const box = useRef<HTMLDivElement>(null)
   const campaignId = useScopeId()
   const scene = useMemo(() => (campaignId ? campaignScene(campaignId) : homeScene()), [campaignId])
-  useDither(box, still, scene)
+  useDither(box, still, scene, ripple)
 
   return (
     <div aria-hidden className="pointer-events-none sticky top-0 z-0 hidden h-0 w-full dark:block">

@@ -19,19 +19,21 @@ type Props = {
   onNewCharacter: () => void
 }
 
-// The top of Home as a grid of tiles, three columns wide and three rows high, sharing the height it is
-// given (the first row a little taller) but no tile under 180px; the wide tiles take two columns, so the
-// order here is what lays them out.
+// The top of Home as a grid of square cells, three by three, each as high as a third of the height it
+// has (--bento-h, set by HomePage); the wide tiles take two cells of a row, as the areas below place them.
+// Narrower, the columns share the width and the square tiles set the rows' height; on a phone it is one column.
 export function HomeBento({ campaign, openedAt, cards, entries, onNewCharacter }: Props) {
   return (
     <MotionConfig reducedMotion="user">
-      <div className="grid grid-cols-1 gap-3 md:h-full md:grid-cols-3 md:grid-rows-[minmax(180px,1.3fr)_minmax(180px,1fr)_minmax(180px,1fr)]">
-        <ContinueTile campaign={campaign} openedAt={openedAt} />
-        <CharactersTile cards={cards} onCreate={onNewCharacter} />
-        <CompendiumTile entries={entries} />
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:[grid-template-areas:'lead_lead_map'_'compendium_characters_characters'_'play_play_world'] lg:grid-cols-[repeat(3,var(--bento-h))] lg:grid-rows-[repeat(3,var(--bento-h))]">
+        {/* First the way back into your campaign; for someone with none, starting one, with joining one
+            further down where starting one sits once you play. */}
+        {campaign ? <ContinueTile area="lead" campaign={campaign} openedAt={openedAt} /> : <NewCampaignTile area="lead" campaign={null} />}
         <MapMakerTile entries={entries} />
+        <CompendiumTile />
+        <CharactersTile cards={cards} onCreate={onNewCharacter} />
+        {campaign ? <NewCampaignTile area="play" campaign={campaign} /> : <ContinueTile area="play" campaign={null} openedAt={null} />}
         <WorldEntryTile entries={entries} />
-        <NewCampaignTile returning={campaign !== null} />
       </div>
     </MotionConfig>
   )

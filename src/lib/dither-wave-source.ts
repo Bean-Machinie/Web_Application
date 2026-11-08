@@ -4,7 +4,7 @@ void main() {
   gl_Position = vec4(aPosition, 0.0, 1.0);
 }`
 
-// The first pass of React Bits' Dither, without its mouse, trail and ripples: domain-warped fbm
+// The first pass of React Bits' Dither, without its mouse and trail, and with one ripple: domain-warped fbm
 // waves, drawn at one texel per dither cell into a texture. The value is packed in two 8-bit
 // channels (r is the whole part, g the rest) so the texture can be plain RGBA8.
 export const WAVE_FRAGMENT = `#version 300 es
@@ -22,6 +22,8 @@ uniform float uContrast;
 uniform float uBrightness;
 uniform float uIntro;
 uniform float uReach;
+// Where a ripple started, in the same units as uv, and how far it has run, from 0 to 1 (1 when none).
+uniform vec3 uRipple;
 out vec4 outColor;
 
 vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -81,8 +83,17 @@ void main() {
   vec2 uv = corner / uResolution - 0.5;
   uv.x *= uResolution.x / uResolution.y;
 
+  // One ring running out from a ripple's start, bending the waves outward and lighting them as it passes.
+  float ripple = 0.0;
+  if (uRipple.z < 1.0) {
+    vec2 away = uv - uRipple.xy;
+    ripple = sin(3.14159265 * uRipple.z) * exp(-pow((length(away) - uRipple.z * 0.9) / 0.05, 2.0));
+    uv += normalize(away + 1e-5) * ripple * 0.04;
+  }
+
   float f = pattern(uv / uScale);
   f = (f - 0.5) * uContrast + 0.5 + uBrightness;
+  f += 0.25 * ripple;
   // The bright front of a change of scene, travelling out from the middle with the colour wipe.
   float front = uWipe * uReach;
   float ring = sin(3.14159265 * uWipe) * exp(-pow((length(uv) - front) / 0.09, 2.0));

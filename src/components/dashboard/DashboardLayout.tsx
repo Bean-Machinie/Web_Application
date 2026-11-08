@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { Outlet } from "react-router-dom"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { readSidebarState } from "@/lib/sidebar-state"
@@ -7,6 +7,7 @@ import { BreadcrumbProvider } from "./BreadcrumbProvider"
 import { CommandPaletteProvider } from "./CommandPaletteProvider"
 import { DashboardHeader } from "./DashboardHeader"
 import { DitherBackground } from "./DitherBackground"
+import { DitherRippleContext } from "./dither-ripple"
 import { PlainBackgroundContext } from "./plain-background"
 import { useBackground } from "@/theme/useBackground"
 import { useScopeId } from "@/hooks/use-scope-id"
@@ -15,6 +16,9 @@ export function DashboardLayout() {
   const [plain, setPlain] = useState(false)
   const { background } = useBackground()
   const campaignId = useScopeId()
+  // Filled in by the background while it runs; the context hands out a stable function that calls it.
+  const ripple = useRef<(x: number, y: number) => void>(() => {})
+  const triggerRipple = useCallback((x: number, y: number) => ripple.current(x, y), [])
 
   return (
     <SidebarProvider
@@ -32,16 +36,18 @@ export function DashboardLayout() {
             unless told so, and a graph canvas still at its old width would hold the
             page wider than the window after the sidebar opens. */}
         <SidebarInset className="dither-surface min-w-0">
-          {!plain && background !== "off" && <DitherBackground still={background === "still"} />}
+          {!plain && background !== "off" && <DitherBackground still={background === "still"} ripple={ripple} />}
           <PlainBackgroundContext.Provider value={setPlain}>
-            <BreadcrumbProvider>
-              <DashboardHeader />
-              {/* Positioned, so that it paints over the background, which comes first. */}
-              {/* Keyed by campaign, so crossing into or out of one plays the entrance. */}
-              <div key={campaignId ?? "home"} className="scope-enter relative flex min-w-0 flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
-                <Outlet />
-              </div>
-            </BreadcrumbProvider>
+            <DitherRippleContext.Provider value={triggerRipple}>
+              <BreadcrumbProvider>
+                <DashboardHeader />
+                {/* Positioned, so that it paints over the background, which comes first. */}
+                {/* Keyed by campaign, so crossing into or out of one plays the entrance. */}
+                <div key={campaignId ?? "home"} className="scope-enter relative flex min-w-0 flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
+                  <Outlet />
+                </div>
+              </BreadcrumbProvider>
+            </DitherRippleContext.Provider>
           </PlainBackgroundContext.Provider>
         </SidebarInset>
       </CommandPaletteProvider>

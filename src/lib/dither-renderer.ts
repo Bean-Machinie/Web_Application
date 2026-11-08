@@ -13,6 +13,8 @@ export type DitherFrame = {
   wipe: number
   from: Float32Array
   to: Float32Array
+  // A ripple's start in CSS pixels from the top left, and how far it has run, from 0 to 1 (1 when none).
+  ripple: [number, number, number]
 }
 
 export type DitherRenderer = {
@@ -80,7 +82,7 @@ export function createDitherRenderer(canvas: HTMLCanvasElement): DitherRenderer 
       gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     },
 
-    draw({ offset, intro, wipe, from, to }) {
+    draw({ offset, intro, wipe, from, to, ripple }) {
       if (gl.isContextLost()) return
       gl.bindVertexArray(vao)
       const reach = 0.5 * Math.hypot(view.width / view.height, 1) + 0.45
@@ -101,6 +103,9 @@ export function createDitherRenderer(canvas: HTMLCanvasElement): DitherRenderer 
       gl.uniform1f(w.uBrightness, DITHER.brightness)
       gl.uniform1f(w.uIntro, intro)
       gl.uniform1f(w.uReach, reach)
+      // Into the waves' units: centred, y up, and x in heights.
+      const aspect = view.width / view.height
+      gl.uniform3f(w.uRipple, (ripple[0] / view.width - 0.5) * aspect, 0.5 - ripple[1] / view.height, ripple[2])
       gl.drawArrays(gl.TRIANGLES, 0, 3)
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, null)

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react"
 import { Loader2 } from "lucide-react"
 import { useAuth } from "@/auth/useAuth"
 import { FormAlert } from "@/components/auth/FormAlert"
@@ -53,15 +54,23 @@ export function HomePage() {
   const showSteps = !dismissed && steps.some((step) => !step.done)
 
   return (
-    // Down to the bottom of the window, less the header and the layout's padding (1.5rem above and below),
-    // but never shorter than the tiles need.
-    <div className="mx-auto flex w-full max-w-[1600px] flex-col px-2 py-2 md:px-6 lg:h-[calc(100dvh-var(--header-height)-3rem)] lg:min-h-fit">
+    // From right under the header to the very bottom of the window, over the layout's padding, so the
+    // scrolling bento runs to both edges instead of vanishing into a strip of background. A bento cell is
+    // a third of 85% of the width the 320px column at the right leaves, less the two gaps, never under
+    // 180px; taller than the window, only the bento scrolls, with no bar showing.
+    <div
+      className="@container relative flex w-full flex-col px-2 py-2 md:px-6 lg:-my-6 lg:h-[calc(100dvh-var(--header-height))] lg:py-0"
+      style={{ "--bento-h": "max(180px, ((100cqw - 2rem - 320px) * 0.85 - 24px) / 3)" } as CSSProperties}
+    >
+      {/* A soft shadow under the header, which the tiles scroll beneath; across the layout's padding too. */}
+      <div aria-hidden className="pointer-events-none absolute -inset-x-6 top-0 z-20 hidden h-12 bg-gradient-to-b from-black/25 to-transparent lg:block dark:from-black/55" />
       {failure && <FormAlert tone="error">{failure}</FormAlert>}
-      <div className="grid gap-10 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-[minmax(0,1fr)] lg:gap-8">
-        <div className="min-w-0">
+      <div className="grid gap-10 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-[minmax(0,1fr)] lg:gap-8">
+        {/* Padded out and pulled back at the sides, so a hot tile's lift and its flying cards are not cut off. */}
+        <div className="min-w-0 lg:-mx-3 lg:overflow-y-auto lg:px-3 lg:pt-8 lg:pb-6 lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:hidden">
           <HomeBento campaign={last ?? null} openedAt={last ? openedAt(recents, last.id) : null} cards={characters} entries={entries} onNewCharacter={newCharacter.open} />
         </div>
-        {showSteps ? <HomeChecklist steps={steps} onDismiss={() => setDismissed(true)} /> : <HomeRecent />}
+        <div className="lg:grid lg:grid-rows-[minmax(0,1fr)] lg:pt-8">{showSteps ? <HomeChecklist steps={steps} onDismiss={() => setDismissed(true)} /> : <HomeRecent />}</div>
       </div>
       {newCharacter.dialog}
     </div>

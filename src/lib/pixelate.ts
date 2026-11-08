@@ -2,12 +2,12 @@
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
 export const COARSEST_BLOCK = 10
 
-// The part of an image that covers a box of the given size, cut from its centre.
-function cover(image: HTMLImageElement, width: number, height: number) {
-  const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight)
-  const sw = width / scale
-  const sh = height / scale
-  return [(image.naturalWidth - sw) / 2, (image.naturalHeight - sh) / 2, sw, sh] as const
+// Where an image fits whole in a box of the given size, centred, so none of it is cut off.
+function contain(image: HTMLImageElement, width: number, height: number) {
+  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight)
+  const w = image.naturalWidth * scale
+  const h = image.naturalHeight * scale
+  return [(width - w) / 2, (height - h) / 2, w, h] as const
 }
 
 // Snaps each block's colour to coarse steps with the dither pattern, more the coarser the blocks. An
@@ -28,24 +28,23 @@ function dither(buffer: CanvasRenderingContext2D, cols: number, rows: number, st
   }
 }
 
-// Draws an image to cover the box in square blocks of the given size, in CSS pixels; at 1 it is the
-// image itself.
+// Draws the whole image, fitted into the box, in square blocks of the given size, in CSS pixels; at 1
+// it is the image itself.
 export function drawPixelated(ctx: CanvasRenderingContext2D, image: HTMLImageElement, width: number, height: number, block: number, buffer: HTMLCanvasElement) {
+  const [x, y, w, h] = contain(image, width, height)
   if (block <= 1.05) {
     ctx.imageSmoothingEnabled = true
-    ctx.drawImage(image, ...cover(image, width, height), 0, 0, width, height)
+    ctx.drawImage(image, x, y, w, h)
     return
   }
-  const cols = Math.ceil(width / block)
-  const rows = Math.ceil(height / block)
-  // The blocks run a little past the box, so the crop covers that.
-  const crop = cover(image, cols * block, rows * block)
+  const cols = Math.ceil(w / block)
+  const rows = Math.ceil(h / block)
   buffer.width = cols
   buffer.height = rows
   const small = buffer.getContext("2d", { willReadFrequently: true })
   if (!small) return
-  small.drawImage(image, ...crop, 0, 0, cols, rows)
+  small.drawImage(image, 0, 0, cols, rows)
   dither(small, cols, rows, ((block - 1) / (COARSEST_BLOCK - 1)) * 24)
   ctx.imageSmoothingEnabled = false
-  ctx.drawImage(buffer, 0, 0, cols, rows, 0, 0, cols * block, rows * block)
+  ctx.drawImage(buffer, 0, 0, cols, rows, x, y, w, h)
 }
