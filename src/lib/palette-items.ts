@@ -16,6 +16,8 @@ export type Recent = {
   path: string
   context: string
   visual: Visual
+  // When it was opened, in milliseconds; absent on what was remembered before this was kept.
+  at?: number
 }
 
 export type PaletteItem = {

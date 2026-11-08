@@ -27,7 +27,8 @@ export function HomeCreate({ entries, onNewCharacter }: Props) {
   return (
     <section>
       <SectionLabel>Create</SectionLabel>
-      <div className="grid grid-cols-1 gap-4 pt-1 sm:grid-cols-3">
+      {/* Squares as wide as the column allows, but no taller than leaves the rest of Home on one screen. */}
+      <div className="grid grid-cols-1 gap-4 pt-1 sm:grid-cols-3" style={{ maxWidth: "calc(3 * max(11rem, 100svh - 650px) + 2rem)" }}>
         <HomeToolTile name="Map Maker" description="Paint world and region maps" icon={MapIcon} image={image} onOpen={() => setMakingMap(true)} effect={({ active }) => <MapRouteEffect active={active} />} />
         <HomeToolTile name="Character Creator" description="Build a character in minutes" icon={User} image={CHARACTER_CREATOR_IMAGE} onOpen={onNewCharacter} effect={(state) => <DiceEffect {...state} />} />
         <HomeToolTile name="World entry" description="People, places and things" icon={Box} image={ENTRY_KIND_IMAGES.location ?? null} onOpen={() => setChoosing(true)} effect={({ active }) => <CardFanEffect active={active} />} />

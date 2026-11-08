@@ -1,22 +1,29 @@
 import { Link } from "react-router-dom"
-import { ArrowRight, BookOpen, FileText, ScrollText } from "lucide-react"
+import { BookOpen, FileText, ScrollText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { useAccount } from "@/hooks/use-account"
 import { useCampaignMembers } from "@/hooks/use-campaign-members"
 import { useLastPage } from "@/hooks/use-last-page"
 import { FALLBACK_COVER_IMAGE } from "@/lib/campaign-covers"
 import { campaignPath } from "@/lib/campaign-paths"
 import type { Campaign } from "@/lib/campaigns"
+import { shortAgo } from "@/lib/time"
 import { CampaignMemberStack } from "./CampaignMemberStack"
-import { D20Button } from "./D20Button"
+import { HeroButton } from "./HeroButton"
 
-// For someone with a campaign to go back to: its square cover edge to edge on the left, which
-// zooms slowly while the card is hovered with a faint warm glow behind it, and where you left off.
-export function HomeHeroReturning({ campaign }: { campaign: Campaign }) {
-  const { name } = useAccount()
+type Props = {
+  campaign: Campaign
+  // When it was last opened, in milliseconds; null when that was not remembered.
+  openedAt: number | null
+}
+
+// The front card for someone with a campaign to go back to: its square cover edge to edge on the
+// left, then its name, the page you were on and when, who is in it, and the way back in.
+export function HomeHeroReturning({ campaign, openedAt }: Props) {
   const page = useLastPage(campaign.id)
   const members = useCampaignMembers([campaign])[campaign.id]
+  const when = openedAt === null ? null : `opened ${shortAgo(new Date(openedAt).toISOString())}`
+  const detail = [page?.title, when].filter(Boolean).join(" · ")
 
   const icons = [
     { label: "Journal", to: campaignPath(campaign.id, "journal"), icon: BookOpen },
@@ -24,34 +31,24 @@ export function HomeHeroReturning({ campaign }: { campaign: Campaign }) {
   ]
 
   return (
-    <div className="group relative isolate">
-      <div aria-hidden className="absolute -inset-3 -z-10 rounded-3xl bg-orange-400/20 opacity-0 blur-2xl transition-opacity duration-700 group-hover:opacity-100 motion-reduce:transition-none" />
-      <section className="bg-card relative flex h-40 overflow-hidden rounded-xl border">
-        <div className="size-40 shrink-0 overflow-hidden">
-          <img
-            src={campaign.imageUrl ?? FALLBACK_COVER_IMAGE}
-            alt=""
-            className="size-full object-cover transition-transform duration-[6000ms] ease-out group-hover:scale-[1.06] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-          />
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5 p-3">
-          <span className="text-muted-foreground text-xs">Welcome back, {name}</span>
-          <h2 className="truncate text-2xl font-semibold tracking-tight">Last time in {campaign.name}</h2>
-          {page && (
-            <p className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-sm">
-              <FileText className="size-3.5 shrink-0" />
-              <span className="truncate">You left off at {page.title}</span>
-            </p>
-          )}
-          <CampaignMemberStack members={members} />
-          <div className="mt-auto flex items-center gap-1">
-            <div className="mr-1">
-              <D20Button to={campaignPath(campaign.id, page ? `journal/${page.id}` : "")}>Continue</D20Button>
-            </div>
+    <div className="flex h-full">
+      <img src={campaign.imageUrl ?? FALLBACK_COVER_IMAGE} alt="" className="size-[238px] shrink-0 object-cover" />
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 p-6">
+        <h2 className="truncate text-2xl font-semibold tracking-tight">{campaign.name}</h2>
+        {detail && (
+          <p className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-sm">
+            {page && <FileText className="size-3.5 shrink-0" />}
+            <span className="truncate">{detail}</span>
+          </p>
+        )}
+        <CampaignMemberStack members={members} />
+        <div className="mt-2 flex items-center gap-3">
+          <HeroButton to={campaignPath(campaign.id, page ? `journal/${page.id}` : "")}>Continue</HeroButton>
+          <div className="flex gap-1">
             {icons.map(({ label, to, icon: Icon }) => (
               <Tooltip key={label}>
                 <TooltipTrigger asChild>
-                  <Button asChild variant="ghost" size="icon-sm">
+                  <Button asChild variant="ghost" size="icon-lg">
                     <Link to={to} aria-label={label}>
                       <Icon />
                     </Link>
@@ -60,13 +57,9 @@ export function HomeHeroReturning({ campaign }: { campaign: Campaign }) {
                 <TooltipContent>{label}</TooltipContent>
               </Tooltip>
             ))}
-            <Link to="/app/campaigns" className="text-muted-foreground hover:text-foreground ml-auto flex items-center gap-1 text-sm transition-colors">
-              All campaigns
-              <ArrowRight className="size-4" />
-            </Link>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   )
 }

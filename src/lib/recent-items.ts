@@ -23,7 +23,7 @@ export function loadRecents(userId: string): Recent[] {
 export function recordRecent(userId: string, recent: Recent) {
   const others = loadRecents(userId).filter((item) => item.key !== recent.key)
   try {
-    localStorage.setItem(storageKey(userId), JSON.stringify([recent, ...others].slice(0, MAX_KEPT)))
+    localStorage.setItem(storageKey(userId), JSON.stringify([{ ...recent, at: Date.now() }, ...others].slice(0, MAX_KEPT)))
   } catch {
     // Remembering is a nicety; without storage the list just stays shorter.
   }
