@@ -3,14 +3,13 @@ import { useCanvasLoop } from "@/hooks/use-canvas-loop"
 import type { CanvasFrame } from "@/hooks/use-canvas-loop"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { COARSEST_BLOCK, drawPixelated } from "@/lib/pixelate"
-import { cn } from "@/lib/utils"
 import { useTileHot } from "./tile-hot"
 
 const DURATION_MS = 700
 const easeOut = (p: number) => 1 - Math.pow(1 - p, 3)
 
-// A portrait in coarse grey blocks that, as its tile is pointed at, sharpen down to the full picture in
-// colour, so the character comes to life; it goes back to blocks when the pointer leaves.
+// A portrait in coarse blocks that, as its tile is pointed at, sharpen down to the full picture, so the
+// character comes to life; it goes back to blocks when the pointer leaves.
 export function PixelatedPortrait({ src, className }: { src: string; className?: string }) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const buffer = useRef<HTMLCanvasElement | null>(null)
@@ -64,10 +63,6 @@ export function PixelatedPortrait({ src, className }: { src: string; className?:
   }, [src, kick])
 
   return (
-    <canvas
-      ref={canvas}
-      aria-hidden
-      className={cn(!reduced && "transition-[filter,opacity] duration-700", hot ? "opacity-100 grayscale-0" : "opacity-70 grayscale", className)}
-    />
+    <canvas ref={canvas} aria-hidden className={className} />
   )
 }

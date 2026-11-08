@@ -1,5 +1,7 @@
+import { MotionConfig } from "motion/react"
 import type { CharacterCardData } from "@/hooks/use-character-cards"
 import type { Campaign } from "@/lib/campaigns"
+import type { WorldEntry } from "@/lib/world-entries"
 import { CharactersTile } from "./CharactersTile"
 import { CompendiumTile } from "./CompendiumTile"
 import { ContinueTile } from "./ContinueTile"
@@ -12,20 +14,25 @@ type Props = {
   campaign: Campaign | null
   openedAt: number | null
   cards: CharacterCardData[]
+  // The library's entries, for the tiles' pictures.
+  entries: WorldEntry[] | null
   onNewCharacter: () => void
 }
 
-// The top of Home as a grid of tiles, three columns wide and three rows high, small enough to sit on one
-// screen; the wide tiles take two columns, so the order here is what lays them out.
-export function HomeBento({ campaign, openedAt, cards, onNewCharacter }: Props) {
+// The top of Home as a grid of tiles, three columns wide and three rows high, sharing the height it is
+// given (the first row a little taller) but no tile under 180px; the wide tiles take two columns, so the
+// order here is what lays them out.
+export function HomeBento({ campaign, openedAt, cards, entries, onNewCharacter }: Props) {
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:grid-rows-[260px_200px_200px]">
-      <ContinueTile campaign={campaign} openedAt={openedAt} />
-      <CharactersTile cards={cards} onCreate={onNewCharacter} />
-      <CompendiumTile />
-      <MapMakerTile />
-      <WorldEntryTile />
-      <NewCampaignTile returning={campaign !== null} />
-    </div>
+    <MotionConfig reducedMotion="user">
+      <div className="grid grid-cols-1 gap-3 md:h-full md:grid-cols-3 md:grid-rows-[minmax(180px,1.3fr)_minmax(180px,1fr)_minmax(180px,1fr)]">
+        <ContinueTile campaign={campaign} openedAt={openedAt} />
+        <CharactersTile cards={cards} onCreate={onNewCharacter} />
+        <CompendiumTile entries={entries} />
+        <MapMakerTile entries={entries} />
+        <WorldEntryTile entries={entries} />
+        <NewCampaignTile returning={campaign !== null} />
+      </div>
+    </MotionConfig>
   )
 }

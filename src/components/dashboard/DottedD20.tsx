@@ -9,7 +9,7 @@ import { edgeDots, FACE_CENTRES, rotate } from "@/lib/icosahedron"
 import type { Vec3 } from "@/lib/icosahedron"
 import { useTileHot } from "./tile-hot"
 
-const DOTS = edgeDots(9)
+const DOTS = edgeDots(16)
 const AMBER = "#f5b544"
 const VIEWER = 4
 
@@ -51,8 +51,10 @@ export function DottedD20({ className }: { className?: string }) {
         drift(s, dt)
       }
 
-      const radius = Math.min(width, height) * 0.36
+      // The die all but fills its canvas.
+      const radius = Math.min(width, height) * 0.48
       const [cx, cy] = [width / 2, height / 2]
+      const dotScale = Math.max(1, radius / 120)
       ctx.fillStyle = hot ? AMBER : foreground
       for (const dot of DOTS) {
         const [x, y, z] = rotate(dot, s.yaw, s.pitch)
@@ -60,13 +62,13 @@ export function DottedD20({ className }: { className?: string }) {
         const scale = VIEWER / (VIEWER - z)
         ctx.globalAlpha = 0.12 + depth * 0.7
         ctx.beginPath()
-        ctx.arc(cx + x * radius * scale, cy - y * radius * scale, 0.7 + depth * 1.3, 0, Math.PI * 2)
+        ctx.arc(cx + x * radius * scale, cy - y * radius * scale, (0.7 + depth * 1.3) * dotScale, 0, Math.PI * 2)
         ctx.fill()
       }
 
       const shown = face.current
       if (shown?.landedAt != null) {
-        const step = radius * 0.055
+        const step = radius * 0.045
         ctx.fillStyle = AMBER
         ctx.globalAlpha = reduced ? 1 : Math.min(1, (now - shown.landedAt) / 250)
         for (const [dx, dy] of numberDots(shown.value)) {

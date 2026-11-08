@@ -1,6 +1,6 @@
 // A 4 by 4 ordered-dither pattern, for the faint grain on the coarse blocks.
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
-export const COARSEST_BLOCK = 14
+export const COARSEST_BLOCK = 10
 
 // The part of an image that covers a box of the given size, cut from its centre.
 function cover(image: HTMLImageElement, width: number, height: number) {

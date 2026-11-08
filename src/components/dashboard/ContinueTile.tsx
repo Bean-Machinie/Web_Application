@@ -12,11 +12,13 @@ type Props = {
   openedAt: number | null
 }
 
-// The wide first tile, with a dotted d20 turning at the right: the way back into the last campaign, or
+// The wide first tile, with a large dotted d20 turning at the bottom right: the way back into the last campaign, or
 // for a new player a way to join one.
 export function ContinueTile({ campaign, openedAt }: Props) {
   return (
-    <BentoTile className="md:col-span-2" art={<DottedD20 className="absolute inset-0 size-full" />}>
+    // The die is 1.4 times the tile's height, its centre near the bottom right corner (0.3 of the height
+    // in from the right, 0.8 down), so the card cuts most of it off.
+    <BentoTile wide art={<DottedD20 className="absolute top-[10%] right-0 aspect-square h-[140%] translate-x-[28.6%]" />}>
       {campaign ? (
         <ContinueCampaign campaign={campaign} openedAt={openedAt} />
       ) : (

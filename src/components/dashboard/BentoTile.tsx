@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { FocusEvent, ReactNode } from "react"
+import type { CSSProperties, FocusEvent, ReactNode } from "react"
 import { motion } from "motion/react"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { cn } from "@/lib/utils"
@@ -7,19 +7,27 @@ import { FlickeringGrid } from "./FlickeringGrid"
 import { TileHotContext } from "./tile-hot"
 
 type Props = {
-  // Its picture, drawn over the faint flickering grid in the art area.
-  art?: ReactNode
-  // Where the art area sits; the right half by default.
-  artClassName?: string
-  className?: string
+  // Two columns wide; the text then keeps to the left 40% and the art fades only at its left edge.
+  wide?: boolean
+  // Its picture, drawn over the faint flickering grid in the art area, the right 60% of the tile; given
+  // as a function it is told whether the tile is hot.
+  art?: ReactNode | ((hot: boolean) => ReactNode)
   children: ReactNode
 }
 
-const FADE = "linear-gradient(to right, transparent, black 35%)"
+const FROM_LEFT = "linear-gradient(to right, transparent, black 40%)"
+// A narrow tile's text runs the full width at the bottom, so there the art also fades out above it.
+const FROM_BOTTOM = "linear-gradient(to top, transparent 45%, black 85%)"
 
-// A tile of the Home bento. Pointed at, or holding the keyboard focus, it rises a little and its border
-// firms up, and what is inside can play its own hover through useTileHot.
-export function BentoTile({ art, artClassName, className, children }: Props) {
+const fade = (wide: boolean): CSSProperties =>
+  wide
+    ? { maskImage: FROM_LEFT, WebkitMaskImage: FROM_LEFT }
+    : { maskImage: `${FROM_LEFT}, ${FROM_BOTTOM}`, WebkitMaskImage: `${FROM_LEFT}, ${FROM_BOTTOM}`, maskComposite: "intersect", WebkitMaskComposite: "source-in" }
+
+// A tile of the Home bento: its art at the right, fading toward the text, and its text at the bottom left.
+// Pointed at, or holding the keyboard focus, it rises a little and its border firms up, and what is inside
+// can play its own hover through useTileHot.
+export function BentoTile({ wide = false, art, children }: Props) {
   const reduced = useReducedMotion()
   const [hot, setHot] = useState(false)
   const onBlur = (event: FocusEvent<HTMLDivElement>) => {
@@ -36,15 +44,15 @@ export function BentoTile({ art, artClassName, className, children }: Props) {
         onPointerLeave={() => setHot(false)}
         onFocus={() => setHot(true)}
         onBlur={onBlur}
-        className={cn("bg-background relative min-h-[200px] overflow-hidden rounded-xl border transition-colors duration-150", hot && "border-border-strong", className)}
+        className={cn("bg-background relative min-h-[180px] overflow-hidden rounded-xl border transition-colors duration-150", wide && "md:col-span-2", hot && "border-border-strong")}
       >
         {/* A solid base under the card colour, which is see-through in places. */}
         <div aria-hidden className="bg-card absolute inset-0" />
-        <div aria-hidden className={cn("pointer-events-none absolute inset-y-0 right-0 w-1/2", artClassName)} style={{ maskImage: FADE, WebkitMaskImage: FADE }}>
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-3/5" style={fade(wide)}>
           <FlickeringGrid className="absolute inset-0 size-full" />
-          {art}
+          {typeof art === "function" ? art(hot) : art}
         </div>
-        <div className="relative z-10 h-full">{children}</div>
+        <div className={cn("relative z-10 h-full", wide && "md:max-w-[40%]")}>{children}</div>
       </motion.div>
     </TileHotContext.Provider>
   )

@@ -9,10 +9,10 @@ type Props = {
   actions: ReactNode
 }
 
-// What a Home tile says: the title, one muted line and the actions, at the left, leaving the right to the art.
+// What a Home tile says, as one block at its bottom left: the title, one muted line and the actions.
 export function HomeCardBody({ title, line, extra, actions }: Props) {
   return (
-    <div className="flex h-full max-w-[min(100%,26rem)] flex-col justify-end gap-1.5 p-6">
+    <div className="flex h-full flex-col justify-end gap-1.5 p-6">
       <h2 className="truncate text-xl font-semibold tracking-tight">{title}</h2>
       {line && <div className="text-muted-foreground line-clamp-2 text-sm">{line}</div>}
       {extra}

@@ -53,11 +53,13 @@ export function HomePage() {
   const showSteps = !dismissed && steps.some((step) => !step.done)
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] px-2 py-2 md:px-6">
+    // Down to the bottom of the window, less the header and the layout's padding (1.5rem above and below),
+    // but never shorter than the tiles need.
+    <div className="mx-auto flex w-full max-w-[1600px] flex-col px-2 py-2 md:px-6 lg:h-[calc(100dvh-var(--header-height)-3rem)] lg:min-h-fit">
       {failure && <FormAlert tone="error">{failure}</FormAlert>}
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
+      <div className="grid gap-10 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_320px] lg:grid-rows-[minmax(0,1fr)] lg:gap-8">
         <div className="min-w-0">
-          <HomeBento campaign={last ?? null} openedAt={last ? openedAt(recents, last.id) : null} cards={characters} onNewCharacter={newCharacter.open} />
+          <HomeBento campaign={last ?? null} openedAt={last ? openedAt(recents, last.id) : null} cards={characters} entries={entries} onNewCharacter={newCharacter.open} />
         </div>
         {showSteps ? <HomeChecklist steps={steps} onDismiss={() => setDismissed(true)} /> : <HomeRecent />}
       </div>

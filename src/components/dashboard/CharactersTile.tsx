@@ -21,7 +21,7 @@ export function CharactersTile({ cards, onCreate }: Props) {
 
   if (!latest) {
     return (
-      <BentoTile art={art} artClassName="w-3/5">
+      <BentoTile art={art}>
         <HomeCardBody title="Create a character" line="Choose a species, class and background. It only takes a few minutes." actions={<HeroButton onClick={onCreate}>Start</HeroButton>} />
       </BentoTile>
     )
@@ -29,7 +29,7 @@ export function CharactersTile({ cards, onCreate }: Props) {
 
   const { character, summary } = latest
   return (
-    <BentoTile art={art} artClassName="w-3/5">
+    <BentoTile art={art}>
       <HomeCardBody
         title={
           <Link to={character.draft ? characterStartPath(character.id) : characterPath(character.id)} className="focus-visible:ring-ring rounded-sm outline-none hover:underline focus-visible:ring-2">
