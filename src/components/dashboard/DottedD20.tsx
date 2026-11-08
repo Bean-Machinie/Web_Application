@@ -1,42 +1,42 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
+import type { PointerEvent } from "react"
 import { useCanvasLoop } from "@/hooks/use-canvas-loop"
 import type { CanvasFrame } from "@/hooks/use-canvas-loop"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { useThemeColors } from "@/hooks/use-theme-colors"
-import { drift, land, restingSpin, roll, throwTo } from "@/lib/d20-spin"
-import { numberDots } from "@/lib/dot-digits"
-import { edgeDots, FACE_CENTRES, rotate } from "@/lib/icosahedron"
-import type { Vec3 } from "@/lib/icosahedron"
+import { drawD20, PIN_FACES } from "@/lib/d20-draw"
+import { dragBy, restingMotion, turn, twirl } from "@/lib/d20-motion"
+import { cn } from "@/lib/utils"
 import { useTileHot } from "./tile-hot"
 
-const DOTS = edgeDots(16)
 const AMBER = "#f5b544"
-const VIEWER = 4
+// At rest the pins stand a little out; pointed at, all the way, one after another.
+const PIN_REST = 0.3
+const PIN_STAGGER_MS = 70
+// The die's radius as a share of its canvas.
+const SIZE = 0.42
 
-type Face = { centre: Vec3; value: number; landedAt: number | null }
-
-// A d20 drawn as dots along its edges, nearer dots larger and brighter, turning slowly. When its tile
-// is hot it is thrown: it spins up, slows and lands with a face toward you showing a number from 1 to 20.
+// A d20 as a dotted globe, turning slowly, with pins standing out of its faces. It can be dragged round
+// and flies on when let go. Pointed at, it twirls, its pins rise one after another with their heads
+// rippling, and it glows a little brighter.
 export function DottedD20({ className }: { className?: string }) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const hot = useTileHot()
   const reduced = useReducedMotion()
   const { foreground } = useThemeColors()
-  const spin = useRef(restingSpin())
-  const face = useRef<Face | null>(null)
+  const motion = useRef(restingMotion())
+  const pins = useRef(PIN_FACES.map(() => PIN_REST))
+  const glow = useRef(0)
+  const hotAt = useRef(0)
   const last = useRef(0)
+  const drag = useRef<{ x: number; y: number; at: number } | null>(null)
+  const [grabbing, setGrabbing] = useState(false)
 
-  // Declared before the loop so a new throw is set up before the loop draws it.
+  // Declared before the loop so the twirl starts on the frame the tile turns hot.
   useEffect(() => {
-    if (!hot) {
-      spin.current.throw = null
-      face.current = null
-      return
-    }
-    const centre = FACE_CENTRES[Math.floor(Math.random() * FACE_CENTRES.length)]
-    face.current = { centre, value: 1 + Math.floor(Math.random() * 20), landedAt: reduced ? 0 : null }
-    throwTo(spin.current, centre, performance.now())
-    if (reduced) land(spin.current)
+    if (!hot) return
+    hotAt.current = performance.now()
+    if (!reduced) twirl(motion.current)
   }, [hot, reduced])
 
   const kick = useCanvasLoop(
@@ -44,46 +44,56 @@ export function DottedD20({ className }: { className?: string }) {
     ({ ctx, width, height, now }: CanvasFrame) => {
       const dt = last.current ? Math.min(0.1, (now - last.current) / 1000) : 0
       last.current = now
-      const s = spin.current
-      if (s.throw) {
-        if (roll(s, now) && face.current && face.current.landedAt === null) face.current.landedAt = now
-      } else if (!reduced) {
-        drift(s, dt)
+      let busy = reduced ? false : turn(motion.current, dt, hot)
+      const ease = (value: number, target: number) => {
+        const next = reduced ? target : value + (target - value) * Math.min(1, dt * 7)
+        if (Math.abs(next - target) > 0.005) busy = true
+        return next
       }
-
-      // The die all but fills its canvas.
-      const radius = Math.min(width, height) * 0.48
-      const [cx, cy] = [width / 2, height / 2]
-      const dotScale = Math.max(1, radius / 120)
-      ctx.fillStyle = hot ? AMBER : foreground
-      for (const dot of DOTS) {
-        const [x, y, z] = rotate(dot, s.yaw, s.pitch)
-        const depth = (z + 1) / 2
-        const scale = VIEWER / (VIEWER - z)
-        ctx.globalAlpha = 0.12 + depth * 0.7
-        ctx.beginPath()
-        ctx.arc(cx + x * radius * scale, cy - y * radius * scale, (0.7 + depth * 1.3) * dotScale, 0, Math.PI * 2)
-        ctx.fill()
-      }
-
-      const shown = face.current
-      if (shown?.landedAt != null) {
-        const step = radius * 0.045
-        ctx.fillStyle = AMBER
-        ctx.globalAlpha = reduced ? 1 : Math.min(1, (now - shown.landedAt) / 250)
-        for (const [dx, dy] of numberDots(shown.value)) {
-          ctx.beginPath()
-          ctx.arc(cx + dx * step, cy + dy * step, step * 0.38, 0, Math.PI * 2)
-          ctx.fill()
-        }
-      }
-      ctx.globalAlpha = 1
+      pins.current = pins.current.map((rise, index) => ease(rise, hot && now - hotAt.current > index * PIN_STAGGER_MS ? 1 : PIN_REST))
+      glow.current = ease(glow.current, hot ? 1 : 0)
+      const m = motion.current
+      drawD20(ctx, { cx: width / 2, cy: height / 2, radius: Math.min(width, height) * SIZE, yaw: m.yaw, pitch: m.pitch, ink: foreground, accent: AMBER, pins: pins.current, glow: glow.current, now })
+      return busy
     },
-    reduced ? 0 : hot ? 60 : 15
+    reduced ? 0 : hot || grabbing ? 60 : 15
   )
 
-  // With reduced motion nothing runs, so the landed die is drawn once here.
   useEffect(() => kick.current(), [hot, kick])
 
-  return <canvas ref={canvas} aria-hidden className={className} />
+  const onPointerDown = (event: PointerEvent<HTMLCanvasElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId)
+    drag.current = { x: event.clientX, y: event.clientY, at: event.timeStamp }
+    motion.current.dragging = true
+    setGrabbing(true)
+  }
+  const onPointerMove = (event: PointerEvent<HTMLCanvasElement>) => {
+    const from = drag.current
+    if (!from) return
+    const radius = event.currentTarget.clientWidth * SIZE
+    dragBy(motion.current, event.clientX - from.x, event.clientY - from.y, (event.timeStamp - from.at) / 1000, radius)
+    drag.current = { x: event.clientX, y: event.clientY, at: event.timeStamp }
+    // With reduced motion nothing runs on its own, so each move is drawn here.
+    if (reduced) kick.current()
+  }
+  const onPointerUp = () => {
+    drag.current = null
+    motion.current.dragging = false
+    if (reduced) motion.current.spin = 0
+    setGrabbing(false)
+  }
+
+  return (
+    <canvas
+      ref={canvas}
+      aria-hidden
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      // Sideways drags turn the die; up and down still scroll the page on a touch screen.
+      style={{ touchAction: "pan-y" }}
+      className={cn("pointer-events-auto", grabbing ? "cursor-grabbing" : "cursor-grab", className)}
+    />
+  )
 }

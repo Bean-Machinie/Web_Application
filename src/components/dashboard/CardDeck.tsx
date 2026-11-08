@@ -4,8 +4,9 @@ import { useElementSize } from "@/hooks/use-element-size"
 import { useReducedMotion } from "@/hooks/use-reduced-motion"
 import { DeckCard } from "./DeckCard"
 import type { DeckCardData } from "./DeckCard"
+import { Sparks } from "./Sparks"
+import type { Spark } from "./Sparks"
 
-const SPARK = "#f5b544"
 // At rest: a tidy deck, the first card on top and the others peeking out behind it.
 const DECK = [
   { x: 0, y: 0, rotate: -2 },
@@ -21,7 +22,7 @@ const FAN = [
 ]
 const POP: Transition = { type: "spring", stiffness: 340, damping: 17, mass: 0.8 }
 const TUCK: Transition = { type: "spring", stiffness: 420, damping: 32 }
-const SPARKS = [
+const SPARKS: Spark[] = [
   { x: 0.2, y: 0.08, size: 10 },
   { x: 0.8, y: 0.06, size: 8 },
   { x: 0.92, y: 0.36, size: 6 },
@@ -75,21 +76,7 @@ export function CardDeck({ hot, cards }: { hot: boolean; cards: DeckCardData[] }
             </motion.div>
           </motion.div>
         ))}
-      {!reduced &&
-        SPARKS.map((spark, index) => (
-          <motion.svg
-            key={index}
-            aria-hidden
-            viewBox="0 0 10 10"
-            className="absolute"
-            style={{ left: spark.x * side, top: spark.y * side, width: spark.size, height: spark.size, color: SPARK }}
-            initial={false}
-            animate={hot ? { scale: [0, 1.2, 0], rotate: [0, 90], opacity: [0, 1, 0] } : { scale: 0, opacity: 0 }}
-            transition={hot ? { duration: 0.8, delay: 0.25 + index * 0.09, ease: "easeOut" } : { duration: 0 }}
-          >
-            <path d="M5 0 Q5.6 4.4 10 5 Q5.6 5.6 5 10 Q4.4 5.6 0 5 Q4.4 4.4 5 0Z" fill="currentColor" />
-          </motion.svg>
-        ))}
+      <Sparks hot={hot} sparks={SPARKS} />
     </div>
   )
 }

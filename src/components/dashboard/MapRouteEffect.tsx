@@ -2,6 +2,8 @@ import { useId } from "react"
 import { motion } from "motion/react"
 import { useLandRoute } from "@/hooks/use-land-route"
 import { smoothRoute } from "@/lib/land-route"
+import { MAP_BUILDER_ROUTE } from "@/lib/map-builder-route"
+import { MAP_BUILDER_IMAGE } from "@/lib/tool-images"
 
 // For a picture whose land cannot be read, or with none: the route the tile always had, in a 100 box.
 const FALLBACK = "M14 74 C 30 40, 44 86, 58 56 S 78 34, 84 30"
@@ -13,7 +15,8 @@ export function MapRouteEffect({ src, active }: { src: string | null; active: bo
   const mask = useId()
   const found = useLandRoute(src)
   const [width, height] = [100, 100 / (found?.aspect ?? 1)]
-  const route = found?.route
+  // The Map Maker's own picture has its route traced by hand; any other map gets one found over its land.
+  const route = src !== null && src === MAP_BUILDER_IMAGE ? MAP_BUILDER_ROUTE : found?.route
   const d = route ? smoothRoute(route, width, height) : FALLBACK
   const last = route?.[route.length - 1]
   const [x, y] = last ? [last[0] * width, last[1] * height] : FALLBACK_END
@@ -36,15 +39,16 @@ export function MapRouteEffect({ src, active }: { src: string | null; active: bo
             />
           </mask>
         </defs>
-        <path d={d} fill="none" stroke="white" strokeWidth={1.6} strokeDasharray="3 3" strokeLinecap="round" mask={`url(#${mask})`} />
+        <path d={d} fill="none" stroke="white" strokeWidth={1.1} strokeDasharray="2.6 2.6" strokeLinecap="round" mask={`url(#${mask})`} />
         <g transform={`translate(${x - 84} ${y - 30})`}>
           <motion.g
             initial={false}
             animate={active ? { y: 0, opacity: 1 } : { y: -14, opacity: 0 }}
             transition={active ? { delay: 0.3, type: "spring", stiffness: 500, damping: 18 } : { duration: 0.1 }}
           >
-            <path d="M84 30 c-3 -4 -4.5 -6 -4.5 -8.5 a4.5 4.5 0 1 1 9 0 c0 2.5 -1.5 4.5 -4.5 8.5z" fill="var(--primary)" stroke="white" strokeWidth={1} />
-            <circle cx={84} cy={21.5} r={1.6} fill="white" />
+            {/* White with a grey rim and centre, so it stands out on land and water alike. */}
+            <path d="M84 30 c-3 -4 -4.5 -6 -4.5 -8.5 a4.5 4.5 0 1 1 9 0 c0 2.5 -1.5 4.5 -4.5 8.5z" fill="white" stroke="#9ca3af" strokeWidth={0.8} style={{ filter: "drop-shadow(0 1px 1px rgb(0 0 0 / 0.3))" }} />
+            <circle cx={84} cy={21.5} r={1.6} fill="#9ca3af" />
           </motion.g>
         </g>
       </svg>

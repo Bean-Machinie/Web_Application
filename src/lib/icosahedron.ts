@@ -29,14 +29,29 @@ export function edgeDots(perEdge: number): Vec3[] {
   return dots
 }
 
-// The centre of each of the twenty faces.
-export const FACE_CENTRES: Vec3[] = []
+// The twenty faces, as their three corners.
+export const FACES: [Vec3, Vec3, Vec3][] = []
 for (const [i, j] of pairs) {
   for (let k = j + 1; k < VERTICES.length; k++) {
-    if (!near(VERTICES[i], VERTICES[k]) || !near(VERTICES[j], VERTICES[k])) continue
-    const [a, b, c] = [VERTICES[i], VERTICES[j], VERTICES[k]]
-    FACE_CENTRES.push([(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3])
+    if (near(VERTICES[i], VERTICES[k]) && near(VERTICES[j], VERTICES[k])) FACES.push([VERTICES[i], VERTICES[j], VERTICES[k]])
   }
+}
+
+// The centre of each face, in the order of FACES.
+export const FACE_CENTRES: Vec3[] = FACES.map(([a, b, c]) => [(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3])
+
+// Dots spread evenly inside each face, off its edges, `steps` to a side; each with its face's index.
+export function faceDots(steps: number): { face: number; point: Vec3 }[] {
+  return FACES.flatMap(([a, b, c], face) => {
+    const dots: { face: number; point: Vec3 }[] = []
+    for (let i = 1; i < steps; i++) {
+      for (let j = 1; i + j < steps; j++) {
+        const [u, v, w] = [i / steps, j / steps, (steps - i - j) / steps]
+        dots.push({ face, point: [a[0] * u + b[0] * v + c[0] * w, a[1] * u + b[1] * v + c[1] * w, a[2] * u + b[2] * v + c[2] * w] })
+      }
+    }
+    return dots
+  })
 }
 
 // Turns a point about the vertical axis by yaw, then about the horizontal one by pitch.
