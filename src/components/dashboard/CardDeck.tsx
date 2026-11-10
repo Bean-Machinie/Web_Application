@@ -15,14 +15,18 @@ const SQUARED = [
   { x: 0, y: 0, rotate: -8 },
   { x: 2, y: 2, rotate: -10 },
   { x: 4, y: 4, rotate: -6 },
+  { x: 6, y: 6, rotate: -9 },
 ]
-// Dealt: spread down to the right in even steps, the top card farthest, so each lies over the one left
-// of it, each turned the same few degrees more than the last, as a dealer spreads a hand.
-const LANDING = [
-  { x: 0.73, y: 0.4, rotate: 12 },
-  { x: 0.5, y: 0.37, rotate: 5 },
-  { x: 0.27, y: 0.34, rotate: -2 },
-]
+// Dealt: fanned out as a hand of cards, each turned about one point below the tile by the same step, so
+// their middles lie on an even arc. The bottom card stays by the deck and the top one lands farthest
+// right, a little past the tile's edge, each lying over the one left of it.
+const FAN = { x: 0.5, y: 1.25, radius: 0.95, first: 22, step: -12 }
+
+function fanned(index: number) {
+  const angle = FAN.first + FAN.step * index
+  const radians = (angle * Math.PI) / 180
+  return { x: FAN.x + FAN.radius * Math.sin(radians), y: FAN.y - FAN.radius * Math.cos(radians), rotate: angle }
+}
 const DEAL_GAP_S = 0.13
 
 type Props = { cards: DeckCardData[]; dealt: boolean }
@@ -42,7 +46,7 @@ export function CardDeck({ cards, dealt }: Props) {
     () =>
       cards.map((_, index) => {
         const squared = SQUARED[index]
-        const landing = LANDING[index]
+        const landing = fanned(index)
         return {
           deck: { x: DECK.x * side - width / 2 + squared.x, y: DECK.y * side - height / 2 + squared.y, rotate: squared.rotate },
           landing: { x: landing.x * side - width / 2, y: landing.y * side - height / 2, rotate: landing.rotate },

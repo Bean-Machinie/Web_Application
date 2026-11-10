@@ -1,6 +1,5 @@
 import { useState } from "react"
 import type { CSSProperties, FocusEvent, ReactNode } from "react"
-import { motion } from "motion/react"
 import { tiltCardSkin } from "@/components/tilt-card-styles"
 import { TiltCard } from "@/components/TiltCard"
 import { cn } from "@/lib/utils"
@@ -35,6 +34,10 @@ type Props = {
   bottomShade?: boolean
   // Told each time the tile turns hot or stops being hot.
   onHot?: (hot: boolean) => void
+  // Kept over its neighbours even when not pointed at, for what lies outside it.
+  raised?: boolean
+  // How long it stays raised once let go (or no longer raised), in seconds, for what is still outside it.
+  raisedFor?: number
   children: ReactNode
 }
 
@@ -46,7 +49,7 @@ const fade: CSSProperties = { maskImage: FROM_LEFT, WebkitMaskImage: FROM_LEFT }
 // gradient; a wide one has its text in the left square and its art in the right. Pointed at, or holding
 // the keyboard focus, it lifts as every card of the app does (TiltCard: whole pixels, never scaled, so
 // its text stays sharp), and what is inside can play its own hover through useTileHot.
-export function BentoTile({ area, wide = false, artAcross = false, art, float, strongShade = false, bottomShade = false, onHot, children }: Props) {
+export function BentoTile({ area, wide = false, artAcross = false, art, float, strongShade = false, bottomShade = false, onHot, raised = false, raisedFor = 0.6, children }: Props) {
   const [hot, setHot] = useState(false)
   const turn = (next: boolean) => {
     if (next === hot) return
@@ -56,15 +59,15 @@ export function BentoTile({ area, wide = false, artAcross = false, art, float, s
   const onBlur = (event: FocusEvent<HTMLDivElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget)) turn(false)
   }
+  const up = hot || raised
   const square = wide && !artAcross ? "absolute inset-y-0 right-0 aspect-square max-w-[50%]" : "absolute inset-0"
 
   return (
     <TileHotContext.Provider value={hot}>
-      <motion.div
-        initial={false}
-        // Raised over its neighbours while hot, and a little after, so what flies out of it is not hidden.
-        animate={{ zIndex: hot ? 20 : 0 }}
-        transition={{ zIndex: { duration: 0, delay: hot ? 0 : 0.6 } }}
+      <div
+        // Raised over its neighbours while hot, and a little after, so what flies out of it is not hidden; a
+        // tile whose cards lie over a neighbour stays over that neighbour even when it is pointed at.
+        style={{ zIndex: up ? (float ? 30 : 20) : 0, transition: `z-index 0s linear ${up ? 0 : raisedFor}s` }}
         onPointerEnter={() => turn(true)}
         onPointerLeave={() => turn(false)}
         onFocus={() => turn(true)}
@@ -94,11 +97,12 @@ export function BentoTile({ area, wide = false, artAcross = false, art, float, s
           {/* One border for every tile, with a thin dark line inside it, so a light picture at the edge (as a
               map's) never makes it look brighter than the others. */}
           <div aria-hidden className="pointer-events-none absolute inset-0 rounded-xl border shadow-[inset_0_0_0_1px_rgb(0_0_0/0.35)]" />
-          {float && <div className={cn("pointer-events-none", square)}>{float(hot)}</div>}
+          {/* Over the tile's hover highlight, which lies above its content. */}
+          {float && <div className={cn("pointer-events-none z-20", square)}>{float(hot)}</div>}
           {/* Over the dark gradient a square tile's text always reads light. */}
           <div className={cn("relative z-10 h-full", wide && "max-w-[50%]", (!wide || bottomShade) && "dark text-foreground")}>{children}</div>
         </TiltCard>
-      </motion.div>
+      </div>
     </TileHotContext.Provider>
   )
 }
