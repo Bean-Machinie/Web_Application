@@ -12,7 +12,7 @@ import { InviteField } from "./InviteField"
 // The wide tile to start a campaign, with a large dotted d20 globe in its bottom right corner, mostly
 // cut off by the card: first in the bento for someone with no campaign yet, further down once they play,
 // when it also takes an invite, as the Continue tile offers that to a new player.
-export function NewCampaignTile({ area, campaign }: { area: BentoArea; campaign: Campaign | null }) {
+export function NewCampaignTile({ area, campaign, square = false }: { area: BentoArea; campaign: Campaign | null; square?: boolean }) {
   const triggerRipple = useDitherRipple()
   // A press from the keyboard has no pointer position, so it ripples from the button's middle.
   const ripple = (event: MouseEvent<HTMLAnchorElement>) => triggerRipple(...(event.detail === 0 ? centreOf(event.currentTarget) : ([event.clientX, event.clientY] as const)))
@@ -26,7 +26,7 @@ export function NewCampaignTile({ area, campaign }: { area: BentoArea; campaign:
   )
 
   return (
-    <BentoTile area={area} wide art={<DottedD20 className="absolute top-[8%] right-0 aspect-square h-[140%] translate-x-[30%]" />}>
+    <BentoTile area={area} wide={!square} art={<DottedD20 className="absolute top-[8%] right-0 aspect-square h-[140%] translate-x-[30%]" />}>
       {campaign ? (
         <HomeCardBody title="New campaign" line="Start one, or paste an invite link." actions={<>{start}<InviteField secondary /></>} />
       ) : (

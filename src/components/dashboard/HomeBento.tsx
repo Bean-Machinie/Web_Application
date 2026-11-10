@@ -25,15 +25,15 @@ type Props = {
 export function HomeBento({ campaign, openedAt, cards, entries, onNewCharacter }: Props) {
   return (
     <MotionConfig reducedMotion="user">
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:[grid-template-areas:'lead_lead_map'_'compendium_characters_characters'_'play_play_world'] lg:grid-cols-[repeat(3,var(--bento-h))] lg:grid-rows-[repeat(3,var(--bento-h))]">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:[grid-template-areas:'lead_lead_map'_'compendium_characters_characters'_'world_world_play'] lg:grid-cols-[repeat(3,var(--bento-h))] lg:grid-rows-[repeat(3,var(--bento-h))]">
         {/* First the way back into your campaign; for someone with none, starting one, with joining one
             further down where starting one sits once you play. */}
         {campaign ? <ContinueTile area="lead" campaign={campaign} openedAt={openedAt} /> : <NewCampaignTile area="lead" campaign={null} />}
         <MapMakerTile entries={entries} />
         <CompendiumTile />
-        <CharactersTile cards={cards} onCreate={onNewCharacter} />
-        {campaign ? <NewCampaignTile area="play" campaign={campaign} /> : <ContinueTile area="play" campaign={null} openedAt={null} />}
-        <WorldEntryTile entries={entries} />
+        <CharactersTile cards={cards} entries={entries} onCreate={onNewCharacter} />
+        <WorldEntryTile cards={cards} />
+        {campaign ? <NewCampaignTile area="play" square campaign={campaign} /> : <ContinueTile area="play" square campaign={null} openedAt={null} />}
       </div>
     </MotionConfig>
   )

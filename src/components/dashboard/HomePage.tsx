@@ -60,7 +60,7 @@ export function HomePage() {
     // 180px; taller than the window, only the bento scrolls, with no bar showing.
     <div
       className="@container relative flex w-full flex-col px-2 py-2 md:px-6 lg:-my-6 lg:h-[calc(100dvh-var(--header-height))] lg:py-0"
-      style={{ "--bento-h": "max(180px, ((100cqw - 2rem - 320px) * 0.85 - 24px) / 3)" } as CSSProperties}
+      style={{ "--bento-h": "max(180px, ((100cqw - 2rem - 320px) * 0.85 - 32px) / 3)" } as CSSProperties}
     >
       {/* A soft shadow under the header, which the tiles scroll beneath; across the layout's padding too. */}
       <div aria-hidden className="pointer-events-none absolute -inset-x-6 top-0 z-20 hidden h-12 bg-gradient-to-b from-black/25 to-transparent lg:block dark:from-black/55" />

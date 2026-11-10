@@ -14,14 +14,16 @@ type Props = {
   campaign: Campaign | null
   // When it was last opened, in milliseconds; null when that was not remembered.
   openedAt: number | null
+  // One cell instead of two.
+  square?: boolean
 }
 
 // The wide tile with the last campaign's party orbiting a seal (dots for a new player): first in the
 // bento, the way back into the last campaign; or for a new player, further down, a way to join one.
-export function ContinueTile({ area, campaign, openedAt }: Props) {
+export function ContinueTile({ area, campaign, openedAt, square = false }: Props) {
   const members = useCampaignMembers(campaign ? [campaign] : [])[campaign?.id ?? ""]
   return (
-    <BentoTile area={area} wide art={<CampaignOrbit members={campaign ? members : []} className="absolute top-1/2 left-1/2 h-[82%] -translate-x-1/2 -translate-y-1/2" />}>
+    <BentoTile area={area} wide={!square} art={<CampaignOrbit members={campaign ? members : []} className="absolute top-1/2 left-1/2 h-[82%] -translate-x-1/2 -translate-y-1/2" />}>
       {campaign ? (
         <ContinueCampaign campaign={campaign} openedAt={openedAt} />
       ) : (
